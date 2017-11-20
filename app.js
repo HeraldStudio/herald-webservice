@@ -11,8 +11,9 @@ app.delete  = (r, f) => app.use(route.delete  (r, f))
 app.options = (r, f) => app.use(route.options (r, f))
 
 app.use(async (ctx, next) => {
-  ctx.state.meta = JSON.stringify([ ctx.url, ctx.method, ctx.headers.token, ctx.query ])
-  console.log(ctx.state.meta)
+  ctx.state.meta = JSON.stringify([
+    ctx.url, ctx.method, ctx.headers.token, ctx.query
+  ])
   let cached = cache.get(ctx.state.meta)
   if (cached) {
     ctx.body = cached
