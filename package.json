@@ -1,0 +1,13 @@
+{
+  "name": "herald-ws3",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "koa": "^2.4.1",
+    "koa-route": "^3.2.0",
+    "node-redis": "^0.1.7"
+  }
+}
