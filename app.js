@@ -18,9 +18,6 @@ app.use(async (ctx, next) => {
 // 通用缓存池
 const pool = {}, cache = {
   set(key, value, ttl = 0) {
-    if (!ttl && pool.hasOwnProperty(key)) {
-      ttl = pool[key]
-    }
     pool[key] = { value, expires: ttl ? new Date().getTime() + ttl * 1000 : 0 }
   },
   get(key) {
@@ -89,7 +86,7 @@ app.use(async ctx => {
   // 路径安全检查，支持字母数字符号下划线中划线，多个斜杠必须分开，结尾斜杠可有可无
   if (/^(\/[0-9a-zA-Z_\-]+)*\/?$/.exec(route)) {
 
-    // 统一去掉结尾斜杠，空路径替换为 index
+    // 统一去掉结尾斜杠
     let handlerName = route.replace(/\/$/, '')
 
     // 转换为相对路径，进行 require
