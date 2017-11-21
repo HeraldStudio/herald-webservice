@@ -92,11 +92,18 @@ app.use(async ctx => {
         // 由于路由处理程序为最终生产者，暂不提供 next 参数
         let result = handler[method].call(ctx)
 
-        // 若为异步函数，等待 Promise 处理完毕；如有错误，输出而不抛出
-        if (result && result.toString() === '[object Promise]') {
-          let finalResult = await result.catch(console.err)
-          if (finalResult) {
-            ctx.body = finalResult
+        if (result) { // 若函数返回了一个值
+
+          // 若返回的是 Promise 对象，则为异步函数，等待 Promise 处理完毕；如有错误，输出而不抛出
+          if (result.toString() === '[object Promise]') {
+            let finalResult = await result.catch(console.err)
+
+            // 若 Promise 最终返回一个值，则将该值作为响应体
+            if (finalResult) {
+              ctx.body = finalResult
+            }
+          } else { // 普通函数返回一个值，也将该值作为响应体
+            ctx.body = result
           }
         }
         return
