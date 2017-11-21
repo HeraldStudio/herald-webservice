@@ -65,9 +65,16 @@ const requireCache = {}, cachedRequire = js => {
       let required = require(js)
       requireCache[js] = required
       return required
-    } catch (e) {
-      return null // require 不到的文件返回空值
-    }
+    } catch (e) {}
+
+    // 找不到，把 js 文件名当做文件夹去找里面的index
+    try {
+      let required = require(js + '/index')
+      requireCache[js] = required
+      return required
+    } catch (e) {}
+
+    return null
   }
 }
 
@@ -79,7 +86,7 @@ app.use(async ctx => {
   if (/^(\/[0-9a-zA-Z_\-]+)*\/?$/.exec(route)) {
 
     // 统一去掉结尾斜杠，空路径替换为 index
-    let handlerName = route.replace(/\/$/, '') || '/index'
+    let handlerName = route.replace(/\/$/, '')
 
     // 转换为相对路径，进行 require
     let handler = cachedRequire('.' + handlerName)
@@ -87,6 +94,9 @@ app.use(async ctx => {
 
       // 若 require 成功，判断是否有对应方法的处理函数，没有该方法则 405
       if (handler.hasOwnProperty(method)) {
+
+        // 把 axios 传给 ctx，方便使用
+        ctx.axios = app.axios
 
         // 把 ctx 传给对应方法的 this 进行调用，在该方法内用 this 代替 koa 的 ctx
         // 由于路由处理程序为最终生产者，暂不提供 next 参数

@@ -1,6 +1,6 @@
 {
   "axios": {
-    "timeout": 10000,
+    "timeout": 5000,
     "proxy": {
       "host": "127.0.0.1",
       "port": 8080
