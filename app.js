@@ -65,14 +65,18 @@ const requireCache = {}, cachedRequire = js => {
       let required = require(js)
       requireCache[js] = required
       return required
-    } catch (e) {}
+    } catch (e) {
+      console.log(e)
+    }
 
     // 找不到，把 js 文件名当做文件夹去找里面的index
     try {
       let required = require(js + '/index')
       requireCache[js] = required
       return required
-    } catch (e) {}
+    } catch (e) {
+      console.log(e)
+    }
 
     return null
   }
