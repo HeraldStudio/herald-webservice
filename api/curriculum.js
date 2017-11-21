@@ -1,5 +1,5 @@
 module.exports = {
   async get () {
-    this.body = {hello: 'world2!'}
+    return { hello: 'world!' }
   }
 }

@@ -94,7 +94,10 @@ app.use(async ctx => {
 
         // 若为异步函数，等待 Promise 处理完毕；如有错误，输出而不抛出
         if (result && result.toString() === '[object Promise]') {
-          await result.catch(console.err)
+          let finalResult = await result.catch(console.err)
+          if (finalResult) {
+            ctx.body = finalResult
+          }
         }
         return
       }
