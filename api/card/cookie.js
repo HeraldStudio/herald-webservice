@@ -1,6 +1,12 @@
 module.exports = {
 
-  // 一卡通专用 Cookie
+  /**
+   * GET /api/card/cookie
+   * @apiParam cardnum  一卡通号
+   * @apiParam password 统一身份认证密码
+   *
+   * 一卡通专用 Cookie，除统一身份认证 Cookie 外还包含了一卡通中心的 Cookie
+   **/
   async get() {
 
     // 先获取统一身份认证 Cookie

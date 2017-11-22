@@ -1,6 +1,12 @@
 const cheerio = require('cheerio')
 
 module.exports = {
+
+  /**
+   * GET /api/curriculum
+   * @apiParam cardnum  一卡通号
+   * @apiParam term     学期号
+   **/
   async get() {
     let cardnum = this.query.cardnum
     let term = this.query.term
