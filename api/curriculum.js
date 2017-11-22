@@ -1,4 +1,4 @@
-let cheerio = require('cheerio')
+const cheerio = require('cheerio')
 
 module.exports = {
   async get() {
@@ -23,6 +23,16 @@ module.exports = {
       let found = /^..(..-)..(..-.*)$/.exec(k.code)
       return found && found.slice(1).join('') === term
     })[0]
+
+    if (term) {
+      term = {
+        code: term.code,
+        startDate: term.startDate.time,
+        endDate: term.endDate.time,
+        startWeek: term.startWeek,
+        endWeek: term.endWeek
+      }
+    }
 
     // 从课表页面抓取身份信息
     let [collegeId, collegeName] = /院系:\[(\d*)](.*?)</im.exec(res.data).slice(1, 3)
@@ -100,7 +110,7 @@ module.exports = {
       // 取出每一行最末尾的五个单元格，排除第一行
       .match(/(<td[^>]*>.*?<\/td>[^<]*){5}<\/tr/img).slice(1).map(k => {
 
-        // 对于每行每个单元格中的内容，利用 map 的双参数用法，把 item, index 分别传给 cellContent, dayIndex
+        // 对于每行每个单元格中的内容，利用 map 的双参数用法，把五列内容分别交给周一到周五
         k.match(/<td[^>]*>.*?<\/td>/img).map(appendClasses)
       });
 

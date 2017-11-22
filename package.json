@@ -7,8 +7,11 @@
   },
   "dependencies": {
     "axios": "^0.17.1",
-    "cheerio": "^1.0.0-rc.2",
+    "jquery": "^3.2.1",
+    "jsdom": "^11.4.0",
     "koa": "^2.4.1",
-    "node-redis": "^0.1.7"
+    "node-redis": "^0.1.7",
+    "nth-check": "^1.0.1",
+    "iconv-lite": "latest"
   }
 }
