@@ -1,23 +1,12 @@
-const dom = require('../../dom')
-
-function applyTemplate(template, pairs) {
-  for (key in template) {
-    if (template.hasOwnProperty(key)) {
-      if (typeof template[key] === 'string') {
-        template[key] = pairs.filter(pair => pair[0].trim() === template[key].trim())[0]
-        if (template[key]) {
-          template[key] = template[key][1]
-        }
-      } else if (typeof template[key] === 'object') {
-        applyTemplate(template[key], pairs)
-      }
-    }
-  }
-}
+const cheerio = require('cheerio')
 
 module.exports = {
 
-  // 一卡通基本信息接口
+  /**
+   * GET /api/card
+   * @apiParam cardnum  一卡通号
+   * @apiParam password 统一身份认证密码
+   **/
   async get() {
 
     // 先拿一卡通 Cookie
@@ -27,6 +16,22 @@ module.exports = {
     res = await this.axios.get('http://allinonecard.seu.edu.cn/accountcardUser.action', {
       headers: { Cookie: cookie }
     })
+
+    // 模板应用器
+    function applyTemplate(template, pairs) {
+      for (key in template) {
+        if (template.hasOwnProperty(key)) {
+          if (typeof template[key] === 'string') {
+            template[key] = pairs.filter(pair => pair[0].trim() === template[key].trim())[0]
+            if (template[key]) {
+              template[key] = template[key][1]
+            }
+          } else if (typeof template[key] === 'object') {
+            applyTemplate(template[key], pairs)
+          }
+        }
+      }
+    }
 
     // 匹配的模式串
     const columnReg = /[\r\n]([^：\r\n])+：[\s]*([^：]+)(?=[\r\n])/img
@@ -49,7 +54,7 @@ module.exports = {
     }
 
     // 直接转文字，根据冒号分隔的固定模式匹配字段名和内容
-    let $ = dom(res.data)
+    let $ = cheerio.load(res.data)
     let pairs = $('.neiwen').text().match(columnReg)
       .map(k => k.replace(/\s+/g, '').split('：', 2))
       .filter(k => k.length === 2)

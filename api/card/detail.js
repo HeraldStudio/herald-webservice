@@ -1,19 +1,15 @@
-const dom = require('../../dom')
+const cheerio = require('cheerio')
 const iconv = require('iconv-lite')
-
-function dateFormat(d) {
-  let result = d.getFullYear()
-  let month = d.getMonth()
-  result += (month < 10 ? '0' : '') + month
-  let date = d.getDate()
-  result += (date < 10 ? '0' : '') + date
-  return result
-}
 
 module.exports = {
 
-  // 一卡通流水接口，按 page 分页
-  // day = 0 时查询当天流水；其他情况下查询 day 天以来的历史流水
+  /**
+   * GET /api/card/detail
+   * @apiParam cardnum  一卡通号
+   * @apiParam password 统一身份认证密码
+   * @apiParam days     天数跨度，0 表示查询当天流水，其他数字不含当天流水
+   * @apiParam page     页码
+   **/
   async get() {
     let day = this.query.day || 0
     let page = this.query.page || 1
@@ -38,6 +34,16 @@ module.exports = {
       res.data = iconv.decode(res.data, 'GBK')
 
     } else { // day 天历史流水，查询方式比较麻烦
+
+      // 日期格式化用
+      function dateFormat(d) {
+        let result = d.getFullYear()
+        let month = d.getMonth()
+        result += (month < 10 ? '0' : '') + month
+        let date = d.getDate()
+        result += (date < 10 ? '0' : '') + date
+        return result
+      }
 
       // 先拼接起止日期
       let today = new Date()
@@ -67,7 +73,7 @@ module.exports = {
     }
 
     // 直接上 jQuery
-    let $ = dom(res.data)
+    let $ = cheerio.load(res.data)
 
     let rows = []
     $('#tables').children('tbody').children('tr').each((i, tr) => {
