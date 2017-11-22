@@ -1,10 +1,22 @@
 const koa = require('koa')
 const app = new koa()
 const config = require('./config.json')
+const axios = require('axios')
+
+// 关闭 HTTPS 网络请求的安全验证
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 // 通用网络请求接口
-// 在路由程序中 this.app.axios 可获得此实例
-app.axios = require('axios').create(config.axios)
+// 通过把 app.axios 赋给 ctx.axios 可允许在路由程序中用 this.axios 获得此实例
+app.axios = axios.create(config.axios)
+
+// 自身请求接口
+app.loopClient = axios.create({
+  baseURL: `http://localhost:${config.port}/`
+});
+
+// 利用 app.get/post/put/delete 可直接请求自身
+['get', 'post', 'put', 'delete'].forEach(method => app[method] = app.loopClient[method])
 
 // 计时日志中间件
 app.use(async (ctx, next) => {
@@ -50,33 +62,20 @@ app.use(async (ctx, next) => {
   }
 });
 
-// require 缓存策略，防止每次请求重复 require 占用文件系统资源
-const requireCache = {}, cachedRequire = js => {
-
-  // 如果 require 缓存中有该 handler，直接返回对象
-  if (requireCache.hasOwnProperty(js)) {
-    return requireCache[js]
-
-  } else { // 否则执行 require 并存入缓存
+// require 并不用缓存，node 自己有 require 缓存
+function requireHandler(js) {
+  function tryRequire(js) {
     try {
-      let required = require(js)
-      requireCache[js] = required
-      return required
+      return require(js)
     } catch (e) {
-      console.log(e)
+      if (e.message !== `Cannot find module '${js}'`) {
+        console.error(e)
+      }
     }
-
-    // 找不到，把 js 文件名当做文件夹去找里面的index
-    try {
-      let required = require(js + '/index')
-      requireCache[js] = required
-      return required
-    } catch (e) {
-      console.log(e)
-    }
-
-    return null
   }
+
+  // 若找不到，把 js 文件名当做文件夹去找里面的index
+  return tryRequire(js) || tryRequire(js + '/index') || null
 }
 
 // 路由策略，根据请求自动引入对应 js 文件
@@ -90,7 +89,7 @@ app.use(async ctx => {
     let handlerName = route.replace(/\/$/, '')
 
     // 转换为相对路径，进行 require
-    let handler = cachedRequire('.' + handlerName)
+    let handler = requireHandler('.' + handlerName)
     if (handler) {
 
       // 若 require 成功，判断是否有对应方法的处理函数，没有该方法则 405
