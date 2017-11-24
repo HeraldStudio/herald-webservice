@@ -82,8 +82,8 @@ function requireHandler(js) {
 app.use(async ctx => {
   let [route, method] = [ctx.path, ctx.method.toLowerCase()]
 
-  // 路径安全检查，支持字母数字符号下划线中划线，多个斜杠必须分开，结尾斜杠可有可无
-  if (/^(\/[0-9a-zA-Z_\-]+)*\/?$/.exec(route)) {
+  // 路径安全检查，支持字母数字符号下划线中划线，多个斜杠必须分开，结尾斜杠可有可无；不允许调用 node_modules 中的程序
+  if (/^(\/[0-9a-zA-Z_\-]+)*\/?$/.exec(route) && route.indexOf('node_modules') === -1) {
 
     // 统一去掉结尾斜杠
     let handlerName = route.replace(/\/$/, '')
