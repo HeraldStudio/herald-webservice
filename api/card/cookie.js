@@ -1,4 +1,4 @@
-module.exports = {
+exports.route = {
 
   /**
    * GET /api/card/cookie

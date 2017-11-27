@@ -1,6 +1,6 @@
 const cheerio = require('cheerio')
 
-module.exports = {
+exports.route = {
 
   /**
    * GET /api/card
