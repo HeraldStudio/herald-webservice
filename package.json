@@ -8,7 +8,10 @@
   "dependencies": {
     "axios": "^0.17.1",
     "cheerio": "^1.0.0-rc.2",
+    "domhandler": "^2.4.1",
+    "follow-redirects": "^1.2.6",
     "iconv-lite": "latest",
+    "is-buffer": "^1.1.6",
     "koa": "^2.4.1",
     "node-redis": "^0.1.7",
     "nth-check": "^1.0.1"

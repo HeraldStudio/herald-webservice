@@ -1,7 +1,7 @@
 const cheerio = require('cheerio')
 const iconv = require('iconv-lite')
 
-module.exports = {
+exports.route = {
 
   /**
    * GET /api/card/detail
