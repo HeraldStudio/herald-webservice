@@ -12,6 +12,7 @@
     "follow-redirects": "^1.2.6",
     "iconv-lite": "latest",
     "is-buffer": "^1.1.6",
+    "kf-router": "^1.0.0",
     "koa": "^2.4.1",
     "node-redis": "^0.1.7",
     "nth-check": "^1.0.1"
