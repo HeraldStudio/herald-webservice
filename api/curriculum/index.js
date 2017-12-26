@@ -15,7 +15,7 @@ exports.route = {
     // 老师的号码是1开头的九位数
     // 考虑到学号是八位数的情况
     let isStudent = !(/^1\d{8}$/.exec(cardnum))
-    
+
     // 抓取课表页面
     let res = await (isStudent ? this.axios.post(
         'http://xk.urp.seu.edu.cn/jw_service/service/stuCurriculum.action',
@@ -58,13 +58,13 @@ exports.route = {
         [/(\d+)系 [^<]*课表/.exec(res.data)[1], /院系:(.*?)</im.exec(res.data)[1]]
     // FIXME 这里学生的学院编号似乎和老师的格式是不一样的
     // 不知道会有什么问题。
-    
+
     // 看上去老师并没有专业
     let [majorId, majorName] = isStudent ?
-        (/专业:\[(\d*)](.*?)</im.exec(res.data).slice(1, 3)) :
+        (/专业:\[([0-9A-Z]*)](.*?)</im.exec(res.data).slice(1, 3)) :
         ['','']
     // 对于老师，这个页面也没有显示学号，大约是没有的吧
-    let schoolnum = isStudent ? (/学号:(\d*)/im.exec(res.data)[1]) : ''
+    let schoolnum = isStudent ? (/学号:([0-9A-Z]*)/im.exec(res.data)[1]) : ''
     if (isStudent) {
         cardnum = /一卡通号:(\d*)/im.exec(res.data)[1]
     }
