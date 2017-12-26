@@ -12,7 +12,7 @@ exports.route = {
     let term = this.query.term
     this.assert(cardnum, 400)
 
-    let isStudent = (/^2/.exec(cardnum))
+    let isStudent = !(/^1/.exec(cardnum))
     
     // 抓取课表页面
     let res = await (isStudent ? this.axios.post(
@@ -46,7 +46,7 @@ exports.route = {
     }
 
     // 从课表页面抓取身份信息
-    let [collegeId, collegeName] = isStudent ? /院系:\[(\d*)](.*?)</im.exec(res.data).slice(1, 3) : ['', /院系:(.*?)</im.exec(res.data)[1]]
+      let [collegeId, collegeName] = isStudent ? /院系:\[(\d*)](.*?)</im.exec(res.data).slice(1, 3) : [/(\d+)系 [^<]*课表/.exec(res.data)[1], /院系:(.*?)</im.exec(res.data)[1]]
     let [majorId, majorName] = isStudent ? /专业:\[(\d*)](.*?)</im.exec(res.data).slice(1, 3) : ['','']
     let schoolnum = isStudent ? /学号:(\d*)/im.exec(res.data)[1] : ''
     if (isStudent) {
