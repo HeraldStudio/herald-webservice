@@ -12,11 +12,16 @@ exports.route = {
     let term = this.query.term
     this.assert(cardnum, 400)
 
+    let isStudent = (/^2/.exec(cardnum))
+    
     // 抓取课表页面
-    let res = await this.axios.post(
-      'http://xk.urp.seu.edu.cn/jw_service/service/stuCurriculum.action',
+    let res = await (isStudent ? this.axios.post(
+        'http://xk.urp.seu.edu.cn/jw_service/service/stuCurriculum.action',
       `queryStudentId=${cardnum}` + (term ? `&queryAcademicYear=${term}` : '')
-    )
+    ) : this.axios.post( // 老师课表
+        'http://xk.urp.seu.edu.cn/jw_service/service/teacurriculum.action',
+        `query_teacherId=${cardnum}` + (term ? `&query_xnxq=${term}` : '')
+    ))
 
     // 从课表页面抓取学期号
     term = /<font class="Context_title">[\s\S]*?(\d{2}-\d{2}-\d)[\s\S]*?<\/font>/im.exec(res.data)[1]
@@ -41,11 +46,13 @@ exports.route = {
     }
 
     // 从课表页面抓取身份信息
-    let [collegeId, collegeName] = /院系:\[(\d*)](.*?)</im.exec(res.data).slice(1, 3)
-    let [majorId, majorName] = /专业:\[(\d*)](.*?)</im.exec(res.data).slice(1, 3)
-    let schoolnum = /学号:(\d*)/im.exec(res.data)[1]
-    cardnum = /一卡通号:(\d*)/im.exec(res.data)[1]
-    let name = /姓名:([^<]*)/im.exec(res.data)[1]
+    let [collegeId, collegeName] = isStudent ? /院系:\[(\d*)](.*?)</im.exec(res.data).slice(1, 3) : ['', /院系:(.*?)</im.exec(res.data)[1]]
+    let [majorId, majorName] = isStudent ? /专业:\[(\d*)](.*?)</im.exec(res.data).slice(1, 3) : ['','']
+    let schoolnum = isStudent ? /学号:(\d*)/im.exec(res.data)[1] : ''
+    if (isStudent) {
+        cardnum = /一卡通号:(\d*)/im.exec(res.data)[1]
+    }
+    let name = isStudent ? /姓名:([^<]*)/im.exec(res.data)[1] : /系 ([^<]*)课表/im.exec(res.data)[1]
     let user = { cardnum, schoolnum, name, collegeId, collegeName, majorId, majorName }
 
     // 初始化侧边栏和课表解析结果
@@ -55,14 +62,19 @@ exports.route = {
     res.data.match(/class="tableline">([\s\S]*?)<\/table/img)[0]
 
       // 取 table 中所有行
-      .match(/<tr height="34">[\s\S]*?<\/tr\s*>/img)
+      .match(/<tr height="3[48]">[\s\S]*?<\/tr\s*>/img) // 老师课表是height=38
 
       // 去掉表头表尾
       .slice(1, -1).map(k => {
 
         // 取每行中所有五个单元格，去掉第一格，分别抽取文本并赋给课程名、教师名、学分、周次
-        let [className, teacherName, score, weeks] = k.match(/<td[^>]*>(.*?)<\/td\s*>/img)
-          .slice(1).map(td => cheerio.load(td).text().trim())
+        let courseData = k.match(/<td[^>]*>(.*?)<\/td\s*>/img)
+        if (isStudent) {
+          courseData = courseData.slice(1)
+        } else {
+          courseData = [courseData[1],courseData[3],courseData[7],courseData[9]]
+        }
+        let [className, teacherName, score, weeks] = courseData.map(td => cheerio.load(td).text().trim())
 
         // 表格中有空行，忽略空行，将非空行的值加入哈希表进行索引，以课程名+周次为索引条件
         if (className || weeks) {
@@ -81,11 +93,12 @@ exports.route = {
       curriculum[days[dayIndex]] = curriculum[days[dayIndex]].concat(
 
         // 在单元格内容中搜索连续的三行，使得这三行中的中间一行是 [X-X周]X-X节 的格式，对于所有搜索结果
-        (cellContent.match(/[^<>]*<br>\[\d+-\d+周]\d+-\d+节<br>[^<>]*/img) || []).map(k => {
+        // 老师课表多出来一个空行
+        (cellContent.match(/[^<>]*<br>(?:<br>)?\[\d+-\d+周]\d+-\d+节<br>[^<>]*/img) || []).map(k => {
 
           // 在搜索结果中分别匹配课程名、起止周次、起止节数、单双周、上课地点
           let [className, beginWeek, endWeek, beginPeriod, endPeriod, flip, location]
-            = /([^<>]*)<br>\[(\d+)-(\d+)周](\d+)-(\d+)节<br>(\([单双]\))?([^<>]*)/.exec(k).slice(1);
+            = /([^<>]*)<br>(?:<br>)?\[(\d+)-(\d+)周](\d+)-(\d+)节<br>(\([单双]\))?([^<>]*)/.exec(k).slice(1);
 
           // 对于起止周次、起止节数，转化成整数
           [beginWeek, endWeek, beginPeriod, endPeriod] = [beginWeek, endWeek, beginPeriod, endPeriod].map(k => parseInt(k))
