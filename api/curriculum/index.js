@@ -12,7 +12,9 @@ exports.route = {
     let term = this.query.term
     this.assert(cardnum, 400)
 
-    let isStudent = !(/^1/.exec(cardnum))
+    // 老师的号码是1开头的九位数
+    // 考虑到学号是八位数的情况
+    let isStudent = !(/^1\d{8}$/.exec(cardnum))
     
     // 抓取课表页面
     let res = await (isStudent ? this.axios.post(
@@ -51,13 +53,25 @@ exports.route = {
     }
 
     // 从课表页面抓取身份信息
-      let [collegeId, collegeName] = isStudent ? /院系:\[(\d*)](.*?)</im.exec(res.data).slice(1, 3) : [/(\d+)系 [^<]*课表/.exec(res.data)[1], /院系:(.*?)</im.exec(res.data)[1]]
-    let [majorId, majorName] = isStudent ? /专业:\[(\d*)](.*?)</im.exec(res.data).slice(1, 3) : ['','']
-    let schoolnum = isStudent ? /学号:(\d*)/im.exec(res.data)[1] : ''
+    let [collegeId, collegeName] = isStudent ?
+        (/院系:\[(\d*)](.*?)</im.exec(res.data).slice(1, 3)) :
+        [/(\d+)系 [^<]*课表/.exec(res.data)[1], /院系:(.*?)</im.exec(res.data)[1]]
+    // FIXME 这里学生的学院编号似乎和老师的格式是不一样的
+    // 不知道会有什么问题。
+    
+    // 看上去老师并没有专业
+    let [majorId, majorName] = isStudent ?
+        (/专业:\[(\d*)](.*?)</im.exec(res.data).slice(1, 3)) :
+        ['','']
+    // 对于老师，这个页面也没有显示学号，大约是没有的吧
+    let schoolnum = isStudent ? (/学号:(\d*)/im.exec(res.data)[1]) : ''
     if (isStudent) {
         cardnum = /一卡通号:(\d*)/im.exec(res.data)[1]
     }
-    let name = isStudent ? /姓名:([^<]*)/im.exec(res.data)[1] : /系 ([^<]*)课表/im.exec(res.data)[1]
+    let name = isStudent ?
+        (/姓名:([^<]*)/im.exec(res.data)[1]) :
+        /系 ([^<]*)课表/im.exec(res.data)[1]
+
     let user = { cardnum, schoolnum, name, collegeId, collegeName, majorId, majorName }
 
     // 初始化侧边栏和课表解析结果
@@ -72,14 +86,20 @@ exports.route = {
       // 去掉表头表尾
       .slice(1, -1).map(k => {
 
-        // 取每行中所有五个单元格，去掉第一格，分别抽取文本并赋给课程名、教师名、学分、周次
         let courseData = k.match(/<td[^>]*>(.*?)<\/td\s*>/img)
         if (isStudent) {
+          // 取每行中所有五个单元格，去掉第一格，分别抽取文本并赋给课程名、教师名、学分、周次
           courseData = courseData.slice(1)
         } else {
+          // 各个单元格是: (0)序号，(1)课程名称，(2)被注释掉的老师名称，(3)老师名称，(4)课程编号，(5)课程类型*，(6)考核*，(7)学分，(8)学时，(9)周次
+          // * 5 和 6 标题如此，但是内容事实上是 (5)考核 (6)课程类型。
+          // 这里我们取和学生课表相同的部分
           courseData = [courseData[1],courseData[3],courseData[7],courseData[9]]
         }
         let [className, teacherName, score, weeks] = courseData.map(td => cheerio.load(td).text().trim())
+        if (! isStudent) { // 只留下名字
+          teacherName = teacherName.replace(/^\d+系 /, '')
+        }
 
         // 表格中有空行，忽略空行，将非空行的值加入哈希表进行索引，以课程名+周次为索引条件
         if (className || weeks) {
@@ -98,7 +118,7 @@ exports.route = {
       curriculum[days[dayIndex]] = curriculum[days[dayIndex]].concat(
 
         // 在单元格内容中搜索连续的三行，使得这三行中的中间一行是 [X-X周]X-X节 的格式，对于所有搜索结果
-        // 老师课表多出来一个空行
+        // 老师课表(可能会)多出来一个空行
         (cellContent.match(/[^<>]*<br>(?:<br>)?\[\d+-\d+周]\d+-\d+节<br>[^<>]*/img) || []).map(k => {
 
           // 在搜索结果中分别匹配课程名、起止周次、起止节数、单双周、上课地点

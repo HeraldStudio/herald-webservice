@@ -69,7 +69,9 @@ exports.route = {
     template.balance = parseFloat(balance.replace(/,/g, ''))
 
     // 设置缓存
-    this.state.ttl = 1000 * 60 * 60 * 24
+    // app.js 里的定义似乎表明这里用的单位应该是秒
+    // FIXME 时限设成一天真的合理吗orz
+    this.state.ttl = 60 * 60 * 24
     return template
   }
 }
