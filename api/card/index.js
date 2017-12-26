@@ -68,10 +68,8 @@ exports.route = {
     // 接口设计规范，能转换为数字/bool的数据尽量转换，不要都用字符串
     template.balance = parseFloat(balance.replace(/,/g, ''))
 
-    // 设置缓存
-    // app.js 里的定义似乎表明这里用的单位应该是秒
-    // FIXME 时限设成一天真的合理吗orz
-    this.state.ttl = 60 * 60 * 24
+    // 缓存1小时
+    this.state.ttl = 60 * 60
     return template
   }
 }
