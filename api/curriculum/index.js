@@ -97,6 +97,7 @@ exports.route = {
           courseData = [courseData[1],courseData[3],courseData[7],courseData[9]]
         }
         let [className, teacherName, score, weeks] = courseData.map(td => cheerio.load(td).text().trim())
+        score = parseFloat(score || 0)
         if (! isStudent) { // 只留下名字
           teacherName = teacherName.replace(/^\d+系 /, '')
         }
