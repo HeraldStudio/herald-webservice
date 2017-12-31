@@ -1,0 +1,11 @@
+使用以下的命令来配置环境。Windows 用户可能希望将 / 替换成 \ ，并将 cp -v 改成 copy；而 Ubuntu 用户可能会需要安装一个更新版本的 Node。目前，可以运行在 Node v8.7.0 上。
+
+cd path/to/HeraldWS3
+cp -v config.example.json config.json
+npm install
+
+用如下的命令运行 Web 服务器。
+
+node app.js
+
+默认的监听端口是 3000。
