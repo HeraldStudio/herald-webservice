@@ -14,9 +14,10 @@ exports.route = {
 
     // 调用东大 APP 统一身份认证
     let res = await this.axios.post(
-      'https://mobile4.seu.edu.cn/_ids_mobile/login18_9',
+      'http://mobile4.seu.edu.cn/_ids_mobile/login18_9',
       `username=${cardnum}&password=${password}`
     )
+
 
     // 抓取 Cookie
     let cookie = res.headers['set-cookie']
