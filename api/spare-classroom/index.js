@@ -1,5 +1,4 @@
-﻿const FormData = require('form-data');
-
+﻿const classroomQuery = require("./query");
 
 exports.route = {
 
@@ -13,13 +12,10 @@ exports.route = {
     let formData = entries.reduce((pre, cur) => pre += "&" + cur);
     let result = null;
 
-    if (this.query.campusId == "22") { // 教一~教七
-      result = (await this.axios.post(
-        "http://58.192.114.179/classroom/show/getemptyclassroomlist",
-        formData
-        )).data;
+    if (this.query.campusId == classroomQuery.campuses.九龙湖本科) { // 教一~教七
+      result = classroomQuery.undergrad.call(this).data;
     } else { // 纪忠楼 & 四牌楼
-
+      result = classroomQuery.postgrad.call(this).data;
     }
 
     return result;
