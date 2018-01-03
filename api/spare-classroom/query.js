@@ -1,7 +1,5 @@
-﻿exports.campuses = {
-  "九龙湖": 22,
-  "九龙湖纪忠楼": 23,
-  "四牌楼": 24
+﻿exports.isUndergrad() = function() {
+
 }
 
 exports.undergrad = async () => await this.axios.post(
