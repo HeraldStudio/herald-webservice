@@ -5,7 +5,7 @@ exports.route = {
 
   /**
   * POST /api/spare-classrom/update
-  * @remark 更新除教一~教八（校方提供空教室查询）外的其他课程数据
+  * @remark 更新除教一~教八（校方提供空教室查询）外的其他地方的课程数据
   **/
   async post() {
     let curriculumsURL = "http://121.248.63.139/nstudent/pygl/kbcx_yx.aspx";
@@ -27,25 +27,26 @@ exports.route = {
 
         if (campusId == null) {
           campusId = Math.max(...Object.keys(models.campuses)) + 1;
-          models.campuses[campusId] = new models.Campus(campusId, campusName);
+          models.campuses[campusId] = new models.Campus({ id: campusId, name: campusName });
         }
         if (buildingId == null) {
           buildingId = Math.max(...Object.keys(models.buildings)) + 1;
-          models.buildings[buildingId] = new models.Building(buildingId, buildingName, campusId);
+          models.buildings[buildingId] = new models.Building({ id: buildingId, name: buildingName, campusId: campusId });
         }
         if (classroomId == null) {
           classroomId = Math.max(...Object.keys(models.classrooms)) + 1;
-          models.classrooms[classroomId] = new models.Classroom(classroomId, classroomName, buildingId);
+          models.classrooms[classroomId] = new models.Classroom({ id: classroomId, name: classroomName, buildingId: buildingId });
         }
         
         classRecords.push(new models.ClassRecord(entry));        
       }
     } while (entry);
 
-    await fs.writeFile("./api/spare-classroom/models/campuses.json", JSON.stringify(models.campuses, null, space=2));
-    await fs.writeFile("./api/spare-classroom/models/buildings.json", JSON.stringify(models.buildings, null, space = 2));
-    await fs.writeFile("./api/spare-classroom/models/classrooms.json", JSON.stringify(models.classrooms, null, space = 2));
-    await fs.writeFile("./api/spare-classroom/models/class-records.json", JSON.stringify(classRecords, null, space = 2));
+    let basePath = "./api/spare-classroom/models/";
+    await fs.writeFile(basePath + "campuses.json", JSON.stringify(models.campuses, null, space=2));
+    await fs.writeFile(basePath + "buildings.json", JSON.stringify(models.buildings, (k, v) => k == "campus" ? undefined : v, space = 2));
+    await fs.writeFile(basePath + "classrooms.json", JSON.stringify(models.classrooms, (k, v) => k == "building" ? undefined : v, space = 2));
+    await fs.writeFile(basePath + "class-records.json", JSON.stringify(classRecords, null, space = 2));
 
     this.response.status = 201;
   }

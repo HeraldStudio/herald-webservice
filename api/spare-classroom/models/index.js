@@ -1,10 +1,15 @@
-﻿let classRecords = require("./class-records.json");
+﻿let classRecords   = require("./class-records.json");
 let classrooms     = require("./classrooms.json");
 let buildings      = require("./buildings.json");
 let campuses       = require("./campuses.json");
 let classroomTypes = require("./classroom-types.json");
 
-class ModelBase { // 如有必要，通过学校接口返回的Json中的杂七杂八的属性可设置在这里
+class ModelBase { // 如有必要，通过学校接口返回的JSON中的杂七杂八的属性也可设置于此
+  constructor(obj) {
+    this.id   = obj.id;
+    this.name = obj.name;
+  }
+
   static _findPropIdByName(propSet, name) {
     let entry = Object.entries(propSet).find(e => e[1].name === name);
     return entry == undefined ? null : parseInt(entry[0]);
@@ -12,10 +17,8 @@ class ModelBase { // 如有必要，通过学校接口返回的Json中的杂七�
 }
 
 class Campus extends ModelBase {
-  constructor() {
-    super();
-    this.id   = arguments[0];
-    this.name = arguments[1];
+  constructor(obj) {
+    super(obj);
   }
 
   static findIdByName(name) {
@@ -38,11 +41,10 @@ class Campus extends ModelBase {
 }
 
 class Building extends ModelBase {
-  constructor() {
-    super();
-    this.id       = arguments[0];
-    this.name     = arguments[1];
-    this.campusId = arguments[2];
+  constructor(obj) {
+    super(obj);
+    this.campusId = obj.campusId || obj.campus.id;
+    this.campus   = new Campus(campuses[this.campusId]);
   }
 
   static findIdByName(name) {
@@ -51,13 +53,12 @@ class Building extends ModelBase {
 }
 
 class Classroom extends ModelBase {
-  constructor() {
-    super();
-    this.id                = arguments[0];
-    this.name              = arguments[1];
-    this.buildingId        = arguments[2];
-    this.classroomTypeList = arguments[3] || [];
-    //this.canBorrow = false;
+  constructor(obj) {
+    super(obj);
+    this.buildingId        = obj.buildingId || obj.building.id;
+    this.building          = new Building(buildings[this.buildingId]);
+    this.classroomTypeList = obj.classroomTypeList || [];
+    this.classroomTypeList.forEach((k, i) => this.classroomTypeList[i] = new ClassroomType(k));
   }
 
   static findIdByName(name) {
@@ -66,10 +67,8 @@ class Classroom extends ModelBase {
 }
 
 class ClassroomType extends ModelBase {
-  constructor() {
-    super();
-    this.id   = arguments[0];
-    this.name = arguments[1];
+  constructor(obj) {
+    super(obj);
   }
 
   static findIdByName(name) {
