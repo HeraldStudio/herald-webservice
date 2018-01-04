@@ -1,4 +1,5 @@
-﻿let classRecords   = require("./class-records.json");
+﻿// FIXME 静态引入不会随 json 变动，考虑改为用时读文件
+let classRecords   = require("./class-records.json");
 let classrooms     = require("./classrooms.json");
 let buildings      = require("./buildings.json");
 let campuses       = require("./campuses.json");
@@ -12,7 +13,7 @@ class ModelBase { // 如有必要，通过学校接口返回的JSON中的杂七�
 
   static _findPropIdByName(propSet, name) {
     let entry = Object.entries(propSet).find(e => e[1].name === name);
-    return entry == undefined ? null : parseInt(entry[0]);
+    return typeof entry === 'undefined' ? null : parseInt(entry[0]);
   }
 }
 
