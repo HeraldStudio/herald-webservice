@@ -1,7 +1,7 @@
 ﻿const models = require("./models");
 
 module.exports = {
-  hasSchoolInterface: ctx => ctx.query.campusId === 22, // 22为九龙湖（本科）区编号
+  hasSchoolInterface: ctx => ctx.query.campusId == 22, // 22为九龙湖（本科）区编号
 
   querySchoolInterface: async ctx => {
     let result = (await ctx.axios.post(
