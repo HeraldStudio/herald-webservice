@@ -44,9 +44,9 @@ exports.route = {
 
     let basePath = "./api/spare-classroom/models/";
     await fs.writeFile(basePath + "campuses.json", JSON.stringify(models.campuses, null, space=2));
-    await fs.writeFile(basePath + "buildings.json", JSON.stringify(models.buildings, (k, v) => k == "campus" ? undefined : v, space = 2));
-    await fs.writeFile(basePath + "classrooms.json", JSON.stringify(models.classrooms, (k, v) => k == "building" ? undefined : v, space = 2));
-    await fs.writeFile(basePath + "class-records.json", JSON.stringify(classRecords, null, space = 2));
+    await fs.writeFile(basePath + "buildings.json", JSON.stringify(models.buildings, (k, v) => k == "campus" ? undefined : v, space=2));
+    await fs.writeFile(basePath + "classrooms.json", JSON.stringify(models.classrooms, (k, v) => k == "building" ? undefined : v, space=2));
+    await fs.writeFile(basePath + "class-records.json", JSON.stringify(classRecords, null, space=2));
 
     this.response.status = 201;
   }
