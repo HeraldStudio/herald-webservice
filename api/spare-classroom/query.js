@@ -1,7 +1,7 @@
 ﻿const models = require("./models");
 
 module.exports = {
-  hasSchoolInterface: ctx => ctx.query.campusId == 22, // 22为九龙湖（本科）区编号
+  hasSchoolInterface: ctx => ctx.query.campusId === 22, // 22为九龙湖（本科）区编号
 
   querySchoolInterface: async ctx => {
     let result = (await ctx.axios.post(
@@ -28,9 +28,9 @@ module.exports = {
 
     // 利用课表筛选出该条件下有课的教室ID
     let occupiedClassroomIds = models.classRecords.filter(record =>
-      (query.campusId == null ? true : record.campusId == query.campusId)
+      (query.campusId == null || record.campusId == query.campusId)
       &&
-      (query.buildingId == null ? true : record.buildingId == query.buildingId)
+      (query.buildingId == null || record.buildingId == query.buildingId)
       &&
       (query.startWeek <= record.endWeek && record.startWeek <= query.endWeek)
       &&
@@ -40,10 +40,10 @@ module.exports = {
     ).map(record => record.classroomId);
 
     // 筛选出所有无课的教室
-    let spareClassrooms = Object.values(models.classrooms).map(c => new models.Classroom(c)).filter(classroom => 
-      (query.campusId == null ? true : classroom.building.campusId == query.campusId)
+    let spareClassrooms = Object.values(models.classrooms).map(c => new models.Classroom(c)).filter(classroom =>
+      (query.campusId == null || classroom.building.campusId == query.campusId)
       &&
-      (query.buildingId == null ? true : classroom.buildingId == query.buildingId)
+      (query.buildingId == null || classroom.buildingId == query.buildingId)
       &&
       !occupiedClassroomIds.includes(classroom.Id)
     );
