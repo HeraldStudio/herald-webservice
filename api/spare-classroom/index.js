@@ -20,12 +20,12 @@ exports.route = {
   async get() {
     //let entries = Object.keys(this.query).map((key, index) => key + "=" + Object.values(this.query)[index]);
     //let formData = entries.reduce((pre, cur) => pre += "&" + cur);
-    let result = null;
 
+    let result = null;
     if (classroomQuery.hasSchoolInterface(this)) { // 教一~教七
       result = (await classroomQuery.querySchoolInterface(this));
     } else { // 纪忠楼 & 四牌楼 & 无线谷 & 无锡分校
-      result = (await classroomQuery.queryServerDatabase(this));
+      result = (await classroomQuery.queryServiceDatabase(this));
     }
 
     return result;

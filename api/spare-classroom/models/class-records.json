@@ -1,8 +1,8 @@
 [
   {
-    "className": "æ•°å­¦æ¨¡å‹",
+    "className": "ÊıÑ§Ä£ĞÍ",
     "courseId": "B000104",
-    "courseName": "æ•°å­¦æ¨¡å‹",
+    "courseName": "ÊıÑ§Ä£ĞÍ",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 5,
@@ -11,7 +11,7 @@
       4,
       5
     ],
-    "teacher": "é™ˆå¹³",
+    "teacher": "³ÂÆ½",
     "buildingId": 114,
     "classroomId": 1001,
     "campusId": 24,
@@ -19,9 +19,9 @@
     "size": 157
   },
   {
-    "className": "ä¿„è¯­ï¼ˆäºŒå¤–ï¼‰",
+    "className": "¶íÓï£¨¶şÍâ£©",
     "courseId": "B000108",
-    "courseName": "ä¿„è¯­ï¼ˆäºŒå¤–ï¼‰",
+    "courseName": "¶íÓï£¨¶şÍâ£©",
     "startWeek": 1,
     "endWeek": 18,
     "sequences": [
@@ -29,7 +29,7 @@
       4,
       5
     ],
-    "teacher": "å®‹ç§€æ¢…",
+    "teacher": "ËÎĞãÃ·",
     "buildingId": 115,
     "classroomId": 1002,
     "campusId": 24,
@@ -37,9 +37,9 @@
     "size": 4
   },
   {
-    "className": "ä¸­å›½æ¦‚å†µ",
+    "className": "ÖĞ¹ú¸Å¿ö",
     "courseId": "B000113",
-    "courseName": "ä¸­å›½æ¦‚å†µ",
+    "courseName": "ÖĞ¹ú¸Å¿ö",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 4,
@@ -49,7 +49,7 @@
       8,
       9
     ],
-    "teacher": "æ›¹ç‡•é»",
+    "teacher": "²ÜÑàÀè",
     "buildingId": 116,
     "classroomId": 1003,
     "campusId": 24,
@@ -57,9 +57,9 @@
     "size": 108
   },
   {
-    "className": "é«˜ç­‰æ•°å€¼åˆ†æï¼ˆè‹±æ–‡æˆè¯¾ï¼‰",
+    "className": "¸ßµÈÊıÖµ·ÖÎö£¨Ó¢ÎÄÊÚ¿Î£©",
     "courseId": "B000114",
-    "courseName": "é«˜ç­‰æ•°å€¼åˆ†æï¼ˆè‹±æ–‡æˆè¯¾ï¼‰",
+    "courseName": "¸ßµÈÊıÖµ·ÖÎö£¨Ó¢ÎÄÊÚ¿Î£©",
     "startWeek": 5,
     "endWeek": 16,
     "dayOfWeek": 2,
@@ -69,7 +69,7 @@
       8,
       9
     ],
-    "teacher": "æé“é¦™",
+    "teacher": "ÀîÌúÏã",
     "buildingId": 115,
     "classroomId": 1004,
     "campusId": 24,
@@ -77,9 +77,9 @@
     "size": 33
   },
   {
-    "className": "ä¿„å›½æ–‡å­¦ä¸æ–‡åŒ–",
+    "className": "¶í¹úÎÄÑ§ÓëÎÄ»¯",
     "courseId": "B000115",
-    "courseName": "ä¿„å›½æ–‡å­¦ä¸æ–‡åŒ–",
+    "courseName": "¶í¹úÎÄÑ§ÓëÎÄ»¯",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 4,
@@ -87,7 +87,7 @@
       6,
       7
     ],
-    "teacher": "å®‹ç§€æ¢…",
+    "teacher": "ËÎĞãÃ·",
     "buildingId": 115,
     "classroomId": 1005,
     "campusId": 24,
@@ -95,9 +95,9 @@
     "size": 4
   },
   {
-    "className": "é©¬å…‹æ€ä¸»ä¹‰ä¸å½“ä»£01ç­",
+    "className": "Âí¿ËË¼Ö÷ÒåÓëµ±´ú01°à",
     "courseId": "B000201",
-    "courseName": "ä¸­å›½é©¬å…‹æ€ä¸»ä¹‰ä¸å½“ä»£",
+    "courseName": "ÖĞ¹úÂí¿ËË¼Ö÷ÒåÓëµ±´ú",
     "startWeek": 1,
     "endWeek": 12,
     "dayOfWeek": 1,
@@ -106,7 +106,7 @@
       7,
       8
     ],
-    "teacher": "é«˜å¹¿æ—­",
+    "teacher": "¸ß¹ãĞñ",
     "buildingId": 116,
     "classroomId": 1006,
     "campusId": 24,
@@ -114,9 +114,9 @@
     "size": 80
   },
   {
-    "className": "é©¬å…‹æ€ä¸»ä¹‰ä¸å½“ä»£03ç­",
+    "className": "Âí¿ËË¼Ö÷ÒåÓëµ±´ú03°à",
     "courseId": "B000201",
-    "courseName": "ä¸­å›½é©¬å…‹æ€ä¸»ä¹‰ä¸å½“ä»£",
+    "courseName": "ÖĞ¹úÂí¿ËË¼Ö÷ÒåÓëµ±´ú",
     "startWeek": 1,
     "endWeek": 12,
     "dayOfWeek": 1,
@@ -125,7 +125,7 @@
       7,
       8
     ],
-    "teacher": "ç‹å…µ",
+    "teacher": "Íõ±ø",
     "buildingId": 117,
     "classroomId": 1007,
     "campusId": 23,
@@ -133,9 +133,9 @@
     "size": 140
   },
   {
-    "className": "é©¬å…‹æ€ä¸»ä¹‰ä¸å½“ä»£02ç­",
+    "className": "Âí¿ËË¼Ö÷ÒåÓëµ±´ú02°à",
     "courseId": "B000201",
-    "courseName": "ä¸­å›½é©¬å…‹æ€ä¸»ä¹‰ä¸å½“ä»£",
+    "courseName": "ÖĞ¹úÂí¿ËË¼Ö÷ÒåÓëµ±´ú",
     "startWeek": 1,
     "endWeek": 12,
     "dayOfWeek": 3,
@@ -144,7 +144,7 @@
       7,
       8
     ],
-    "teacher": "å¤ä¿å",
+    "teacher": "ÏÄ±£»ª",
     "buildingId": 114,
     "classroomId": 1008,
     "campusId": 24,
@@ -152,9 +152,9 @@
     "size": 128
   },
   {
-    "className": "é©¬å…‹æ€ä¸»ä¹‰ä¸å½“ä»£(å·¥ç¨‹åšå£«ï¼‰",
+    "className": "Âí¿ËË¼Ö÷ÒåÓëµ±´ú(¹¤³Ì²©Ê¿£©",
     "courseId": "B000201",
-    "courseName": "ä¸­å›½é©¬å…‹æ€ä¸»ä¹‰ä¸å½“ä»£",
+    "courseName": "ÖĞ¹úÂí¿ËË¼Ö÷ÒåÓëµ±´ú",
     "startWeek": 1,
     "endWeek": 8,
     "dayOfWeek": 6,
@@ -165,7 +165,7 @@
       9,
       10
     ],
-    "teacher": "ç‹å…µ",
+    "teacher": "Íõ±ø",
     "buildingId": 115,
     "classroomId": 1009,
     "campusId": 24,
@@ -173,9 +173,9 @@
     "size": 28
   },
   {
-    "className": "é©¬å…‹æ€ä¸»ä¹‰ä¸å½“ä»£04ç­",
+    "className": "Âí¿ËË¼Ö÷ÒåÓëµ±´ú04°à",
     "courseId": "B000201",
-    "courseName": "ä¸­å›½é©¬å…‹æ€ä¸»ä¹‰ä¸å½“ä»£",
+    "courseName": "ÖĞ¹úÂí¿ËË¼Ö÷ÒåÓëµ±´ú",
     "startWeek": 1,
     "endWeek": 12,
     "dayOfWeek": 3,
@@ -184,7 +184,7 @@
       7,
       8
     ],
-    "teacher": "é«˜å¹¿æ—­",
+    "teacher": "¸ß¹ãĞñ",
     "buildingId": 117,
     "classroomId": 1007,
     "campusId": 23,
@@ -192,9 +192,9 @@
     "size": 95
   },
   {
-    "className": "åšå£«è‹±è¯­11ç­",
+    "className": "²©Ê¿Ó¢Óï11°à",
     "courseId": "B000203",
-    "courseName": "åšå£«è‹±è¯­",
+    "courseName": "²©Ê¿Ó¢Óï",
     "startWeek": 1,
     "endWeek": 9,
     "dayOfWeek": 5,
@@ -203,7 +203,7 @@
       7,
       8
     ],
-    "teacher": "ç››é›ªæ¢…",
+    "teacher": "Ê¢Ñ©Ã·",
     "buildingId": 117,
     "classroomId": 1010,
     "campusId": 23,
@@ -211,9 +211,9 @@
     "size": 44
   },
   {
-    "className": "åšå£«è‹±è¯­11ç­",
+    "className": "²©Ê¿Ó¢Óï11°à",
     "courseId": "B000203",
-    "courseName": "åšå£«è‹±è¯­",
+    "courseName": "²©Ê¿Ó¢Óï",
     "startWeek": 10,
     "endWeek": 18,
     "dayOfWeek": 5,
@@ -222,7 +222,7 @@
       7,
       8
     ],
-    "teacher": "å¤–ç±æ•™å¸ˆB",
+    "teacher": "Íâ¼®½ÌÊ¦B",
     "buildingId": 117,
     "classroomId": 1010,
     "campusId": 23,
@@ -230,9 +230,9 @@
     "size": 44
   },
   {
-    "className": "åšå£«è‹±è¯­01ç­",
+    "className": "²©Ê¿Ó¢Óï01°à",
     "courseId": "B000203",
-    "courseName": "åšå£«è‹±è¯­",
+    "courseName": "²©Ê¿Ó¢Óï",
     "startWeek": 1,
     "endWeek": 9,
     "dayOfWeek": 2,
@@ -241,7 +241,7 @@
       2,
       3
     ],
-    "teacher": "æé²",
+    "teacher": "ÀîÂ³",
     "buildingId": 118,
     "classroomId": 1011,
     "campusId": 24,
@@ -249,9 +249,9 @@
     "size": 45
   },
   {
-    "className": "åšå£«è‹±è¯­01ç­",
+    "className": "²©Ê¿Ó¢Óï01°à",
     "courseId": "B000203",
-    "courseName": "åšå£«è‹±è¯­",
+    "courseName": "²©Ê¿Ó¢Óï",
     "startWeek": 10,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -260,7 +260,7 @@
       2,
       3
     ],
-    "teacher": "å¤–ç±æ•™å¸ˆB",
+    "teacher": "Íâ¼®½ÌÊ¦B",
     "buildingId": 118,
     "classroomId": 1012,
     "campusId": 24,
@@ -268,9 +268,9 @@
     "size": 45
   },
   {
-    "className": "åšå£«è‹±è¯­02ç­",
+    "className": "²©Ê¿Ó¢Óï02°à",
     "courseId": "B000203",
-    "courseName": "åšå£«è‹±è¯­",
+    "courseName": "²©Ê¿Ó¢Óï",
     "startWeek": 1,
     "endWeek": 9,
     "dayOfWeek": 2,
@@ -279,7 +279,7 @@
       2,
       3
     ],
-    "teacher": "å¤–ç±æ•™å¸ˆB",
+    "teacher": "Íâ¼®½ÌÊ¦B",
     "buildingId": 118,
     "classroomId": 1012,
     "campusId": 24,
@@ -287,9 +287,9 @@
     "size": 34
   },
   {
-    "className": "åšå£«è‹±è¯­02ç­",
+    "className": "²©Ê¿Ó¢Óï02°à",
     "courseId": "B000203",
-    "courseName": "åšå£«è‹±è¯­",
+    "courseName": "²©Ê¿Ó¢Óï",
     "startWeek": 10,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -298,7 +298,7 @@
       2,
       3
     ],
-    "teacher": "æé²",
+    "teacher": "ÀîÂ³",
     "buildingId": 118,
     "classroomId": 1011,
     "campusId": 24,
@@ -306,9 +306,9 @@
     "size": 34
   },
   {
-    "className": "åšå£«è‹±è¯­03ç­",
+    "className": "²©Ê¿Ó¢Óï03°à",
     "courseId": "B000203",
-    "courseName": "åšå£«è‹±è¯­",
+    "courseName": "²©Ê¿Ó¢Óï",
     "startWeek": 1,
     "endWeek": 9,
     "dayOfWeek": 2,
@@ -317,7 +317,7 @@
       7,
       8
     ],
-    "teacher": "æé²",
+    "teacher": "ÀîÂ³",
     "buildingId": 118,
     "classroomId": 1011,
     "campusId": 24,
@@ -325,9 +325,9 @@
     "size": 45
   },
   {
-    "className": "åšå£«è‹±è¯­05ç­",
+    "className": "²©Ê¿Ó¢Óï05°à",
     "courseId": "B000203",
-    "courseName": "åšå£«è‹±è¯­",
+    "courseName": "²©Ê¿Ó¢Óï",
     "startWeek": 10,
     "endWeek": 18,
     "dayOfWeek": 4,
@@ -336,7 +336,7 @@
       2,
       3
     ],
-    "teacher": "å¤–ç±æ•™å¸ˆB",
+    "teacher": "Íâ¼®½ÌÊ¦B",
     "buildingId": 118,
     "classroomId": 1012,
     "campusId": 24,
@@ -344,9 +344,9 @@
     "size": 39
   },
   {
-    "className": "åšå£«è‹±è¯­04ç­",
+    "className": "²©Ê¿Ó¢Óï04°à",
     "courseId": "B000203",
-    "courseName": "åšå£«è‹±è¯­",
+    "courseName": "²©Ê¿Ó¢Óï",
     "startWeek": 1,
     "endWeek": 9,
     "dayOfWeek": 2,
@@ -355,7 +355,7 @@
       7,
       8
     ],
-    "teacher": "å¤–ç±æ•™å¸ˆB",
+    "teacher": "Íâ¼®½ÌÊ¦B",
     "buildingId": 118,
     "classroomId": 1012,
     "campusId": 24,
@@ -363,9 +363,9 @@
     "size": 45
   },
   {
-    "className": "åšå£«è‹±è¯­06ç­",
+    "className": "²©Ê¿Ó¢Óï06°à",
     "courseId": "B000203",
-    "courseName": "åšå£«è‹±è¯­",
+    "courseName": "²©Ê¿Ó¢Óï",
     "startWeek": 1,
     "endWeek": 9,
     "dayOfWeek": 4,
@@ -374,7 +374,7 @@
       2,
       3
     ],
-    "teacher": "å¤–ç±æ•™å¸ˆB",
+    "teacher": "Íâ¼®½ÌÊ¦B",
     "buildingId": 118,
     "classroomId": 1012,
     "campusId": 24,
@@ -382,9 +382,9 @@
     "size": 23
   },
   {
-    "className": "åšå£«è‹±è¯­07ç­",
+    "className": "²©Ê¿Ó¢Óï07°à",
     "courseId": "B000203",
-    "courseName": "åšå£«è‹±è¯­",
+    "courseName": "²©Ê¿Ó¢Óï",
     "startWeek": 10,
     "endWeek": 18,
     "dayOfWeek": 5,
@@ -393,7 +393,7 @@
       2,
       3
     ],
-    "teacher": "å¤–ç±æ•™å¸ˆA",
+    "teacher": "Íâ¼®½ÌÊ¦A",
     "buildingId": 117,
     "classroomId": 1013,
     "campusId": 23,
@@ -401,9 +401,9 @@
     "size": 49
   },
   {
-    "className": "åšå£«è‹±è¯­05ç­",
+    "className": "²©Ê¿Ó¢Óï05°à",
     "courseId": "B000203",
-    "courseName": "åšå£«è‹±è¯­",
+    "courseName": "²©Ê¿Ó¢Óï",
     "startWeek": 1,
     "endWeek": 9,
     "dayOfWeek": 4,
@@ -412,7 +412,7 @@
       2,
       3
     ],
-    "teacher": "æé²",
+    "teacher": "ÀîÂ³",
     "buildingId": 118,
     "classroomId": 1011,
     "campusId": 24,
@@ -420,9 +420,9 @@
     "size": 39
   },
   {
-    "className": "åšå£«è‹±è¯­06ç­",
+    "className": "²©Ê¿Ó¢Óï06°à",
     "courseId": "B000203",
-    "courseName": "åšå£«è‹±è¯­",
+    "courseName": "²©Ê¿Ó¢Óï",
     "startWeek": 10,
     "endWeek": 18,
     "dayOfWeek": 4,
@@ -431,7 +431,7 @@
       2,
       3
     ],
-    "teacher": "æé²",
+    "teacher": "ÀîÂ³",
     "buildingId": 118,
     "classroomId": 1011,
     "campusId": 24,
@@ -439,9 +439,9 @@
     "size": 23
   },
   {
-    "className": "åšå£«è‹±è¯­07ç­",
+    "className": "²©Ê¿Ó¢Óï07°à",
     "courseId": "B000203",
-    "courseName": "åšå£«è‹±è¯­",
+    "courseName": "²©Ê¿Ó¢Óï",
     "startWeek": 1,
     "endWeek": 9,
     "dayOfWeek": 5,
@@ -450,7 +450,7 @@
       2,
       3
     ],
-    "teacher": "é™ˆå³¥åµ˜",
+    "teacher": "³Âá¿áÉ",
     "buildingId": 117,
     "classroomId": 1014,
     "campusId": 23,
@@ -458,9 +458,9 @@
     "size": 49
   },
   {
-    "className": "åšå£«è‹±è¯­08ç­",
+    "className": "²©Ê¿Ó¢Óï08°à",
     "courseId": "B000203",
-    "courseName": "åšå£«è‹±è¯­",
+    "courseName": "²©Ê¿Ó¢Óï",
     "startWeek": 1,
     "endWeek": 9,
     "dayOfWeek": 5,
@@ -469,7 +469,7 @@
       2,
       3
     ],
-    "teacher": "å¤–ç±æ•™å¸ˆA",
+    "teacher": "Íâ¼®½ÌÊ¦A",
     "buildingId": 117,
     "classroomId": 1013,
     "campusId": 23,
@@ -477,9 +477,9 @@
     "size": 45
   },
   {
-    "className": "åšå£«è‹±è¯­08ç­",
+    "className": "²©Ê¿Ó¢Óï08°à",
     "courseId": "B000203",
-    "courseName": "åšå£«è‹±è¯­",
+    "courseName": "²©Ê¿Ó¢Óï",
     "startWeek": 10,
     "endWeek": 18,
     "dayOfWeek": 5,
@@ -488,7 +488,7 @@
       2,
       3
     ],
-    "teacher": "é™ˆå³¥åµ˜",
+    "teacher": "³Âá¿áÉ",
     "buildingId": 117,
     "classroomId": 1014,
     "campusId": 23,
@@ -496,9 +496,9 @@
     "size": 45
   },
   {
-    "className": "åšå£«è‹±è¯­09ç­",
+    "className": "²©Ê¿Ó¢Óï09°à",
     "courseId": "B000203",
-    "courseName": "åšå£«è‹±è¯­",
+    "courseName": "²©Ê¿Ó¢Óï",
     "startWeek": 10,
     "endWeek": 18,
     "dayOfWeek": 5,
@@ -507,7 +507,7 @@
       7,
       8
     ],
-    "teacher": "å¤–ç±æ•™å¸ˆA",
+    "teacher": "Íâ¼®½ÌÊ¦A",
     "buildingId": 117,
     "classroomId": 1013,
     "campusId": 23,
@@ -515,9 +515,9 @@
     "size": 46
   },
   {
-    "className": "åšå£«è‹±è¯­09ç­",
+    "className": "²©Ê¿Ó¢Óï09°à",
     "courseId": "B000203",
-    "courseName": "åšå£«è‹±è¯­",
+    "courseName": "²©Ê¿Ó¢Óï",
     "startWeek": 1,
     "endWeek": 9,
     "dayOfWeek": 5,
@@ -526,7 +526,7 @@
       7,
       8
     ],
-    "teacher": "é™ˆå³¥åµ˜",
+    "teacher": "³Âá¿áÉ",
     "buildingId": 117,
     "classroomId": 1014,
     "campusId": 23,
@@ -534,9 +534,9 @@
     "size": 46
   },
   {
-    "className": "åšå£«è‹±è¯­10ç­",
+    "className": "²©Ê¿Ó¢Óï10°à",
     "courseId": "B000203",
-    "courseName": "åšå£«è‹±è¯­",
+    "courseName": "²©Ê¿Ó¢Óï",
     "startWeek": 1,
     "endWeek": 9,
     "dayOfWeek": 5,
@@ -545,7 +545,7 @@
       7,
       8
     ],
-    "teacher": "å¤–ç±æ•™å¸ˆA",
+    "teacher": "Íâ¼®½ÌÊ¦A",
     "buildingId": 117,
     "classroomId": 1013,
     "campusId": 23,
@@ -553,9 +553,9 @@
     "size": 45
   },
   {
-    "className": "åšå£«è‹±è¯­10ç­",
+    "className": "²©Ê¿Ó¢Óï10°à",
     "courseId": "B000203",
-    "courseName": "åšå£«è‹±è¯­",
+    "courseName": "²©Ê¿Ó¢Óï",
     "startWeek": 10,
     "endWeek": 18,
     "dayOfWeek": 5,
@@ -564,7 +564,7 @@
       7,
       8
     ],
-    "teacher": "é™ˆå³¥åµ˜",
+    "teacher": "³Âá¿áÉ",
     "buildingId": 117,
     "classroomId": 1014,
     "campusId": 23,
@@ -572,9 +572,9 @@
     "size": 45
   },
   {
-    "className": "åšå£«è‹±è¯­03ç­",
+    "className": "²©Ê¿Ó¢Óï03°à",
     "courseId": "B000203",
-    "courseName": "åšå£«è‹±è¯­",
+    "courseName": "²©Ê¿Ó¢Óï",
     "startWeek": 10,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -583,7 +583,7 @@
       7,
       8
     ],
-    "teacher": "å¤–ç±æ•™å¸ˆB",
+    "teacher": "Íâ¼®½ÌÊ¦B",
     "buildingId": 118,
     "classroomId": 1012,
     "campusId": 24,
@@ -591,9 +591,9 @@
     "size": 45
   },
   {
-    "className": "åšå£«è‹±è¯­04ç­",
+    "className": "²©Ê¿Ó¢Óï04°à",
     "courseId": "B000203",
-    "courseName": "åšå£«è‹±è¯­",
+    "courseName": "²©Ê¿Ó¢Óï",
     "startWeek": 10,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -602,7 +602,7 @@
       7,
       8
     ],
-    "teacher": "æé²",
+    "teacher": "ÀîÂ³",
     "buildingId": 118,
     "classroomId": 1011,
     "campusId": 24,
@@ -610,9 +610,9 @@
     "size": 45
   },
   {
-    "className": "ç§‘æŠ€æ±‰è¯­ï¼ˆåšå£«ï¼‰",
+    "className": "¿Æ¼¼ººÓï£¨²©Ê¿£©",
     "courseId": "B000204",
-    "courseName": "ç§‘æŠ€æ±‰è¯­ï¼ˆåšå£«ï¼‰",
+    "courseName": "¿Æ¼¼ººÓï£¨²©Ê¿£©",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 3,
@@ -622,7 +622,7 @@
       8,
       9
     ],
-    "teacher": "è®¸å³°",
+    "teacher": "Ğí·å",
     "buildingId": 116,
     "classroomId": 1006,
     "campusId": 24,
@@ -630,9 +630,9 @@
     "size": 47
   },
   {
-    "className": "ç°ä»£ç®¡ç†åŸç†ä¸æ–¹æ³•(å·¥ç¨‹åšå£«ï¼‰",
+    "className": "ÏÖ´ú¹ÜÀíÔ­ÀíÓë·½·¨(¹¤³Ì²©Ê¿£©",
     "courseId": "B000301",
-    "courseName": "ç°ä»£ç®¡ç†åŸç†ä¸æ–¹æ³•",
+    "courseName": "ÏÖ´ú¹ÜÀíÔ­ÀíÓë·½·¨",
     "startWeek": 1,
     "endWeek": 8,
     "dayOfWeek": 7,
@@ -643,7 +643,7 @@
       4,
       5
     ],
-    "teacher": "æä¸œ",
+    "teacher": "Àî¶«",
     "buildingId": 115,
     "classroomId": 1009,
     "campusId": 24,
@@ -651,9 +651,9 @@
     "size": 28
   },
   {
-    "className": "å›½é™…å­¦æœ¯äº¤æµè‹±è¯­ï¼ˆå·¥ç¨‹åšå£«ï¼‰",
+    "className": "¹ú¼ÊÑ§Êõ½»Á÷Ó¢Óï£¨¹¤³Ì²©Ê¿£©",
     "courseId": "B000302",
-    "courseName": "å›½é™…å­¦æœ¯äº¤æµè‹±è¯­",
+    "courseName": "¹ú¼ÊÑ§Êõ½»Á÷Ó¢Óï",
     "startWeek": 1,
     "endWeek": 8,
     "dayOfWeek": 6,
@@ -664,7 +664,7 @@
       4,
       5
     ],
-    "teacher": "ç‹æ¶›",
+    "teacher": "ÍõÌÎ",
     "buildingId": 115,
     "classroomId": 1009,
     "campusId": 24,
@@ -672,9 +672,9 @@
     "size": 28
   },
   {
-    "className": "å·¥ç¨‹çŸ©é˜µ07ç­",
+    "className": "¹¤³Ì¾ØÕó07°à",
     "courseId": "S000111",
-    "courseName": "å·¥ç¨‹çŸ©é˜µç†è®º",
+    "courseName": "¹¤³Ì¾ØÕóÀíÂÛ",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 3,
@@ -683,7 +683,7 @@
       2,
       3
     ],
-    "teacher": "å”å‘ä¸œ",
+    "teacher": "ÌÆÏò¶«",
     "buildingId": 117,
     "classroomId": 1015,
     "campusId": 23,
@@ -691,9 +691,9 @@
     "size": 116
   },
   {
-    "className": "å·¥ç¨‹çŸ©é˜µ03ç­",
+    "className": "¹¤³Ì¾ØÕó03°à",
     "courseId": "S000111",
-    "courseName": "å·¥ç¨‹çŸ©é˜µç†è®º",
+    "courseName": "¹¤³Ì¾ØÕóÀíÂÛ",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 3,
@@ -702,7 +702,7 @@
       2,
       3
     ],
-    "teacher": "ç‹å‘¨",
+    "teacher": "ÍõÖÜ",
     "buildingId": 114,
     "classroomId": 1016,
     "campusId": 24,
@@ -710,9 +710,9 @@
     "size": 117
   },
   {
-    "className": "å·¥ç¨‹çŸ©é˜µ01ç­",
+    "className": "¹¤³Ì¾ØÕó01°à",
     "courseId": "S000111",
-    "courseName": "å·¥ç¨‹çŸ©é˜µç†è®º",
+    "courseName": "¹¤³Ì¾ØÕóÀíÂÛ",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 4,
@@ -721,7 +721,7 @@
       2,
       3
     ],
-    "teacher": "æ²ˆäº®",
+    "teacher": "ÉòÁÁ",
     "buildingId": 114,
     "classroomId": 1017,
     "campusId": 24,
@@ -729,9 +729,9 @@
     "size": 74
   },
   {
-    "className": "å·¥ç¨‹çŸ©é˜µ06ç­",
+    "className": "¹¤³Ì¾ØÕó06°à",
     "courseId": "S000111",
-    "courseName": "å·¥ç¨‹çŸ©é˜µç†è®º",
+    "courseName": "¹¤³Ì¾ØÕóÀíÂÛ",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 1,
@@ -740,7 +740,7 @@
       2,
       3
     ],
-    "teacher": "å”å‘ä¸œ",
+    "teacher": "ÌÆÏò¶«",
     "buildingId": 117,
     "classroomId": 1015,
     "campusId": 23,
@@ -748,9 +748,9 @@
     "size": 101
   },
   {
-    "className": "å·¥ç¨‹çŸ©é˜µ04ç­",
+    "className": "¹¤³Ì¾ØÕó04°à",
     "courseId": "S000111",
-    "courseName": "å·¥ç¨‹çŸ©é˜µç†è®º",
+    "courseName": "¹¤³Ì¾ØÕóÀíÂÛ",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 3,
@@ -759,7 +759,7 @@
       2,
       3
     ],
-    "teacher": "åˆ˜å›½å",
+    "teacher": "Áõ¹ú»ª",
     "buildingId": 117,
     "classroomId": 1018,
     "campusId": 23,
@@ -767,9 +767,9 @@
     "size": 37
   },
   {
-    "className": "å·¥ç¨‹çŸ©é˜µ05ç­",
+    "className": "¹¤³Ì¾ØÕó05°à",
     "courseId": "S000111",
-    "courseName": "å·¥ç¨‹çŸ©é˜µç†è®º",
+    "courseName": "¹¤³Ì¾ØÕóÀíÂÛ",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 3,
@@ -778,7 +778,7 @@
       2,
       3
     ],
-    "teacher": "å¼ å°å‘",
+    "teacher": "ÕÅĞ¡Ïò",
     "buildingId": 117,
     "classroomId": 1019,
     "campusId": 23,
@@ -786,9 +786,9 @@
     "size": 120
   },
   {
-    "className": "å·¥ç¨‹çŸ©é˜µ02ç­",
+    "className": "¹¤³Ì¾ØÕó02°à",
     "courseId": "S000111",
-    "courseName": "å·¥ç¨‹çŸ©é˜µç†è®º",
+    "courseName": "¹¤³Ì¾ØÕóÀíÂÛ",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 4,
@@ -797,7 +797,7 @@
       2,
       3
     ],
-    "teacher": "å‘¨å»ºå",
+    "teacher": "ÖÜ½¨»ª",
     "buildingId": 114,
     "classroomId": 1020,
     "campusId": 24,
@@ -805,9 +805,9 @@
     "size": 122
   },
   {
-    "className": "æ•°å€¼åˆ†æ07ç­",
+    "className": "ÊıÖµ·ÖÎö07°à",
     "courseId": "S000112",
-    "courseName": "æ•°å€¼åˆ†æ",
+    "courseName": "ÊıÖµ·ÖÎö",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 3,
@@ -816,7 +816,7 @@
       2,
       3
     ],
-    "teacher": "æé“é¦™",
+    "teacher": "ÀîÌúÏã",
     "buildingId": 117,
     "classroomId": 1021,
     "campusId": 23,
@@ -824,9 +824,9 @@
     "size": 66
   },
   {
-    "className": "æ•°å€¼åˆ†æ08ç­",
+    "className": "ÊıÖµ·ÖÎö08°à",
     "courseId": "S000112",
-    "courseName": "æ•°å€¼åˆ†æ",
+    "courseName": "ÊıÖµ·ÖÎö",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 1,
@@ -835,7 +835,7 @@
       2,
       3
     ],
-    "teacher": "å´å®ä¼Ÿ",
+    "teacher": "ÎâºêÎ°",
     "buildingId": 117,
     "classroomId": 1022,
     "campusId": 23,
@@ -843,9 +843,9 @@
     "size": 26
   },
   {
-    "className": "æ•°å€¼åˆ†æ03ç­",
+    "className": "ÊıÖµ·ÖÎö03°à",
     "courseId": "S000112",
-    "courseName": "æ•°å€¼åˆ†æ",
+    "courseName": "ÊıÖµ·ÖÎö",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 1,
@@ -854,7 +854,7 @@
       2,
       3
     ],
-    "teacher": "æ±Ÿé£",
+    "teacher": "½­·ç",
     "buildingId": 114,
     "classroomId": 1008,
     "campusId": 24,
@@ -862,9 +862,9 @@
     "size": 147
   },
   {
-    "className": "æ•°å€¼åˆ†æ11ç­",
+    "className": "ÊıÖµ·ÖÎö11°à",
     "courseId": "S000112",
-    "courseName": "æ•°å€¼åˆ†æ",
+    "courseName": "ÊıÖµ·ÖÎö",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 3,
@@ -873,7 +873,7 @@
       2,
       3
     ],
-    "teacher": "æœç¿",
+    "teacher": "¶Åî£",
     "buildingId": 117,
     "classroomId": 1022,
     "campusId": 23,
@@ -881,9 +881,9 @@
     "size": 127
   },
   {
-    "className": "æ•°å€¼åˆ†æ10ç­",
+    "className": "ÊıÖµ·ÖÎö10°à",
     "courseId": "S000112",
-    "courseName": "æ•°å€¼åˆ†æ",
+    "courseName": "ÊıÖµ·ÖÎö",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 1,
@@ -892,7 +892,7 @@
       2,
       3
     ],
-    "teacher": "çŸ³ä½©è™",
+    "teacher": "Ê¯Åå»¢",
     "buildingId": 117,
     "classroomId": 1018,
     "campusId": 23,
@@ -900,9 +900,9 @@
     "size": 113
   },
   {
-    "className": "æ•°å€¼åˆ†æ01ç­",
+    "className": "ÊıÖµ·ÖÎö01°à",
     "courseId": "S000112",
-    "courseName": "æ•°å€¼åˆ†æ",
+    "courseName": "ÊıÖµ·ÖÎö",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 1,
@@ -911,7 +911,7 @@
       2,
       3
     ],
-    "teacher": "å­™å¿—å¿ ",
+    "teacher": "ËïÖ¾ÖÒ",
     "buildingId": 114,
     "classroomId": 1001,
     "campusId": 24,
@@ -919,9 +919,9 @@
     "size": 136
   },
   {
-    "className": "æ•°å€¼åˆ†æ04ç­",
+    "className": "ÊıÖµ·ÖÎö04°à",
     "courseId": "S000112",
-    "courseName": "æ•°å€¼åˆ†æ",
+    "courseName": "ÊıÖµ·ÖÎö",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 3,
@@ -930,7 +930,7 @@
       2,
       3
     ],
-    "teacher": "çŸ³ä½©è™",
+    "teacher": "Ê¯Åå»¢",
     "buildingId": 114,
     "classroomId": 1020,
     "campusId": 24,
@@ -938,9 +938,9 @@
     "size": 141
   },
   {
-    "className": "æ•°å€¼åˆ†æ02ç­",
+    "className": "ÊıÖµ·ÖÎö02°à",
     "courseId": "S000112",
-    "courseName": "æ•°å€¼åˆ†æ",
+    "courseName": "ÊıÖµ·ÖÎö",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 3,
@@ -949,7 +949,7 @@
       2,
       3
     ],
-    "teacher": "æ›¹å©‰å®¹",
+    "teacher": "²ÜÍñÈİ",
     "buildingId": 114,
     "classroomId": 1008,
     "campusId": 24,
@@ -957,9 +957,9 @@
     "size": 148
   },
   {
-    "className": "æ•°å€¼åˆ†æ06ç­",
+    "className": "ÊıÖµ·ÖÎö06°à",
     "courseId": "S000112",
-    "courseName": "æ•°å€¼åˆ†æ",
+    "courseName": "ÊıÖµ·ÖÎö",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 1,
@@ -968,7 +968,7 @@
       2,
       3
     ],
-    "teacher": "æ›¹å©‰å®¹",
+    "teacher": "²ÜÍñÈİ",
     "buildingId": 117,
     "classroomId": 1023,
     "campusId": 23,
@@ -976,9 +976,9 @@
     "size": 120
   },
   {
-    "className": "æ•°å€¼åˆ†æï¼ˆIC-æ— é”¡ï¼‰",
+    "className": "ÊıÖµ·ÖÎö£¨IC-ÎŞÎı£©",
     "courseId": "S000112",
-    "courseName": "æ•°å€¼åˆ†æ",
+    "courseName": "ÊıÖµ·ÖÎö",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -987,7 +987,7 @@
       7,
       8
     ],
-    "teacher": "æå…ƒåº†",
+    "teacher": "ÀîÔªÇì",
     "buildingId": 119,
     "classroomId": 1024,
     "campusId": 27,
@@ -995,9 +995,9 @@
     "size": 143
   },
   {
-    "className": "æ•°å€¼åˆ†æ09ç­",
+    "className": "ÊıÖµ·ÖÎö09°à",
     "courseId": "S000112",
-    "courseName": "æ•°å€¼åˆ†æ",
+    "courseName": "ÊıÖµ·ÖÎö",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 1,
@@ -1006,7 +1006,7 @@
       2,
       3
     ],
-    "teacher": "æœç¿",
+    "teacher": "¶Åî£",
     "buildingId": 117,
     "classroomId": 1019,
     "campusId": 23,
@@ -1014,9 +1014,9 @@
     "size": 117
   },
   {
-    "className": "æ•°å€¼åˆ†æ12ç­",
+    "className": "ÊıÖµ·ÖÎö12°à",
     "courseId": "S000112",
-    "courseName": "æ•°å€¼åˆ†æ",
+    "courseName": "ÊıÖµ·ÖÎö",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 3,
@@ -1025,7 +1025,7 @@
       2,
       3
     ],
-    "teacher": "æå…ƒåº†",
+    "teacher": "ÀîÔªÇì",
     "buildingId": 117,
     "classroomId": 1025,
     "campusId": 23,
@@ -1033,9 +1033,9 @@
     "size": 130
   },
   {
-    "className": "æ•°å€¼åˆ†æ05ç­",
+    "className": "ÊıÖµ·ÖÎö05°à",
     "courseId": "S000112",
-    "courseName": "æ•°å€¼åˆ†æ",
+    "courseName": "ÊıÖµ·ÖÎö",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 3,
@@ -1044,7 +1044,7 @@
       2,
       3
     ],
-    "teacher": "æ±Ÿé£",
+    "teacher": "½­·ç",
     "buildingId": 114,
     "classroomId": 1026,
     "campusId": 24,
@@ -1052,9 +1052,9 @@
     "size": 149
   },
   {
-    "className": "æ•°ç†ç»Ÿè®¡",
+    "className": "ÊıÀíÍ³¼Æ",
     "courseId": "S000114",
-    "courseName": "æ•°ç†ç»Ÿè®¡",
+    "courseName": "ÊıÀíÍ³¼Æ",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 3,
@@ -1062,7 +1062,7 @@
       6,
       7
     ],
-    "teacher": "é™ˆå¹³",
+    "teacher": "³ÂÆ½",
     "buildingId": 117,
     "classroomId": 1027,
     "campusId": 23,
@@ -1070,9 +1070,9 @@
     "size": 49
   },
   {
-    "className": "æ•°æ®åº“åŸç†ä¸è®¾è®¡",
+    "className": "Êı¾İ¿âÔ­ÀíÓëÉè¼Æ",
     "courseId": "S000119",
-    "courseName": "æ•°æ®åº“åŸç†ä¸è®¾è®¡",
+    "courseName": "Êı¾İ¿âÔ­ÀíÓëÉè¼Æ",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -1081,7 +1081,7 @@
       12,
       13
     ],
-    "teacher": "å¼ æŸç¤¼",
+    "teacher": "ÕÅ°ØÀñ",
     "buildingId": 115,
     "classroomId": 1028,
     "campusId": 24,
@@ -1089,9 +1089,9 @@
     "size": 24
   },
   {
-    "className": "æ•°æ®ç»“æ„ä¸ç®—æ³•åˆ†æ",
+    "className": "Êı¾İ½á¹¹ÓëËã·¨·ÖÎö",
     "courseId": "S000127",
-    "courseName": "æ•°æ®ç»“æ„ä¸ç®—æ³•åˆ†æ",
+    "courseName": "Êı¾İ½á¹¹ÓëËã·¨·ÖÎö",
     "startWeek": 2,
     "endWeek": 18,
     "dayOfWeek": 5,
@@ -1100,7 +1100,7 @@
       12,
       13
     ],
-    "teacher": "å§œæµ©",
+    "teacher": "½ªºÆ",
     "buildingId": 115,
     "classroomId": 1028,
     "campusId": 24,
@@ -1108,9 +1108,9 @@
     "size": 53
   },
   {
-    "className": "å­¦ä½è‹±è¯­04ç­(IC-æ— é”¡)",
+    "className": "Ñ§Î»Ó¢Óï04°à(IC-ÎŞÎı)",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 1,
@@ -1118,7 +1118,7 @@
       8,
       9
     ],
-    "teacher": "åˆ˜å¥åˆš",
+    "teacher": "Áõ½¡¸Õ",
     "buildingId": 119,
     "classroomId": 1024,
     "campusId": 27,
@@ -1126,9 +1126,9 @@
     "size": 35
   },
   {
-    "className": "å­¦ä½è‹±è¯­24ç­",
+    "className": "Ñ§Î»Ó¢Óï24°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -1136,7 +1136,7 @@
       3,
       4
     ],
-    "teacher": "é‡‘æ™¶",
+    "teacher": "½ğ¾§",
     "buildingId": 115,
     "classroomId": 1029,
     "campusId": 24,
@@ -1144,9 +1144,9 @@
     "size": 51
   },
   {
-    "className": "å­¦ä½è‹±è¯­07ç­",
+    "className": "Ñ§Î»Ó¢Óï07°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -1154,7 +1154,7 @@
       1,
       2
     ],
-    "teacher": "åˆ˜å¥åˆš",
+    "teacher": "Áõ½¡¸Õ",
     "buildingId": 115,
     "classroomId": 1004,
     "campusId": 24,
@@ -1162,9 +1162,9 @@
     "size": 41
   },
   {
-    "className": "å­¦ä½è‹±è¯­14ç­",
+    "className": "Ñ§Î»Ó¢Óï14°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -1172,7 +1172,7 @@
       1,
       2
     ],
-    "teacher": "å‡Œå»ºè¾‰",
+    "teacher": "Áè½¨»Ô",
     "buildingId": 115,
     "classroomId": 1030,
     "campusId": 24,
@@ -1180,9 +1180,9 @@
     "size": 40
   },
   {
-    "className": "å­¦ä½è‹±è¯­08ç­",
+    "className": "Ñ§Î»Ó¢Óï08°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -1190,7 +1190,7 @@
       1,
       2
     ],
-    "teacher": "é‚¢å›½å£",
+    "teacher": "ĞÏ¹úÔ«",
     "buildingId": 115,
     "classroomId": 1031,
     "campusId": 24,
@@ -1198,9 +1198,9 @@
     "size": 41
   },
   {
-    "className": "å­¦ä½è‹±è¯­13ç­",
+    "className": "Ñ§Î»Ó¢Óï13°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -1208,7 +1208,7 @@
       1,
       2
     ],
-    "teacher": "å¢å‡¤å¨Ÿ",
+    "teacher": "Â¬·ï¾ê",
     "buildingId": 115,
     "classroomId": 1032,
     "campusId": 24,
@@ -1216,9 +1216,9 @@
     "size": 41
   },
   {
-    "className": "å­¦ä½è‹±è¯­49ç­",
+    "className": "Ñ§Î»Ó¢Óï49°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 5,
@@ -1226,7 +1226,7 @@
       1,
       2
     ],
-    "teacher": "ç››é›ªæ¢…",
+    "teacher": "Ê¢Ñ©Ã·",
     "buildingId": 117,
     "classroomId": 1033,
     "campusId": 23,
@@ -1234,9 +1234,9 @@
     "size": 39
   },
   {
-    "className": "å­¦ä½è‹±è¯­33ç­",
+    "className": "Ñ§Î»Ó¢Óï33°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 4,
@@ -1244,7 +1244,7 @@
       1,
       2
     ],
-    "teacher": "å¢å‡¤å¨Ÿ",
+    "teacher": "Â¬·ï¾ê",
     "buildingId": 117,
     "classroomId": 1034,
     "campusId": 23,
@@ -1252,9 +1252,9 @@
     "size": 41
   },
   {
-    "className": "å­¦ä½è‹±è¯­04ç­",
+    "className": "Ñ§Î»Ó¢Óï04°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -1262,7 +1262,7 @@
       1,
       2
     ],
-    "teacher": "é™ˆå³¥åµ˜",
+    "teacher": "³Âá¿áÉ",
     "buildingId": 115,
     "classroomId": 1035,
     "campusId": 24,
@@ -1270,9 +1270,9 @@
     "size": 42
   },
   {
-    "className": "å­¦ä½è‹±è¯­19ç­",
+    "className": "Ñ§Î»Ó¢Óï19°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -1280,7 +1280,7 @@
       3,
       4
     ],
-    "teacher": "é™ˆå³¥åµ˜",
+    "teacher": "³Âá¿áÉ",
     "buildingId": 115,
     "classroomId": 1035,
     "campusId": 24,
@@ -1288,9 +1288,9 @@
     "size": 42
   },
   {
-    "className": "å­¦ä½è‹±è¯­22ç­",
+    "className": "Ñ§Î»Ó¢Óï22°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -1298,7 +1298,7 @@
       3,
       4
     ],
-    "teacher": "åˆ˜å¥åˆš",
+    "teacher": "Áõ½¡¸Õ",
     "buildingId": 115,
     "classroomId": 1004,
     "campusId": 24,
@@ -1306,9 +1306,9 @@
     "size": 44
   },
   {
-    "className": "å­¦ä½è‹±è¯­29ç­",
+    "className": "Ñ§Î»Ó¢Óï29°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -1316,7 +1316,7 @@
       3,
       4
     ],
-    "teacher": "å‡Œå»ºè¾‰",
+    "teacher": "Áè½¨»Ô",
     "buildingId": 115,
     "classroomId": 1030,
     "campusId": 24,
@@ -1324,9 +1324,9 @@
     "size": 43
   },
   {
-    "className": "å­¦ä½è‹±è¯­37ç­",
+    "className": "Ñ§Î»Ó¢Óï37°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 4,
@@ -1334,7 +1334,7 @@
       1,
       2
     ],
-    "teacher": "å´å©·",
+    "teacher": "ÎâæÃ",
     "buildingId": 117,
     "classroomId": 1036,
     "campusId": 23,
@@ -1342,9 +1342,9 @@
     "size": 39
   },
   {
-    "className": "å­¦ä½è‹±è¯­39ç­",
+    "className": "Ñ§Î»Ó¢Óï39°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 4,
@@ -1352,7 +1352,7 @@
       1,
       2
     ],
-    "teacher": "æé»",
+    "teacher": "ÀîÀè",
     "buildingId": 117,
     "classroomId": 1037,
     "campusId": 23,
@@ -1360,9 +1360,9 @@
     "size": 40
   },
   {
-    "className": "å­¦ä½è‹±è¯­11ç­",
+    "className": "Ñ§Î»Ó¢Óï11°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -1370,7 +1370,7 @@
       1,
       2
     ],
-    "teacher": "æŸ³å»ºç²",
+    "teacher": "Áø½¨Áá",
     "buildingId": 115,
     "classroomId": 1028,
     "campusId": 24,
@@ -1378,9 +1378,9 @@
     "size": 41
   },
   {
-    "className": "å­¦ä½è‹±è¯­32ç­",
+    "className": "Ñ§Î»Ó¢Óï32°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 4,
@@ -1388,7 +1388,7 @@
       1,
       2
     ],
-    "teacher": "é‚¢å›½å£",
+    "teacher": "ĞÏ¹úÔ«",
     "buildingId": 117,
     "classroomId": 1038,
     "campusId": 23,
@@ -1396,9 +1396,9 @@
     "size": 41
   },
   {
-    "className": "å­¦ä½è‹±è¯­52ç­",
+    "className": "Ñ§Î»Ó¢Óï52°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 5,
@@ -1406,7 +1406,7 @@
       1,
       2
     ],
-    "teacher": "ç¿å»ºç§‹",
+    "teacher": "ÎÌ½¨Çï",
     "buildingId": 117,
     "classroomId": 1010,
     "campusId": 23,
@@ -1414,9 +1414,9 @@
     "size": 39
   },
   {
-    "className": "å­¦ä½è‹±è¯­59ç­",
+    "className": "Ñ§Î»Ó¢Óï59°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 5,
@@ -1424,7 +1424,7 @@
       1,
       2
     ],
-    "teacher": "é²æ•",
+    "teacher": "±«Ãô",
     "buildingId": 117,
     "classroomId": 1039,
     "campusId": 23,
@@ -1432,9 +1432,9 @@
     "size": 41
   },
   {
-    "className": "å­¦ä½è‹±è¯­73ç­",
+    "className": "Ñ§Î»Ó¢Óï73°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 5,
@@ -1442,7 +1442,7 @@
       6,
       7
     ],
-    "teacher": "é‚¢å›½å£",
+    "teacher": "ĞÏ¹úÔ«",
     "buildingId": 117,
     "classroomId": 1040,
     "campusId": 23,
@@ -1450,9 +1450,9 @@
     "size": 39
   },
   {
-    "className": "å­¦ä½è‹±è¯­35ç­",
+    "className": "Ñ§Î»Ó¢Óï35°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 4,
@@ -1460,7 +1460,7 @@
       1,
       2
     ],
-    "teacher": "è”¡æ—­ä¸œ",
+    "teacher": "²ÌĞñ¶«",
     "buildingId": 117,
     "classroomId": 1041,
     "campusId": 23,
@@ -1468,9 +1468,9 @@
     "size": 40
   },
   {
-    "className": "å­¦ä½è‹±è¯­23ç­",
+    "className": "Ñ§Î»Ó¢Óï23°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -1478,7 +1478,7 @@
       3,
       4
     ],
-    "teacher": "é‚¢å›½å£",
+    "teacher": "ĞÏ¹úÔ«",
     "buildingId": 115,
     "classroomId": 1031,
     "campusId": 24,
@@ -1486,9 +1486,9 @@
     "size": 44
   },
   {
-    "className": "å­¦ä½è‹±è¯­44ç­",
+    "className": "Ñ§Î»Ó¢Óï44°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 4,
@@ -1496,7 +1496,7 @@
       3,
       4
     ],
-    "teacher": "è”¡æ—­ä¸œ",
+    "teacher": "²ÌĞñ¶«",
     "buildingId": 117,
     "classroomId": 1041,
     "campusId": 23,
@@ -1504,9 +1504,9 @@
     "size": 43
   },
   {
-    "className": "å­¦ä½è‹±è¯­05ç­",
+    "className": "Ñ§Î»Ó¢Óï05°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -1514,7 +1514,7 @@
       1,
       2
     ],
-    "teacher": "ç››é›ªæ¢…",
+    "teacher": "Ê¢Ñ©Ã·",
     "buildingId": 115,
     "classroomId": 1042,
     "campusId": 24,
@@ -1522,9 +1522,9 @@
     "size": 42
   },
   {
-    "className": "å­¦ä½è‹±è¯­09ç­",
+    "className": "Ñ§Î»Ó¢Óï09°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -1532,7 +1532,7 @@
       1,
       2
     ],
-    "teacher": "é‡‘æ™¶",
+    "teacher": "½ğ¾§",
     "buildingId": 115,
     "classroomId": 1029,
     "campusId": 24,
@@ -1540,9 +1540,9 @@
     "size": 47
   },
   {
-    "className": "å­¦ä½è‹±è¯­71ç­",
+    "className": "Ñ§Î»Ó¢Óï71°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 5,
@@ -1550,7 +1550,7 @@
       3,
       4
     ],
-    "teacher": "é²æ•",
+    "teacher": "±«Ãô",
     "buildingId": 117,
     "classroomId": 1039,
     "campusId": 23,
@@ -1558,9 +1558,9 @@
     "size": 38
   },
   {
-    "className": "å­¦ä½è‹±è¯­02ç­(IC-æ— é”¡)",
+    "className": "Ñ§Î»Ó¢Óï02°à(IC-ÎŞÎı)",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 1,
@@ -1568,7 +1568,7 @@
       3,
       4
     ],
-    "teacher": "åˆ˜å¥åˆš",
+    "teacher": "Áõ½¡¸Õ",
     "buildingId": 119,
     "classroomId": 1024,
     "campusId": 27,
@@ -1576,9 +1576,9 @@
     "size": 36
   },
   {
-    "className": "å­¦ä½è‹±è¯­03ç­(IC-æ— é”¡)",
+    "className": "Ñ§Î»Ó¢Óï03°à(IC-ÎŞÎı)",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 1,
@@ -1586,7 +1586,7 @@
       6,
       7
     ],
-    "teacher": "åˆ˜å¥åˆš",
+    "teacher": "Áõ½¡¸Õ",
     "buildingId": 119,
     "classroomId": 1024,
     "campusId": 27,
@@ -1594,9 +1594,9 @@
     "size": 36
   },
   {
-    "className": "å­¦ä½è‹±è¯­01ç­(IC-æ— é”¡)",
+    "className": "Ñ§Î»Ó¢Óï01°à(IC-ÎŞÎı)",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 1,
@@ -1604,7 +1604,7 @@
       1,
       2
     ],
-    "teacher": "åˆ˜å¥åˆš",
+    "teacher": "Áõ½¡¸Õ",
     "buildingId": 119,
     "classroomId": 1024,
     "campusId": 27,
@@ -1612,9 +1612,9 @@
     "size": 37
   },
   {
-    "className": "å­¦ä½è‹±è¯­65ç­",
+    "className": "Ñ§Î»Ó¢Óï65°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 5,
@@ -1622,7 +1622,7 @@
       3,
       4
     ],
-    "teacher": "é‚¢å›½å£",
+    "teacher": "ĞÏ¹úÔ«",
     "buildingId": 117,
     "classroomId": 1038,
     "campusId": 23,
@@ -1630,9 +1630,9 @@
     "size": 42
   },
   {
-    "className": "å­¦ä½è‹±è¯­12ç­",
+    "className": "Ñ§Î»Ó¢Óï12°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -1640,7 +1640,7 @@
       1,
       2
     ],
-    "teacher": "å¸¸å¤©é¾™",
+    "teacher": "³£ÌìÁú",
     "buildingId": 115,
     "classroomId": 1043,
     "campusId": 24,
@@ -1648,9 +1648,9 @@
     "size": 43
   },
   {
-    "className": "å­¦ä½è‹±è¯­15ç­",
+    "className": "Ñ§Î»Ó¢Óï15°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -1658,7 +1658,7 @@
       1,
       2
     ],
-    "teacher": "åˆ˜æ™“å¦",
+    "teacher": "ÁõÏşåû",
     "buildingId": 115,
     "classroomId": 1044,
     "campusId": 24,
@@ -1666,9 +1666,9 @@
     "size": 39
   },
   {
-    "className": "å­¦ä½è‹±è¯­03ç­",
+    "className": "Ñ§Î»Ó¢Óï03°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -1676,7 +1676,7 @@
       1,
       2
     ],
-    "teacher": "è”¡æ—­ä¸œ",
+    "teacher": "²ÌĞñ¶«",
     "buildingId": 115,
     "classroomId": 1045,
     "campusId": 24,
@@ -1684,9 +1684,9 @@
     "size": 41
   },
   {
-    "className": "å­¦ä½è‹±è¯­18ç­",
+    "className": "Ñ§Î»Ó¢Óï18°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -1694,7 +1694,7 @@
       3,
       4
     ],
-    "teacher": "è”¡æ—­ä¸œ",
+    "teacher": "²ÌĞñ¶«",
     "buildingId": 115,
     "classroomId": 1045,
     "campusId": 24,
@@ -1702,9 +1702,9 @@
     "size": 43
   },
   {
-    "className": "å­¦ä½è‹±è¯­02ç­",
+    "className": "Ñ§Î»Ó¢Óï02°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -1712,7 +1712,7 @@
       1,
       2
     ],
-    "teacher": "å´è‰¾ç²",
+    "teacher": "Îâ°¬Áá",
     "buildingId": 115,
     "classroomId": 1046,
     "campusId": 24,
@@ -1720,9 +1720,9 @@
     "size": 42
   },
   {
-    "className": "å­¦ä½è‹±è¯­69ç­",
+    "className": "Ñ§Î»Ó¢Óï69°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 5,
@@ -1730,7 +1730,7 @@
       3,
       4
     ],
-    "teacher": "æé»",
+    "teacher": "ÀîÀè",
     "buildingId": 117,
     "classroomId": 1037,
     "campusId": 23,
@@ -1738,9 +1738,9 @@
     "size": 38
   },
   {
-    "className": "å­¦ä½è‹±è¯­06ç­",
+    "className": "Ñ§Î»Ó¢Óï06°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -1748,7 +1748,7 @@
       1,
       2
     ],
-    "teacher": "ç¿å»ºç§‹",
+    "teacher": "ÎÌ½¨Çï",
     "buildingId": 115,
     "classroomId": 1047,
     "campusId": 24,
@@ -1756,9 +1756,9 @@
     "size": 41
   },
   {
-    "className": "å­¦ä½è‹±è¯­27ç­",
+    "className": "Ñ§Î»Ó¢Óï27°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -1766,7 +1766,7 @@
       3,
       4
     ],
-    "teacher": "å¸¸å¤©é¾™",
+    "teacher": "³£ÌìÁú",
     "buildingId": 115,
     "classroomId": 1043,
     "campusId": 24,
@@ -1774,9 +1774,9 @@
     "size": 43
   },
   {
-    "className": "å­¦ä½è‹±è¯­48ç­",
+    "className": "Ñ§Î»Ó¢Óï48°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 4,
@@ -1784,7 +1784,7 @@
       3,
       4
     ],
-    "teacher": "æé»",
+    "teacher": "ÀîÀè",
     "buildingId": 117,
     "classroomId": 1037,
     "campusId": 23,
@@ -1792,9 +1792,9 @@
     "size": 40
   },
   {
-    "className": "å­¦ä½è‹±è¯­17ç­",
+    "className": "Ñ§Î»Ó¢Óï17°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -1802,7 +1802,7 @@
       3,
       4
     ],
-    "teacher": "å´è‰¾ç²",
+    "teacher": "Îâ°¬Áá",
     "buildingId": 115,
     "classroomId": 1046,
     "campusId": 24,
@@ -1810,9 +1810,9 @@
     "size": 45
   },
   {
-    "className": "å­¦ä½è‹±è¯­61ç­",
+    "className": "Ñ§Î»Ó¢Óï61°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 5,
@@ -1820,7 +1820,7 @@
       3,
       4
     ],
-    "teacher": "ç››é›ªæ¢…",
+    "teacher": "Ê¢Ñ©Ã·",
     "buildingId": 117,
     "classroomId": 1033,
     "campusId": 23,
@@ -1828,9 +1828,9 @@
     "size": 43
   },
   {
-    "className": "å­¦ä½è‹±è¯­31ç­",
+    "className": "Ñ§Î»Ó¢Óï31°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 4,
@@ -1838,7 +1838,7 @@
       1,
       2
     ],
-    "teacher": "é‡‘æ™¶",
+    "teacher": "½ğ¾§",
     "buildingId": 117,
     "classroomId": 1048,
     "campusId": 23,
@@ -1846,9 +1846,9 @@
     "size": 41
   },
   {
-    "className": "å­¦ä½è‹±è¯­01ç­",
+    "className": "Ñ§Î»Ó¢Óï01°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -1856,7 +1856,7 @@
       1,
       2
     ],
-    "teacher": "å­™ç‘¾",
+    "teacher": "Ëïèª",
     "buildingId": 115,
     "classroomId": 1049,
     "campusId": 24,
@@ -1864,9 +1864,9 @@
     "size": 42
   },
   {
-    "className": "å­¦ä½è‹±è¯­41ç­",
+    "className": "Ñ§Î»Ó¢Óï41°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 4,
@@ -1874,7 +1874,7 @@
       3,
       4
     ],
-    "teacher": "é‚¢å›½å£",
+    "teacher": "ĞÏ¹úÔ«",
     "buildingId": 117,
     "classroomId": 1038,
     "campusId": 23,
@@ -1882,9 +1882,9 @@
     "size": 43
   },
   {
-    "className": "å­¦ä½è‹±è¯­16ç­",
+    "className": "Ñ§Î»Ó¢Óï16°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -1892,7 +1892,7 @@
       3,
       4
     ],
-    "teacher": "å­™ç‘¾",
+    "teacher": "Ëïèª",
     "buildingId": 115,
     "classroomId": 1049,
     "campusId": 24,
@@ -1900,9 +1900,9 @@
     "size": 44
   },
   {
-    "className": "å­¦ä½è‹±è¯­47ç­",
+    "className": "Ñ§Î»Ó¢Óï47°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 4,
@@ -1910,7 +1910,7 @@
       3,
       4
     ],
-    "teacher": "å´è‰¾ç²",
+    "teacher": "Îâ°¬Áá",
     "buildingId": 117,
     "classroomId": 1050,
     "campusId": 23,
@@ -1918,9 +1918,9 @@
     "size": 43
   },
   {
-    "className": "å­¦ä½è‹±è¯­38ç­",
+    "className": "Ñ§Î»Ó¢Óï38°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 4,
@@ -1928,7 +1928,7 @@
       1,
       2
     ],
-    "teacher": "å´è‰¾ç²",
+    "teacher": "Îâ°¬Áá",
     "buildingId": 117,
     "classroomId": 1050,
     "campusId": 23,
@@ -1936,9 +1936,9 @@
     "size": 40
   },
   {
-    "className": "å­¦ä½è‹±è¯­46ç­",
+    "className": "Ñ§Î»Ó¢Óï46°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 4,
@@ -1946,7 +1946,7 @@
       3,
       4
     ],
-    "teacher": "å´å©·",
+    "teacher": "ÎâæÃ",
     "buildingId": 117,
     "classroomId": 1036,
     "campusId": 23,
@@ -1954,9 +1954,9 @@
     "size": 43
   },
   {
-    "className": "å­¦ä½è‹±è¯­40ç­",
+    "className": "Ñ§Î»Ó¢Óï40°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 4,
@@ -1964,7 +1964,7 @@
       3,
       4
     ],
-    "teacher": "é‡‘æ™¶",
+    "teacher": "½ğ¾§",
     "buildingId": 117,
     "classroomId": 1048,
     "campusId": 23,
@@ -1972,9 +1972,9 @@
     "size": 43
   },
   {
-    "className": "å­¦ä½è‹±è¯­21ç­",
+    "className": "Ñ§Î»Ó¢Óï21°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -1982,7 +1982,7 @@
       3,
       4
     ],
-    "teacher": "ç¿å»ºç§‹",
+    "teacher": "ÎÌ½¨Çï",
     "buildingId": 115,
     "classroomId": 1047,
     "campusId": 24,
@@ -1990,9 +1990,9 @@
     "size": 44
   },
   {
-    "className": "å­¦ä½è‹±è¯­60ç­",
+    "className": "Ñ§Î»Ó¢Óï60°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 5,
@@ -2000,7 +2000,7 @@
       1,
       2
     ],
-    "teacher": "ç‹å­¦å",
+    "teacher": "ÍõÑ§»ª",
     "buildingId": 117,
     "classroomId": 1051,
     "campusId": 23,
@@ -2008,9 +2008,9 @@
     "size": 41
   },
   {
-    "className": "å­¦ä½è‹±è¯­36ç­",
+    "className": "Ñ§Î»Ó¢Óï36°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 4,
@@ -2018,7 +2018,7 @@
       1,
       2
     ],
-    "teacher": "å­™ç‘¾",
+    "teacher": "Ëïèª",
     "buildingId": 117,
     "classroomId": 1052,
     "campusId": 23,
@@ -2026,9 +2026,9 @@
     "size": 40
   },
   {
-    "className": "å­¦ä½è‹±è¯­30ç­",
+    "className": "Ñ§Î»Ó¢Óï30°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -2036,7 +2036,7 @@
       3,
       4
     ],
-    "teacher": "å•ç´",
+    "teacher": "ÂÀÇÙ",
     "buildingId": 115,
     "classroomId": 1044,
     "campusId": 24,
@@ -2044,9 +2044,9 @@
     "size": 44
   },
   {
-    "className": "å­¦ä½è‹±è¯­45ç­",
+    "className": "Ñ§Î»Ó¢Óï45°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 4,
@@ -2054,7 +2054,7 @@
       3,
       4
     ],
-    "teacher": "å­™ç‘¾",
+    "teacher": "Ëïèª",
     "buildingId": 117,
     "classroomId": 1052,
     "campusId": 23,
@@ -2062,9 +2062,9 @@
     "size": 42
   },
   {
-    "className": "å­¦ä½è‹±è¯­67ç­",
+    "className": "Ñ§Î»Ó¢Óï67°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 5,
@@ -2072,7 +2072,7 @@
       3,
       4
     ],
-    "teacher": "å­™ä¹¦å…°",
+    "teacher": "ËïÊéÀ¼",
     "buildingId": 117,
     "classroomId": 1053,
     "campusId": 23,
@@ -2080,9 +2080,9 @@
     "size": 40
   },
   {
-    "className": "å­¦ä½è‹±è¯­58ç­",
+    "className": "Ñ§Î»Ó¢Óï58°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 5,
@@ -2090,7 +2090,7 @@
       1,
       2
     ],
-    "teacher": "åˆ˜è“‰",
+    "teacher": "ÁõÈØ",
     "buildingId": 117,
     "classroomId": 1048,
     "campusId": 23,
@@ -2098,9 +2098,9 @@
     "size": 42
   },
   {
-    "className": "å­¦ä½è‹±è¯­50ç­",
+    "className": "Ñ§Î»Ó¢Óï50°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 5,
@@ -2108,7 +2108,7 @@
       1,
       2
     ],
-    "teacher": "åˆ˜å¥åˆš",
+    "teacher": "Áõ½¡¸Õ",
     "buildingId": 117,
     "classroomId": 1040,
     "campusId": 23,
@@ -2116,9 +2116,9 @@
     "size": 39
   },
   {
-    "className": "å­¦ä½è‹±è¯­51ç­",
+    "className": "Ñ§Î»Ó¢Óï51°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 5,
@@ -2126,7 +2126,7 @@
       1,
       2
     ],
-    "teacher": "å‡Œå»ºè¾‰",
+    "teacher": "Áè½¨»Ô",
     "buildingId": 117,
     "classroomId": 1041,
     "campusId": 23,
@@ -2134,9 +2134,9 @@
     "size": 39
   },
   {
-    "className": "å­¦ä½è‹±è¯­70ç­",
+    "className": "Ñ§Î»Ó¢Óï70°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 5,
@@ -2144,7 +2144,7 @@
       3,
       4
     ],
-    "teacher": "åˆ˜è“‰",
+    "teacher": "ÁõÈØ",
     "buildingId": 117,
     "classroomId": 1048,
     "campusId": 23,
@@ -2152,9 +2152,9 @@
     "size": 38
   },
   {
-    "className": "å­¦ä½è‹±è¯­63ç­",
+    "className": "Ñ§Î»Ó¢Óï63°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 5,
@@ -2162,7 +2162,7 @@
       3,
       4
     ],
-    "teacher": "å‡Œå»ºè¾‰",
+    "teacher": "Áè½¨»Ô",
     "buildingId": 117,
     "classroomId": 1041,
     "campusId": 23,
@@ -2170,9 +2170,9 @@
     "size": 42
   },
   {
-    "className": "å­¦ä½è‹±è¯­57ç­",
+    "className": "Ñ§Î»Ó¢Óï57°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 5,
@@ -2180,7 +2180,7 @@
       1,
       2
     ],
-    "teacher": "æé»",
+    "teacher": "ÀîÀè",
     "buildingId": 117,
     "classroomId": 1037,
     "campusId": 23,
@@ -2188,9 +2188,9 @@
     "size": 42
   },
   {
-    "className": "å­¦ä½è‹±è¯­62ç­",
+    "className": "Ñ§Î»Ó¢Óï62°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 5,
@@ -2198,7 +2198,7 @@
       3,
       4
     ],
-    "teacher": "åˆ˜å¥åˆš",
+    "teacher": "Áõ½¡¸Õ",
     "buildingId": 117,
     "classroomId": 1040,
     "campusId": 23,
@@ -2206,9 +2206,9 @@
     "size": 43
   },
   {
-    "className": "å­¦ä½è‹±è¯­20ç­",
+    "className": "Ñ§Î»Ó¢Óï20°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -2216,7 +2216,7 @@
       3,
       4
     ],
-    "teacher": "ç››é›ªæ¢…",
+    "teacher": "Ê¢Ñ©Ã·",
     "buildingId": 115,
     "classroomId": 1042,
     "campusId": 24,
@@ -2224,9 +2224,9 @@
     "size": 44
   },
   {
-    "className": "å­¦ä½è‹±è¯­76ç­",
+    "className": "Ñ§Î»Ó¢Óï76°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 5,
@@ -2234,7 +2234,7 @@
       6,
       7
     ],
-    "teacher": "å­™ä¹¦å…°",
+    "teacher": "ËïÊéÀ¼",
     "buildingId": 117,
     "classroomId": 1051,
     "campusId": 23,
@@ -2242,9 +2242,9 @@
     "size": 38
   },
   {
-    "className": "å­¦ä½è‹±è¯­72ç­",
+    "className": "Ñ§Î»Ó¢Óï72°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 5,
@@ -2252,7 +2252,7 @@
       3,
       4
     ],
-    "teacher": "ç‹å­¦å",
+    "teacher": "ÍõÑ§»ª",
     "buildingId": 117,
     "classroomId": 1051,
     "campusId": 23,
@@ -2260,9 +2260,9 @@
     "size": 37
   },
   {
-    "className": "å­¦ä½è‹±è¯­34ç­",
+    "className": "Ñ§Î»Ó¢Óï34°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 4,
@@ -2270,7 +2270,7 @@
       1,
       2
     ],
-    "teacher": "å­™ä¹¦å…°",
+    "teacher": "ËïÊéÀ¼",
     "buildingId": 117,
     "classroomId": 1053,
     "campusId": 23,
@@ -2278,9 +2278,9 @@
     "size": 40
   },
   {
-    "className": "å­¦ä½è‹±è¯­43ç­",
+    "className": "Ñ§Î»Ó¢Óï43°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 4,
@@ -2288,7 +2288,7 @@
       3,
       4
     ],
-    "teacher": "å­™ä¹¦å…°",
+    "teacher": "ËïÊéÀ¼",
     "buildingId": 117,
     "classroomId": 1053,
     "campusId": 23,
@@ -2296,9 +2296,9 @@
     "size": 43
   },
   {
-    "className": "å­¦ä½è‹±è¯­56ç­",
+    "className": "Ñ§Î»Ó¢Óï56°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 5,
@@ -2306,7 +2306,7 @@
       1,
       2
     ],
-    "teacher": "å´å©·",
+    "teacher": "ÎâæÃ",
     "buildingId": 117,
     "classroomId": 1036,
     "campusId": 23,
@@ -2314,9 +2314,9 @@
     "size": 42
   },
   {
-    "className": "å­¦ä½è‹±è¯­28ç­",
+    "className": "Ñ§Î»Ó¢Óï28°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -2324,7 +2324,7 @@
       3,
       4
     ],
-    "teacher": "å¢å‡¤å¨Ÿ",
+    "teacher": "Â¬·ï¾ê",
     "buildingId": 115,
     "classroomId": 1032,
     "campusId": 24,
@@ -2332,9 +2332,9 @@
     "size": 44
   },
   {
-    "className": "å­¦ä½è‹±è¯­10ç­",
+    "className": "Ñ§Î»Ó¢Óï10°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -2342,7 +2342,7 @@
       1,
       2
     ],
-    "teacher": "å´å©·",
+    "teacher": "ÎâæÃ",
     "buildingId": 115,
     "classroomId": 1054,
     "campusId": 24,
@@ -2350,9 +2350,9 @@
     "size": 41
   },
   {
-    "className": "å­¦ä½è‹±è¯­25ç­",
+    "className": "Ñ§Î»Ó¢Óï25°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -2360,7 +2360,7 @@
       3,
       4
     ],
-    "teacher": "å´å©·",
+    "teacher": "ÎâæÃ",
     "buildingId": 115,
     "classroomId": 1054,
     "campusId": 24,
@@ -2368,9 +2368,9 @@
     "size": 43
   },
   {
-    "className": "å­¦ä½è‹±è¯­26ç­",
+    "className": "Ñ§Î»Ó¢Óï26°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -2378,7 +2378,7 @@
       3,
       4
     ],
-    "teacher": "æŸ³å»ºç²",
+    "teacher": "Áø½¨Áá",
     "buildingId": 115,
     "classroomId": 1028,
     "campusId": 24,
@@ -2386,9 +2386,9 @@
     "size": 43
   },
   {
-    "className": "å­¦ä½è‹±è¯­55ç­",
+    "className": "Ñ§Î»Ó¢Óï55°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 5,
@@ -2396,7 +2396,7 @@
       1,
       2
     ],
-    "teacher": "å­™ä¹¦å…°",
+    "teacher": "ËïÊéÀ¼",
     "buildingId": 117,
     "classroomId": 1053,
     "campusId": 23,
@@ -2404,9 +2404,9 @@
     "size": 42
   },
   {
-    "className": "å­¦ä½è‹±è¯­53ç­",
+    "className": "Ñ§Î»Ó¢Óï53°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 5,
@@ -2414,7 +2414,7 @@
       1,
       2
     ],
-    "teacher": "é‚¢å›½å£",
+    "teacher": "ĞÏ¹úÔ«",
     "buildingId": 117,
     "classroomId": 1038,
     "campusId": 23,
@@ -2422,9 +2422,9 @@
     "size": 42
   },
   {
-    "className": "å­¦ä½è‹±è¯­74ç­",
+    "className": "Ñ§Î»Ó¢Óï74°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 5,
@@ -2432,7 +2432,7 @@
       6,
       7
     ],
-    "teacher": "å‡Œå»ºè¾‰",
+    "teacher": "Áè½¨»Ô",
     "buildingId": 117,
     "classroomId": 1041,
     "campusId": 23,
@@ -2440,9 +2440,9 @@
     "size": 39
   },
   {
-    "className": "å­¦ä½è‹±è¯­75ç­",
+    "className": "Ñ§Î»Ó¢Óï75°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 5,
@@ -2450,7 +2450,7 @@
       6,
       7
     ],
-    "teacher": "æé»",
+    "teacher": "ÀîÀè",
     "buildingId": 117,
     "classroomId": 1037,
     "campusId": 23,
@@ -2458,9 +2458,9 @@
     "size": 39
   },
   {
-    "className": "å­¦ä½è‹±è¯­68ç­",
+    "className": "Ñ§Î»Ó¢Óï68°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 5,
@@ -2468,7 +2468,7 @@
       3,
       4
     ],
-    "teacher": "å´å©·",
+    "teacher": "ÎâæÃ",
     "buildingId": 117,
     "classroomId": 1036,
     "campusId": 23,
@@ -2476,9 +2476,9 @@
     "size": 37
   },
   {
-    "className": "å­¦ä½è‹±è¯­54ç­",
+    "className": "Ñ§Î»Ó¢Óï54°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 5,
@@ -2486,7 +2486,7 @@
       1,
       2
     ],
-    "teacher": "å¢å‡¤å¨Ÿ",
+    "teacher": "Â¬·ï¾ê",
     "buildingId": 117,
     "classroomId": 1034,
     "campusId": 23,
@@ -2494,9 +2494,9 @@
     "size": 42
   },
   {
-    "className": "å­¦ä½è‹±è¯­66ç­",
+    "className": "Ñ§Î»Ó¢Óï66°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 5,
@@ -2504,7 +2504,7 @@
       3,
       4
     ],
-    "teacher": "å¢å‡¤å¨Ÿ",
+    "teacher": "Â¬·ï¾ê",
     "buildingId": 117,
     "classroomId": 1034,
     "campusId": 23,
@@ -2512,9 +2512,9 @@
     "size": 42
   },
   {
-    "className": "å­¦ä½è‹±è¯­42ç­",
+    "className": "Ñ§Î»Ó¢Óï42°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 4,
@@ -2522,7 +2522,7 @@
       3,
       4
     ],
-    "teacher": "å¢å‡¤å¨Ÿ",
+    "teacher": "Â¬·ï¾ê",
     "buildingId": 117,
     "classroomId": 1034,
     "campusId": 23,
@@ -2530,9 +2530,9 @@
     "size": 43
   },
   {
-    "className": "å­¦ä½è‹±è¯­64ç­",
+    "className": "Ñ§Î»Ó¢Óï64°à",
     "courseId": "S000151",
-    "courseName": "å­¦ä½è‹±è¯­",
+    "courseName": "Ñ§Î»Ó¢Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 5,
@@ -2540,7 +2540,7 @@
       3,
       4
     ],
-    "teacher": "ç¿å»ºç§‹",
+    "teacher": "ÎÌ½¨Çï",
     "buildingId": 117,
     "classroomId": 1010,
     "campusId": 23,
@@ -2548,9 +2548,9 @@
     "size": 42
   },
   {
-    "className": "å­¦ä½æ—¥è¯­",
+    "className": "Ñ§Î»ÈÕÓï",
     "courseId": "S000152",
-    "courseName": "å­¦ä½æ—¥è¯­",
+    "courseName": "Ñ§Î»ÈÕÓï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 5,
@@ -2560,7 +2560,7 @@
       3,
       4
     ],
-    "teacher": "éŸ©æ™“",
+    "teacher": "º«Ïş",
     "buildingId": 117,
     "classroomId": 1055,
     "campusId": 23,
@@ -2568,9 +2568,9 @@
     "size": 17
   },
   {
-    "className": "å­¦ä½å¾·è¯­",
+    "className": "Ñ§Î»µÂÓï",
     "courseId": "S000153",
-    "courseName": "å­¦ä½å¾·è¯­",
+    "courseName": "Ñ§Î»µÂÓï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 5,
@@ -2580,7 +2580,7 @@
       3,
       4
     ],
-    "teacher": "åˆ˜è‰º",
+    "teacher": "ÁõÒÕ",
     "buildingId": 117,
     "classroomId": 1056,
     "campusId": 23,
@@ -2588,9 +2588,9 @@
     "size": 4
   },
   {
-    "className": "å­¦ä½æ³•è¯­",
+    "className": "Ñ§Î»·¨Óï",
     "courseId": "S000154",
-    "courseName": "å­¦ä½æ³•è¯­",
+    "courseName": "Ñ§Î»·¨Óï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 5,
@@ -2600,7 +2600,7 @@
       3,
       4
     ],
-    "teacher": "æå®ç¥",
+    "teacher": "ÀîÄş«h",
     "buildingId": 117,
     "classroomId": 1057,
     "campusId": 23,
@@ -2608,9 +2608,9 @@
     "size": 15
   },
   {
-    "className": "æ±‰è¯­",
+    "className": "ººÓï",
     "courseId": "S000156",
-    "courseName": "æ±‰è¯­",
+    "courseName": "ººÓï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 3,
@@ -2620,7 +2620,7 @@
       8,
       9
     ],
-    "teacher": "è®¸å³°",
+    "teacher": "Ğí·å",
     "buildingId": 116,
     "classroomId": 1006,
     "campusId": 24,
@@ -2628,9 +2628,9 @@
     "size": 64
   },
   {
-    "className": "æ±‰è¯­(è‹±æ–‡æˆè¯¾ï¼‰",
+    "className": "ººÓï(Ó¢ÎÄÊÚ¿Î£©",
     "courseId": "S000156",
-    "courseName": "æ±‰è¯­",
+    "courseName": "ººÓï",
     "startWeek": 1,
     "endWeek": 18,
     "dayOfWeek": 4,
@@ -2640,7 +2640,7 @@
       8,
       9
     ],
-    "teacher": "ç¨‹æ–Œ",
+    "teacher": "³Ì±ó",
     "buildingId": 116,
     "classroomId": 1006,
     "campusId": 24,
@@ -2648,9 +2648,9 @@
     "size": 59
   },
   {
-    "className": "ä¸­å›½ç‰¹è‰²13ç­",
+    "className": "ÖĞ¹úÌØÉ«13°à",
     "courseId": "S000301",
-    "courseName": "ä¸­å›½ç‰¹è‰²ç¤¾ä¼šä¸»ä¹‰ç†è®ºä¸å®è·µç ”ç©¶",
+    "courseName": "ÖĞ¹úÌØÉ«Éç»áÖ÷ÒåÀíÂÛÓëÊµ¼ùÑĞ¾¿",
     "startWeek": 7,
     "endWeek": 18,
     "dayOfWeek": 1,
@@ -2659,7 +2659,7 @@
       7,
       8
     ],
-    "teacher": "åºä¿Šæ¥",
+    "teacher": "ÅÓ¿¡À´",
     "buildingId": 117,
     "classroomId": 1019,
     "campusId": 23,
@@ -2667,9 +2667,9 @@
     "size": 124
   },
   {
-    "className": "ä¸­å›½ç‰¹è‰²07ç­",
+    "className": "ÖĞ¹úÌØÉ«07°à",
     "courseId": "S000301",
-    "courseName": "ä¸­å›½ç‰¹è‰²ç¤¾ä¼šä¸»ä¹‰ç†è®ºä¸å®è·µç ”ç©¶",
+    "courseName": "ÖĞ¹úÌØÉ«Éç»áÖ÷ÒåÀíÂÛÓëÊµ¼ùÑĞ¾¿",
     "startWeek": 7,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -2678,7 +2678,7 @@
       7,
       8
     ],
-    "teacher": "å¼ ä½³",
+    "teacher": "ÕÅ¼Ñ",
     "buildingId": 114,
     "classroomId": 1008,
     "campusId": 24,
@@ -2686,9 +2686,9 @@
     "size": 127
   },
   {
-    "className": "ä¸­å›½ç‰¹è‰²02ç­",
+    "className": "ÖĞ¹úÌØÉ«02°à",
     "courseId": "S000301",
-    "courseName": "ä¸­å›½ç‰¹è‰²ç¤¾ä¼šä¸»ä¹‰ç†è®ºä¸å®è·µç ”ç©¶",
+    "courseName": "ÖĞ¹úÌØÉ«Éç»áÖ÷ÒåÀíÂÛÓëÊµ¼ùÑĞ¾¿",
     "startWeek": 7,
     "endWeek": 18,
     "dayOfWeek": 1,
@@ -2697,7 +2697,7 @@
       7,
       8
     ],
-    "teacher": "å¼ ä½³",
+    "teacher": "ÕÅ¼Ñ",
     "buildingId": 114,
     "classroomId": 1008,
     "campusId": 24,
@@ -2705,9 +2705,9 @@
     "size": 131
   },
   {
-    "className": "ä¸­å›½ç‰¹è‰²05ç­",
+    "className": "ÖĞ¹úÌØÉ«05°à",
     "courseId": "S000301",
-    "courseName": "ä¸­å›½ç‰¹è‰²ç¤¾ä¼šä¸»ä¹‰ç†è®ºä¸å®è·µç ”ç©¶",
+    "courseName": "ÖĞ¹úÌØÉ«Éç»áÖ÷ÒåÀíÂÛÓëÊµ¼ùÑĞ¾¿",
     "startWeek": 7,
     "endWeek": 18,
     "dayOfWeek": 1,
@@ -2716,7 +2716,7 @@
       7,
       8
     ],
-    "teacher": "ä½•æµ©å¹³",
+    "teacher": "ºÎºÆÆ½",
     "buildingId": 114,
     "classroomId": 1001,
     "campusId": 24,
@@ -2724,9 +2724,9 @@
     "size": 126
   },
   {
-    "className": "ä¸­å›½ç‰¹è‰²01ç­",
+    "className": "ÖĞ¹úÌØÉ«01°à",
     "courseId": "S000301",
-    "courseName": "ä¸­å›½ç‰¹è‰²ç¤¾ä¼šä¸»ä¹‰ç†è®ºä¸å®è·µç ”ç©¶",
+    "courseName": "ÖĞ¹úÌØÉ«Éç»áÖ÷ÒåÀíÂÛÓëÊµ¼ùÑĞ¾¿",
     "startWeek": 7,
     "endWeek": 18,
     "dayOfWeek": 1,
@@ -2735,7 +2735,7 @@
       7,
       8
     ],
-    "teacher": "å¼ å­¦ä¹‰",
+    "teacher": "ÕÅÑ§Òå",
     "buildingId": 114,
     "classroomId": 1016,
     "campusId": 24,
@@ -2743,9 +2743,9 @@
     "size": 130
   },
   {
-    "className": "ä¸­å›½ç‰¹è‰²22ç­",
+    "className": "ÖĞ¹úÌØÉ«22°à",
     "courseId": "S000301",
-    "courseName": "ä¸­å›½ç‰¹è‰²ç¤¾ä¼šä¸»ä¹‰ç†è®ºä¸å®è·µç ”ç©¶",
+    "courseName": "ÖĞ¹úÌØÉ«Éç»áÖ÷ÒåÀíÂÛÓëÊµ¼ùÑĞ¾¿",
     "startWeek": 7,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -2754,7 +2754,7 @@
       7,
       8
     ],
-    "teacher": "åˆ˜é­",
+    "teacher": "Áõ¿ı",
     "buildingId": 117,
     "classroomId": 1025,
     "campusId": 23,
@@ -2762,9 +2762,9 @@
     "size": 125
   },
   {
-    "className": "ä¸­å›½ç‰¹è‰²10ç­",
+    "className": "ÖĞ¹úÌØÉ«10°à",
     "courseId": "S000301",
-    "courseName": "ä¸­å›½ç‰¹è‰²ç¤¾ä¼šä¸»ä¹‰ç†è®ºä¸å®è·µç ”ç©¶",
+    "courseName": "ÖĞ¹úÌØÉ«Éç»áÖ÷ÒåÀíÂÛÓëÊµ¼ùÑĞ¾¿",
     "startWeek": 7,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -2773,7 +2773,7 @@
       7,
       8
     ],
-    "teacher": "ä½•æµ©å¹³",
+    "teacher": "ºÎºÆÆ½",
     "buildingId": 114,
     "classroomId": 1001,
     "campusId": 24,
@@ -2781,9 +2781,9 @@
     "size": 125
   },
   {
-    "className": "ä¸­å›½ç‰¹è‰²06ç­",
+    "className": "ÖĞ¹úÌØÉ«06°à",
     "courseId": "S000301",
-    "courseName": "ä¸­å›½ç‰¹è‰²ç¤¾ä¼šä¸»ä¹‰ç†è®ºä¸å®è·µç ”ç©¶",
+    "courseName": "ÖĞ¹úÌØÉ«Éç»áÖ÷ÒåÀíÂÛÓëÊµ¼ùÑĞ¾¿",
     "startWeek": 7,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -2792,7 +2792,7 @@
       7,
       8
     ],
-    "teacher": "å¼ å­¦ä¹‰",
+    "teacher": "ÕÅÑ§Òå",
     "buildingId": 114,
     "classroomId": 1016,
     "campusId": 24,
@@ -2800,9 +2800,9 @@
     "size": 128
   },
   {
-    "className": "ä¸­å›½ç‰¹è‰²17ç­",
+    "className": "ÖĞ¹úÌØÉ«17°à",
     "courseId": "S000301",
-    "courseName": "ä¸­å›½ç‰¹è‰²ç¤¾ä¼šä¸»ä¹‰ç†è®ºä¸å®è·µç ”ç©¶",
+    "courseName": "ÖĞ¹úÌØÉ«Éç»áÖ÷ÒåÀíÂÛÓëÊµ¼ùÑĞ¾¿",
     "startWeek": 7,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -2811,7 +2811,7 @@
       7,
       8
     ],
-    "teacher": "åˆ˜ä½œ",
+    "teacher": "Áõ×÷",
     "buildingId": 117,
     "classroomId": 1015,
     "campusId": 23,
@@ -2819,9 +2819,9 @@
     "size": 127
   },
   {
-    "className": "ä¸­å›½ç‰¹è‰²11ç­",
+    "className": "ÖĞ¹úÌØÉ«11°à",
     "courseId": "S000301",
-    "courseName": "ä¸­å›½ç‰¹è‰²ç¤¾ä¼šä¸»ä¹‰ç†è®ºä¸å®è·µç ”ç©¶",
+    "courseName": "ÖĞ¹úÌØÉ«Éç»áÖ÷ÒåÀíÂÛÓëÊµ¼ùÑĞ¾¿",
     "startWeek": 7,
     "endWeek": 18,
     "dayOfWeek": 1,
@@ -2830,7 +2830,7 @@
       7,
       8
     ],
-    "teacher": "åˆ˜ä½œ",
+    "teacher": "Áõ×÷",
     "buildingId": 117,
     "classroomId": 1015,
     "campusId": 23,
@@ -2838,9 +2838,9 @@
     "size": 125
   },
   {
-    "className": "ä¸­å›½ç‰¹è‰²03ç­",
+    "className": "ÖĞ¹úÌØÉ«03°à",
     "courseId": "S000301",
-    "courseName": "ä¸­å›½ç‰¹è‰²ç¤¾ä¼šä¸»ä¹‰ç†è®ºä¸å®è·µç ”ç©¶",
+    "courseName": "ÖĞ¹úÌØÉ«Éç»áÖ÷ÒåÀíÂÛÓëÊµ¼ùÑĞ¾¿",
     "startWeek": 7,
     "endWeek": 18,
     "dayOfWeek": 1,
@@ -2849,7 +2849,7 @@
       7,
       8
     ],
-    "teacher": "è®¸æ•",
+    "teacher": "ĞíÃô",
     "buildingId": 114,
     "classroomId": 1017,
     "campusId": 24,
@@ -2857,9 +2857,9 @@
     "size": 129
   },
   {
-    "className": "ä¸­å›½ç‰¹è‰²04ç­",
+    "className": "ÖĞ¹úÌØÉ«04°à",
     "courseId": "S000301",
-    "courseName": "ä¸­å›½ç‰¹è‰²ç¤¾ä¼šä¸»ä¹‰ç†è®ºä¸å®è·µç ”ç©¶",
+    "courseName": "ÖĞ¹úÌØÉ«Éç»áÖ÷ÒåÀíÂÛÓëÊµ¼ùÑĞ¾¿",
     "startWeek": 7,
     "endWeek": 18,
     "dayOfWeek": 1,
@@ -2868,7 +2868,7 @@
       7,
       8
     ],
-    "teacher": "èŒƒå¿—å†›",
+    "teacher": "·¶Ö¾¾ü",
     "buildingId": 114,
     "classroomId": 1020,
     "campusId": 24,
@@ -2876,9 +2876,9 @@
     "size": 124
   },
   {
-    "className": "ä¸­å›½ç‰¹è‰²08ç­",
+    "className": "ÖĞ¹úÌØÉ«08°à",
     "courseId": "S000301",
-    "courseName": "ä¸­å›½ç‰¹è‰²ç¤¾ä¼šä¸»ä¹‰ç†è®ºä¸å®è·µç ”ç©¶",
+    "courseName": "ÖĞ¹úÌØÉ«Éç»áÖ÷ÒåÀíÂÛÓëÊµ¼ùÑĞ¾¿",
     "startWeek": 7,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -2887,7 +2887,7 @@
       7,
       8
     ],
-    "teacher": "è®¸æ•",
+    "teacher": "ĞíÃô",
     "buildingId": 114,
     "classroomId": 1017,
     "campusId": 24,
@@ -2895,9 +2895,9 @@
     "size": 132
   },
   {
-    "className": "ä¸­å›½ç‰¹è‰²09ç­",
+    "className": "ÖĞ¹úÌØÉ«09°à",
     "courseId": "S000301",
-    "courseName": "ä¸­å›½ç‰¹è‰²ç¤¾ä¼šä¸»ä¹‰ç†è®ºä¸å®è·µç ”ç©¶",
+    "courseName": "ÖĞ¹úÌØÉ«Éç»áÖ÷ÒåÀíÂÛÓëÊµ¼ùÑĞ¾¿",
     "startWeek": 7,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -2906,7 +2906,7 @@
       7,
       8
     ],
-    "teacher": "èŒƒå¿—å†›",
+    "teacher": "·¶Ö¾¾ü",
     "buildingId": 114,
     "classroomId": 1020,
     "campusId": 24,
@@ -2914,9 +2914,9 @@
     "size": 133
   },
   {
-    "className": "ä¸­å›½ç‰¹è‰²12ç­",
+    "className": "ÖĞ¹úÌØÉ«12°à",
     "courseId": "S000301",
-    "courseName": "ä¸­å›½ç‰¹è‰²ç¤¾ä¼šä¸»ä¹‰ç†è®ºä¸å®è·µç ”ç©¶",
+    "courseName": "ÖĞ¹úÌØÉ«Éç»áÖ÷ÒåÀíÂÛÓëÊµ¼ùÑĞ¾¿",
     "startWeek": 7,
     "endWeek": 18,
     "dayOfWeek": 1,
@@ -2925,7 +2925,7 @@
       7,
       8
     ],
-    "teacher": "é™¶å“ç«‹",
+    "teacher": "ÌÕ×¿Á¢",
     "buildingId": 117,
     "classroomId": 1018,
     "campusId": 23,
@@ -2933,9 +2933,9 @@
     "size": 124
   },
   {
-    "className": "ä¸­å›½ç‰¹è‰²16ç­",
+    "className": "ÖĞ¹úÌØÉ«16°à",
     "courseId": "S000301",
-    "courseName": "ä¸­å›½ç‰¹è‰²ç¤¾ä¼šä¸»ä¹‰ç†è®ºä¸å®è·µç ”ç©¶",
+    "courseName": "ÖĞ¹úÌØÉ«Éç»áÖ÷ÒåÀíÂÛÓëÊµ¼ùÑĞ¾¿",
     "startWeek": 7,
     "endWeek": 18,
     "dayOfWeek": 1,
@@ -2944,7 +2944,7 @@
       7,
       8
     ],
-    "teacher": "å²³ç‘¨",
+    "teacher": "ÔÀ¬’",
     "buildingId": 117,
     "classroomId": 1021,
     "campusId": 23,
@@ -2952,9 +2952,9 @@
     "size": 127
   },
   {
-    "className": "ä¸­å›½ç‰¹è‰²19ç­",
+    "className": "ÖĞ¹úÌØÉ«19°à",
     "courseId": "S000301",
-    "courseName": "ä¸­å›½ç‰¹è‰²ç¤¾ä¼šä¸»ä¹‰ç†è®ºä¸å®è·µç ”ç©¶",
+    "courseName": "ÖĞ¹úÌØÉ«Éç»áÖ÷ÒåÀíÂÛÓëÊµ¼ùÑĞ¾¿",
     "startWeek": 7,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -2963,7 +2963,7 @@
       7,
       8
     ],
-    "teacher": "é™¶å“ç«‹",
+    "teacher": "ÌÕ×¿Á¢",
     "buildingId": 117,
     "classroomId": 1018,
     "campusId": 23,
@@ -2971,9 +2971,9 @@
     "size": 125
   },
   {
-    "className": "ä¸­å›½ç‰¹è‰²20ç­",
+    "className": "ÖĞ¹úÌØÉ«20°à",
     "courseId": "S000301",
-    "courseName": "ä¸­å›½ç‰¹è‰²ç¤¾ä¼šä¸»ä¹‰ç†è®ºä¸å®è·µç ”ç©¶",
+    "courseName": "ÖĞ¹úÌØÉ«Éç»áÖ÷ÒåÀíÂÛÓëÊµ¼ùÑĞ¾¿",
     "startWeek": 7,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -2982,7 +2982,7 @@
       7,
       8
     ],
-    "teacher": "å²³ç‘¨",
+    "teacher": "ÔÀ¬’",
     "buildingId": 117,
     "classroomId": 1021,
     "campusId": 23,
@@ -2990,9 +2990,9 @@
     "size": 126
   },
   {
-    "className": "ä¸­å›½ç‰¹è‰²18ç­",
+    "className": "ÖĞ¹úÌØÉ«18°à",
     "courseId": "S000301",
-    "courseName": "ä¸­å›½ç‰¹è‰²ç¤¾ä¼šä¸»ä¹‰ç†è®ºä¸å®è·µç ”ç©¶",
+    "courseName": "ÖĞ¹úÌØÉ«Éç»áÖ÷ÒåÀíÂÛÓëÊµ¼ùÑĞ¾¿",
     "startWeek": 7,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -3001,7 +3001,7 @@
       7,
       8
     ],
-    "teacher": "æˆ´æ­£å†œ",
+    "teacher": "´÷ÕıÅ©",
     "buildingId": 117,
     "classroomId": 1022,
     "campusId": 23,
@@ -3009,9 +3009,9 @@
     "size": 127
   },
   {
-    "className": "ä¸­å›½ç‰¹è‰²15ç­",
+    "className": "ÖĞ¹úÌØÉ«15°à",
     "courseId": "S000301",
-    "courseName": "ä¸­å›½ç‰¹è‰²ç¤¾ä¼šä¸»ä¹‰ç†è®ºä¸å®è·µç ”ç©¶",
+    "courseName": "ÖĞ¹úÌØÉ«Éç»áÖ÷ÒåÀíÂÛÓëÊµ¼ùÑĞ¾¿",
     "startWeek": 7,
     "endWeek": 18,
     "dayOfWeek": 1,
@@ -3020,7 +3020,7 @@
       7,
       8
     ],
-    "teacher": "æ¢å«éœ",
+    "teacher": "ÁºÎÀÏ¼",
     "buildingId": 117,
     "classroomId": 1023,
     "campusId": 23,
@@ -3028,9 +3028,9 @@
     "size": 127
   },
   {
-    "className": "ä¸­å›½ç‰¹è‰²14ç­",
+    "className": "ÖĞ¹úÌØÉ«14°à",
     "courseId": "S000301",
-    "courseName": "ä¸­å›½ç‰¹è‰²ç¤¾ä¼šä¸»ä¹‰ç†è®ºä¸å®è·µç ”ç©¶",
+    "courseName": "ÖĞ¹úÌØÉ«Éç»áÖ÷ÒåÀíÂÛÓëÊµ¼ùÑĞ¾¿",
     "startWeek": 7,
     "endWeek": 18,
     "dayOfWeek": 1,
@@ -3039,7 +3039,7 @@
       7,
       8
     ],
-    "teacher": "æˆ´æ­£å†œ",
+    "teacher": "´÷ÕıÅ©",
     "buildingId": 117,
     "classroomId": 1022,
     "campusId": 23,
@@ -3047,9 +3047,9 @@
     "size": 127
   },
   {
-    "className": "ä¸­å›½ç‰¹è‰²ï¼ˆIC-æ— é”¡ï¼‰",
+    "className": "ÖĞ¹úÌØÉ«£¨IC-ÎŞÎı£©",
     "courseId": "S000301",
-    "courseName": "ä¸­å›½ç‰¹è‰²ç¤¾ä¼šä¸»ä¹‰ç†è®ºä¸å®è·µç ”ç©¶",
+    "courseName": "ÖĞ¹úÌØÉ«Éç»áÖ÷ÒåÀíÂÛÓëÊµ¼ùÑĞ¾¿",
     "startWeek": 7,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -3058,7 +3058,7 @@
       4,
       5
     ],
-    "teacher": "é«˜å¹¿æ—­",
+    "teacher": "¸ß¹ãĞñ",
     "buildingId": 119,
     "classroomId": 1058,
     "campusId": 27,
@@ -3066,9 +3066,9 @@
     "size": 143
   },
   {
-    "className": "ä¸­å›½ç‰¹è‰²25ç­",
+    "className": "ÖĞ¹úÌØÉ«25°à",
     "courseId": "S000301",
-    "courseName": "ä¸­å›½ç‰¹è‰²ç¤¾ä¼šä¸»ä¹‰ç†è®ºä¸å®è·µç ”ç©¶",
+    "courseName": "ÖĞ¹úÌØÉ«Éç»áÖ÷ÒåÀíÂÛÓëÊµ¼ùÑĞ¾¿",
     "startWeek": 7,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -3077,7 +3077,7 @@
       7,
       8
     ],
-    "teacher": "è’‹å¤©å©µ",
+    "teacher": "½¯Ììæ¿",
     "buildingId": 117,
     "classroomId": 1059,
     "campusId": 23,
@@ -3085,9 +3085,9 @@
     "size": 137
   },
   {
-    "className": "ä¸­å›½ç‰¹è‰²24ç­",
+    "className": "ÖĞ¹úÌØÉ«24°à",
     "courseId": "S000301",
-    "courseName": "ä¸­å›½ç‰¹è‰²ç¤¾ä¼šä¸»ä¹‰ç†è®ºä¸å®è·µç ”ç©¶",
+    "courseName": "ÖĞ¹úÌØÉ«Éç»áÖ÷ÒåÀíÂÛÓëÊµ¼ùÑĞ¾¿",
     "startWeek": 7,
     "endWeek": 18,
     "dayOfWeek": 3,
@@ -3096,7 +3096,7 @@
       7,
       8
     ],
-    "teacher": "åºä¿Šæ¥",
+    "teacher": "ÅÓ¿¡À´",
     "buildingId": 117,
     "classroomId": 1059,
     "campusId": 23,
@@ -3104,9 +3104,9 @@
     "size": 135
   },
   {
-    "className": "ä¸­å›½ç‰¹è‰²23ç­",
+    "className": "ÖĞ¹úÌØÉ«23°à",
     "courseId": "S000301",
-    "courseName": "ä¸­å›½ç‰¹è‰²ç¤¾ä¼šä¸»ä¹‰ç†è®ºä¸å®è·µç ”ç©¶",
+    "courseName": "ÖĞ¹úÌØÉ«Éç»áÖ÷ÒåÀíÂÛÓëÊµ¼ùÑĞ¾¿",
     "startWeek": 7,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -3115,7 +3115,7 @@
       7,
       8
     ],
-    "teacher": "åºä¿Šæ¥",
+    "teacher": "ÅÓ¿¡À´",
     "buildingId": 117,
     "classroomId": 1019,
     "campusId": 23,
@@ -3123,9 +3123,9 @@
     "size": 125
   },
   {
-    "className": "ä¸­å›½ç‰¹è‰²21ç­",
+    "className": "ÖĞ¹úÌØÉ«21°à",
     "courseId": "S000301",
-    "courseName": "ä¸­å›½ç‰¹è‰²ç¤¾ä¼šä¸»ä¹‰ç†è®ºä¸å®è·µç ”ç©¶",
+    "courseName": "ÖĞ¹úÌØÉ«Éç»áÖ÷ÒåÀíÂÛÓëÊµ¼ùÑĞ¾¿",
     "startWeek": 7,
     "endWeek": 18,
     "dayOfWeek": 2,
@@ -3134,7 +3134,7 @@
       7,
       8
     ],
-    "teacher": "æ¢å«éœ",
+    "teacher": "ÁºÎÀÏ¼",
     "buildingId": 117,
     "classroomId": 1023,
     "campusId": 23,
@@ -3142,9 +3142,9 @@
     "size": 127
   },
   {
-    "className": "è‡ªç„¶è¾©è¯æ³•23ç­",
+    "className": "×ÔÈ»±çÖ¤·¨23°à",
     "courseId": "S000302",
-    "courseName": "è‡ªç„¶è¾©è¯æ³•æ¦‚è®º",
+    "courseName": "×ÔÈ»±çÖ¤·¨¸ÅÂÛ",
     "startWeek": 1,
     "endWeek": 6,
     "dayOfWeek": 2,
@@ -3153,7 +3153,7 @@
       7,
       8
     ],
-    "teacher": "åºä¿Šæ¥",
+    "teacher": "ÅÓ¿¡À´",
     "buildingId": 117,
     "classroomId": 1019,
     "campusId": 23,
@@ -3161,9 +3161,9 @@
     "size": 125
   },
   {
-    "className": "è‡ªç„¶è¾©è¯æ³•15ç­",
+    "className": "×ÔÈ»±çÖ¤·¨15°à",
     "courseId": "S000302",
-    "courseName": "è‡ªç„¶è¾©è¯æ³•æ¦‚è®º",
+    "courseName": "×ÔÈ»±çÖ¤·¨¸ÅÂÛ",
     "startWeek": 1,
     "endWeek": 6,
     "dayOfWeek": 1,
@@ -3172,7 +3172,7 @@
       7,
       8
     ],
-    "teacher": "æ¢å«éœ",
+    "teacher": "ÁºÎÀÏ¼",
     "buildingId": 117,
     "classroomId": 1023,
     "campusId": 23,
@@ -3180,9 +3180,9 @@
     "size": 127
   },
   {
-    "className": "è‡ªç„¶è¾©è¯æ³•ï¼ˆIC-æ— é”¡ï¼‰",
+    "className": "×ÔÈ»±çÖ¤·¨£¨IC-ÎŞÎı£©",
     "courseId": "S000302",
-    "courseName": "è‡ªç„¶è¾©è¯æ³•æ¦‚è®º",
+    "courseName": "×ÔÈ»±çÖ¤·¨¸ÅÂÛ",
     "startWeek": 1,
     "endWeek": 6,
     "dayOfWeek": 2,
@@ -3191,7 +3191,7 @@
       4,
       5
     ],
-    "teacher": "é«˜å¹¿æ—­",
+    "teacher": "¸ß¹ãĞñ",
     "buildingId": 119,
     "classroomId": 1058,
     "campusId": 27,
@@ -3199,9 +3199,9 @@
     "size": 143
   },
   {
-    "className": "è‡ªç„¶è¾©è¯æ³•05ç­",
+    "className": "×ÔÈ»±çÖ¤·¨05°à",
     "courseId": "S000302",
-    "courseName": "è‡ªç„¶è¾©è¯æ³•æ¦‚è®º",
+    "courseName": "×ÔÈ»±çÖ¤·¨¸ÅÂÛ",
     "startWeek": 1,
     "endWeek": 6,
     "dayOfWeek": 1,
@@ -3210,7 +3210,7 @@
       7,
       8
     ],
-    "teacher": "ä½•æµ©å¹³",
+    "teacher": "ºÎºÆÆ½",
     "buildingId": 114,
     "classroomId": 1001,
     "campusId": 24,
@@ -3218,9 +3218,9 @@
     "size": 126
   },
   {
-    "className": "è‡ªç„¶è¾©è¯æ³•03ç­",
+    "className": "×ÔÈ»±çÖ¤·¨03°à",
     "courseId": "S000302",
-    "courseName": "è‡ªç„¶è¾©è¯æ³•æ¦‚è®º",
+    "courseName": "×ÔÈ»±çÖ¤·¨¸ÅÂÛ",
     "startWeek": 1,
     "endWeek": 6,
     "dayOfWeek": 1,
@@ -3229,7 +3229,7 @@
       7,
       8
     ],
-    "teacher": "è®¸æ•",
+    "teacher": "ĞíÃô",
     "buildingId": 114,
     "classroomId": 1017,
     "campusId": 24,
@@ -3237,9 +3237,9 @@
     "size": 129
   },
   {
-    "className": "è‡ªç„¶è¾©è¯æ³•22ç­",
+    "className": "×ÔÈ»±çÖ¤·¨22°à",
     "courseId": "S000302",
-    "courseName": "è‡ªç„¶è¾©è¯æ³•æ¦‚è®º",
+    "courseName": "×ÔÈ»±çÖ¤·¨¸ÅÂÛ",
     "startWeek": 1,
     "endWeek": 6,
     "dayOfWeek": 2,
@@ -3248,7 +3248,7 @@
       7,
       8
     ],
-    "teacher": "åˆ˜é­",
+    "teacher": "Áõ¿ı",
     "buildingId": 117,
     "classroomId": 1025,
     "campusId": 23,
@@ -3256,9 +3256,9 @@
     "size": 125
   },
   {
-    "className": "è‡ªç„¶è¾©è¯æ³•10ç­",
+    "className": "×ÔÈ»±çÖ¤·¨10°à",
     "courseId": "S000302",
-    "courseName": "è‡ªç„¶è¾©è¯æ³•æ¦‚è®º",
+    "courseName": "×ÔÈ»±çÖ¤·¨¸ÅÂÛ",
     "startWeek": 1,
     "endWeek": 6,
     "dayOfWeek": 2,
@@ -3267,7 +3267,7 @@
       7,
       8
     ],
-    "teacher": "ä½•æµ©å¹³",
+    "teacher": "ºÎºÆÆ½",
     "buildingId": 114,
     "classroomId": 1001,
     "campusId": 24,
@@ -3275,9 +3275,9 @@
     "size": 125
   },
   {
-    "className": "è‡ªç„¶è¾©è¯æ³•08ç­",
+    "className": "×ÔÈ»±çÖ¤·¨08°à",
     "courseId": "S000302",
-    "courseName": "è‡ªç„¶è¾©è¯æ³•æ¦‚è®º",
+    "courseName": "×ÔÈ»±çÖ¤·¨¸ÅÂÛ",
     "startWeek": 1,
     "endWeek": 6,
     "dayOfWeek": 2,
@@ -3286,7 +3286,7 @@
       7,
       8
     ],
-    "teacher": "è®¸æ•",
+    "teacher": "ĞíÃô",
     "buildingId": 114,
     "classroomId": 1017,
     "campusId": 24,
@@ -3294,9 +3294,9 @@
     "size": 132
   },
   {
-    "className": "è‡ªç„¶è¾©è¯æ³•17ç­",
+    "className": "×ÔÈ»±çÖ¤·¨17°à",
     "courseId": "S000302",
-    "courseName": "è‡ªç„¶è¾©è¯æ³•æ¦‚è®º",
+    "courseName": "×ÔÈ»±çÖ¤·¨¸ÅÂÛ",
     "startWeek": 1,
     "endWeek": 6,
     "dayOfWeek": 2,
@@ -3305,7 +3305,7 @@
       7,
       8
     ],
-    "teacher": "åˆ˜ä½œ",
+    "teacher": "Áõ×÷",
     "buildingId": 117,
     "classroomId": 1015,
     "campusId": 23,
@@ -3313,9 +3313,9 @@
     "size": 127
   },
   {
-    "className": "è‡ªç„¶è¾©è¯æ³•11ç­",
+    "className": "×ÔÈ»±çÖ¤·¨11°à",
     "courseId": "S000302",
-    "courseName": "è‡ªç„¶è¾©è¯æ³•æ¦‚è®º",
+    "courseName": "×ÔÈ»±çÖ¤·¨¸ÅÂÛ",
     "startWeek": 1,
     "endWeek": 6,
     "dayOfWeek": 1,
@@ -3324,7 +3324,7 @@
       7,
       8
     ],
-    "teacher": "åˆ˜ä½œ",
+    "teacher": "Áõ×÷",
     "buildingId": 117,
     "classroomId": 1015,
     "campusId": 23,
@@ -3332,9 +3332,9 @@
     "size": 125
   },
   {
-    "className": "è‡ªç„¶è¾©è¯æ³•01ç­",
+    "className": "×ÔÈ»±çÖ¤·¨01°à",
     "courseId": "S000302",
-    "courseName": "è‡ªç„¶è¾©è¯æ³•æ¦‚è®º",
+    "courseName": "×ÔÈ»±çÖ¤·¨¸ÅÂÛ",
     "startWeek": 1,
     "endWeek": 6,
     "dayOfWeek": 1,
@@ -3343,7 +3343,7 @@
       7,
       8
     ],
-    "teacher": "å¼ å­¦ä¹‰",
+    "teacher": "ÕÅÑ§Òå",
     "buildingId": 114,
     "classroomId": 1016,
     "campusId": 24,
@@ -3351,9 +3351,9 @@
     "size": 130
   },
   {
-    "className": "è‡ªç„¶è¾©è¯æ³•04ç­",
+    "className": "×ÔÈ»±çÖ¤·¨04°à",
     "courseId": "S000302",
-    "courseName": "è‡ªç„¶è¾©è¯æ³•æ¦‚è®º",
+    "courseName": "×ÔÈ»±çÖ¤·¨¸ÅÂÛ",
     "startWeek": 1,
     "endWeek": 6,
     "dayOfWeek": 1,
@@ -3362,7 +3362,7 @@
       7,
       8
     ],
-    "teacher": "èŒƒå¿—å†›",
+    "teacher": "·¶Ö¾¾ü",
     "buildingId": 114,
     "classroomId": 1020,
     "campusId": 24,
@@ -3370,9 +3370,9 @@
     "size": 124
   },
   {
-    "className": "è‡ªç„¶è¾©è¯æ³•06ç­",
+    "className": "×ÔÈ»±çÖ¤·¨06°à",
     "courseId": "S000302",
-    "courseName": "è‡ªç„¶è¾©è¯æ³•æ¦‚è®º",
+    "courseName": "×ÔÈ»±çÖ¤·¨¸ÅÂÛ",
     "startWeek": 1,
     "endWeek": 6,
     "dayOfWeek": 2,
@@ -3381,7 +3381,7 @@
       7,
       8
     ],
-    "teacher": "å¼ å­¦ä¹‰",
+    "teacher": "ÕÅÑ§Òå",
     "buildingId": 114,
     "classroomId": 1016,
     "campusId": 24,
@@ -3389,9 +3389,9 @@
     "size": 128
   },
   {
-    "className": "è‡ªç„¶è¾©è¯æ³•09ç­",
+    "className": "×ÔÈ»±çÖ¤·¨09°à",
     "courseId": "S000302",
-    "courseName": "è‡ªç„¶è¾©è¯æ³•æ¦‚è®º",
+    "courseName": "×ÔÈ»±çÖ¤·¨¸ÅÂÛ",
     "startWeek": 1,
     "endWeek": 6,
     "dayOfWeek": 2,
@@ -3400,7 +3400,7 @@
       7,
       8
     ],
-    "teacher": "èŒƒå¿—å†›",
+    "teacher": "·¶Ö¾¾ü",
     "buildingId": 114,
     "classroomId": 1020,
     "campusId": 24,
@@ -3408,9 +3408,9 @@
     "size": 133
   },
   {
-    "className": "è‡ªç„¶è¾©è¯æ³•12ç­",
+    "className": "×ÔÈ»±çÖ¤·¨12°à",
     "courseId": "S000302",
-    "courseName": "è‡ªç„¶è¾©è¯æ³•æ¦‚è®º",
+    "courseName": "×ÔÈ»±çÖ¤·¨¸ÅÂÛ",
     "startWeek": 1,
     "endWeek": 6,
     "dayOfWeek": 1,
@@ -3419,7 +3419,7 @@
       7,
       8
     ],
-    "teacher": "é™¶å“ç«‹",
+    "teacher": "ÌÕ×¿Á¢",
     "buildingId": 117,
     "classroomId": 1018,
     "campusId": 23,
@@ -3427,9 +3427,9 @@
     "size": 124
   },
   {
-    "className": "è‡ªç„¶è¾©è¯æ³•16ç­",
+    "className": "×ÔÈ»±çÖ¤·¨16°à",
     "courseId": "S000302",
-    "courseName": "è‡ªç„¶è¾©è¯æ³•æ¦‚è®º",
+    "courseName": "×ÔÈ»±çÖ¤·¨¸ÅÂÛ",
     "startWeek": 1,
     "endWeek": 6,
     "dayOfWeek": 1,
@@ -3438,7 +3438,7 @@
       7,
       8
     ],
-    "teacher": "å²³ç‘¨",
+    "teacher": "ÔÀ¬’",
     "buildingId": 117,
     "classroomId": 1021,
     "campusId": 23,
@@ -3446,9 +3446,9 @@
     "size": 127
   },
   {
-    "className": "è‡ªç„¶è¾©è¯æ³•19ç­",
+    "className": "×ÔÈ»±çÖ¤·¨19°à",
     "courseId": "S000302",
-    "courseName": "è‡ªç„¶è¾©è¯æ³•æ¦‚è®º",
+    "courseName": "×ÔÈ»±çÖ¤·¨¸ÅÂÛ",
     "startWeek": 1,
     "endWeek": 6,
     "dayOfWeek": 2,
@@ -3457,7 +3457,7 @@
       7,
       8
     ],
-    "teacher": "é™¶å“ç«‹",
+    "teacher": "ÌÕ×¿Á¢",
     "buildingId": 117,
     "classroomId": 1018,
     "campusId": 23,
@@ -3465,9 +3465,9 @@
     "size": 125
   },
   {
-    "className": "è‡ªç„¶è¾©è¯æ³•20ç­",
+    "className": "×ÔÈ»±çÖ¤·¨20°à",
     "courseId": "S000302",
-    "courseName": "è‡ªç„¶è¾©è¯æ³•æ¦‚è®º",
+    "courseName": "×ÔÈ»±çÖ¤·¨¸ÅÂÛ",
     "startWeek": 1,
     "endWeek": 6,
     "dayOfWeek": 2,
@@ -3476,7 +3476,7 @@
       7,
       8
     ],
-    "teacher": "å²³ç‘¨",
+    "teacher": "ÔÀ¬’",
     "buildingId": 117,
     "classroomId": 1021,
     "campusId": 23,
@@ -3484,9 +3484,9 @@
     "size": 126
   },
   {
-    "className": "è‡ªç„¶è¾©è¯æ³•18ç­",
+    "className": "×ÔÈ»±çÖ¤·¨18°à",
     "courseId": "S000302",
-    "courseName": "è‡ªç„¶è¾©è¯æ³•æ¦‚è®º",
+    "courseName": "×ÔÈ»±çÖ¤·¨¸ÅÂÛ",
     "startWeek": 1,
     "endWeek": 6,
     "dayOfWeek": 2,
@@ -3495,7 +3495,7 @@
       7,
       8
     ],
-    "teacher": "æˆ´æ­£å†œ",
+    "teacher": "´÷ÕıÅ©",
     "buildingId": 117,
     "classroomId": 1022,
     "campusId": 23,
@@ -3503,9 +3503,9 @@
     "size": 127
   },
   {
-    "className": "è‡ªç„¶è¾©è¯æ³•21ç­",
+    "className": "×ÔÈ»±çÖ¤·¨21°à",
     "courseId": "S000302",
-    "courseName": "è‡ªç„¶è¾©è¯æ³•æ¦‚è®º",
+    "courseName": "×ÔÈ»±çÖ¤·¨¸ÅÂÛ",
     "startWeek": 1,
     "endWeek": 6,
     "dayOfWeek": 2,
@@ -3514,7 +3514,7 @@
       7,
       8
     ],
-    "teacher": "æ¢å«éœ",
+    "teacher": "ÁºÎÀÏ¼",
     "buildingId": 117,
     "classroomId": 1023,
     "campusId": 23,
@@ -3522,9 +3522,9 @@
     "size": 127
   },
   {
-    "className": "è‡ªç„¶è¾©è¯æ³•14ç­",
+    "className": "×ÔÈ»±çÖ¤·¨14°à",
     "courseId": "S000302",
-    "courseName": "è‡ªç„¶è¾©è¯æ³•æ¦‚è®º",
+    "courseName": "×ÔÈ»±çÖ¤·¨¸ÅÂÛ",
     "startWeek": 1,
     "endWeek": 6,
     "dayOfWeek": 1,
@@ -3533,7 +3533,7 @@
       7,
       8
     ],
-    "teacher": "æˆ´æ­£å†œ",
+    "teacher": "´÷ÕıÅ©",
     "buildingId": 117,
     "classroomId": 1022,
     "campusId": 23,
@@ -3541,9 +3541,9 @@
     "size": 127
   },
   {
-    "className": "è‡ªç„¶è¾©è¯æ³•07ç­",
+    "className": "×ÔÈ»±çÖ¤·¨07°à",
     "courseId": "S000302",
-    "courseName": "è‡ªç„¶è¾©è¯æ³•æ¦‚è®º",
+    "courseName": "×ÔÈ»±çÖ¤·¨¸ÅÂÛ",
     "startWeek": 1,
     "endWeek": 6,
     "dayOfWeek": 2,
@@ -3552,7 +3552,7 @@
       7,
       8
     ],
-    "teacher": "å¼ ä½³",
+    "teacher": "ÕÅ¼Ñ",
     "buildingId": 114,
     "classroomId": 1008,
     "campusId": 24,
@@ -3560,9 +3560,9 @@
     "size": 127
   },
   {
-    "className": "è‡ªç„¶è¾©è¯æ³•02ç­",
+    "className": "×ÔÈ»±çÖ¤·¨02°à",
     "courseId": "S000302",
-    "courseName": "è‡ªç„¶è¾©è¯æ³•æ¦‚è®º",
+    "courseName": "×ÔÈ»±çÖ¤·¨¸ÅÂÛ",
     "startWeek": 1,
     "endWeek": 6,
     "dayOfWeek": 1,
@@ -3571,7 +3571,7 @@
       7,
       8
     ],
-    "teacher": "å¼ ä½³",
+    "teacher": "ÕÅ¼Ñ",
     "buildingId": 114,
     "classroomId": 1008,
     "campusId": 24,
@@ -3579,9 +3579,9 @@
     "size": 131
   },
   {
-    "className": "è‡ªç„¶è¾©è¯æ³•13ç­",
+    "className": "×ÔÈ»±çÖ¤·¨13°à",
     "courseId": "S000302",
-    "courseName": "è‡ªç„¶è¾©è¯æ³•æ¦‚è®º",
+    "courseName": "×ÔÈ»±çÖ¤·¨¸ÅÂÛ",
     "startWeek": 1,
     "endWeek": 6,
     "dayOfWeek": 1,
@@ -3590,7 +3590,7 @@
       7,
       8
     ],
-    "teacher": "åºä¿Šæ¥",
+    "teacher": "ÅÓ¿¡À´",
     "buildingId": 117,
     "classroomId": 1019,
     "campusId": 23,
@@ -3598,9 +3598,9 @@
     "size": 124
   },
   {
-    "className": "é©¬å…‹æ€ä¸»ä¹‰02ç­",
+    "className": "Âí¿ËË¼Ö÷Òå02°à",
     "courseId": "S000303",
-    "courseName": "é©¬å…‹æ€ä¸»ä¹‰ä¸ç¤¾ä¼šç§‘å­¦æ–¹æ³•è®º",
+    "courseName": "Âí¿ËË¼Ö÷ÒåÓëÉç»á¿ÆÑ§·½·¨ÂÛ",
     "startWeek": 1,
     "endWeek": 6,
     "dayOfWeek": 2,
@@ -3609,7 +3609,7 @@
       7,
       8
     ],
-    "teacher": "è’‹å¤©å©µ",
+    "teacher": "½¯Ììæ¿",
     "buildingId": 117,
     "classroomId": 1059,
     "campusId": 23,
@@ -3617,9 +3617,9 @@
     "size": 137
   },
   {
-    "className": "é©¬å…‹æ€ä¸»ä¹‰01ç­",
+    "className": "Âí¿ËË¼Ö÷Òå01°à",
     "courseId": "S000303",
-    "courseName": "é©¬å…‹æ€ä¸»ä¹‰ä¸ç¤¾ä¼šç§‘å­¦æ–¹æ³•è®º",
+    "courseName": "Âí¿ËË¼Ö÷ÒåÓëÉç»á¿ÆÑ§·½·¨ÂÛ",
     "startWeek": 1,
     "endWeek": 6,
     "dayOfWeek": 3,
@@ -3628,7 +3628,7 @@
       7,
       8
     ],
-    "teacher": "æ›¾ç‘œ",
+    "teacher": "Ôøè¤",
     "buildingId": 117,
     "classroomId": 1059,
     "campusId": 23,
