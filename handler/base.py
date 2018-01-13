@@ -40,3 +40,7 @@ class BaseHandler(RequestHandler):
                 except ValueError:
                     raise ArgsError('参数不是json格式！')
         return self._json_body
+
+    @property
+    def model(self):
+        return self.settings['model']
