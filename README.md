@@ -9,6 +9,9 @@
 ```bash
 cd path/to/herald-webservice
 pip3 install tornado
+pip3 install motor
+pip3 install redis
+pip3 install hiredis
 python3 app.py
 ```
 
