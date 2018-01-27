@@ -8,12 +8,10 @@ exports.route = {
    * 一卡通专用 Cookie，除统一身份认证 Cookie 外还包含了一卡通中心的 Cookie
    **/
   async get() {
-    // 先获取统一身份认证 Cookie
-    let cookie = await this.get('/api/cookie')
 
-    // 再用统一身份认证 Cookie 获取一卡通中心 Cookie
+    // 用统一身份认证 Cookie 获取一卡通中心 Cookie
     let res = await this.get('http://allinonecard.seu.edu.cn/ecard/dongnanportalHome.action', {
-      headers: {Cookie: cookie}
+      headers: { Cookie: this.cookie }
     })
 
     // 拼接两个 Cookie
