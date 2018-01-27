@@ -15,7 +15,7 @@ exports.route = {
     let page = this.query.page || 1
 
     // 取一卡通 Cookie
-    let cookie = await this.get('/api/card/cookie')
+    let cookie = (await this.get('/api/card/cookie?' + this.querystring)).data
 
     // 取基本信息，需要用到其中的一卡通账号
     let base = (await this.get('/api/card?' + this.querystring)).data
