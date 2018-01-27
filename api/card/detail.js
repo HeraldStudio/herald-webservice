@@ -26,7 +26,7 @@ exports.route = {
     if (day === 0) {
 
       // 这个页面是 GBK 的，需要手动解码
-      res = await this.axios.post(
+      res = await this.post(
         'http://allinonecard.seu.edu.cn/accounttodatTrjnObject.action',
         `pageVo.pageNum=${page}&account=${base.account}&inputObject=all`,
         { headers: { Cookie: cookie }, responseType: 'arraybuffer' }
@@ -61,7 +61,7 @@ exports.route = {
       ]) {
 
         // 真正要的是最后一个接口的数据
-        res = await this.axios.post(
+        res = await this.post(
           'http://allinonecard.seu.edu.cn/' + address,
           `pageNum=${page}&account=${base.account}&inputObject=all&inputStartDate=${start}&inputEndDate=${end}`,
           { headers: { Cookie: cookie }, responseType: 'arraybuffer' }
