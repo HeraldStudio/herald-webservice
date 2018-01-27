@@ -1,41 +1,95 @@
 /**
  # redis 缓存中间件
-   将用户请求返回保存到 redis 缓存
+   根据路由处理程序的设置，将返回值保存到 redis 缓存，一定时间之内再次调用可以提前取出返回
  */
 const redis = require('redis')
 const client = redis.createClient()
 const bluebird = require('bluebird')
+const config = require('../config.json')
 
 bluebird.promisifyAll(redis.RedisClient.prototype)
 
+// 不使用 redis 自带的缓存超时功能
+// 因为我们需要在取缓存时动态决定超时时间，而不是在设置缓存时存入超时时间
 const cache = {
-  async set(key, value, ttl = 0) {
-    if (ttl > 0) {
-      await client.set(key, value, 'EX', ttl)
-    }
+  async set(key, value) {
+    let time = Math.floor(new Date().getTime() / 1000)
+    client.set(JSON.stringify(key), JSON.stringify({ value, time }))
   },
-  async get(key) {
-    let got = await client.getAsync(key)
-    return got || null
+  async get(key, ttl) {
+    if (key && ttl) {
+      let got = JSON.parse(await client.getAsync(JSON.stringify(key)))
+      return (got && Math.floor(new Date().getTime() / 1000) - got.time < ttl) ? got.value : null
+    }
+    return null
   }
 }
 
+const timeStrToSeconds = (str) => {
+  let units = { y: 0, mo: 0, d: 0, h: 0, m: 0, s: 0 }
+  str.match(/[\d\.]+[a-z]+/g).forEach(k => {
+    let parts = /([\d\.]+)([a-z]+)/g.exec(k)
+    units[parts[2]] = parseFloat(parts[1])
+  })
+  return ((((units.y * 12 + units.mo) * 30 + units.d) * 24 + units.h) * 60 + units.m) * 60 + units.s
+}
+
+// 时间解析需要时间，利用一个 object 对各路由的缓存时长进行缓存，若已经解析过就不再重复解析
+let cacheTimeCache = {}
+
 module.exports = async (ctx, next) => {
 
-  // 根据 url（含 query）、方法、请求体三个元素进行匹配（注意不含 header）
-  ctx.state.meta = JSON.stringify([
-    ctx.href, ctx.method, ctx.request.body
-  ])
+  // 从 config.json 的 cache 项中向下寻找最符合当前条件的缓存时间
 
-  // 若找到匹配的缓存，直接返回
-  let cached = await cache.get(ctx.state.meta)
-  if (cached) {
-    ctx.body = cached
+  // 例如 GET /api/card/detail 时：
+  // 首先检测 cache 是否为 object，若不是，将其整数值作为缓存时间；
+  // 再检测 cache.api 是否为 object，若不是，将其整数值作为缓存时间；
+  // 再检测 cache.api.card 是否为 object，若不是，将其整数值作为缓存时间；
+  // 再检测 cache.api.card.detail 是否为 object，若不是，将其整数值作为缓存时间；
+  // 最后检测 cache.api.card.detail.get 是否为 object，若不是，将其整数值作为缓存时间。
+  let currentPath = config.cache
+  let path = ctx.path + '/' + ctx.method.toLowerCase()
+  let cacheTTL
 
-  } else { // 找不到则发给下游路由程序进行处理
-    await next()
+  if (cacheTimeCache.hasOwnProperty(path)) { // 若已经计算过这个路由的缓存时长，直接取计算过的
 
-    // 处理结束后存入缓存
-    /* no await */ cache.set(ctx.state.meta, ctx.body, ctx.state.ttl)
+    cacheTTL = cacheTimeCache[path]
+
+  } else { // 否则进行计算
+
+    let paths = path.replace(/^\//, '').split('/')
+    while (typeof currentPath === 'object') {
+      currentPath = currentPath.hasOwnProperty(paths[0]) ? currentPath[paths[0]] : currentPath['index']
+      paths.splice(0, 1)
+    }
+    cacheTTL = currentPath || 0
+    if (typeof cacheTTL === 'string' && /[a-z]/.test(cacheTTL)) {
+      cacheTTL = timeStrToSeconds(cacheTTL)
+    }
+    cacheTimeCache[path] = cacheTTL
+  }
+
+  let cacheKey = ctx.method + ' ' + ctx.href + ' ' + JSON.stringify(ctx.request.body)
+
+  // 存取缓存时的变换函数，默认为不变换，在 auth 中间件中会定义此变换
+  ctx.transformCacheWhenSet = k => k
+  ctx.transformCacheWhenGet = k => k
+
+  let cached = null
+  if (cacheTTL) {
+    cached = await cache.get(cacheKey, cacheTTL)
+    if (cached) {
+      cached = ctx.transformCacheWhenGet(cached)
+      ctx.body = cached
+      return
+    }
+  }
+
+  // 调用下层中间件
+  await next()
+
+  // 若缓存，将中间件返回值存入 redis
+  if (cacheTTL) {
+    cache.set(cacheKey, ctx.transformCacheWhenSet(ctx.body))
   }
 }
