@@ -10,6 +10,7 @@
    | token_hash   | varchar | 令牌哈希值 = Base64(MD5(token))，用于根据私钥找到用户
    | cardnum      | varchar | 一卡通号
    | password     | varchar | 密文密码 = Base64(MD5(cipher(token, 明文密码)))
+   | cookie       | varchar | 密文统一身份认证 Cookie = Base64(MD5(cipher(token, 明文统一身份认证 Cookie)))
    | version_desc | varchar | 版本备注，由调用端任意指定
    | registered   | integer | 认证时间
    | last_invoked | integer | 上次使用时间，超过一定设定值的会被清理
@@ -53,6 +54,7 @@ const decrypt = (key, value) => {
       token_hash    varchar(64)   primary key,
       cardnum       varchar(64)   not null,
       password      varchar(128)  not null,
+      cookie        varchar(256)  not null,
       version_desc  varchar(128)  not null,
       registered    integer       not null,
       last_invoked  integer       not null
@@ -76,19 +78,44 @@ module.exports = async (ctx, next) => {
     // 获取一卡通号、密码、前端定义版本
     let { cardnum, password, version } = ctx.query
 
+    // 调用东大 APP 统一身份认证
+    let res = await ctx.post(
+      'http://mobile4.seu.edu.cn/_ids_mobile/login18_9',
+      `username=${cardnum}&password=${password}`
+    )
+
+    // 验证不通过，抛出错误
+    if (res.status >= 400) {
+      ctx.throw(res.status)
+      return
+    }
+
+    // 抓取 Cookie
+    let cookie = res.headers['set-cookie']
+    if (Array.isArray(cookie)) {
+      cookie = cookie.filter(k => k.indexOf('JSESSIONID') + 1)[0]
+    }
+    cookie = /(JSESSIONID=[0-9A-F]+)\s*[;$]/.exec(cookie)[1]
+
+    let { cookieName, cookieValue } = JSON.parse(res.headers.ssocookie)[0]
+    cookie = `${cookieName}=${cookieValue};${cookie}`
+
     // 生成 32 字节 token 转为十六进制，及其哈希值
     let token = new Buffer(crypto.randomBytes(32)).toString('hex')
     let tokenHash = new Buffer(crypto.createHash('md5').update(token).digest()).toString('base64')
 
-    // 用 token 加密用户密码
+    // 用 token 加密用户密码和统一身份认证 cookie
     let passwordEncrypted = encrypt(token, password)
+    let cookieEncrypted = encrypt(token, cookie)
 
     // 将新用户信息插入数据库
     let now = new Date().getTime()
     await db.run(`insert into auth (
-      token_hash,  cardnum,  password,           version_desc,  registered, last_invoked  ) values (
-      ?,           ?,        ?,                  ?,             ?,          ?             ) `, [
-      tokenHash,   cardnum,  passwordEncrypted,  version || '', now,        now
+      token_hash,  cardnum,  password,           cookie,          version_desc,  registered, last_invoked
+    ) values (
+      ?,           ?,        ?,                  ?,               ?,             ?,          ?
+    )`, [
+      tokenHash,   cardnum,  passwordEncrypted,  cookieEncrypted, version || '', now,        now
     ])
 
     // 返回 token
@@ -107,8 +134,9 @@ module.exports = async (ctx, next) => {
       db.run('update auth set last_invoked = ? where token_hash = ?', [now, tokenHash])
 
       // 解密用户密码
-      let { cardnum, password } = record
+      let { cardnum, password, cookie } = record
       password = decrypt(token, password)
+      cookie = decrypt(token, cookie)
 
       // 部署 cache 加解密
       ctx.transformCacheWhenSet = encrypt.bind(undefined, token)
@@ -117,6 +145,7 @@ module.exports = async (ctx, next) => {
       // 将解密后的一卡通和密码传给下游中间件
       ctx.query.cardnum = cardnum
       ctx.query.password = password
+      ctx.query.cookie = cookie
 
       await next()
     }
