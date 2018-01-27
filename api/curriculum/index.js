@@ -167,9 +167,6 @@ exports.route = {
 
     // 将侧栏中没有用过的剩余课程（浮动课程）放到 other 字段里
     curriculum.other = Object.values(sidebar).filter(k => !k.used)
-
-    // 缓存1天
-    this.state.ttl = 60 * 60 * 24
     return { term, user, curriculum }
   }
 }

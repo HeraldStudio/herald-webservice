@@ -11,10 +11,11 @@
     "bluebird": "^3.5.1",
     "cheerio": "^1.0.0-rc.2",
     "iconv-lite": "latest",
-    "kf-router": "^1.0.0",
+    "kf-router": "^1.1.1",
     "koa": "^2.4.1",
     "koa-bodyparser": "^4.2.0",
     "koa-logger": "^3.1.0",
-    "redis": "^2.8.0"
+    "redis": "^2.8.0",
+    "sqlite3": "^3.1.13"
   }
 }
