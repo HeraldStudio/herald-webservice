@@ -1,39 +1,9 @@
 const koa = require('koa')
 const app = new koa()
 const config = require('./config.json')
-const axios = require('axios')
 const kf = require('kf-router')
-const { Semaphore } = require('await-semaphore')
 
-// 关闭 HTTPS 网络请求的安全验证
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-
-// 通用网络请求接口，全局限制10线程
-const sem = new Semaphore(10)
-app.axios = {}
-let _axios = axios.create(config.axios)
-;['get','post','put','delete'].forEach(k => {
-  app.axios[k] = async function () {
-    let release = await sem.acquire()
-    let result = await _axios[k].apply(undefined, arguments)
-    release()
-    return result
-  }
-})
-
-// 通过把 app.axios 赋给 ctx.axios 可允许在路由程序中用 this.axios 获得此实例
-app.use(async (ctx, next) => {
-  ctx.axios = app.axios
-  await next()
-})
-
-// 自身请求接口
-app.loopClient = axios.create({
-  baseURL: `http://localhost:${config.port}/`
-});
-
-// 利用 app.get/post/put/delete 可直接请求自身
-['get', 'post', 'put', 'delete'].forEach(method => app[method] = app.loopClient[method])
+app.use(require('./middleware/axios'))
 
 // 计时日志中间件
 app.use(async (ctx, next) => {
