@@ -13,7 +13,7 @@ exports.route = {
     let cookie = (await this.app.get('/api/card/cookie?' + this.querystring)).data
 
     // 这个页面是 UTF-8 的；查流水的页面是 GBK 的
-    res = await this.axios.get('http://allinonecard.seu.edu.cn/accountcardUser.action', {
+    res = await this.get('http://allinonecard.seu.edu.cn/accountcardUser.action', {
       headers: { Cookie: cookie }
     })
 

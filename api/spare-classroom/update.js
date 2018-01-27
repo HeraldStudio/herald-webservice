@@ -9,7 +9,7 @@ exports.route = {
   **/
   async post() {
     let curriculumsURL = "http://121.248.63.139/nstudent/pygl/kbcx_yx.aspx";
-    let rawData = (await this.axios.get(curriculumsURL)).data;
+    let rawData = (await this.get(curriculumsURL)).data;
 
     let reg = /<td>(.+)<\/td><td>(.+)<\/td><td>([^\s]+)\s*<\/td><td>第(\d+)-(\d+)周; (.+)-(.+)<\/td><td>(.+)<\/td><td>([^\w]+)([0-9a-zA-Z]+)<\/td><td>(\d+)<\/td><td>(\d+)<\/td>/img;
     let classRecords = [];

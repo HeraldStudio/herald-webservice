@@ -13,7 +13,7 @@ exports.route = {
     let password = this.query.password
 
     // 调用东大 APP 统一身份认证
-    let res = await this.axios.post(
+    let res = await this.post(
       'http://mobile4.seu.edu.cn/_ids_mobile/login18_9',
       `username=${cardnum}&password=${password}`
     )
