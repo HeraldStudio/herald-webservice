@@ -22,13 +22,24 @@ module.exports = async (ctx, next) => {
       ...config.axios
     })
 
-    // 所有网络请求在线程池中执行，不超过 10 个线程
+  // 所有网络请求在线程池中执行，不超过 10 个线程
   ;['get','post','put','delete'].forEach(k => {
     ctx[k] = async function () {
-      let release = await sem.acquire()
-      let result = await _axios[k].apply(undefined, arguments)
-      release()
-      return result
+      let url = arguments[0]
+      let relative = url.indexOf('//') === -1
+      let result
+      if (!relative) {
+        let release = await sem.acquire()
+        result = await _axios[k].apply(undefined, arguments)
+        release()
+      } else {
+        arguments
+      }
+      if (result.code < 400) {
+        return result.data
+      } else {
+        throw new Error('HTTP ' + result.code)
+      }
     }
   })
   await next()

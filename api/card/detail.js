@@ -15,10 +15,10 @@ exports.route = {
     let page = this.query.page || 1
 
     // 取一卡通 Cookie
-    let cookie = (await this.app.get('/api/card/cookie?' + this.querystring)).data
+    let cookie = await this.get('/api/card/cookie')
 
     // 取基本信息，需要用到其中的一卡通账号
-    let base = (await this.app.get('/api/card?' + this.querystring)).data
+    let base = (await this.get('/api/card?' + this.querystring)).data
 
     let res
 
@@ -95,7 +95,6 @@ exports.route = {
       })
     })
 
-    this.state.ttl = 1000 * 60 * 60 * 24
     return {
       result: rows.slice(1, -1), // 去掉首尾项
       pageCount: parseInt(/共(\d+)页/.exec(res.data)[1]) // 返回总页数
