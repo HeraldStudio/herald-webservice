@@ -6,5 +6,23 @@
       "port": 8080
     }
   },
-  "port": 3000
+  "port": 3000,
+  "auth": {
+    "expireDays": 30,
+    "cipher": "aes-256-cfb"
+  },
+  "cache": {
+    "api": {
+      "card": {
+        "cookie": "1d",
+        "detail": "1d",
+        "index": "10m"
+      },
+      "curriculum": "3d",
+      "pe": {
+        "index": "1h"
+      },
+      "cookie": "1d"
+    }
+  }
 }

@@ -10,11 +10,11 @@ exports.route = {
   async get() {
 
     // 先拿一卡通 Cookie
-    let cookie = (await this.app.get('/api/card/cookie?' + this.querystring)).data
+    let cookie = await require('./cookie').route.get.bind(this)
 
     // 这个页面是 UTF-8 的；查流水的页面是 GBK 的
     res = await this.get('http://allinonecard.seu.edu.cn/accountcardUser.action', {
-      headers: { Cookie: cookie }
+      headers: {Cookie: cookie}
     })
 
     // 模板应用器
@@ -67,9 +67,6 @@ exports.route = {
 
     // 接口设计规范，能转换为数字/bool的数据尽量转换，不要都用字符串
     template.balance = parseFloat(balance.replace(/,/g, ''))
-
-    // 缓存1小时
-    this.state.ttl = 60 * 60
     return template
   }
 }
