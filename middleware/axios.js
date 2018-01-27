@@ -19,27 +19,17 @@ module.exports = async (ctx, next) => {
   // 若请求相对路径，则递归请求 WS3，便于模块之间依赖
   let _axios = axios.create({
       baseURL: `http://localhost:${config.port}/`,
+      validateStatus: () => true,
       ...config.axios
     })
 
   // 所有网络请求在线程池中执行，不超过 10 个线程
   ;['get','post','put','delete'].forEach(k => {
     ctx[k] = async function () {
-      let url = arguments[0]
-      let relative = url.indexOf('//') === -1
-      let result
-      if (!relative) {
-        let release = await sem.acquire()
-        result = await _axios[k].apply(undefined, arguments)
-        release()
-      } else {
-        arguments
-      }
-      if (result.code < 400) {
-        return result.data
-      } else {
-        throw new Error('HTTP ' + result.code)
-      }
+      let release = await sem.acquire()
+      let result = await _axios[k].apply(undefined, arguments)
+      release()
+      return result
     }
   })
   await next()
