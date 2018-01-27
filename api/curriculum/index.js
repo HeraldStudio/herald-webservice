@@ -17,10 +17,10 @@ exports.route = {
     let isStudent = !(/^1\d{8}$/.exec(cardnum))
 
     // 抓取课表页面
-    let res = await (isStudent ? this.axios.post(
+    let res = await (isStudent ? this.post(
         'http://xk.urp.seu.edu.cn/jw_service/service/stuCurriculum.action',
       `queryStudentId=${cardnum}` + (term ? `&queryAcademicYear=${term}` : '')
-    ) : this.axios.post( // 老师课表
+    ) : this.post( // 老师课表
         'http://xk.urp.seu.edu.cn/jw_service/service/teacurriculum.action',
         `query_teacherId=${cardnum}` + (term ? `&query_xnxq=${term}` : '')
     ))
@@ -34,7 +34,7 @@ exports.route = {
     }
 
     // 抓取学期详情列表
-    let termRes = await this.axios.get('http://58.192.114.179/classroom/common/gettermlistex')
+    let termRes = await this.get('http://58.192.114.179/classroom/common/gettermlistex')
 
     // 学期详情中的格式为 2017-2018-2 的形式，取年份后两位进行匹配，匹配到的学期详情留下
     term = termRes.data.filter(k => {
