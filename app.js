@@ -1,53 +1,21 @@
 const koa = require('koa')
 const app = new koa()
-const config = require('./config.json')
 const kf = require('kf-router')
+const logger = require('koa-logger')
+const bodyparser = require('koa-bodyparser')
+const config = require('./config.json')
 
+// 日志中间件
+app.use(logger())
+
+// 请求体解析中间件
+// 由于 koa 默认是不解析请求体直接处理的，所以用了这个中间件后对于有请求体的请求，会多花费一定的时间来解析
+app.use(bodyparser())
+
+// WS3 框架中间件
 app.use(require('./middleware/axios'))
+app.use(require('./middleware/redis'))
 
-// 计时日志中间件
-app.use(async (ctx, next) => {
-  let [route, method] = [ctx.path, ctx.method.toUpperCase()]
-  let beginTime = new Date().getTime()
-  await next().catch(console.err)
-  let endTime = new Date().getTime()
-  console.log(`${ctx.status} [${method}] ${route} ${endTime - beginTime}ms`)
-})
-
-// 通用缓存池
-const pool = {}, cache = {
-  set(key, value, ttl = 0) {
-    pool[key] = { value, expires: ttl ? new Date().getTime() + ttl * 1000 : 0 }
-  },
-  get(key) {
-    let got = pool[key]
-    return got && got.expires > new Date().getTime() ? got.value : null
-  },
-  delete(key) {
-    pool[key] = null
-  }
-}
-
-// 通用缓存中间件
-app.use(async (ctx, next) => {
-
-  // 根据 url、方法、头中的 token、请求体四个元素进行匹配
-  ctx.state.meta = JSON.stringify([
-    ctx.url, ctx.method, ctx.headers.token, ctx.query
-  ])
-
-  // 若找到匹配的缓存，直接返回
-  let cached = cache.get(ctx.state.meta)
-  if (cached) {
-    ctx.body = cached
-
-  } else { // 找不到则发给下游路由程序进行处理
-    await next()
-
-    // 处理结束后存入缓存
-    cache.set(ctx.state.meta, ctx.body, ctx.state.ttl)
-  }
-});
-
+// kf-router 是中间件最后一层，要在最后引入
 app.use(kf(module))
 app.listen(config.port)
