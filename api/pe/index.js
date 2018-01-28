@@ -10,7 +10,7 @@ exports.route = {
    * 需要内网环境
    **/
   async get() {
-    let cardnum = this.query.cardnum
+    let { cardnum } = this
 
     let result = await new Promise((res, rej) => {
       let client = new net.Socket()
