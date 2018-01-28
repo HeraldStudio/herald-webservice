@@ -149,7 +149,7 @@ exports.route = {
 
 只需在项目的 `config.json` 中进行相应设置，WebService3 就将利用 `redis` 自动为请求进行缓存。
 
-```json
+```javascript
 {
   ...,
   "cache": {
