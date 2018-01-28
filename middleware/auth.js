@@ -31,9 +31,9 @@
   然后对于上线的爬虫程序进行严格审查，确保明文密码和明文 Cookie 没有被第三方恶意截获和存储。
 
   对于 token，爬虫程序其实也应当有权限获得，并用于一些自定义的加密和解密中，但相对于明文密码和明文 Coo-
-  kie 来说，token 的隐私性更容易被爬虫程序开发者忽视，并可能被存入数据库作为区别用户身份的标志。因此，
-  这里不向爬虫程序提供明文 token，而是只提供 token 的哈希值，仅用于区分不同用户，不用于加解密。对于
-  加解密，此中间件将暴露 encrypt/decrypt 接口来帮助下游中间件加解密数据。
+  kie 来说，token 的隐私性更容易被爬虫程序开发者忽视，并可能被存入数据库作为区别用户身份的标志，从而导
+  致潜在的隐私泄漏。因此，这里不向爬虫程序提供明文 token，而是只提供 token 的哈希值，仅用于区分不同用
+  户，不用于加解密。对于加解密，此中间件将暴露 encrypt/decrypt 接口来帮助下游中间件加解密数据。
  */
 const { Database } = require('sqlite3')
 const db = new Database('auth.db')
@@ -103,10 +103,11 @@ const decrypt = (key, value) => {
 // 加密和解密过程
 module.exports = async (ctx, next) => {
 
-  if (ctx.path === '/auth') { // 对于 auth 路由的请求，直接截获，不交给 kf-router
+  // 对于 auth 路由的请求，直接截获，不交给 kf-router
+  if (ctx.method.toUpperCase() === 'POST' && ctx.path === '/auth') {
 
     // 获取一卡通号、密码、前端定义版本
-    let { cardnum, password, version } = ctx.query
+    let { cardnum, password, version } = ctx.request.body
 
     // 调用东大 APP 统一身份认证
     let res = await ctx.post(
