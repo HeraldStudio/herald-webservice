@@ -119,8 +119,8 @@ module.exports = async (ctx, next) => {
       try {
         // [*] 上游是 auth 中间件，若为已登录用户，auth 将完成解密并把加解密函数暴露出来
         // 这里利用 auth 的加解密函数，解密缓存数据
-        if (ctx.decrypt) {
-          cached = ctx.decrypt(cached)
+        if (ctx.user) {
+          cached = ctx.user.decrypt(cached)
         }
         cached = JSON.parse(cached)
 
@@ -145,8 +145,8 @@ module.exports = async (ctx, next) => {
     cached = JSON.stringify(cached)
 
     // 同 [*]，这里利用 auth 的加解密函数，加密数据进行缓存
-    if (ctx.encrypt) {
-      cached = ctx.encrypt(cached)
+    if (ctx.user) {
+      cached = ctx.user.encrypt(cached)
     }
     cache.set(cacheKey, cached)
   }
