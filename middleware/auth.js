@@ -138,14 +138,15 @@ module.exports = async (ctx, next) => {
       password = decrypt(token, password)
       cookie = decrypt(token, cookie)
 
-      // 部署 cache 加解密
-      ctx.transformCacheWhenSet = encrypt.bind(undefined, token)
-      ctx.transformCacheWhenGet = decrypt.bind(undefined, token)
+      // 暴露加解密 API
+      ctx.encrypt = encrypt.bind(undefined, token)
+      ctx.decrypt = decrypt.bind(undefined, token)
 
-      // 将解密后的一卡通和密码传给下游中间件
-      ctx.query.cardnum = cardnum
-      ctx.query.password = password
-      ctx.query.cookie = cookie
+      // 将 token、解密后的一卡通号、密码和 Cookie 暴露给下层中间件
+      ctx.token = token
+      ctx.cardnum = cardnum
+      ctx.password = password
+      ctx.cookie = cookie
 
       await next()
     }
