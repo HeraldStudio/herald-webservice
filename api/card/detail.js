@@ -25,8 +25,8 @@ exports.route = {
     }
     cookie += ';' + /(JSESSIONID=[0-9A-F]+)\s*[;$]/.exec(cardCookie)[1]
 
-    let day = this.query.day || 0
-    let page = this.query.page || 1
+    let day = this.params.day || 0
+    let page = this.params.page || 1
 
     // 取基本信息，需要用到其中的一卡通账号
     let base = (await this.get('/api/card?' + this.querystring)).data
