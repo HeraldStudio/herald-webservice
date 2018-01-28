@@ -10,13 +10,19 @@
 
   ## 暴露接口
 
-  ctx.user          object              仅已登录用户带 token 请求时有效，否则为 undefined
+  ctx.user.isLogin  boolean             仅已登录用户带 token 请求时有效，否则为 false
   ctx.user.encrypt  (string => string)? 使用用户 token 加密字符串，返回加密后的十六进制字符串
   ctx.user.decrypt  (string => string)? 使用用户 token 解密十六进制字符串，返回解密后的字符串
   ctx.user.token    string?             伪 token，不能用于加解密，只用于区分用户
   ctx.user.cardnum  string?             用户一卡通号码
   ctx.user.password string?             用户密码
   ctx.user.cookie   string?             用户统一身份认证 Cookie
+
+  注：
+
+  以上接口除 isLogin 外，其他属性一旦被获取，将对用户进行鉴权，不允许游客使用；因此，若要定义用户和游客
+  均可使用的功能，需要先通过 isLogin 区分用户和游客，然后对用户按需获取其他属性，不能对游客获取用户属性，
+  否则将抛出 401。
 
   ## 伪 token
 
@@ -164,16 +170,31 @@ module.exports = async (ctx, next) => {
 
       // 将伪 token、解密后的一卡通号、密码和 Cookie、加解密接口暴露给下层中间件
       ctx.user = {
+        isLogin: true,
         encrypt: encrypt.bind(undefined, token),
         decrypt: decrypt.bind(undefined, token),
         token: tokenHash,
         cardnum, password, cookie
       }
 
+      // 调用下游中间件
       await next()
     }
   } else {
-    // 没有 token 的请求一律拒绝
-    ctx.throw(401)
+
+    // 对于没有 token 的请求，若下游中间件要求取 user，说明功能需要登录，抛出 401
+    let reject = () => ctx.throw(401)
+    ctx.user = {
+      isLogin: false,
+      get encrypt() { reject() },
+      get decrypt() { reject() },
+      get token() { reject() },
+      get cardnum() { reject() },
+      get password() { reject() },
+      get cookie() { reject() }
+    }
+
+    // 调用下游中间件
+    await next()
   }
 }
