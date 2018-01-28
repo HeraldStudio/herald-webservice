@@ -4,13 +4,10 @@ exports.route = {
 
   /**
    * GET /api/pe
-   * @apiParam cardnum  一卡通号
-   * @apiParam password 统一身份认证密码
-   *
    * 需要内网环境
    **/
   async get() {
-    let { cardnum } = this
+    let { cardnum } = this.user
 
     let result = await new Promise((res, rej) => {
       let client = new net.Socket()
