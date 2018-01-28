@@ -1,19 +1,23 @@
 /**
- # 用户身份认证中间件
-   提供对称加密算法，把用户名密码加密保存到 sqlite 数据库，请求时用私钥解密代替用户名密码进行请求
-   目的是为了给缓存和用户密码进行加密，程序只有在用户请求期间可以解密用户密码和用户数据
+  # 用户身份认证中间件
 
- ## 数据表结构：auth
+  提供对称加密算法，把用户名密码加密保存到 sqlite 数据库，请求时用私钥解密代替用户名密码进行请求
+  目的是为了给缓存和用户密码进行加密，程序只有在用户请求期间可以解密用户密码和用户数据
 
-   | COLUMN       | TYPE    | DESCRIPTION
-   | ------------ | ------- | -----------
-   | token_hash   | varchar | 令牌哈希值 = Base64(MD5(token))，用于根据私钥找到用户
-   | cardnum      | varchar | 一卡通号
-   | password     | varchar | 密文密码 = Base64(MD5(cipher(token, 明文密码)))
-   | cookie       | varchar | 密文统一身份认证 Cookie = Base64(MD5(cipher(token, 明文统一身份认证 Cookie)))
-   | version_desc | varchar | 版本备注，由调用端任意指定
-   | registered   | integer | 认证时间
-   | last_invoked | integer | 上次使用时间，超过一定设定值的会被清理
+  ## 依赖接口
+
+  ctx.request.body    koa-bodyparser
+
+  ## 暴露接口
+
+  下列中间件接口仅已登录用户带 token 请求时有效。
+
+  ctx.encrypt   (string => string)?   使用用户 token 加密字符串数据，返回加密后的十六进制字符串
+  ctx.decrypt   (string => string)?   使用用户 token 解密十六进制字符串，返回解密后的字符串数据
+  ctx.token     string?               伪 token，不能用于加解密，只用于区分用户
+  ctx.cardnum   string?               用户
+  ctx.password  string?
+  ctx.cookie    string?
  */
 const { Database } = require('sqlite3')
 const db = new Database('auth.db')
@@ -29,23 +33,17 @@ const crypto = require('crypto')
   })]
 })
 
-// 对称加密算法，要求 value 是 String 或 Buffer，否则会报错
-const encrypt = (key, value) => {
-  let cipher = crypto.createCipher(config.auth.cipher, key)
-  let result = cipher.update(value, 'utf8', 'hex')
-  result += cipher.final('hex')
-  return result
-}
+/**
+  ## auth 数据表结构
 
-// 对称解密算法，要求 value 是 String 或 Buffer，否则会报错
-const decrypt = (key, value) => {
-  let decipher = crypto.createDecipher(config.auth.cipher, key)
-  let result = decipher.update(value, 'hex', 'utf8')
-  result += decipher.final('utf8')
-  return result
-}
-
-// module load 阶段的一些准备工作
+  token_hash    varchar  令牌哈希值 = Base64(MD5(token))，用于根据私钥找到用户
+  cardnum       varchar  一卡通号
+  password      varchar  密文密码 = Base64(MD5(cipher(token, 明文密码)))
+  cookie        varchar  密文统一身份认证 Cookie = Base64(MD5(cipher(token, 明文统一身份认证 Cookie)))
+  version_desc  varchar  版本备注，由调用端任意指定
+  registered    integer  认证时间
+  last_invoked  integer  上次使用时间，超过一定设定值的会被清理
+ */
 ;(async () => {
 
   // 建表
@@ -69,6 +67,22 @@ const decrypt = (key, value) => {
       [new Date().getTime() - config.auth.expireDays * ONE_DAY])
   }, ONE_DAY)
 })()
+
+// 对称加密算法，要求 value 是 String 或 Buffer，否则会报错
+const encrypt = (key, value) => {
+  let cipher = crypto.createCipher(config.auth.cipher, key)
+  let result = cipher.update(value, 'utf8', 'hex')
+  result += cipher.final('hex')
+  return result
+}
+
+// 对称解密算法，要求 value 是 String 或 Buffer，否则会报错
+const decrypt = (key, value) => {
+  let decipher = crypto.createDecipher(config.auth.cipher, key)
+  let result = decipher.update(value, 'hex', 'utf8')
+  result += decipher.final('utf8')
+  return result
+}
 
 // 加密和解密过程
 module.exports = async (ctx, next) => {
@@ -142,8 +156,8 @@ module.exports = async (ctx, next) => {
       ctx.encrypt = encrypt.bind(undefined, token)
       ctx.decrypt = decrypt.bind(undefined, token)
 
-      // 将 token、解密后的一卡通号、密码和 Cookie 暴露给下层中间件
-      ctx.token = token
+      // 将伪 token、解密后的一卡通号、密码和 Cookie 暴露给下层中间件
+      ctx.token = tokenHash
       ctx.cardnum = cardnum
       ctx.password = password
       ctx.cookie = cookie
