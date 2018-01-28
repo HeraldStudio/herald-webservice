@@ -5,10 +5,10 @@
 
   ## 暴露接口
 
-  ctx.get:    (string, object?) => Promise<AxiosResponse>
-  ctx.post:   (string, object?, object?) => Promise<AxiosResponse>
-  ctx.put:    (string, object?, object?) => Promise<AxiosResponse>
-  ctx.delete: (string, object?) => Promise<AxiosResponse>
+  ctx.get     (string, object?) => Promise<AxiosResponse>
+  ctx.post    (string, object?, object?) => Promise<AxiosResponse>
+  ctx.put     (string, object?, object?) => Promise<AxiosResponse>
+  ctx.delete  (string, object?) => Promise<AxiosResponse>
 
   例：
   - `let res = (await this.get/post/put/delete('http://google.com')).data`
