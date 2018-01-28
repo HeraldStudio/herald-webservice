@@ -1,4 +1,4 @@
-# HeraldWS3
+# herald-webservice
 
 小猴偷米 2018 WebService3 后端试验品，使用 Node.js + Koa 构建。
 
@@ -109,17 +109,17 @@ exports.route = {
   async get() {
     if (this.user.isLogin) {
       // user 中的任一属性 (除 isLogin) 一旦被访问，当前用户必须是已登录状态，否则将抛出 401
-      
+
       // 一卡通号、明文密码
       // 为了保证隐私安全，我们将对上线的模块严加审查，严禁对明文密码进行存储、显示、发送给第三方
       let { cardnum, password } = this.user
       // 加密解密函数，需要存储的敏感信息要加密，从数据库中取出要解密
       let { encrypt, decrypt } = this.user
       console.log(decrypt(encrypt(cardnum)) === cardnum) // true
-      
+
       // 为了保证隐私安全，伪 token 不能用于解密数据，只用于区分用户；cookie 用于抓取统一身份认证有关页面
       let { token, cookie } = this.user
-      
+
       return `Hello, ${cardnum}!`
     } else {
       return 'Hello, guest!'
@@ -142,7 +142,7 @@ exports.route = {
       this.throw(res.status) // 抛出与上游相同的错误
       return
     }
-    
+
     return res.data // axios 将自动对结果执行 JSON.parse；koa 也支持直接返回非字符串类型。
   }
 }
