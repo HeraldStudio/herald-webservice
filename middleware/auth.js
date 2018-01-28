@@ -10,14 +10,24 @@
 
   ## 暴露接口
 
-  下列中间件接口仅已登录用户带 token 请求时有效。
+  ctx.user          object              仅已登录用户带 token 请求时有效，否则为 undefined
+  ctx.user.encrypt  (string => string)? 使用用户 token 加密字符串，返回加密后的十六进制字符串
+  ctx.user.decrypt  (string => string)? 使用用户 token 解密十六进制字符串，返回解密后的字符串
+  ctx.user.token    string?             伪 token，不能用于加解密，只用于区分用户
+  ctx.user.cardnum  string?             用户一卡通号码
+  ctx.user.password string?             用户密码
+  ctx.user.cookie   string?             用户统一身份认证 Cookie
 
-  ctx.encrypt   (string => string)?   使用用户 token 加密字符串数据，返回加密后的十六进制字符串
-  ctx.decrypt   (string => string)?   使用用户 token 解密十六进制字符串，返回解密后的字符串数据
-  ctx.token     string?               伪 token，不能用于加解密，只用于区分用户
-  ctx.cardnum   string?               用户
-  ctx.password  string?
-  ctx.cookie    string?
+  ## 伪 token
+
+  对于始终需要明文用户名密码的爬虫程序来说，用户信息的安全性始终是重要话题。在爬虫程序不得不知道用户名
+  和密码的情况下，我们希望尽可能缩短明文密码和明文 Cookie 的生命周期，让它们只能短暂存在于爬虫程序中，
+  然后对于上线的爬虫程序进行严格审查，确保明文密码和明文 Cookie 没有被第三方恶意截获和存储。
+
+  对于 token，爬虫程序其实也应当有权限获得，并用于一些自定义的加密和解密中，但相对于明文密码和明文 Coo-
+  kie 来说，token 的隐私性更容易被爬虫程序开发者忽视，并可能被存入数据库作为区别用户身份的标志。因此，
+  这里不向爬虫程序提供明文 token，而是只提供 token 的哈希值，仅用于区分不同用户，不用于加解密。对于
+  加解密，此中间件将暴露 encrypt/decrypt 接口来帮助下游中间件加解密数据。
  */
 const { Database } = require('sqlite3')
 const db = new Database('auth.db')
@@ -152,15 +162,13 @@ module.exports = async (ctx, next) => {
       password = decrypt(token, password)
       cookie = decrypt(token, cookie)
 
-      // 暴露加解密 API
-      ctx.encrypt = encrypt.bind(undefined, token)
-      ctx.decrypt = decrypt.bind(undefined, token)
-
-      // 将伪 token、解密后的一卡通号、密码和 Cookie 暴露给下层中间件
-      ctx.token = tokenHash
-      ctx.cardnum = cardnum
-      ctx.password = password
-      ctx.cookie = cookie
+      // 将伪 token、解密后的一卡通号、密码和 Cookie、加解密接口暴露给下层中间件
+      ctx.user = {
+        encrypt: encrypt.bind(undefined, token),
+        decrypt: decrypt.bind(undefined, token),
+        token: tokenHash,
+        cardnum, password, cookie
+      }
 
       await next()
     }
