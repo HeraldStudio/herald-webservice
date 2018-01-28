@@ -18,7 +18,7 @@ exports.route = {
    * @note 若查询教一~教七则调用学校接口，其余则通过服务器自己获取课表信息后计算而得。
    **/
   async get() {
-    //let entries = Object.keys(this.query).map((key, index) => key + "=" + Object.values(this.query)[index]);
+    //let entries = Object.keys(this.params).map((key, index) => key + "=" + Object.values(this.params)[index]);
     //let formData = entries.reduce((pre, cur) => pre += "&" + cur);
 
     let result = null;

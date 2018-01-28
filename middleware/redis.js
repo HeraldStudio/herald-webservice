@@ -107,9 +107,9 @@ module.exports = async (ctx, next) => {
  */
   let cacheKey = JSON.stringify({
     method: ctx.method,
-    href: ctx.href,
-    token: ctx.token || '',
-    body: ctx.request.body
+    path: ctx.path,
+    token: ctx.user.isLogin ? ctx.user.token : '',
+    params: ctx.params
   })
 
   let cached = null

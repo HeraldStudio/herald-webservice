@@ -6,7 +6,7 @@
 
   ## 依赖接口
 
-  ctx.request.body    koa-bodyparser
+  ctx.params        from params.js
 
   ## 暴露接口
 
@@ -107,7 +107,7 @@ module.exports = async (ctx, next) => {
   if (ctx.method.toUpperCase() === 'POST' && ctx.path === '/auth') {
 
     // 获取一卡通号、密码、前端定义版本
-    let { cardnum, password, version } = ctx.request.body
+    let { cardnum, password, version } = ctx.params
 
     // 调用东大 APP 统一身份认证
     let res = await ctx.post(
