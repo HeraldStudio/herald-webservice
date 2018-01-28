@@ -143,7 +143,7 @@ exports.route = {
       return
     }
 
-    return res.data // axios 将自动对结果执行 JSON.parse；koa 也支持直接返回非字符串类型。
+    return res.data // axios 将自动对结果执行 JSON.parse；koa 也支持直接返回非字符串类型，将自动执行 JSON.stringify。
   }
 }
 ```
