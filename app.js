@@ -18,8 +18,8 @@ app.use(bodyparser())
 
 // WS3 框架中间件
 app.use(require('./middleware/axios'))
-app.use(require('./middleware/redis'))
 app.use(require('./middleware/auth'))
+app.use(require('./middleware/redis'))
 
 // kf-router 是中间件最后一层，要在最后引入
 app.use(kf(module))

@@ -8,9 +8,8 @@ exports.route = {
    * @apiParam term     学期号
    **/
   async get() {
-    let cardnum = this.query.cardnum
     let term = this.query.term
-    this.assert(cardnum, 400)
+    let { cardnum } = this
 
     // 老师的号码是1开头的九位数
     // 考虑到学号是八位数的情况
