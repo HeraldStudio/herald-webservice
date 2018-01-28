@@ -69,19 +69,25 @@ module.exports = async (ctx, next) => {
     cacheTimeCache[path] = cacheTTL
   }
 
-  let cacheKey = ctx.method + ' ' + ctx.href + ' ' + JSON.stringify(ctx.request.body)
-
-  // 存取缓存时的变换函数，默认为不变换，在 auth 中间件中会定义此变换
-  ctx.transformCacheWhenSet = k => k
-  ctx.transformCacheWhenGet = k => k
+  let cacheKey = JSON.stringify({
+    method: ctx.method,
+    href: ctx.href,
+    token: ctx.token || '',
+    body: ctx.request.body
+  })
 
   let cached = null
   if (cacheTTL) {
     cached = await cache.get(cacheKey, cacheTTL)
     if (cached) {
-      cached = ctx.transformCacheWhenGet(cached)
-      ctx.body = cached
-      return
+      try {
+        if (ctx.decrypt) {
+          cached = ctx.decrypt(cached)
+        }
+        cached = JSON.parse(cached)
+        ctx.body = cached
+        return
+      } catch (e) {}
     }
   }
 
@@ -90,6 +96,11 @@ module.exports = async (ctx, next) => {
 
   // 若缓存，将中间件返回值存入 redis
   if (cacheTTL) {
-    cache.set(cacheKey, ctx.transformCacheWhenSet(ctx.body))
+    cached = ctx.body
+    cached = JSON.stringify(cached)
+    if (ctx.encrypt) {
+      cached = ctx.encrypt(cached)
+    }
+    cache.set(cacheKey, cached)
   }
 }

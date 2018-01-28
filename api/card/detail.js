@@ -5,22 +5,29 @@ exports.route = {
 
   /**
    * GET /api/card/detail
-   * @apiParam cardnum  一卡通号
-   * @apiParam password 统一身份认证密码
+   * 一卡通历史流水
    * @apiParam days     天数跨度，0 表示查询当天流水，其他数字不含当天流水
    * @apiParam page     页码
    **/
   async get() {
+
+    // 用统一身份认证 Cookie 获取一卡通中心 Cookie
+    let res = await this.get('http://allinonecard.seu.edu.cn/ecard/dongnanportalHome.action', {
+      headers: { Cookie: this.cookie }
+    })
+
+    // 拼接两个 Cookie
+    let cardCookie = res.headers['set-cookie']
+    if (Array.isArray(cardCookie)) {
+      cardCookie = cardCookie[0]
+    }
+    this.cookie += ';' + /(JSESSIONID=[0-9A-F]+)\s*[;$]/.exec(cardCookie)[1]
+
     let day = this.query.day || 0
     let page = this.query.page || 1
 
-    // 取一卡通 Cookie
-    let cookie = (await this.get('/api/card/cookie?' + this.querystring)).data
-
     // 取基本信息，需要用到其中的一卡通账号
     let base = (await this.get('/api/card?' + this.querystring)).data
-
-    let res
 
     // 当天流水，直接查询
     if (day === 0) {

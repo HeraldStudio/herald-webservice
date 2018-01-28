@@ -4,17 +4,25 @@ exports.route = {
 
   /**
    * GET /api/card
-   * @apiParam cardnum  一卡通号
-   * @apiParam password 统一身份认证密码
+   * 一卡通状态
    **/
   async get() {
 
-    // 先拿一卡通 Cookie
-    let cookie = await require('./cookie').route.get.bind(this)
+    // 用统一身份认证 Cookie 获取一卡通中心 Cookie
+    let res = await this.get('http://allinonecard.seu.edu.cn/ecard/dongnanportalHome.action', {
+      headers: { Cookie: this.cookie }
+    })
+
+    // 拼接两个 Cookie
+    let cardCookie = res.headers['set-cookie']
+    if (Array.isArray(cardCookie)) {
+      cardCookie = cardCookie[0]
+    }
+    this.cookie += ';' + /(JSESSIONID=[0-9A-F]+)\s*[;$]/.exec(cardCookie)[1]
 
     // 这个页面是 UTF-8 的；查流水的页面是 GBK 的
     res = await this.get('http://allinonecard.seu.edu.cn/accountcardUser.action', {
-      headers: {Cookie: cookie}
+      headers: { Cookie: this.cookie }
     })
 
     // 模板应用器
