@@ -14,7 +14,7 @@
 
 2. **继承自 WebService2**
 
-  - [x] 一卡通（状态 / 当日 / 历史）@rikumi
+  - [x] 一卡通（状态 / 当日 / 历史） @rikumi
   - [x] 课表 @rikumi
   - [x] 跑操次数 @rikumi
   - [x] 空教室 @Vigilans-Yea
