@@ -1,8 +1,7 @@
 const cheerio = require('cheerio')
 exports.route = {
   async get() {
-    //let { cardnum} = this.user
-    let cardnum='213160414'
+    let { cardnum} = this.user
     let res=await this.post('http://xk.urp.seu.edu.cn/jw_service/service/stuCurriculum.action',`returnStr=&queryStudentId=${cardnum}&queryAcademicYear=17-18-3`)
     if (res.status >= 400) {
       this.throw(res.status)
