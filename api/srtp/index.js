@@ -2,13 +2,13 @@ const cheerio = require('cheerio')
 exports.route = {
   async get() {
     let { cardnum} = this.user
-    let res=await this.post('http://xk.urp.seu.edu.cn/jw_service/service/stuCurriculum.action',`returnStr=&queryStudentId=${cardnum}&queryAcademicYear=17-18-3`)
+    let res=await axios.post('http://xk.urp.seu.edu.cn/jw_service/service/stuCurriculum.action',`returnStr=&queryStudentId=${cardnum}&queryAcademicYear=17-18-3`)
     if (res.status >= 400) {
       this.throw(res.status)
       return
     }
     let schnub= /\u5b66\u53f7:([^<]+)/.exec(res.data)[1]
-    let srtpre=await this.post('http://10.1.30.98:8080/srtp2/USerPages/SRTP/Report3.aspx',`code=${schnub}`)
+    let srtpre=await axios.post('http://10.1.30.98:8080/srtp2/USerPages/SRTP/Report3.aspx',`code=${schnub}`)
     if (srtpre.status >= 400) {
       this.throw(res.status)
       return
