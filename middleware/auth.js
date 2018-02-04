@@ -6,17 +6,23 @@
 
   ## 依赖接口
 
-  ctx.params        from params.js
+  ctx.params          from params.js
+  ctx.post            from axios.js
+  ctx.get             from axios.js
+  ctx.cookieJar       from axios.js
 
   ## 暴露接口
 
-  ctx.user.isLogin  boolean             仅已登录用户带 token 请求时有效，否则为 false
-  ctx.user.encrypt  (string => string)? 使用用户 token 加密字符串，返回加密后的十六进制字符串
-  ctx.user.decrypt  (string => string)? 使用用户 token 解密十六进制字符串，返回解密后的字符串
-  ctx.user.token    string?             伪 token，不能用于加解密，只用于区分用户
-  ctx.user.cardnum  string?             用户一卡通号码
-  ctx.user.password string?             用户密码
-  ctx.user.cookie   string?             用户统一身份认证 Cookie
+  ctx.user.isLogin    boolean             仅已登录用户带 token 请求时有效，否则为 false
+  ctx.user.encrypt    (string => string)? 使用用户 token 加密字符串，返回加密后的十六进制字符串
+  ctx.user.decrypt    (string => string)? 使用用户 token 解密十六进制字符串，返回解密后的字符串
+  ctx.user.token      string?             伪 token，不能用于加解密，只用于区分用户
+  ctx.user.cardnum    string?             用户一卡通号码
+  ctx.user.password   string?             用户密码
+  ctx.user.name       string?             用户姓名
+  ctx.user.schoolnum  string?             用户学号（教师为空）
+  ctx.user.cookie     string?             用户统一身份认证 Cookie
+  ctx.useCookie       (() => ())?         在接下来的请求中自动使用用户统一身份认证 Cookie
 
   注：
 
@@ -39,6 +45,7 @@ const { Database } = require('sqlite3')
 const db = new Database('auth.db')
 const config = require('../config.json')
 const crypto = require('crypto')
+const tough = require('tough-cookie')
 
 // 对 Database 异步函数进行 async 封装
 ;['run', 'get', 'all'].map (k => {
@@ -55,6 +62,8 @@ const crypto = require('crypto')
   token_hash    varchar  令牌哈希值 = Base64(MD5(token))，用于根据私钥找到用户
   cardnum       varchar  一卡通号
   password      varchar  密文密码 = Base64(MD5(cipher(token, 明文密码)))
+  name          varchar  姓名
+  schoolnum     varchar  学号（教师为空）
   cookie        varchar  密文统一身份认证 Cookie = Base64(MD5(cipher(token, 明文统一身份认证 Cookie)))
   version_desc  varchar  版本备注，由调用端任意指定
   registered    integer  认证时间
@@ -68,6 +77,8 @@ const crypto = require('crypto')
       token_hash    varchar(64)   primary key,
       cardnum       varchar(64)   not null,
       password      varchar(128)  not null,
+      name          varchar(192)  not null,
+      schoolnum     varchar(64)   not null,
       cookie        varchar(256)  not null,
       version_desc  varchar(128)  not null,
       registered    integer       not null,
@@ -131,6 +142,35 @@ module.exports = async (ctx, next) => {
     let { cookieName, cookieValue } = JSON.parse(res.headers.ssocookie)[0]
     cookie = `${cookieName}=${cookieValue};${cookie}`
 
+    // 获取用户附加信息（仅姓名和学号）
+    // 对于本科生，此页面可显示用户信息；对于其他角色（研究生和教师），此页面重定向至老信息门户主页。
+    // 但对于所有角色，无论是否重定向，右上角用户姓名都可抓取；又因为只有本科生需要通过查询的方式获取学号，
+    // 研究生可直接通过一卡通号截取学号，教师则无学号，所以此页面可以满足所有角色信息抓取的要求。
+    res = await ctx.get('http://myold.seu.edu.cn/index.portal?.pn=p3447_p3449_p3450', {
+      headers: { Cookie: cookie }
+    })
+
+    // 解析姓名
+    let name = /<div style="text-align:right;margin-top:0px;margin-right:6px;color:#fff;">(.*?),/im
+      .exec(res.data) || []
+    name = name[1] || ''
+
+    // 初始化学号为空
+    let schoolnum = ''
+
+    // 解析学号（本科生 Only）
+    if (/^21/.test(cardnum)) {
+      schoolnum = /class="portlet-table-even">(.*)<\//im
+        .exec(res.data) || []
+      schoolnum = schoolnum[1] || ''
+      schoolnum = schoolnum.replace(/&[0-9a-zA-Z]+;/g, '')
+    }
+
+    // 截取学号（研究生 Only）
+    if (/^22/.test(cardnum)) {
+      schoolnum = cardnum.slice(1)
+    }
+
     // 生成 32 字节 token 转为十六进制，及其哈希值
     let token = new Buffer(crypto.randomBytes(32)).toString('hex')
     let tokenHash = new Buffer(crypto.createHash('md5').update(token).digest()).toString('base64')
@@ -142,11 +182,11 @@ module.exports = async (ctx, next) => {
     // 将新用户信息插入数据库
     let now = new Date().getTime()
     await db.run(`insert into auth (
-      token_hash,  cardnum,  password,           cookie,          version_desc,  registered, last_invoked
+      token_hash,  cardnum,  password,           name,  schoolnum,  cookie,          version_desc,  registered, last_invoked
     ) values (
-      ?,           ?,        ?,                  ?,               ?,             ?,          ?
+      ?,           ?,        ?,                  ?,     ?,          ?,               ?,             ?,          ?
     )`, [
-      tokenHash,   cardnum,  passwordEncrypted,  cookieEncrypted, version || '', now,        now
+      tokenHash,   cardnum,  passwordEncrypted,  name,  schoolnum,  cookieEncrypted, version || '', now,        now
     ])
 
     // 返回 token
@@ -162,12 +202,24 @@ module.exports = async (ctx, next) => {
       let now = new Date().getTime()
 
       // await-free
+      // 更新用户最近调用时间
       db.run('update auth set last_invoked = ? where token_hash = ?', [now, tokenHash])
 
       // 解密用户密码
-      let { cardnum, password, cookie } = record
+      let { cardnum, password, name, schoolnum, cookie } = record
       password = decrypt(token, password)
       cookie = decrypt(token, cookie)
+
+      // 向饼干罐添加初始饼干 🍪
+      // 数据库中加密的 Cookie 其实是用分号隔开的两个不同 Cookie，需要分别设置；
+      // 另外需要加 Domain 字段，表示这两个 Cookie 适用于全校网站
+      ctx.useCookie = () => {
+        cookie.split(';').map(c => {
+          ctx.cookieJar.setCookieSync(
+            tough.Cookie.parse(c + '; Domain=.seu.edu.cn'), 'http://www.seu.edu.cn', {}
+          )
+        })
+      }
 
       // 将伪 token、解密后的一卡通号、密码和 Cookie、加解密接口暴露给下层中间件
       ctx.user = {
@@ -175,7 +227,7 @@ module.exports = async (ctx, next) => {
         encrypt: encrypt.bind(undefined, token),
         decrypt: decrypt.bind(undefined, token),
         token: tokenHash,
-        cardnum, password, cookie
+        cardnum, password, name, schoolnum, cookie
       }
 
       // 调用下游中间件
@@ -192,8 +244,12 @@ module.exports = async (ctx, next) => {
       get token() { reject() },
       get cardnum() { reject() },
       get password() { reject() },
+      get name() { reject() },
+      get schoolnum() { reject() },
       get cookie() { reject() }
     }
+
+    ctx.useCookie = reject
 
     // 调用下游中间件
     await next()

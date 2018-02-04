@@ -1,6 +1,11 @@
 const cv = require('node-opencv')
 
 exports.route = {
+
+  /**
+   * GET /api/gpa
+   * 成绩查询
+   **/
   async get() {
     let { cardnum, password } = this.user
     let res = await this.get('http://xk.urp.seu.edu.cn/studentService/getCheckCode', {

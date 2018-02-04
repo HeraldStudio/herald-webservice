@@ -4,7 +4,7 @@ exports.route = {
 
   /**
    * GET /api/curriculum
-   * @apiParam cardnum  一卡通号
+   * 课表查询
    * @apiParam term     学期号
    **/
   async get() {
