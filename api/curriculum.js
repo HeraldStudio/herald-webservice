@@ -17,11 +17,17 @@ exports.route = {
 
     // 抓取课表页面
     let res = await (isStudent ? this.post(
-        'http://xk.urp.seu.edu.cn/jw_service/service/stuCurriculum.action',
-      `queryStudentId=${cardnum}` + (term ? `&queryAcademicYear=${term}` : '')
+      'http://xk.urp.seu.edu.cn/jw_service/service/stuCurriculum.action',
+      {
+        queryStudentId: cardnum,
+        queryAcademicYear: term || undefined
+      }
     ) : this.post( // 老师课表
-        'http://xk.urp.seu.edu.cn/jw_service/service/teacurriculum.action',
-        `query_teacherId=${cardnum}` + (term ? `&query_xnxq=${term}` : '')
+      'http://xk.urp.seu.edu.cn/jw_service/service/teacurriculum.action',
+      {
+        query_teacherId: cardnum,
+        query_xnxq: term || undefined
+      }
     ))
 
     try {

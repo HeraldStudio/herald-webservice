@@ -168,6 +168,12 @@ exports.route = {
 
 WebService3 框架为 `this` 暴露了 `get` `post` `put` `delete` 四个 API 用于 HTTP 请求，他们在本质上是 `Axios.create()` 所产生的实例的同名方法，用法可参见 [axios 文档](https://github.com/axios/axios)。
 
+考虑到学校网站的历史原因和爬虫自身的需求，我们对这套 axios API 的默认配置进行了一系列变更：
+
+1. 考虑到学校网站中 GBK 编码仍占有很大比例，我们对网络请求的返回结果进行了自动编码检测，并自动转换为 Node.js 原生支持的 UTF-8 编码，开发者无须再关心编码转换问题；
+2. 由于前后端不分离的环境下大多使用 `x-www-form-urlencoded` 格式进行 Body 编码，该编码方案已经被默认使用。若要临时采用 JSON 编码，可以手动执行 `JSON.stringify` 序列化；
+3. 这套网络请求 API 另外还自带了 CookieJar，可自动记录并使用当前会话内的 Cookie，详见下文「自动Cookie」。
+
 ```javascript
 exports.route = {
   async get() {
