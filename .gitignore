@@ -1,8 +1,8 @@
 node_modules/
 package-lock.json
+yarn.lock
 .idea/
 .DS_Store
 
-config.json
 *~
 *.db
