@@ -1,4 +1,4 @@
-const cv = require('node-opencv')
+const cheerio = require('cheerio')
 
 exports.route = {
 
@@ -7,19 +7,42 @@ exports.route = {
    * 成绩查询
    **/
   async get() {
+    this.useCookie()
     let { cardnum, password } = this.user
-    let res = await this.get('http://xk.urp.seu.edu.cn/studentService/getCheckCode', {
-      responseType: 'arraybuffer'
+    let res = (await this.get('https://boss.myseu.cn/jwccaptcha/')).data
+    console.log(res)
+    let { cookies, captcha } = res
+    this.cookieJar.setCookieSync(cookies, 'http://xk.urp.seu.edu.cn/', {})
+
+    await this.post(
+      'http://xk.urp.seu.edu.cn/studentService/system/login.action',
+      { userName: cardnum, password, vercode: captcha }
+    )
+
+    res = await this.get(
+      'http://xk.urp.seu.edu.cn/studentService/cs/stuServe/studentExamResultQuery.action'
+    )
+
+    let $ = cheerio.load(res.data)
+    let detail = $('#table2 tr').toArray().slice(1).map(tr => {
+      let [semester, courseId, course, credit, score, scoreType, courseType]
+        = $(tr).find('td').toArray().slice(1).map(td => {
+          return $(td).text().trim().replace(/&[0-9A-Za-z];/g, '')
+        })
+
+      // 学分解析为浮点数；成绩可能为中文，不作解析
+      credit = parseFloat(credit)
+      return {semester, courseId, course, courseType, credit, score, scoreType}
     })
-    if (res.status >= 400) {
-      this.throw(res.status)
-      return
-    }
-    let cookie = res.headers['set-cookie']
-    if (Array.isArray(cookie)) {
-      cookie = cookie[0]
-    }
-    // TODO 验证码识别
-    let verifyCode = await ...
+
+    let [gpa, gpaNoRevamp, year, calculationTime]
+      = $('#table4 tr').eq(1).find('td').toArray().map(td => {
+      return $(td).text().trim().replace(/&[0-9A-Za-z];/g, '')
+    })
+
+    // 时间解析为时间戳
+    calculated = new Date(calculated).getTime()
+
+    return {gpa, gpaNoRevamp, year, calculationTime, detail}
   }
 }
