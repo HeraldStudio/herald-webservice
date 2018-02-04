@@ -3,7 +3,13 @@
 
   根据路由处理程序的设置，将返回值保存到 redis 缓存，一定时间之内再次调用可以提前取出返回
 
-  ## 前置条件：`koa-bodyparser`, `auth`
+  ## 依赖接口
+
+  ctx.params          from params.js
+  ctx.user.isLogin    from auth.js
+  ctx.user.token      from auth.js
+  ctx.user.encrypt    from auth.js
+  ctx.user.decrypt    from auth.js
  */
 const redis = require('redis')
 const client = redis.createClient()
