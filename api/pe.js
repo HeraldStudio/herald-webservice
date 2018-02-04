@@ -4,7 +4,7 @@ exports.route = {
 
   /**
    * GET /api/pe
-   * 需要内网环境
+   * 跑操查询
    **/
   async get() {
     let { cardnum } = this.user
