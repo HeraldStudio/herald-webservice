@@ -76,14 +76,14 @@ exports.route = {
 
     // 当天流水，直接查询
     if (date === '') {
-
-      // 这个页面是 GBK 的，需要手动解码
       res = await this.post(
         'http://allinonecard.seu.edu.cn/accounttodatTrjnObject.action',
-        `pageVo.pageNum=${page}&account=${info.account}&inputObject=all`,
-        { responseType: 'arraybuffer' }
+        {
+          'pageVo.pageNum': page,
+          account: info.account,
+          inputObject: 'all'
+        }
       )
-      res.data = iconv.decode(res.data, 'GBK')
 
     } else {
       // 转换成 yyyyMMdd 的格式
@@ -100,7 +100,13 @@ exports.route = {
         // 真正要的是最后一个接口的数据
         res = await this.post(
           'http://allinonecard.seu.edu.cn/' + address,
-          `pageNum=${page}&account=${info.account}&inputObject=all&inputStartDate=${date}&inputEndDate=${date}`,
+          {
+            pageNum: page,
+            account: info.account,
+            inputObject: 'all',
+            inputStartDate: date,
+            inputEndDate: date
+          },
           { responseType: 'arraybuffer' }
         )
       }
