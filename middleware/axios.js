@@ -20,6 +20,9 @@ const config = require('../config.json')
 const sem = new Semaphore(10)
 const axiosCookieJarSupport = require('axios-cookiejar-support').default
 const tough = require('tough-cookie')
+const chardet = require('chardet')
+const iconv = require('iconv')
+const qs = require('querystring')
 axiosCookieJarSupport(axios)
 
 /**
@@ -47,8 +50,26 @@ module.exports = async (ctx, next) => {
  */
   let _axios = axios.create({
     validateStatus: () => true,
+
+    // 使用当前会话的 CookieJar
     withCredentials: true,
     jar: ctx.cookieJar,
+
+    // 默认使用 URLEncoded 方式编码请求
+    transformRequest(req) {
+      if (typeof req === 'object') {
+        return qs.stringify(req)
+      }
+      return req
+    },
+
+    // 自动检测返回内容编码
+    responseType: 'arraybuffer',
+    transformResponse(buf) {
+      let encoding = chardet.detect(buf)
+      return new iconv.Iconv(encoding, 'UTF-8//TRANSLIT//IGNORE').convert(buf).toString()
+    },
+
     ...config.axios
   })
 

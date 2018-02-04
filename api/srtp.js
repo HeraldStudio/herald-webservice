@@ -1,7 +1,11 @@
 const cheerio = require('cheerio')
-const axios = require('axios')
 
 exports.route = {
+
+  /**
+   * GET /api/srtp
+   * SRTP查询
+   **/
   async get() {
     let { cardnum, schoolnum } = this.user
 
@@ -14,19 +18,7 @@ exports.route = {
     let $ = cheerio.load(res.data)
 
     let stbody = []
-    $('body')
-      .children('form')
-      .children('table')
-      .children('tbody')
-      .children('tr').eq(2)
-      .children('td')
-      .children('div')
-      .children('table')
-      .children('tbody')
-      .children('tr')
-      .each(function (i, tr) {
-        stbody[i] = $(this)
-      })
+    $('#table1 tr').each((i, tr) => stbody.push($(tr)))
 
     let info = {
       points: stbody[stbody.length - 2].children('td').eq(6).text(),
