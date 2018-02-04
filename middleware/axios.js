@@ -65,9 +65,11 @@ module.exports = async (ctx, next) => {
 
     // 自动检测返回内容编码
     responseType: 'arraybuffer',
-    transformResponse(buf) {
-      let encoding = chardet.detect(buf)
-      return new iconv.Iconv(encoding, 'UTF-8//TRANSLIT//IGNORE').convert(buf).toString()
+    transformResponse(res) {
+      let encoding = chardet.detect(res)
+      res = new iconv.Iconv(encoding, 'UTF-8//TRANSLIT//IGNORE').convert(res).toString()
+      try { res = JSON.parse(res) } catch (e) {}
+      return res
     },
 
     ...config.axios
