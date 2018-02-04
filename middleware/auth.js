@@ -119,11 +119,12 @@ module.exports = async (ctx, next) => {
 
     // 获取一卡通号、密码、前端定义版本
     let { cardnum, password, version } = ctx.params
+    let username = cardnum
 
     // 调用东大 APP 统一身份认证
     let res = await ctx.post(
       'http://mobile4.seu.edu.cn/_ids_mobile/login18_9',
-      `username=${cardnum}&password=${password}`
+      { username, password }
     )
 
     // 验证不通过，抛出错误
@@ -151,7 +152,7 @@ module.exports = async (ctx, next) => {
     })
 
     // 解析姓名
-    let name = /<div style="text-align:right;margin-top:0px;margin-right:6px;color:#fff;">(.*?),/im
+    let name = /<div style="text-align:right;margin-top:\d+px;margin-right:\d+px;color:#fff;">(.*?),/im
       .exec(res.data) || []
     name = name[1] || ''
 
