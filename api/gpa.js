@@ -7,10 +7,11 @@ exports.route = {
    * 成绩查询
    **/
   async get() {
-    this.useCookie()
+    this.useAuthCookie()
     let { cardnum, password } = this.user
     let res = (await this.get('https://boss.myseu.cn/jwccaptcha/')).data
-    console.log(res)
+
+    // 从验证码解析系统获取一次性 Cookie 和解析后的验证码
     let { cookies, captcha } = res
     this.cookieJar.setCookieSync(cookies, 'http://xk.urp.seu.edu.cn/', {})
 
