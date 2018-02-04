@@ -22,7 +22,7 @@
   ctx.user.name       string?             用户姓名
   ctx.user.schoolnum  string?             用户学号（教师为空）
   ctx.user.cookie     string?             用户统一身份认证 Cookie
-  ctx.useCookie       (() => ())?         在接下来的请求中自动使用用户统一身份认证 Cookie
+  ctx.useAuthCookie   (() => ())?         在接下来的请求中自动使用用户统一身份认证 Cookie
 
   注：
 
@@ -214,7 +214,7 @@ module.exports = async (ctx, next) => {
       // 向饼干罐添加初始饼干 🍪
       // 数据库中加密的 Cookie 其实是用分号隔开的两个不同 Cookie，需要分别设置；
       // 另外需要加 Domain 字段，表示这两个 Cookie 适用于全校网站
-      ctx.useCookie = () => {
+      ctx.useAuthCookie = () => {
         cookie.split(';').map(c => {
           ctx.cookieJar.setCookieSync(
             tough.Cookie.parse(c + '; Domain=.seu.edu.cn'), 'http://www.seu.edu.cn', {}
@@ -250,7 +250,7 @@ module.exports = async (ctx, next) => {
       get cookie() { reject() }
     }
 
-    ctx.useCookie = reject
+    ctx.useAuthCookie = reject
 
     // 调用下游中间件
     await next()
