@@ -216,6 +216,7 @@ async get() {
 
 1. 返回 HTTP Code 一定为 200（这是为了把 HTTP Code 让给传输过程中的网络错误）；
 2. 所有成功返回格式均为：
+
     ```javascript
       {
         "success": true,
@@ -224,6 +225,7 @@ async get() {
       }
     ```
 3. 所有失败返回格式均为：
+    
     ```javascript
       {
         "success": false,
