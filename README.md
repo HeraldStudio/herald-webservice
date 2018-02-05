@@ -142,8 +142,9 @@ exports.route = {
     let { encrypt, decrypt } = this.user
     console.log(decrypt(encrypt(cardnum)) === cardnum) // true
 
-    // 为了保证隐私安全，伪 token 不能用于解密数据，只用于区分用户；cookie 用于抓取统一身份认证有关页面
-    let { token, cookie } = this.user
+    // 为了保证隐私安全，伪 token 不能用于解密数据，只用于区分用户
+    // 原 cookie 由于过期太快已被改为 useAuthCookie() 方法，详见下文「自动 Cookie」
+    let { token } = this.user
 
     return `Hello, ${cardnum}!`
   }
@@ -192,9 +193,11 @@ exports.route = {
 
 在上文提到的网络请求 API 中，为了爬虫处理方便，我们利用 `CookieJar` 机制，对 Cookie 的获取和使用做了封装，在先后多次请求时，后面的请求将自动带上当前会话中已经得到的 Cookie，并遵循同源策略。这就意味着，在大多数情况下，你无需手动管理 Cookie。
 
-与此同时，前述认证 API 不仅提供了 `this.user.cookie`，另外也提供了更加方便的方法来使用用户统一身份认证 Cookie。只要显式调用 `this.useAuthCookie()` 方法，就会声明当前功能需要用户登录，并在以后的网络请求中，对 `.seu.edu.cn` 域名通配符下的地址自动携带用户统一身份认证 Cookie。
+对于路由处理程序来说，在初始条件下，该 CookieJar 是空的。
 
-我们要求路由处理程序编写者显式调用该方法，是为了在自动携带 Cookie 的同时，仍能允许路由处理程序明确表达是否需要用户登录。因此，`this.useAuthCookie()` 方法与上文提到的除 `isLogin` 外的用户 API 一样，都需要用户处于已登录状态，否则将抛出 `401`。
+与此同时，前述认证 API 提供了 `await this.useAuthCookie()` 方法，可用于获取用户的统一身份认证 Cookie，并自动加入 CookieJar。在路由处理程序中调用 `await this.useAuthCookie()` 方法后，以后的网络请求将对 `.seu.edu.cn` 域名通配符下的地址自动携带用户统一身份认证 Cookie。
+
+`this.useAuthCookie()` 方法与上文提到的除 `isLogin` 外的用户 API 一样，都需要用户处于已登录状态，否则将抛出 `401`。
 
 一个典型的例子就是一卡通模块：
 
@@ -202,7 +205,7 @@ exports.route = {
 async get() {
 
   // 显式声明需要用户登录，并带上统一身份认证 Cookie
-  this.useAuthCookie()
+  await this.useAuthCookie()
 
   // 带着统一身份认证 Cookie 获取一卡通中心 Cookie
   await this.get('http://allinonecard.seu.edu.cn/ecard/dongnanportalHome.action')
