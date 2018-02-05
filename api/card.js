@@ -1,5 +1,6 @@
 const cheerio = require('cheerio')
 const iconv = require('iconv-lite')
+const qs = require('querystring')
 
 exports.route = {
 
@@ -106,13 +107,9 @@ exports.route = {
             inputObject: 'all',
             inputStartDate: date,
             inputEndDate: date
-          },
-          { responseType: 'arraybuffer' }
+          }
         )
       }
-
-      // GBK 解码
-      res.data = iconv.decode(res.data, 'GBK')
     }
 
     // 直接上 jQuery
@@ -142,6 +139,39 @@ exports.route = {
       info,
       detail: rows.slice(1, -1), // 去掉首尾项
       pageCount: parseInt(/共(\d+)页/.exec(res.data)[1]) // 返回总页数
+    }
+  },
+
+  /**
+   * PUT /api/card
+   * 一卡通在线预充值
+   * @apiParam password    充值金额，浮点数兼容
+   * @apiParam amount    充值金额，浮点数兼容
+   * @apiParam eacc    为1时充值到电子钱包
+   **/
+  async put() {
+    let { password, amount, eacc } = this.params
+    let { cardnum } = this.user
+
+    let res = await this.post('http://58.192.115.47:8088/wechat-web/login/dologin.html', {
+      cardno: cardnum, pwd: password
+    })
+
+    if (/账户密码错误/.test(res.data)) {
+      throw '密码错误，请重试'
+    }
+
+    let cardid = /&sum=(\d{6})"/.exec(res.data)[1]
+    res = await this.get(
+      'http://58.192.115.47:8088/WechatEcardInterfaces/wechatweb/chongzhi.html?jsoncallback=' +
+      `&value=${amount},${password}&cardno=${cardid}&acctype=${eacc === '1' ? '000' : '1'}`
+    )
+
+    let msg = JSON.parse(/callJson\s*\(\s*(\{[\s\S]*\})\s*\)/im.exec(res.data)[1]).errmsg.replace(/转账/g, '充值')
+    if (/成功/.test(msg)) {
+      return msg
+    } else {
+      throw msg
     }
   }
 }

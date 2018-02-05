@@ -21,7 +21,7 @@
   - [ ] 跑操详情、跑操预告
   - [ ] 物理实验
   - [ ] 考试安排
-  - [ ] 成绩 GPA
+  - [x] 成绩 GPA @rikumi
   - [x] SRTP @imfinethanks
   - [ ] 人文讲座
   - [ ] 图书馆
@@ -41,7 +41,7 @@
 
   - [ ] 一卡通自助服务（挂失解挂等）
   - [x] 网络中心自助服务（开通续费）
-  - [ ] 食堂菜品数据库（权益）
+  - [ ] 食堂菜品数据库（权益）施工中
   - [ ] 通用抢票、选座系统（研会）
   - [ ] ……（欢迎补充）
 
@@ -172,17 +172,13 @@ WebService3 框架为 `this` 暴露了 `get` `post` `put` `delete` 四个 API �
 
 1. 考虑到学校网站中 GBK 编码仍占有很大比例，我们对网络请求的返回结果进行了自动编码检测，并自动转换为 Node.js 原生支持的 UTF-8 编码，开发者无须再关心编码转换问题；
 2. 由于前后端不分离的环境下大多使用 `x-www-form-urlencoded` 格式进行 Body 编码，该编码方案已经被默认使用。若要临时采用 JSON 编码，可以手动执行 `JSON.stringify` 序列化；
-3. 这套网络请求 API 另外还自带了 CookieJar，可自动记录并使用当前会话内的 Cookie，详见下文「自动Cookie」。
+3. 这套网络请求 API 另外还自带了 CookieJar，可自动记录并使用当前会话内的 Cookie，详见下文「自动Cookie」；
+4. 我们的中间件程序被设计为能够自动识别路由处理程序中直接抛出的网络请求异常，并对这些异常做一些预设的解读和转换，例如把 `401` 和 `403` 原样返回给用户，把超时转换为 `408`，其余错误转换为 `503`，在下面「通用返回格式 & 错误处理」中，这些错误码都将变成用户可读的、完整准确的错误提示。
 
 ```javascript
 exports.route = {
   async get() {
     let res = await this.get('https://httpbin.org/get') // 请求上游 API
-    if (res.status >= 400) {
-      this.throw(res.status) // 抛出与上游相同的错误
-      return
-    }
-
     return res.data // axios 将自动对结果执行 JSON.parse；koa 也支持直接返回非字符串类型，将自动执行 JSON.stringify。
   }
 }
@@ -213,6 +209,34 @@ async get() {
   // Do something with res.data here...
 }
 ```
+
+### 通用返回格式 & 错误处理
+
+按照 ReSTful 接口设计的原则，只要请求经由 WebService3 处理，无论请求成功与否，都将遵循下面的返回格式：
+
+1. 返回 HTTP Code 一定为 200（这是为了把 HTTP Code 让给传输过程中的网络错误）；
+2. 所有成功返回格式均为：
+    ```json
+      {
+        "success": true,
+        "code": 200,
+        "result": <路由处理程序返回的结果>
+      }
+    ```
+3. 所有失败返回格式均为：
+    ```json
+      {
+        "success": false,
+        "code": <不小于400的整数>,
+        "reason": <用户可读的友好化错误信息>
+      }
+    ```
+
+在书写路由处理程序时，对于成功返回和失败返回，推荐使用的返回方式分别如下：
+
+1. `return <结果>`：成功返回，状态码为 `200`；
+2. `throw <错误码>`：失败返回，将自动对错误码进行解析，能解析为用户可读错误信息的错误码详见 `middleware/return.js`；
+3. `throw <错误信息>`：失败返回，自定义错误信息，状态码为 `400`。
 
 ### 自动缓存
 
