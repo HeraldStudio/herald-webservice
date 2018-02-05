@@ -13,8 +13,8 @@
 
 module.exports = async (ctx, next) => {
 
-  // 去除这个对流程控制具有迷惑性的 API，请直接用 throw 代替
-  delete ctx.throw
+  // 不要使用这个对流程控制具有迷惑性的 API，请直接用 throw 代替
+  ctx.throw = (code) => { throw code }
 
   try {
     await next()
@@ -33,10 +33,6 @@ module.exports = async (ctx, next) => {
       }
     } else if (/^timeout of \d+ms exceeded$/.test(e.message)) { // 探测 Axios 异常
       ctx.status = 408
-    } else { // 未知错误
-      console.trace(e)
-      ctx.status = 400
-      ctx.body = '未知错误'
     }
   }
 
@@ -59,6 +55,10 @@ module.exports = async (ctx, next) => {
       ctx.body = '服务器维护'
     } else if (ctx.status === 503) {
       ctx.body = '学校相关服务出现故障'
+    } else {
+      console.error(e)
+      ctx.status = 400
+      ctx.body = '未知错误'
     }
   }
 
