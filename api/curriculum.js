@@ -33,10 +33,7 @@ exports.route = {
     try {
       // 从课表页面抓取学期号
       term = /<font class="Context_title">[\s\S]*?(\d{2}-\d{2}-\d)[\s\S]*?<\/font>/im.exec(res.data)[1]
-    } catch (e) {
-      this.throw(404)
-      return
-    }
+    } catch (e) { throw 401 }
 
     // 抓取学期详情列表
     let termRes = await this.get('http://58.192.114.179/classroom/common/gettermlistex')

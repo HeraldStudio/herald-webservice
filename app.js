@@ -12,6 +12,7 @@ process.on('uncaughtException', console.trace)
 app.use(logger())
 
 // WS3 框架中间件，其中 redis 依赖 auth，不能倒置
+app.use(require('./middleware/return'))
 app.use(require('./middleware/params'))
 app.use(require('./middleware/axios'))
 app.use(require('./middleware/auth'))

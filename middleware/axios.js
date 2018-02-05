@@ -49,7 +49,6 @@ module.exports = async (ctx, next) => {
   利用 10 线程的伪线程池 semaphore 进行网络请求，支持 get/post/put/delete 四个方法
  */
   let _axios = axios.create({
-    validateStatus: () => true,
 
     // 使用当前会话的 CookieJar
     withCredentials: true,

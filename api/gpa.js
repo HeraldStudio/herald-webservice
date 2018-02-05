@@ -44,6 +44,6 @@ exports.route = {
     // 时间解析为时间戳
     calculated = new Date(calculated).getTime()
 
-    return {gpa, gpaNoRevamp, year, calculationTime, detail}
+    return { gpa, gpaNoRevamp, year, calculationTime, detail }
   }
 }
