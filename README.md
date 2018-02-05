@@ -62,6 +62,10 @@ npm install
 npm run dev
 ```
 
+### 生产环境
+
+生产环境下请使用 `npm run start` 代替 `npm run dev`，以禁用 `kf-router` 的模块始终重载功能。
+
 ### Hello World
 
 ```javascript

@@ -6,7 +6,13 @@
 const chalk = require('chalk')
 const ora = require('ora')
 
-const spinner = ora().start()
+const spinner = ora({
+  spinner: {
+    interval: 100,
+    frames: ['→']
+  }
+}).start()
+
 const updateConnections = (count) => {
   if (count <= 1) {
     spinner.text = count + ' request running'
