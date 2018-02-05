@@ -2,13 +2,6 @@
   # 返回格式中间件
 
   按照一定的规则，规范返回格式，将 HTTP Status Code 下放到 JSON 中，使 HTTP Status Code 保持为 200。
-  该中间件应作为 kf-router 的直接上游存在。
-
-  至此，整个 WS3 的返回格式介绍如下：
-
-  1. 若路由不存在，返回 HTTP 404；
-  2. 若路由存在但方法不存在，返回 HTTP 405；
-  3. 若需要
  */
 
 module.exports = async (ctx, next) => {
