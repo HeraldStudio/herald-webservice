@@ -145,9 +145,9 @@ exports.route = {
   /**
    * PUT /api/card
    * 一卡通在线预充值
-   * @apiParam password    充值金额，浮点数兼容
-   * @apiParam amount    充值金额，浮点数兼容
-   * @apiParam eacc    为1时充值到电子钱包
+   * @apiParam password   一卡通查询密码
+   * @apiParam amount     充值金额，浮点数兼容
+   * @apiParam eacc       为1时充值到电子钱包
    **/
   async put() {
     let { password, amount, eacc } = this.params
