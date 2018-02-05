@@ -42,7 +42,7 @@
   户，不用于加解密。对于加解密，此中间件将暴露 encrypt/decrypt 接口来帮助下游中间件加解密数据。
  */
 const { Database } = require('sqlite3')
-const db = new Database('auth.db')
+const db = new Database('database/auth.db')
 const config = require('../config.json')
 const crypto = require('crypto')
 const tough = require('tough-cookie')
@@ -127,12 +127,6 @@ module.exports = async (ctx, next) => {
       { username, password }
     )
 
-    // 验证不通过，抛出错误
-    if (res.status >= 400) {
-      ctx.throw(res.status)
-      return
-    }
-
     // 抓取 Cookie
     let cookie = res.headers['set-cookie']
     if (Array.isArray(cookie)) {
@@ -199,45 +193,47 @@ module.exports = async (ctx, next) => {
     let tokenHash = new Buffer(crypto.createHash('md5').update(token).digest()).toString('base64')
 
     let record = await db.get('select * from auth where token_hash = ?', [tokenHash])
-    if (record) {
-      let now = new Date().getTime()
-
-      // await-free
-      // 更新用户最近调用时间
-      db.run('update auth set last_invoked = ? where token_hash = ?', [now, tokenHash])
-
-      // 解密用户密码
-      let { cardnum, password, name, schoolnum, cookie } = record
-      password = decrypt(token, password)
-      cookie = decrypt(token, cookie)
-
-      // 向饼干罐添加初始饼干 🍪
-      // 数据库中加密的 Cookie 其实是用分号隔开的两个不同 Cookie，需要分别设置；
-      // 另外需要加 Domain 字段，表示这两个 Cookie 适用于全校网站
-      ctx.useAuthCookie = () => {
-        cookie.split(';').map(c => {
-          ctx.cookieJar.setCookieSync(
-            tough.Cookie.parse(c + '; Domain=.seu.edu.cn'), 'http://www.seu.edu.cn', {}
-          )
-        })
-      }
-
-      // 将伪 token、解密后的一卡通号、密码和 Cookie、加解密接口暴露给下层中间件
-      ctx.user = {
-        isLogin: true,
-        encrypt: encrypt.bind(undefined, token),
-        decrypt: decrypt.bind(undefined, token),
-        token: tokenHash,
-        cardnum, password, name, schoolnum, cookie
-      }
-
-      // 调用下游中间件
-      await next()
+    if (!record) {
+      throw 401
     }
+
+    let now = new Date().getTime()
+
+    // await-free
+    // 更新用户最近调用时间
+    db.run('update auth set last_invoked = ? where token_hash = ?', [now, tokenHash])
+
+    // 解密用户密码
+    let { cardnum, password, name, schoolnum, cookie } = record
+    password = decrypt(token, password)
+    cookie = decrypt(token, cookie)
+
+    // 向饼干罐添加初始饼干 🍪
+    // 数据库中加密的 Cookie 其实是用分号隔开的两个不同 Cookie，需要分别设置；
+    // 另外需要加 Domain 字段，表示这两个 Cookie 适用于全校网站
+    ctx.useAuthCookie = () => {
+      cookie.split(';').map(c => {
+        ctx.cookieJar.setCookieSync(
+          tough.Cookie.parse(c + '; Domain=.seu.edu.cn'), 'http://www.seu.edu.cn', {}
+        )
+      })
+    }
+
+    // 将伪 token、解密后的一卡通号、密码和 Cookie、加解密接口暴露给下层中间件
+    ctx.user = {
+      isLogin: true,
+      encrypt: encrypt.bind(undefined, token),
+      decrypt: decrypt.bind(undefined, token),
+      token: tokenHash,
+      cardnum, password, name, schoolnum, cookie
+    }
+
+    // 调用下游中间件
+    await next()
   } else {
 
     // 对于没有 token 的请求，若下游中间件要求取 user，说明功能需要登录，抛出 401
-    let reject = () => ctx.throw(401)
+    let reject = () => { throw 401 }
     ctx.user = {
       isLogin: false,
       get encrypt() { reject() },

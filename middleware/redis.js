@@ -146,7 +146,7 @@ module.exports = async (ctx, next) => {
   await next()
 
   // 若需要缓存，将中间件返回值存入 redis
-  if (cacheTTL) {
+  if (cacheTTL && ctx.body) {
     cached = ctx.body
     cached = JSON.stringify(cached)
 

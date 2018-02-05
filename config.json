@@ -9,16 +9,11 @@
   },
   "cache": {
     "api": {
-      "card": {
-        "cookie": "1d",
-        "detail": "1d",
-        "index": "10m"
-      },
+      "card": "10m",
       "curriculum": "3d",
-      "pe": {
-        "index": "1h"
-      },
-      "cookie": "1d"
+      "gpa": "1h",
+      "pe": "1h",
+      "srtp": "1d"
     }
   }
 }

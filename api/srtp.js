@@ -10,10 +10,6 @@ exports.route = {
     let { cardnum, schoolnum } = this.user
 
     let res = await this.post('http://10.1.30.98:8080/srtp2/USerPages/SRTP/Report3.aspx',`code=${schoolnum}`)
-    if (res.status >= 400) {
-      this.throw(res.status)
-      return
-    }
 
     let $ = cheerio.load(res.data)
 
