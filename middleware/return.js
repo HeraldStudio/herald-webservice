@@ -26,6 +26,8 @@ module.exports = async (ctx, next) => {
       }
     } else if (/^timeout of \d+ms exceeded$/.test(e.message)) { // 探测 Axios 异常
       ctx.status = 408
+    } else {
+      ctx.status = 400
     }
   }
 
