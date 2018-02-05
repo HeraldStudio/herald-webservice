@@ -3,9 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "pm2 delete app.js >/dev/null 2>/dev/null; pm2 start -f --watch --no-daemon app.js; pm2 delete app.js >/dev/null 2>/dev/null",
-    "start": "pm2 start -f app.js",
-    "stop": "pm2 delete app.js"
+    "dev": "NODE_ENV=development node app.js",
+    "start": "NODE_ENV=production node app.js"
   },
   "dependencies": {
     "await-semaphore": "^0.1.3",
@@ -17,11 +16,10 @@
     "cheerio": "^1.0.0-rc.2",
     "iconv": "^2.3.0",
     "iconv-lite": "latest",
-    "kf-router": "^1.1.4",
+    "kf-router": "latest",
     "koa": "^2.4.1",
     "koa-bodyparser": "^4.2.0",
     "ora": "^1.4.0",
-    "pm2": "^2.9.3",
     "redis": "^2.8.0",
     "sqlite3": "^3.1.13",
     "tough-cookie": "^2.3.3"

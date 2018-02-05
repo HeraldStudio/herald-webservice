@@ -16,5 +16,5 @@ app.use(require('./middleware/auth'))
 app.use(require('./middleware/redis'))
 
 // kf-router 是中间件最后一层，要在最后引入
-app.use(kf(module))
+app.use(kf(module, { hotReload: process.env.NODE_ENV === 'development' }))
 app.listen(config.port)
