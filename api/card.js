@@ -12,7 +12,7 @@ exports.route = {
    **/
   async get() {
 
-    this.useAuthCookie()
+    await this.useAuthCookie()
 
     // 带着统一身份认证 Cookie 获取一卡通中心 Cookie；带着一卡通中心 Cookie 抓取一卡通页面
     await this.get('http://allinonecard.seu.edu.cn/ecard/dongnanportalHome.action')

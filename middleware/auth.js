@@ -21,8 +21,7 @@
   ctx.user.password   string?             用户密码
   ctx.user.name       string?             用户姓名
   ctx.user.schoolnum  string?             用户学号（教师为空）
-  ctx.user.cookie     string?             用户统一身份认证 Cookie
-  ctx.useAuthCookie   (() => ())?         在接下来的请求中自动使用用户统一身份认证 Cookie
+  ctx.useAuthCookie   (() => Promise)?    在接下来的请求中自动使用用户统一身份认证 Cookie
 
   注：
 
@@ -33,13 +32,13 @@
   ## 伪 token
 
   对于始终需要明文用户名密码的爬虫程序来说，用户信息的安全性始终是重要话题。在爬虫程序不得不知道用户名
-  和密码的情况下，我们希望尽可能缩短明文密码和明文 Cookie 的生命周期，让它们只能短暂存在于爬虫程序中，
-  然后对于上线的爬虫程序进行严格审查，确保明文密码和明文 Cookie 没有被第三方恶意截获和存储。
+  和密码的情况下，我们希望尽可能缩短明文密码的生命周期，让它们只能短暂存在于爬虫程序中，然后对于上线的爬
+  虫程序进行严格审查，确保明文密码没有被第三方恶意截获和存储。
 
-  对于 token，爬虫程序其实也应当有权限获得，并用于一些自定义的加密和解密中，但相对于明文密码和明文 Coo-
-  kie 来说，token 的隐私性更容易被爬虫程序开发者忽视，并可能被存入数据库作为区别用户身份的标志，从而导
-  致潜在的隐私泄漏。因此，这里不向爬虫程序提供明文 token，而是只提供 token 的哈希值，仅用于区分不同用
-  户，不用于加解密。对于加解密，此中间件将暴露 encrypt/decrypt 接口来帮助下游中间件加解密数据。
+  对于 token，爬虫程序其实也应当有权限获得，并用于一些自定义的加密和解密中，但相对于明文密码来说，token
+  的隐私性更容易被爬虫程序开发者忽视，并可能被存入数据库作为区别用户身份的标志，从而导致潜在的隐私泄漏。
+  因此，这里不向爬虫程序提供明文 token，而是只提供 token 的哈希值，仅用于区分不同用户，不用于加解密。
+  对于加解密，此中间件将暴露 encrypt/decrypt 接口来帮助下游中间件加解密数据。
  */
 const { Database } = require('sqlite3')
 const db = new Database('database/auth.db')
@@ -64,7 +63,6 @@ const tough = require('tough-cookie')
   password      varchar  密文密码 = Base64(MD5(cipher(token, 明文密码)))
   name          varchar  姓名
   schoolnum     varchar  学号（教师为空）
-  cookie        varchar  密文统一身份认证 Cookie = Base64(MD5(cipher(token, 明文统一身份认证 Cookie)))
   version_desc  varchar  版本备注，由调用端任意指定
   registered    integer  认证时间
   last_invoked  integer  上次使用时间，超过一定设定值的会被清理
@@ -79,7 +77,6 @@ const tough = require('tough-cookie')
       password      varchar(128)  not null,
       name          varchar(192)  not null,
       schoolnum     varchar(64)   not null,
-      cookie        varchar(256)  not null,
       version_desc  varchar(128)  not null,
       registered    integer       not null,
       last_invoked  integer       not null
@@ -111,6 +108,26 @@ const decrypt = (key, value) => {
   return result
 }
 
+const auth = async (ctx, username, password) => {
+  // 调用东大 APP 统一身份认证
+  let res = await ctx.post(
+    'http://mobile4.seu.edu.cn/_ids_mobile/login18_9',
+    { username, password }
+  )
+
+  // 抓取 Cookie
+  let cookie = res.headers['set-cookie']
+  if (Array.isArray(cookie)) {
+    cookie = cookie.filter(k => k.indexOf('JSESSIONID') + 1)[0]
+  }
+  cookie = /(JSESSIONID=[0-9A-F]+)\s*[;$]/.exec(cookie)[1]
+
+  let url = 'http://www.seu.edu.cn'
+  let { cookieName, cookieValue } = JSON.parse(res.headers.ssocookie)[0]
+  ctx.cookieJar.setCookieSync(`${cookieName}=${cookieValue}; Domain=.seu.edu.cn`, url, {})
+  ctx.cookieJar.setCookieSync(`${cookie}; Domain=.seu.edu.cn`, url, {})
+}
+
 // 加密和解密过程
 module.exports = async (ctx, next) => {
 
@@ -119,31 +136,14 @@ module.exports = async (ctx, next) => {
 
     // 获取一卡通号、密码、前端定义版本
     let { cardnum, password, version } = ctx.params
-    let username = cardnum
 
-    // 调用东大 APP 统一身份认证
-    let res = await ctx.post(
-      'http://mobile4.seu.edu.cn/_ids_mobile/login18_9',
-      { username, password }
-    )
-
-    // 抓取 Cookie
-    let cookie = res.headers['set-cookie']
-    if (Array.isArray(cookie)) {
-      cookie = cookie.filter(k => k.indexOf('JSESSIONID') + 1)[0]
-    }
-    cookie = /(JSESSIONID=[0-9A-F]+)\s*[;$]/.exec(cookie)[1]
-
-    let { cookieName, cookieValue } = JSON.parse(res.headers.ssocookie)[0]
-    cookie = `${cookieName}=${cookieValue};${cookie}`
+    await auth(ctx, cardnum, password)
 
     // 获取用户附加信息（仅姓名和学号）
     // 对于本科生，此页面可显示用户信息；对于其他角色（研究生和教师），此页面重定向至老信息门户主页。
     // 但对于所有角色，无论是否重定向，右上角用户姓名都可抓取；又因为只有本科生需要通过查询的方式获取学号，
     // 研究生可直接通过一卡通号截取学号，教师则无学号，所以此页面可以满足所有角色信息抓取的要求。
-    res = await ctx.get('http://myold.seu.edu.cn/index.portal?.pn=p3447_p3449_p3450', {
-      headers: { Cookie: cookie }
-    })
+    res = await ctx.get('http://myold.seu.edu.cn/index.portal?.pn=p3447_p3449_p3450')
 
     // 解析姓名
     let name = /<div style="text-align:right;margin-top:\d+px;margin-right:\d+px;color:#fff;">(.*?),/im
@@ -172,16 +172,15 @@ module.exports = async (ctx, next) => {
 
     // 用 token 加密用户密码和统一身份认证 cookie
     let passwordEncrypted = encrypt(token, password)
-    let cookieEncrypted = encrypt(token, cookie)
 
     // 将新用户信息插入数据库
     let now = new Date().getTime()
     await db.run(`insert into auth (
-      token_hash,  cardnum,  password,           name,  schoolnum,  cookie,          version_desc,  registered, last_invoked
+      token_hash,  cardnum,  password,           name,  schoolnum,  version_desc,  registered, last_invoked
     ) values (
-      ?,           ?,        ?,                  ?,     ?,          ?,               ?,             ?,          ?
+      ?,           ?,        ?,                  ?,     ?,          ?,             ?,          ?
     )`, [
-      tokenHash,   cardnum,  passwordEncrypted,  name,  schoolnum,  cookieEncrypted, version || '', now,        now
+      tokenHash,   cardnum,  passwordEncrypted,  name,  schoolnum,  version || '', now,        now
     ])
 
     // 返回 token
@@ -204,20 +203,11 @@ module.exports = async (ctx, next) => {
     db.run('update auth set last_invoked = ? where token_hash = ?', [now, tokenHash])
 
     // 解密用户密码
-    let { cardnum, password, name, schoolnum, cookie } = record
+    let { cardnum, password, name, schoolnum } = record
     password = decrypt(token, password)
-    cookie = decrypt(token, cookie)
 
-    // 向饼干罐添加初始饼干 🍪
-    // 数据库中加密的 Cookie 其实是用分号隔开的两个不同 Cookie，需要分别设置；
-    // 另外需要加 Domain 字段，表示这两个 Cookie 适用于全校网站
-    ctx.useAuthCookie = () => {
-      cookie.split(';').map(c => {
-        ctx.cookieJar.setCookieSync(
-          tough.Cookie.parse(c + '; Domain=.seu.edu.cn'), 'http://www.seu.edu.cn', {}
-        )
-      })
-    }
+    // 将统一身份认证 Cookie 获取器暴露给模块
+    ctx.useAuthCookie = auth.bind(undefined, ctx, cardnum, password)
 
     // 将伪 token、解密后的一卡通号、密码和 Cookie、加解密接口暴露给下层中间件
     ctx.user = {
@@ -225,7 +215,7 @@ module.exports = async (ctx, next) => {
       encrypt: encrypt.bind(undefined, token),
       decrypt: decrypt.bind(undefined, token),
       token: tokenHash,
-      cardnum, password, name, schoolnum, cookie
+      cardnum, password, name, schoolnum
     }
 
     // 调用下游中间件
