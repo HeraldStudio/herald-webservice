@@ -219,11 +219,6 @@ class SpiderServer {
     if(data.succ){
       //将data域解码为原始状态
       data.data = Buffer.from(data.data.data).toString()
-      //如果设定了transformResponse则在此执行
-      if(requestObj.hasOwnProperty('transformResponse')){
-        //data.data = requestObj.transformResponse(data.data)
-        console.log(data)
-      }
       //自动更新cookieJar
       requestObj.ctx.cookieJar = tough.CookieJar.fromJSON(data.cookie)
       requestObj.resolve(data)
