@@ -20,6 +20,7 @@
     "koa": "^2.4.1",
     "koa-bodyparser": "^4.2.0",
     "ora": "^1.4.0",
+    "prettyjson": "^1.2.1",
     "redis": "^2.8.0",
     "sqlite3": "^3.1.13",
     "tough-cookie": "^2.3.3",
