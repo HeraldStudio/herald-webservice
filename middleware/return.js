@@ -36,7 +36,7 @@ module.exports = async (ctx, next) => {
     if (ctx.status === 400) {
       ctx.body = '请求出错'
     } else if (ctx.status === 401) {
-      ctx.body = ctx.request.headers.token ? '会话已过期，需要重新登录' : '需要登录'
+      ctx.body = ctx.request.headers.token ? '登录失败或已过期' : '需要登录'
     } else if (ctx.status === 403) {
       ctx.body = '权限不允许'
     } else if (ctx.status === 404) {
