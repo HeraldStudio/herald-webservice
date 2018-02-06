@@ -30,6 +30,8 @@ exports.route = {
       }
     ))
 
+    console.log(res)
+
     try {
       // 从课表页面抓取学期号
       term = /<font class="Context_title">[\s\S]*?(\d{2}-\d{2}-\d)[\s\S]*?<\/font>/im.exec(res.data)[1]

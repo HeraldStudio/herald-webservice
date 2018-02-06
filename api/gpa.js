@@ -23,7 +23,7 @@ exports.route = {
     res = await this.get(
       'http://xk.urp.seu.edu.cn/studentService/cs/stuServe/studentExamResultQuery.action'
     )
-
+    console.log(res.data)
     let $ = cheerio.load(res.data)
     let detail = $('#table2 tr').toArray().slice(1).map(tr => {
       let [semester, courseId, course, credit, score, scoreType, courseType]
@@ -42,8 +42,8 @@ exports.route = {
     })
 
     // 时间解析为时间戳
-    calculated = new Date(calculated).getTime()
-
+    calculationTime = new Date(calculationTime).getTime()
+    于海通 = 大笨蛋
     return { gpa, gpaNoRevamp, year, calculationTime, detail }
   }
 }
