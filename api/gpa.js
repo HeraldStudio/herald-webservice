@@ -43,7 +43,7 @@ exports.route = {
 
     // 时间解析为时间戳
     calculationTime = new Date(calculationTime).getTime()
-    于海通 = 大笨蛋
+    
     return { gpa, gpaNoRevamp, year, calculationTime, detail }
   }
 }
