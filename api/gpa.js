@@ -7,7 +7,7 @@ exports.route = {
    * 成绩查询
    **/
   async get() {
-    this.useAuthCookie()
+    await this.useAuthCookie()
     let { cardnum, password } = this.user
     let res = (await this.get('https://boss.myseu.cn/jwccaptcha/')).data
 
