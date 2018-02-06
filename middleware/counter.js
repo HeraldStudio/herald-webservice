@@ -13,11 +13,7 @@ const spinner = ora({
 }).start()
 
 const updateConnections = (count) => {
-  if (count <= 1) {
-    spinner.text = count + ' request running'
-  } else {
-    spinner.text = count + ' requests running'
-  }
+  spinner.text = count + ' 个请求运行中'
 }
 
 let connections = 0
