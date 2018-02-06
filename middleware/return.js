@@ -21,13 +21,16 @@ module.exports = async (ctx, next) => {
       ctx.body = e
     } else if (/^Request failed with status code (\d+)$/.test(e.message)) { // 探测 Axios 异常
       let axiosCode = parseInt(RegExp.$1)
-      if (axiosCode === 401 || axiosCode === 403) {
+      if (axiosCode === 401) {
         ctx.status = axiosCode
       } else {
         ctx.status = 503
       }
     } else if (/^timeout of \d+ms exceeded$/.test(e.message)) { // 探测 Axios 异常
       ctx.status = 408
+    } else {
+      console.error(e)
+      ctx.status = 400
     }
   }
 
