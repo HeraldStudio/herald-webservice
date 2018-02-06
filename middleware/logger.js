@@ -4,37 +4,8 @@
   代替 koa 的日志中间件，为了解析 return.js 中间件返回的 JSON 状态码，并且为了好看。
  */
 const chalk = require('chalk')
-const ora = require('ora')
-
-const spinner = ora({
-  spinner: {
-    interval: 100,
-    frames: ['→']
-  }
-}).start()
-
-const updateConnections = (count) => {
-  if (count <= 1) {
-    spinner.text = count + ' request running'
-  } else {
-    spinner.text = count + ' requests running'
-  }
-}
-
-let connections = 0
-updateConnections(0)
-for (let key in console) {
-  [console['_' + key], console[key]] = [console[key], function() {
-    spinner.stop()
-    console['_' + key].apply(undefined, arguments)
-    spinner.start()
-  }]
-}
-
-console.log('')
 
 module.exports = async (ctx, next) => {
-  updateConnections(++connections)
   let begin = new Date()
   await next()
   let end = new Date()
@@ -50,6 +21,4 @@ module.exports = async (ctx, next) => {
     ' ' + chalk.blue(ctx.path) +
     ' ' + duration + 'ms'
   )
-
-  updateConnections(--connections)
 }
