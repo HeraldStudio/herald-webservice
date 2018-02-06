@@ -76,11 +76,40 @@ module.exports = async (ctx, next) => {
 
   ;['get','post','put','delete'].forEach(k => {
     ctx[k] = async function () {
-      let release = await sem.acquire()
-      let result = await _axios[k].apply(undefined, arguments)
-      release()
-      return result
+      if(config.spider.enable){
+        let transformRequest = (req) => {
+          if (typeof req === 'object') {
+            return qs.stringify(req)
+          }
+          return req
+        }
+        let transformResponse = (res) => {
+          res = Buffer.from(res)
+          let encoding = chardet.detect(res)
+          res = new iconv.Iconv(encoding, 'UTF-8//TRANSLIT//IGNORE').convert(res).toString()
+          try { res = JSON.parse(res) } catch (e) {}
+          return res
+        }
+        try {
+          let result =  await ctx.spiderServer.request(ctx, k, arguments, config.axios, transformRequest, transformResponse)
+          return result
+        }
+        catch(e) {
+          console.log(e)
+          let release = await sem.acquire()
+          let result = await _axios[k].apply(undefined, arguments)
+          release()
+          return result
+        }
+      }
+      else {
+        let release = await sem.acquire()
+        let result = await _axios[k].apply(undefined, arguments)
+        release()
+        return result
+      }
     }
   })
+
   await next()
 }

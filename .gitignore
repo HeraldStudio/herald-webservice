@@ -3,6 +3,6 @@ package-lock.json
 yarn.lock
 .idea/
 .DS_Store
-
+spider_test.js
 *~
 *.db
