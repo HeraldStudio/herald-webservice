@@ -14,7 +14,7 @@ module.exports = {
       try {
         result.rows[index] = new models.Classroom(classroom);
       } catch (ex) {
-        console.log(ex);
+        console.log(ex)
       }
     });
 
