@@ -52,6 +52,13 @@ class SpiderServer {
 
     // 来自硬件爬虫数据的处理
     connection.on('message', (data) => {
+      // 有数据返回时即更新心跳时间戳
+      let date = new Date()
+      connection.finalHeartBeat = date.getTime()
+      // 如果是心跳包则拦截
+      if (data === '@herald—spider') {
+        return
+      }
       if (connection.active) {
         this.handleResponse(data)
       } else {
@@ -157,13 +164,21 @@ class SpiderServer {
     return new Promise((resolve, reject) => {
       this.requestPool[name].resolve = resolve
       this.requestPool[name].reject = reject
+      this.requestPool[name].timeout = setTimeout(() => {
+        this.requestPool[name].isTimeout = true
+        reject('timeout')
+        delete this.requestPool[name]
+      }, 15000)
       try {
         let spider = this.pickSpider()
         spider.send(encodedRequest)
       } catch (e) {
         console.log('[-] 向硬件爬虫发送请求数据期间出错，错误信息：')
+        console.log(e.message)
         e.errCode = WEBSOCKET_TRASFER_ERROR
         reject(e)
+        clearTimeout(this.requestPool[name].timeout)
+        delete this.requestPool[name]
       }
     })
 
@@ -204,9 +219,12 @@ class SpiderServer {
   }
 
   pickSpider() {
+    let timestamp = new Date()
+    timestamp = timestamp.getTime()
     let avaliableList = []
     for (let name in this.connectionPool) {
-      if (this.connectionPool[name].active) {
+      let heartCycle = timestamp - this.connectionPool[name].finalHeartBeat
+      if (this.connectionPool[name].active && heartCycle <= config.spider.heartCycle) {
         avaliableList.push(this.connectionPool[name])
       }
     }
@@ -222,19 +240,26 @@ class SpiderServer {
     data = JSON.parse(data)
     let requestName = data.requestName
     let requestObj = this.requestPool[requestName]
+    if (requestObj.isTimeout) {
+      return
+    }
     if (data.succ) {
+      clearTimeout(requestObj.timeout)
       // 将data域解码为原始状态
       data.data = Buffer.from(data.data.data).toString()
       try { data.data = JSON.parse(data.data) } catch (e) {}
       // 自动更新cookieJar
       requestObj.ctx.cookieJar = tough.CookieJar.fromJSON(data.cookie)
       requestObj.resolve(data)
+      delete this.requestPool[requestName]
     } else {
+      clearTimeout(requestObj.timeout)
       data.errCode = REQUEST_ERROR
       if (data.hasOwnProperty('data')) {
         data.data = Buffer.from(data.data.data).toString()
       }
       requestObj.reject(data)
+      delete this.requestPool[requestName]
     }
   }
 
