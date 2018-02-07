@@ -1,0 +1,12 @@
+[
+  {
+    "domain": "advertise",
+    "name": "广告管理员",
+    "desc": "审核活动宣传及轮播图管理"
+  },
+  {
+    "domain": "maintenance",
+    "name": "运维管理员",
+    "desc": "发布通知公告、管理分布式爬虫等"
+  }
+]
