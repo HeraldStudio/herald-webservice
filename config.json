@@ -18,6 +18,7 @@
   },
   "spider": {
     "enable": true,
-    "port": 49034
+    "port": 49034,
+    "heartCycle": 4000
   }
 }
