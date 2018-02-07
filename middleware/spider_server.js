@@ -28,7 +28,7 @@ class SpiderServer {
       this.handleConnection(connection)
     })
     this.socketServer.on('error', (error) => {error.errCode = SERVER_ERROR; console.log(error)})
-    console.log('[+]分布式硬件爬虫服务正在运行...')
+    console.log('[+] 分布式硬件爬虫服务正在运行...')
   }
 
   handleConnection(connection) {
@@ -37,7 +37,7 @@ class SpiderServer {
     this.connectionPool[name] = connection
     connection.active = false
     let token = this.generateToken()
-    console.log(`[I]硬件爬虫 <${name}> 连接建立，请使用口令 <${token}> 完成配对`)
+    console.log(`[I] 硬件爬虫 <${name}> 连接建立，请使用口令 <${token}> 完成配对`)
     connection.token = token
     let message = {spiderName:name}
     connection.send(JSON.stringify(message))
@@ -51,11 +51,11 @@ class SpiderServer {
         if (token === connection.token) {
           // 验证成功
           connection.active = true
-          console.log(`[I]硬件爬虫 <${connection.spiderName}> 认证成功`)
+          console.log(`[I] 硬件爬虫 <${connection.spiderName}> 认证成功`)
           connection.send('Auth_Success')
         } else {
           // 验证失败，关闭连接
-          console.log(`[W]硬件爬虫 <${connection.spiderName}> 认证失败`)
+          console.log(`[W] 硬件爬虫 <${connection.spiderName}> 认证失败`)
           delete this.connectionPool[connection.spiderName]
           connection.send('Auth_Fail')
           connection.terminate()
@@ -65,12 +65,12 @@ class SpiderServer {
 
     // 硬件爬虫关闭响应
     connection.on("close",(code, reason) => {
-      console.log(`[I]硬件爬虫 <${connection.spiderName}> 连接关闭,code=${code}, reason=${reason}`)
+      console.log(`[I] 硬件爬虫 <${connection.spiderName}> 连接关闭,code=${code}, reason=${reason}`)
       delete this.connectionPool[connection.spiderName]
     })
 
     connection.on("error", (error) => {
-      console.log(`[W]硬件爬虫 <${connection.spiderName}> 连接出错, 错误信息：`)
+      console.log(`[W] 硬件爬虫 <${connection.spiderName}> 连接出错, 错误信息：`)
       console.log(error)
       delete this.connectionPool[connection.spiderName]
     })
@@ -151,7 +151,7 @@ class SpiderServer {
         let spider = this.pickSpider()
         spider.send(encodedRequest)
       } catch (e) {
-        console.log('[-]向硬件爬虫发送请求数据期间出错，错误信息：')
+        console.log('[-] 向硬件爬虫发送请求数据期间出错，错误信息：')
         e.errCode = WEBSOCKET_TRASFER_ERROR
         reject(e)
       }
