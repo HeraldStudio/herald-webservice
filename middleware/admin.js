@@ -94,6 +94,10 @@ module.exports = async (ctx, next) => {
         throw 'super 为保留域'
       }
 
+      if (await db.get('select * from domain where domain = ?', [domain])) {
+        throw '权限域已存在'
+      }
+
       await db.run(
         'insert into domain(domain, name, desc) values(?, ?, ?)',
         [domain.domain, domain.name, domain.desc]
@@ -209,3 +213,23 @@ module.exports = async (ctx, next) => {
     }
   }
 }
+
+const define = async (domain, name, desc) => {
+  if (domain === 'super') {
+    throw 'super 为保留域'
+  }
+
+  if (await db.get('select * from domain where domain = ?', [domain])) {
+    return
+  }
+
+  await db.run(
+    'insert into domain(domain, name, desc) values(?, ?, ?)',
+    [domain, name, desc]
+  )
+}
+
+require('./admin.json').map(k => {
+  let { domain, name, desc } = k
+  define(domain, name, desc)
+})
