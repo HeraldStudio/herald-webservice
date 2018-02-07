@@ -83,7 +83,7 @@ module.exports = async (ctx, next) => {
           }
           return req
         }
-        //transformResponse实际上被短路
+        // transformResponse实际上被短路
         let transformResponse = (res) => {
           res = Buffer.from(res)
           let encoding = chardet.detect(res)
