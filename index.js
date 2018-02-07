@@ -1,5 +1,5 @@
 exports.route = {
   get() {
-    return 'Herald Web Service 3 Alpha'
+    return 'Herald Web Service 3 Beta'
   }
 }

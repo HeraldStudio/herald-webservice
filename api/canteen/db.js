@@ -1,14 +1,4 @@
-const { Database } = require('sqlite3')
-const db = new Database('database/canteen.db')
-
-// 对 Database 异步函数进行 async 封装
-;['run', 'get', 'all'].map (k => {
- [db['_' + k], db[k]] = [db[k], (sql, param) => new Promise((resolve, reject) => {
-   db['_' + k](sql, param || [], (err, res) => {
-     err ? reject(err) : resolve(res)
-   })
- })]
-})
+const db = require('../../database/helper')('canteen')
 
 db.run(`
   create table if not exists canteen (
