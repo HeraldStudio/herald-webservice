@@ -12,8 +12,6 @@ module.exports = async (ctx, next) => {
   try {
     await next()
   } catch (e) {
-    console.log(e)
-    console.log(ctx.status)
     if (typeof e === 'number') {
       ctx.status = e
     } else if (typeof e === 'string') {
