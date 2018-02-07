@@ -211,6 +211,8 @@ module.exports = async (ctx, next) => {
       ctx.body = 'OK'
       return
     }
+  } else {
+    await next()
   }
 }
 

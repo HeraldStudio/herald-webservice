@@ -11,12 +11,26 @@
   ctx.user.encrypt    from auth.js
   ctx.user.decrypt    from auth.js
  */
-const redis = require('redis')
-const client = redis.createClient()
-const bluebird = require('bluebird')
 const config = require('../config.json')
+let client
 
-bluebird.promisifyAll(redis.RedisClient.prototype)
+if (process.env.NODE_ENV === 'development') {
+  const pool = {}
+  client = {
+    set (key, value) {
+      pool[key] = value
+    },
+    async getAsync (key) {
+      return pool[key]
+    }
+  }
+} else {
+  const redis = require('redis')
+  const bluebird = require('bluebird')
+  bluebird.promisifyAll(redis.RedisClient.prototype)
+
+  client = redis.createClient()
+}
 
 /**
   ## redis 缓存封装
