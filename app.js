@@ -32,12 +32,12 @@ app.use(require('./middleware/logger'))
 app.use(require('./middleware/return'))
 app.use(require('./middleware/params'))
 
-app.use(require('./middleware/spider_server'))
-
 /**
   ## C. API 层
   负责为路由处理程序提供 API 以便路由处理程序使用的中间件。
  */
+// 0. 分布式爬虫服务器，对下层请求进行包装
+app.use(require('./middleware/spider_server'))
 // 1. 网络请求，为身份认证和路由处理程序提供了网络请求 API
 app.use(require('./middleware/axios'))
 // 2. 身份认证，为下面 redis 缓存提供了加解密函数
