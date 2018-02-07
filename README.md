@@ -34,7 +34,7 @@
 
 3. **继承自 AppService**
 
-  - [ ] 七牛上传
+  - [x] 七牛上传 @rikumi
   - [x] 一卡通充值 @rikumi
   - [ ] 系统通知发布系统
   - [ ] 广告自助发布审核系统
@@ -62,8 +62,9 @@ WebService3 基于自研的 kf-router，可以根据 js 文件结构自动组织
 ```bash
 git clone https://github.com/heraldstudio/herald-webservice
 cd herald-webservice
-npm install
-npm run dev
+cp config.example.json config.json
+yarn          # 或 npm install
+yarn run dev  # 或 npm run dev
 ```
 
 ### 生产环境
