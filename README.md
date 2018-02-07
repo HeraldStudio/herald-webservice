@@ -276,7 +276,32 @@ async get() {
 
 ### 数据库
 
-WebService3 本身不强制要求模块自身使用任何数据库，对于用户自身的基本信息，最好提议我们写在 **auth 数据库** 中。如果模块确实需要使用数据库，目前推荐使用 `sqlite3` + 参数化查询语句的方式进行开发，可参考框架中间件部分 [auth.js](https://github.com/HeraldStudio/herald-webservice/blob/master/middleware/auth.js) 的数据库用法。
+WebService3 本身不强制要求模块自身使用任何数据库，对于用户自身的基本信息，最好提议我们写在 **auth 数据库** 中。如果模块确实需要使用数据库，目前推荐使用 `sqlite3` + 参数化查询语句的方式进行开发。
+
+在 `database/helper.js` 中，我们提供了 async 的数据库操作封装，将 `run` `get` `all` 三个方法封装成了异步方法。`helper.js` 模块导出的是一个工厂函数，可直接调用，传入需要的数据库名作为参数，即可得到经过异步封装的 `sqlite3` 库。以下是一个示例：
+
+```javascript
+const db = require('../database/helper')('my_database')
+
+;(async () => {
+
+  // run 方法可执行常规无返回的语句
+  await db.run('create table test(id integer primary key)')
+
+  // 执行参数化查询
+  await db.run('insert into test(id) values(?)', [42])
+
+  // get 方法将以 object 方式返回符合条件的第一个记录或 null
+  let row = await db.get('select count(*) as my_count from test')
+
+  // 在返回的记录中取字段名对应的 key 即得到字段值
+  console.log(row.my_count)
+
+  // all 方法将以 [object] 方式返回符合条件的所有记录
+  let rows = await db.all('select * from test')
+  console.log(rows.map(r => r.id + '').join(', '))
+})
+```
 
 ### 代码风格
 
