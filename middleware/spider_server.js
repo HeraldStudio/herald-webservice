@@ -9,6 +9,7 @@ const chardet = require('chardet')
 const axios = require('axios');
 const tough = require('tough-cookie')
 const chalk = require('chalk')
+const sms = require('../sdk/yunpian')
 
 // errcode定义
 const NO_SPIDER_ERROR = 0 // 没有可用在线爬虫
@@ -44,6 +45,7 @@ class SpiderServer {
       // 生产环境token只发送到管理员手机
       console.log(`[I] 硬件爬虫 ${chalk.blue(`<${name}>`)} 连接建立，请使用口令 ${chalk.blue(`<${token}>`)} 完成配对`)
     }
+    sms.spiderToken(adminPhoneNumber, name, token)
     connection.token = token
     let message = {spiderName:name}
     connection.send(JSON.stringify(message))
@@ -71,13 +73,15 @@ class SpiderServer {
 
     // 硬件爬虫关闭响应
     connection.on("close",(code, reason) => {
-      console.log(`[I] 硬件爬虫 <${connection.spiderName}> 连接关闭,code=${code}, reason=${reason}`)
+      // console.log(`[I]硬件爬虫 <${connection.spiderName}> 连接关闭,code=${code}, reason=${reason}`)
       delete this.connectionPool[connection.spiderName]
     })
 
     connection.on("error", (error) => {
-      console.log(`[W] 硬件爬虫 <${connection.spiderName}> 连接出错, 错误信息：`)
-      console.log(error)
+
+      console.log(chalk.red(`[W]硬件爬虫 <${connection.spiderName}> 连接出错, 错误信息：`))
+      console.log(error.message)
+
       delete this.connectionPool[connection.spiderName]
     })
 
