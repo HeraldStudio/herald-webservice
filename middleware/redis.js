@@ -21,7 +21,7 @@ if (process.env.NODE_ENV === 'development') {
       pool[key] = value
     },
     async getAsync (key) {
-      return pool[key]
+      return pool[key] || 'null'
     }
   }
 } else {
