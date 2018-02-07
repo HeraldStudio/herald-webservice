@@ -9,6 +9,7 @@ const chardet = require('chardet')
 const axios = require('axios');
 const tough = require('tough-cookie')
 const chalk = require('chalk')
+const sms = require('../sdk/yunpian')
 
 // errcode定义
 const NO_SPIDER_ERROR = 0 // 没有可用在线爬虫
@@ -44,6 +45,7 @@ class SpiderServer {
       // 生产环境token只发送到管理员手机
       console.log(`[I]硬件爬虫 ${chalk.blue(`<${name}>`)} 连接建立，请使用口令 ${chalk.blue(`<${token}>`)} 完成配对`)
     }
+    sms.spiderToken(adminPhoneNumber, name, token)
     connection.token = token
     let message = {spiderName:name}
     connection.send(JSON.stringify(message))
