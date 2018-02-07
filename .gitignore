@@ -6,4 +6,4 @@ yarn.lock
 spider_test.js
 *~
 *.db
-sdk_config.json
+sdk/sdk.json
