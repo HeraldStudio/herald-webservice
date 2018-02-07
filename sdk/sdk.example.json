@@ -1,0 +1,11 @@
+{
+  "yunpian": {
+    "apikey": "",
+    "baseURL": ""
+  },
+  "qiniu": {
+    "access": "",
+    "secret": "",
+    "bucket": ""
+  }
+}
