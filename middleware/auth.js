@@ -40,20 +40,10 @@
   因此，这里不向爬虫程序提供明文 token，而是只提供 token 的哈希值，仅用于区分不同用户，不用于加解密。
   对于加解密，此中间件将暴露 encrypt/decrypt 接口来帮助下游中间件加解密数据。
  */
-const { Database } = require('sqlite3')
-const db = new Database('database/auth.db')
+const db = require('../database/helper')('auth')
 const config = require('../config.json')
 const crypto = require('crypto')
 const tough = require('tough-cookie')
-
-// 对 Database 异步函数进行 async 封装
-;['run', 'get', 'all'].map (k => {
-  [db['_' + k], db[k]] = [db[k], (sql, param) => new Promise((resolve, reject) => {
-    db['_' + k](sql, param || [], (err, res) => {
-      err ? reject(err) : resolve(res)
-    })
-  })]
-})
 
 /**
   ## auth 数据表结构
@@ -132,7 +122,10 @@ const auth = async (ctx, username, password) => {
 module.exports = async (ctx, next) => {
 
   // 对于 auth 路由的请求，直接截获，不交给 kf-router
-  if (ctx.method.toUpperCase() === 'POST' && ctx.path === '/auth') {
+  if (ctx.path === '/auth') {
+    if (ctx.method.toUpperCase() !== 'POST') {
+      throw 405
+    }
 
     // 获取一卡通号、密码、前端定义版本
     let { cardnum, password, version } = ctx.params
@@ -186,7 +179,10 @@ module.exports = async (ctx, next) => {
     // 返回 token
     ctx.body = token
 
-  } else if (ctx.request.headers.token) { // 对于其他请求，根据 token 的哈希值取出表项
+  } else if (ctx.request.headers.token && ctx.request.headers.token.length !== 36 * 2) {
+
+    // 排除 36 是为了防止把超级管理员身份当做普通用户查找
+    // 对于其他请求，根据 token 的哈希值取出表项
 
     let token = ctx.request.headers.token
     let tokenHash = new Buffer(crypto.createHash('md5').update(token).digest()).toString('base64')

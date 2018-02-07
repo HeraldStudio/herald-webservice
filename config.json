@@ -16,7 +16,7 @@
       "srtp": "1d"
     }
   },
-  "spider":{
+  "spider": {
     "enable": true,
     "port": 49034
   }
