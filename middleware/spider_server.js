@@ -71,13 +71,13 @@ class SpiderServer {
 
     // 硬件爬虫关闭响应
     connection.on("close",(code, reason) => {
-      console.log(`[I]硬件爬虫 <${connection.spiderName}> 连接关闭,code=${code}, reason=${reason}`)
+      // console.log(`[I]硬件爬虫 <${connection.spiderName}> 连接关闭,code=${code}, reason=${reason}`)
       delete this.connectionPool[connection.spiderName]
     })
 
     connection.on("error", (error) => {
-      console.log(`[W]硬件爬虫 <${connection.spiderName}> 连接出错, 错误信息：`)
-      console.log(error)
+      console.log(chalk.red(`[W]硬件爬虫 <${connection.spiderName}> 连接出错, 错误信息：`))
+      console.log(error.message)
       delete this.connectionPool[connection.spiderName]
     })
 
