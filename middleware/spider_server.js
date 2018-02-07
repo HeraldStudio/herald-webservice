@@ -16,8 +16,8 @@ const WEBSOCKET_TRASFER_ERROR = 1 // WS传输错误
 const SERVER_ERROR = 2 // 爬虫服务器错误
 const REQUEST_ERROR = 3 // 远端请求错误
 
-
-
+const dev = !(process.env.NODE_ENV === 'production') // 非生产环境
+const adminPhoneNumber = ['15651975186'] // 日后和鉴权平台融合
 class SpiderServer {
 
   constructor() {
@@ -29,7 +29,7 @@ class SpiderServer {
       this.handleConnection(connection)
     })
     this.socketServer.on('error', (error)=>{error.errCode = SERVER_ERROR; console.log(error)})
-    console.log(chalk.green('[+]分布式硬件爬虫服务正在运行...'))
+    console.log(chalk.green('[+] 分布式硬件爬虫服务正在运行...'))
 
   }
 
@@ -39,7 +39,11 @@ class SpiderServer {
     this.connectionPool[name] = connection
     connection.active = false
     let token = this.generateToken()
-    console.log(`[I]硬件爬虫 ${chalk.blue(`<${name}>`)} 连接建立，请使用口令 ${chalk.blue(`<${token}>`)} 完成配对`)
+    if (dev) {
+      // 测试环境token在控制台输出
+      // 生产环境token只发送到管理员手机
+      console.log(`[I]硬件爬虫 ${chalk.blue(`<${name}>`)} 连接建立，请使用口令 ${chalk.blue(`<${token}>`)} 完成配对`)
+    }
     connection.token = token
     let message = {spiderName:name}
     connection.send(JSON.stringify(message))
@@ -188,7 +192,10 @@ class SpiderServer {
         request = this.merge({url:arg[0], data:arg[1]}, arg[2], request)
       }
     }
-
+    if (request.forceLocal) {
+      console.log('[+] 该请求强制本地执行')
+      throw 'force_local'
+    }
     return this._request(ctx, request) // 传入ctx以满足cookieJar自动添加和实现
   }
 
@@ -214,6 +221,7 @@ class SpiderServer {
     if (data.succ) {
       // 将data域解码为原始状态
       data.data = Buffer.from(data.data.data).toString()
+      try { data.data = JSON.parse(data.data) } catch (e) {}
       // 自动更新cookieJar
       requestObj.ctx.cookieJar = tough.CookieJar.fromJSON(data.cookie)
       requestObj.resolve(data)
