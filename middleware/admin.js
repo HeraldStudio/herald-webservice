@@ -49,7 +49,7 @@ module.exports = async (ctx, next) => {
       let domainInfo = await db.get('select * from domain where domain = ?', [domain])
       admin.domain = domainInfo.name
       admin.desc = domainInfo.desc
-      ctx.admin[domain] = domainInfo
+      ctx.admin[domain] = admin
     }
 
     // 利用 Proxy 机制，每当 get 某个 domain 权限时，自动更新数据库中的调用时间
@@ -93,7 +93,7 @@ module.exports = async (ctx, next) => {
       if (domain === 'super') {
         throw 'super 为保留域'
       }
-      
+
       await db.run(
         'insert into domain(domain, name, desc) values(?, ?, ?)',
         [domain.domain, domain.name, domain.desc]
