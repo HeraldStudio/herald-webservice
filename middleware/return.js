@@ -32,41 +32,46 @@ module.exports = async (ctx, next) => {
     }
   }
 
-  if (!ctx.body) {
-    if (ctx.status === 400) {
-      ctx.body = '请求出错'
-    } else if (ctx.status === 401) {
-      ctx.body = ctx.request.headers.token ? '登录失败或已过期' : '需要登录'
-    } else if (ctx.status === 403) {
-      ctx.body = '权限不允许'
-    } else if (ctx.status === 404) {
-      ctx.body = '接口不存在'
-    } else if (ctx.status === 405) {
-      ctx.body = '调用方式不正确'
-    } else if (ctx.status === 408) {
-      ctx.body = '与学校相关服务通信超时'
-    } else if (ctx.status === 500) {
-      ctx.body = '服务器出错'
-    } else if (ctx.status === 502) {
-      ctx.body = '服务器维护'
-    } else if (ctx.status === 503) {
-      ctx.body = '学校相关服务出现故障'
-    } else {
-      console.error(e)
-      ctx.status = 400
-      ctx.body = '未知错误'
+  let json = {}
+
+  if (ctx.status < 400) {
+    json = {
+      success: true,
+      code: ctx.status,
+      result: ctx.body
+    }
+  } else {
+    json = {
+      success: false,
+      code: ctx.status,
+      reason: ctx.body
+    }
+    if (!ctx.body) {
+      if (ctx.status === 400) {
+        json.reason = '请求出错'
+      } else if (ctx.status === 401) {
+        json.reason = ctx.request.headers.token ? '登录失败或已过期' : '需要登录'
+      } else if (ctx.status === 403) {
+        json.reason = '权限不允许'
+      } else if (ctx.status === 404) {
+        json.reason = '接口不存在'
+      } else if (ctx.status === 405) {
+        json.reason = '调用方式不正确'
+      } else if (ctx.status === 408) {
+        json.reason = '与学校相关服务通信超时'
+      } else if (ctx.status === 500) {
+        json.reason = '服务器出错'
+      } else if (ctx.status === 502) {
+        json.reason = '服务器维护'
+      } else if (ctx.status === 503) {
+        json.reason = '学校相关服务出现故障'
+      } else {
+        json.code = 400
+        json.reason = '未知错误'
+      }
     }
   }
 
-  ctx.body = ctx.status < 400 ? {
-    success: true,
-    code: ctx.status,
-    result: ctx.body
-  } : {
-    success: false,
-    code: ctx.status,
-    reason: ctx.body
-  }
-
+  ctx.body = json
   ctx.status = 200
 }

@@ -14,12 +14,9 @@ process.on('uncaughtException', console.trace)
   ## A. 监控层
   负责对服务运行状况进行监控，便于后台分析和交互，对服务本身不存在影响的中间件。
  */
-// 1. 命令行最后一行的利用。如果是生产环境，显示请求计数器；开发环境下，让给 REPL
-// 此中间件在 module load 时，会对 console 的方法做修改
+// 1. 如果是生产环境，显示请求计数器；此中间件在 module load 时，会对 console 的方法做修改
 if (process.env.NODE_ENV === 'production') {
   app.use(require('./middleware/counter'))
-} else {
-  require('./repl').start()
 }
 // 2. 日志输出，需要依赖返回格式中间件中返回出来的 JSON 格式
 app.use(require('./middleware/logger'))
@@ -36,13 +33,15 @@ app.use(require('./middleware/params'))
   ## C. API 层
   负责为路由处理程序提供 API 以便路由处理程序使用的中间件。
  */
-// 0. 分布式爬虫服务器，对下层请求进行包装
+// 1. 分布式硬件爬虫，为 axios 提供了底层依赖
 app.use(require('./middleware/spider_server'))
-// 1. 网络请求，为身份认证和路由处理程序提供了网络请求 API
+// 2. 网络请求，为身份认证和路由处理程序提供了网络请求 API
 app.use(require('./middleware/axios'))
-// 2. 身份认证，为下面 redis 缓存提供了加解密函数
+// 3. 身份认证，为下面 redis 缓存提供了加解密函数
 app.use(require('./middleware/auth'))
-// 3. redis 缓存，为路由处理程序提供自动缓存
+// 4. 管理员权限，需要依赖身份认证
+app.use(require('./middleware/admin'))
+// 5. redis 缓存，为路由处理程序提供自动缓存
 app.use(require('./middleware/redis'))
 
 /**
@@ -50,4 +49,10 @@ app.use(require('./middleware/redis'))
   负责调用路由处理程序执行处理的中间件。
 */
 app.use(kf(module, { hotReload: process.env.NODE_ENV === 'development' }))
+
 app.listen(config.port)
+
+// 开发环境下，启动 REPL
+if (process.env.NODE_ENV === 'development') {
+  require('./repl').start()
+}
