@@ -30,6 +30,7 @@ exports.start = () => {
   console.log('2. 省略 get/post/put/delete 时，有参数默认为 post，否则为 get；')
   console.log('3. 需要传复杂参数直接用 js 格式书写即可，支持 JSON 兼容的任何类型：')
   console.log(`${chalk.green('put')} api/card ${chalk.cyan('{ amount: 0.2, password: 123456 }')}`)
+  console.log(`4. 连接远程 WS3 服务器：${chalk.green('server')} https://boss.myseu.cn/ws3/`)
   console.log('')
   console.log('测试终端开始了！')
 
@@ -63,12 +64,17 @@ exports.start = () => {
             let [key, value] = param.split('=')
             composedParams[key] = value
           })
+        } else if (/^\/?server$/.test(path)) {
+          testClient.defaults.baseURL = params
+          console.log(`\n基地址改为 ${params} 了！`)
+          return callback(null)
         } else if (/^\/?auth$/.test(path)) {
           let [cardnum, password] = params.split(/\s+/g)
           if (password) {
             composedParams = {cardnum, password}
           } else {
             testClient.defaults.headers = { token: params }
+            console.log(`\n用户身份改为 ${params} 了！`)
             return callback(null)
           }
         } else {
