@@ -7,3 +7,4 @@ config.json
 spider_test.js
 *~
 *.db
+sdk_config.json
