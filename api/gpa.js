@@ -23,7 +23,6 @@ exports.route = {
     res = await this.get(
       'http://xk.urp.seu.edu.cn/studentService/cs/stuServe/studentExamResultQuery.action'
     )
-    console.log(res.data)
     let $ = cheerio.load(res.data)
     let detail = $('#table2 tr').toArray().slice(1).map(tr => {
       let [semester, courseId, course, credit, score, scoreType, courseType]
