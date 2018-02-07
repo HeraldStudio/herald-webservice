@@ -72,7 +72,7 @@ exports.start = () => {
           let [cardnum, password] = params.split(/\s+/g)
           if (password) {
             composedParams = {cardnum, password}
-          } else {
+          } else if (params) {
             testClient.defaults.headers = { token: params }
             console.log(`\n用户身份改为 ${params} 了！`)
             return callback(null)
