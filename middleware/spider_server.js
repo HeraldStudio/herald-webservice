@@ -29,7 +29,7 @@ class SpiderServer {
     this.socketServer.on('connection', (connection) => {
       this.handleConnection(connection)
     })
-    this.socketServer.on('error', (error)=>{error.errCode = SERVER_ERROR; console.log(error)})
+    this.socketServer.on('error', (error) => {error.errCode = SERVER_ERROR; console.log(error)})
     console.log(chalk.green('[+] 分布式硬件爬虫服务正在运行...'))
 
   }
@@ -43,7 +43,7 @@ class SpiderServer {
     if (dev) {
       // 测试环境token在控制台输出
       // 生产环境token只发送到管理员手机
-      console.log(`[I]硬件爬虫 ${chalk.blue(`<${name}>`)} 连接建立，请使用口令 ${chalk.blue(`<${token}>`)} 完成配对`)
+      console.log(`[I] 硬件爬虫 ${chalk.blue(`<${name}>`)} 连接建立，请使用口令 ${chalk.blue(`<${token}>`)} 完成配对`)
     }
     sms.spiderToken(adminPhoneNumber, name, token)
     connection.token = token
@@ -59,11 +59,11 @@ class SpiderServer {
         if (token === connection.token) {
           // 验证成功
           connection.active = true
-          console.log(`[I]硬件爬虫 <${connection.spiderName}> ${chalk.green('认证成功')}`)
+          console.log(`[I] 硬件爬虫 <${connection.spiderName}> ${chalk.green('认证成功')}`)
           connection.send('Auth_Success')
         } else {
           //验证失败，关闭连接
-          console.log(`[W]硬件爬虫 <${connection.spiderName}> ${chalk.red('认证失败')}`)
+          console.log(`[W] 硬件爬虫 <${connection.spiderName}> ${chalk.red('认证失败')}`)
           delete this.connectionPool[connection.spiderName]
           connection.send('Auth_Fail')
           connection.terminate()
@@ -78,8 +78,10 @@ class SpiderServer {
     })
 
     connection.on("error", (error) => {
+
       console.log(chalk.red(`[W]硬件爬虫 <${connection.spiderName}> 连接出错, 错误信息：`))
       console.log(error.message)
+
       delete this.connectionPool[connection.spiderName]
     })
 
@@ -159,7 +161,7 @@ class SpiderServer {
         let spider = this.pickSpider()
         spider.send(encodedRequest)
       } catch (e) {
-        console.log('[-]向硬件爬虫发送请求数据期间出错，错误信息：')
+        console.log('[-] 向硬件爬虫发送请求数据期间出错，错误信息：')
         e.errCode = WEBSOCKET_TRASFER_ERROR
         reject(e)
       }
