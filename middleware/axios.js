@@ -83,20 +83,12 @@ module.exports = async (ctx, next) => {
           }
           return req
         }
-        // transformResponse实际上被短路
-        let transformResponse = (res) => {
-          res = Buffer.from(res)
-          let encoding = chardet.detect(res)
-          res = new iconv.Iconv(encoding, 'UTF-8//TRANSLIT//IGNORE').convert(res).toString()
-          try { res = JSON.parse(res) } catch (e) {}
-          return res
-        }
+        let transformResponse = () => {}
         try {
           let result =  await ctx.spiderServer.request(ctx, k, arguments, config.axios, transformRequest, transformResponse)
           return result
         }
         catch(e) {
-          console.log(e)
           let release = await sem.acquire()
           let result = await _axios[k].apply(undefined, arguments)
           release()
