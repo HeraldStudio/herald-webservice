@@ -19,5 +19,10 @@
   "spider": {
     "enable": true,
     "port": 49034
+  },
+  "qiniu": {
+    "access": "example",
+    "secret": "example",
+    "bucket": "example"
   }
 }

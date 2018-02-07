@@ -64,11 +64,11 @@ exports.start = () => {
             let [key, value] = param.split('=')
             composedParams[key] = value
           })
-        } else if (/^\/?server$/.test(path)) {
+        } else if (/^server$/.test(path)) {
           testClient.defaults.baseURL = params
           console.log(`\n基地址改为 ${params} 了！`)
           return callback(null)
-        } else if (/^\/?auth$/.test(path)) {
+        } else if (/^auth$/.test(path)) {
           let [cardnum, password] = params.split(/\s+/g)
           if (password) {
             composedParams = {cardnum, password}
@@ -83,6 +83,9 @@ exports.start = () => {
           } catch (e) {
             if (isRecoverableError(e)) {
               return callback(new repl.Recoverable(e))
+            } else {
+              console.error(e.message)
+              return callback(null)
             }
           }
         }
