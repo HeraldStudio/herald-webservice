@@ -261,11 +261,11 @@ async get() {
   ...,
   "cache": {
     "api": {
-      "hello": "1y", // /api/hello          缓存1年(按360天计)
-      "foo": "10mo", // /api/foo            缓存10个月(每月按30天计)
-      "bar": "10d",  // /api/bar            缓存10天
+      "hello": "1y",        // /api/hello      缓存1年(按360天计)
+      "foo": "10mo",        // /api/foo        缓存10个月(每月按30天计)
+      "bar": "10d,public",  // /api/bar        缓存10天，所有用户共享一个缓存
       "foobar": {
-        "get": "1h20m6s" // GET /api/foobar 缓存1小时20分6秒
+        "get": "1h20m6s"    // GET /api/foobar 缓存1小时20分6秒
       }
     }
   }
