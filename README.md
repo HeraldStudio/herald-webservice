@@ -22,13 +22,13 @@
   - [x] 跑操次数 @rikumi
   - [x] 空教室 @Vigilans-Yea
   - [ ] 跑操详情、跑操预告
-  - [ ] 物理实验
+  - [ ] 物理实验 @tusooa WIP
   - [ ] 考试安排
   - [x] 成绩 GPA @rikumi
   - [x] SRTP @imfinethanks
   - [ ] 人文讲座
-  - [ ] 图书馆
-  - [ ] 教务通知
+  - [x] 图书馆 @sleepyjoker
+  - [x] 教务通知 @tusooa @MediosZ
   - [ ] 场馆预约
   - [ ] 实时班车
 
