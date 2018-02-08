@@ -62,7 +62,7 @@ WebService3 基于自研的 kf-router，可以根据 js 文件结构自动组织
 ```bash
 git clone https://github.com/heraldstudio/herald-webservice
 cd herald-webservice
-cp config.example.json config.json
+cp sdk/sdk.example.json sdk/sdk.json
 yarn          # 或 npm install
 yarn run dev  # 或 npm run dev
 ```
