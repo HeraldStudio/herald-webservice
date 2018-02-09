@@ -29,7 +29,7 @@
   - [ ] 人文讲座
   - [x] 图书馆 @sleepyjoker
   - [x] 教务通知 @tusooa @MediosZ
-  - [ ] 场馆预约
+  - [x] 场馆预约
   - [ ] 实时班车
 
 3. **继承自 AppService**
