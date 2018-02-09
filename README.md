@@ -22,13 +22,13 @@
   - [x] 跑操次数 @rikumi
   - [x] 空教室 @Vigilans-Yea
   - [ ] 跑操详情、跑操预告
-  - [ ] 物理实验
+  - [ ] 物理实验 @tusooa WIP
   - [ ] 考试安排
   - [x] 成绩 GPA @rikumi
   - [x] SRTP @imfinethanks
   - [ ] 人文讲座
-  - [ ] 图书馆
-  - [ ] 教务通知
+  - [x] 图书馆 @sleepyjoker
+  - [x] 教务通知 @tusooa @MediosZ
   - [ ] 场馆预约
   - [ ] 实时班车
 
@@ -62,7 +62,7 @@ WebService3 基于自研的 kf-router，可以根据 js 文件结构自动组织
 ```bash
 git clone https://github.com/heraldstudio/herald-webservice
 cd herald-webservice
-cp config.example.json config.json
+cp sdk/sdk.example.json sdk/sdk.json
 yarn          # 或 npm install
 yarn run dev  # 或 npm run dev
 ```
@@ -261,11 +261,11 @@ async get() {
   ...,
   "cache": {
     "api": {
-      "hello": "1y", // /api/hello          缓存1年(按360天计)
-      "foo": "10mo", // /api/foo            缓存10个月(每月按30天计)
-      "bar": "10d",  // /api/bar            缓存10天
+      "hello": "1y",        // /api/hello      缓存1年(按360天计)
+      "foo": "10mo",        // /api/foo        缓存10个月(每月按30天计)
+      "bar": "10d,public",  // /api/bar        缓存10天，所有用户共享一个缓存
       "foobar": {
-        "get": "1h20m6s" // GET /api/foobar 缓存1小时20分6秒
+        "get": "1h20m6s"    // GET /api/foobar 缓存1小时20分6秒
       }
     }
   }
