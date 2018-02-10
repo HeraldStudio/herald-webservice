@@ -4,6 +4,7 @@ const courseUrl = 'http://phylab.seu.edu.cn/plms/SelectLabSys/StuViewCourse.aspx
 const courseGroupSelName = 'ctl00$cphSltMain$ShowAStudentScore1$ucDdlCourseGroup$ddlCgp'
 const scoreTypeSelName = 'ctl00$cphSltMain$ShowAStudentScore1$ucDdlCourseScoreType$ddlCourseScoreType'
 
+
 exports.route = {
 
   /**
