@@ -18,11 +18,15 @@ exports.route = {
     let { cookies, captcha } = res
     this.cookieJar.setCookieSync(cookies, 'http://www.libopac.seu.edu.cn:8080/reader/redr_verify.php', {})
 
-    await this.post(
+    let log = await this.post(
       'http://www.libopac.seu.edu.cn:8080/reader/redr_verify.php',
       { number: cardnum, passwd: password, captcha: captcha, select: 'cert_no'}
     )
 
+    //判断是否登录成功
+    if (/密码错误/.test(log.data)) {
+      throw '密码错误，请重试'
+    }
 
     // 当前借阅
     res = await this.get(
@@ -57,10 +61,13 @@ exports.route = {
      let {cookies, bookId, borrowId} = this.params;
      let time = new Date().getTime()
 
-     let res = (await this.get("https://boss.myseu.cn/libcaptcha/?cookie="+cookies+"PHPSESSID=1tu1epdtevrtg704np09n9ifd7")).data
+     //获取解析后的验证码和Cookies
+     let res = (await this.get("https://boss.myseu.cn/libcaptcha/?cookie="+cookies)).data
      let { captcha } = res
+     this.cookieJar.setCookieSync(cookies, 'http://www.libopac.seu.edu.cn:8080/reader/redr_verify.php', {})
+
      res = await this.get(
-       'http://www.libopac.seu.edu.cn:8080/reader/book_lst.php',{
+       'http://www.libopac.seu.edu.cn:8080/reader/ajax_renew.php',{
          params:{
            bar_code:bookId,
            check:borrowId,
@@ -69,9 +76,11 @@ exports.route = {
          }
        }
      )
-     
-     return res.data
+     let $ = cheerio.load(res.data)
 
+     // 返回续借状态
+     return $.text()
    }
 
 }
+
