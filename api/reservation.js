@@ -23,7 +23,7 @@ const reservationAPI = {
   },
   getPhone: {
     url: "http://yuyue.seu.edu.cn/eduplus/phoneOrder/initEditOrderP.do?sclId=1",
-    info: ""
+    info: "返回预约手机号"
   },
   getFriendList: {
     url: "http://yuyue.seu.edu.cn/eduplus/order/order/order/order/searchUser.do?sclId=1",
@@ -46,8 +46,6 @@ exports.route = {
     let params = this.params
     await this.useAuthCookie()
 
-    let user = this.user
-
     switch (params.method) {
       case 'getDate': {
         res = (await this.get(reservationAPI.getDate.url)).data
@@ -63,8 +61,20 @@ exports.route = {
         }
         break
       }
-      case 'cancelUrl': {
-        console.log('cancelURL')
+      case 'getOrder': {
+        res = (await this.get(reservationAPI.getOrder.url +
+          `&itemId=${params.itemId}&dayInfo=${params.dayInfo}`)).data
+        retjson = {
+          content: res
+        }
+        break
+      }
+      case 'cancel': {
+        res = (await this.get(reservationAPI.cancel.url + 
+          `&id=${params.id}`)).data
+        retjson = {
+          content: res
+        }
         break
       }
       case 'judgeOrder': {
@@ -72,18 +82,30 @@ exports.route = {
         break
       }
       case 'getPhone': {
-        console.log('getPhone')
+        res = (await this.get(reservationAPI.getPhone.url)).data
+        retjson = {
+          content: res
+        }
         break
       }
       case 'getFriendList': {
-        console.log('getFriendList')
+        res = (await this.post(reservationAPI.getFriendList.url,
+          { cardNo: params.cardNo })).data
+        retjson = {
+          content: res
+        }
         break
       }
       case 'new': {
-        console.log('new')
+        retjson = {
+          content: 'null'
+        }
         break
       }
       default: {
+        retjson = {
+          content: 'method not allowed'
+        }
       }
     }
     return retjson
