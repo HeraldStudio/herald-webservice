@@ -14,7 +14,7 @@ const reservationAPI = {
   },
   cancel: {
     url: "http://yuyue.seu.edu.cn/eduplus/phoneOrder/delOrderP.do?sclId=1",
-    info: "取消预约"
+    info: "取消预约",
     args: ['id']
   },
   getOrder: {
