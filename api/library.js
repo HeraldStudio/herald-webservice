@@ -40,12 +40,13 @@ exports.route = {
       return {bookId, name, borrowDate, returnDate, times, place, addition, borrowId}
     })
 
-    return bookList
+    return {cookies, bookList}
   },
 
   /**
    *
    * GET /api/library
+   * @apiParam cookies
    * @apiParam bookId
    * @apiParam borrowId
    * 图书续借
@@ -53,10 +54,24 @@ exports.route = {
    **/
 
    async get(){
-     let {bookId, borrowId} = this.params;
+     let {cookies, bookId, borrowId} = this.params;
      let time = new Date().getTime()
 
-     //等一个续借验证码 QAQ
+     let res = (await this.get("https://boss.myseu.cn/libcaptcha/?cookie="+cookies+"PHPSESSID=1tu1epdtevrtg704np09n9ifd7")).data
+     let { captcha } = res
+     res = await this.get(
+       'http://www.libopac.seu.edu.cn:8080/reader/book_lst.php',{
+         params:{
+           bar_code:bookId,
+           check:borrowId,
+           captcha:captcha,
+           time:time
+         }
+       }
+     )
+     
+     return res.data
+
    }
 
 }
