@@ -35,13 +35,13 @@ exports.route = {
       return {semester, courseId, course, courseType, credit, score, scoreType}
     })
 
-    let [gpa, gpaNoRevamp, year, calculationTime]
+    let [gpa, gpaNoRepeat, year, calculationTime]
       = $('#table4 tr').eq(1).find('td').toArray().map(td => {
       return $(td).text().trim().replace(/&[0-9A-Za-z];/g, '')
     })
 
     // 时间解析为时间戳
     calculationTime = new Date(calculationTime).getTime()
-    return { gpa, gpaNoRevamp, year, calculationTime, detail }
+    return { gpa, gpaNoRepeat, year, calculationTime, detail }
   }
 }
