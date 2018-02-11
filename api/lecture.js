@@ -20,7 +20,7 @@ exports.route = {
     //获取记录页数
     res = await this.post(
       'http://allinonecard.seu.edu.cn/mjkqBrows.action',
-      {account: '144038', startDate:'', endDate:''}
+      {account: account, startDate:'', endDate:''}
     )
     $ = cheerio.load(res.data)
     let pageTotal = $("#pagetotal").text()
@@ -37,7 +37,7 @@ exports.route = {
     for (var i=2;i<=pageTotal;i++){
       res = await this.post(
         'http://allinonecard.seu.edu.cn/mjkqBrows.action',
-        {account: '144038', startDate:'', endDate:'', pageno:i}
+        {account: account, startDate:'', endDate:'', pageno:i}
       )
       $ = cheerio.load(res.data)
       $(".dangrichaxun tr").toArray().slice(1,-1).map(tr => {
