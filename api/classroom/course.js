@@ -1,3 +1,4 @@
+const db = require("../../database/helper")("classroom")
 const models = require("./models")
 
 exports.route = {
