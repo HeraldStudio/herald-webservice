@@ -1,4 +1,4 @@
-﻿const classroomQuery = require("./query");
+﻿const models = require("./models");
 
 exports.route = {
 
@@ -18,16 +18,60 @@ exports.route = {
    * @note 若查询教一~教七则调用学校接口，其余则通过服务器自己获取课表信息后计算而得。
    **/
   async get() {
-    // let entries = Object.keys(this.params).map((key, index) => key + "=" + Object.values(this.params)[index]);
-    // let formData = entries.reduce((pre, cur) => pre += "&" + cur);
+    if (this.params.campusID === 22) { // 教一~教七
+      let result = (await this.post(
+        "http://58.192.114.179/classroom/show/getemptyclassroomlist",
+        this.querystring
+      )).data
+  
+      // 利用Classroom类剔除多余属性，统一返回的JSON格式
+      result.rows.forEach((classroom, index) => {
+        try {
+          result.rows[index] = new models.Classroom(classroom);
+        } catch (ex) {
+          console.log(ex)
+        }
+      })
+  
+      return result
+    } else { 
+      // 查询纪忠楼 & 四牌楼 & 无线谷 & 无锡分校
+      // 由于学校空教室接口暂未提供服务，因此目前从web service内置数据库中查询
+      
+      let spareClassrooms = this.cache.get(this.querystring, )
+      
+      
 
-    let result = null;
-    if (classroomQuery.hasSchoolInterface(this)) { // 教一~教七
-      result = await classroomQuery.querySchoolInterface(this);
-    } else { // 纪忠楼 & 四牌楼 & 无线谷 & 无锡分校
-      result = await classroomQuery.queryServiceDatabase(this);
+      let params = this.params
+      Object.keys(params).forEach(key => params[key] = (params[key] ? parseInt(params[key]) : null)); // 转换字符串属性至对应整数
+  
+      // 利用课表筛选出该条件下有课的教室ID
+      let occupiedClassroomIds = models.classRecords.filter(record =>
+        (params.campusId == null || record.campusId == params.campusId)
+        &&
+        (params.buildingId == null || record.buildingId == params.buildingId)
+        &&
+        (params.startWeek <= record.endWeek && record.startWeek <= params.endWeek)
+        &&
+        (params.dayOfWeek == record.dayOfWeek)
+        &&
+        record.sequences.some(value => value >= params.startSequence && value <= params.endSequence)
+      ).map(record => record.classroomId)
+  
+      // 筛选出所有无课的教室
+      let spareClassrooms = Object.values(models.classrooms).map(c => new models.Classroom(c)).filter(classroom =>
+        (params.campusId == null || classroom.building.campusId == params.campusId)
+        &&
+        (params.buildingId == null || classroom.buildingId == params.buildingId)
+        &&
+        !occupiedClassroomIds.includes(classroom.Id)
+      )
+  
+      return {
+        "pager.pageNo": params.pageNo,
+        "pager.totalRows": spareClassrooms.length,
+        "rows": spareClassrooms.slice(params.pageSize * (params.pageNo - 1), params.pageSize * params.pageNo)
+      }
     }
-
-    return result;
   }
 }
