@@ -2,7 +2,7 @@ const models = require("./models");
 
 exports.route = {
 
-   /**
+  /**
    * GET /api/classroom/spare
    * @apiParam pageNo        要查看的查询记录的页数
    * @apiParam pageSize      一页包含的查询记录数目

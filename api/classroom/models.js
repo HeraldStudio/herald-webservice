@@ -1,4 +1,4 @@
-const db = require("../../../database/helper")("classroom")
+const db = require("../../database/helper")("classroom")
 
 // 如有必要，通过学校接口返回的JSON中的杂七杂八的属性也可设置于此
 class ModelBase { 
@@ -41,6 +41,12 @@ class ModelBase {
   static async load(id) {
     const row = await db.get(`select * from ${this.name} where id = ?`, [id])
     return new this(row) // this指代见上
+  }  
+
+  // 从数据库中加载所有对象
+  static async all() {
+    const rows = await db.all(`select * from ${this.name}`)
+    return rows.map(row => new this(row))
   }
 
   // 保存当前对象到数据库
@@ -75,14 +81,14 @@ class Campus extends ModelBase {
     super(obj)
   }
 
-  static findNameByBuilding(name) {
-    if (name.includes("教")) {
+  static findName(buildingName) {
+    if (buildingName.includes("教")) {
       return "九龙湖"
-    } else if (name.includes("纪忠楼")) {
+    } else if (buildingName.includes("纪忠楼")) {
       return "九龙湖纪忠楼"
-    } else if (name.includes("无线谷")) {
+    } else if (buildingName.includes("无线谷")) {
       return "无线谷"
-    } else if (name.includes("无锡分校")) {
+    } else if (buildingName.includes("无锡分校")) {
       return "无锡分校"
     } else {
       return "四牌楼"
@@ -103,10 +109,10 @@ class Building extends ModelBase {
 class Classroom extends ModelBase {
   constructor(obj = {}) {
     super(obj)
-    this.buildingId              = obj.buildingId// || obj.building.id
-    this.classroomTypeIdList     = obj.classroomTypeIdList || []
-    defineLazyProperty("building", () => Building.load(this.buildingId), obj.building)
-    defineLazyProperty(
+    this.buildingId          = obj.buildingId// || obj.building.id
+    this.classroomTypeIdList = obj.classroomTypeIdList || []
+    this.defineLazyProperty("building", () => Building.load(this.buildingId), obj.building)
+    this.defineLazyProperty(
       "classroomTypeList", 
       () => Promise.all(this.classroomTypeIdList.map(Id => ClassroomType.load(Id))),
       obj.classroomTypeList && obj.classroomTypeList.map(v => new ClassroomType(v)) // node要是支持optional chaining就好了...
@@ -140,7 +146,7 @@ class ClassRecord extends ModelBase {
       teacher     : entry[8],
       buildingId  : entry[9] && await Building.findId(entry[9]),
       classroomId : entry[9] && await Classroom.findId(entry[9] + "-" + entry[10]),
-      campusId    : entry[9] && await Campus.findId(Campus.findNameByBuilding(entry[9])),
+      campusId    : entry[9] && await Campus.findId(Campus.findName(entry[9])),
       capacity    : parseInt(entry[11]), // 最大容纳人数
       size        : parseInt(entry[12])  // 实际选课人数
     })
