@@ -1,10 +1,9 @@
-﻿let models = require("./models")
-let fs = require("fs")
+const models = require("./models")
 
 exports.route = {
 
   /**
-  * POST /api/spare-classrom/update
+  * POST /api/classrom
   * @remark 更新除教一~教八（校方提供空教室查询）外的其他地方的课程数据
   **/
   async post() {

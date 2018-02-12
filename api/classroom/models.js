@@ -1,4 +1,4 @@
-const db = require("../../../database/helper")("spare-classroom")
+const db = require("../../../database/helper")("classroom")
 
 // 如有必要，通过学校接口返回的JSON中的杂七杂八的属性也可设置于此
 class ModelBase { 
@@ -75,14 +75,14 @@ class Campus extends ModelBase {
     super(obj)
   }
 
-  static findNameByBuilding(buildingName) {
-    if (buildingName.includes("教")) {
+  static findNameByBuilding(name) {
+    if (name.includes("教")) {
       return "九龙湖"
-    } else if (buildingName.includes("纪忠楼")) {
+    } else if (name.includes("纪忠楼")) {
       return "九龙湖纪忠楼"
-    } else if (buildingName.includes("无线谷")) {
+    } else if (name.includes("无线谷")) {
       return "无线谷"
-    } else if (buildingName.includes("无锡分校")) {
+    } else if (name.includes("无锡分校")) {
       return "无锡分校"
     } else {
       return "四牌楼"
