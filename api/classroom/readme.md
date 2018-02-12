@@ -6,8 +6,8 @@
 
 | Method |                   Uri                    |    Description     |
 | :----: | :--------------------------------------: | :----------------: |
-|  GET   |   [/api/spare-classroom/](index.js#L6)   |     空教室统一查询接口      |
-|  POST  | [/api/spare-classroom/update](update.js#L7) | 更新WebService的课表数据集 |
+|  GET   |   [/api/classroom/spare](index.js#L6)    |     空教室统一查询接口  |
+|  POST  |   [/api/classroom/](update.js#L7)        | 更新WebService的课表数据集 |
 
 ### 统一查询接口的内部逻辑：
 
