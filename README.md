@@ -231,7 +231,7 @@ async get() {
     ```javascript
       {
         "success": true,
-        "code": 200,
+        "code": 2XX,
         "result": <路由处理程序返回的结果>
       }
     ```
