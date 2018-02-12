@@ -23,10 +23,10 @@
   - [x] 空教室 @Vigilans-Yea
   - [ ] 跑操详情、跑操预告
   - [ ] 物理实验 @tusooa WIP
-  - [ ] 考试安排
+  - [x] 考试安排 @sleepyjoker
   - [x] 成绩 GPA @rikumi
   - [x] SRTP @imfinethanks
-  - [ ] 人文讲座
+  - [x] 人文讲座 @sleepyjoker
   - [x] 图书馆 @sleepyjoker
   - [x] 教务通知 @tusooa @MediosZ
   - [x] 场馆预约
