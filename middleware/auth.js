@@ -178,63 +178,60 @@ module.exports = async (ctx, next) => {
 
     // 返回 token
     ctx.body = token
+    return
 
-  } else if (ctx.request.headers.token && ctx.request.headers.token.length !== 36 * 2) {
-
-    // 排除 36 是为了防止把超级管理员身份当做普通用户查找
+  } else if (ctx.request.headers.token) {
     // 对于其他请求，根据 token 的哈希值取出表项
-
     let token = ctx.request.headers.token
     let tokenHash = new Buffer(crypto.createHash('md5').update(token).digest()).toString('base64')
 
     let record = await db.get('select * from auth where token_hash = ?', [tokenHash])
-    if (!record) {
-      throw 401
+
+    if (record) { // 若 token 失效，穿透到未登录的情况去
+      let now = new Date().getTime()
+
+      // await-free
+      // 更新用户最近调用时间
+      db.run('update auth set last_invoked = ? where token_hash = ?', [now, tokenHash])
+
+      // 解密用户密码
+      let { cardnum, password, name, schoolnum } = record
+      password = decrypt(token, password)
+
+      // 将统一身份认证 Cookie 获取器暴露给模块
+      ctx.useAuthCookie = auth.bind(undefined, ctx, cardnum, password)
+
+      // 将伪 token、解密后的一卡通号、密码和 Cookie、加解密接口暴露给下层中间件
+      ctx.user = {
+        isLogin: true,
+        encrypt: encrypt.bind(undefined, token),
+        decrypt: decrypt.bind(undefined, token),
+        token: tokenHash,
+        cardnum, password, name, schoolnum
+      }
+
+      // 调用下游中间件
+      await next()
+      return
     }
-
-    let now = new Date().getTime()
-
-    // await-free
-    // 更新用户最近调用时间
-    db.run('update auth set last_invoked = ? where token_hash = ?', [now, tokenHash])
-
-    // 解密用户密码
-    let { cardnum, password, name, schoolnum } = record
-    password = decrypt(token, password)
-
-    // 将统一身份认证 Cookie 获取器暴露给模块
-    ctx.useAuthCookie = auth.bind(undefined, ctx, cardnum, password)
-
-    // 将伪 token、解密后的一卡通号、密码和 Cookie、加解密接口暴露给下层中间件
-    ctx.user = {
-      isLogin: true,
-      encrypt: encrypt.bind(undefined, token),
-      decrypt: decrypt.bind(undefined, token),
-      token: tokenHash,
-      cardnum, password, name, schoolnum
-    }
-
-    // 调用下游中间件
-    await next()
-  } else {
-
-    // 对于没有 token 的请求，若下游中间件要求取 user，说明功能需要登录，抛出 401
-    let reject = () => { throw 401 }
-    ctx.user = {
-      isLogin: false,
-      get encrypt() { reject() },
-      get decrypt() { reject() },
-      get token() { reject() },
-      get cardnum() { reject() },
-      get password() { reject() },
-      get name() { reject() },
-      get schoolnum() { reject() },
-      get cookie() { reject() }
-    }
-
-    ctx.useAuthCookie = reject
-
-    // 调用下游中间件
-    await next()
   }
+
+  // 对于没有 token 或 token 失效的请求，若下游中间件要求取 user，说明功能需要登录，抛出 401
+  let reject = () => { throw 401 }
+  ctx.user = {
+    isLogin: false,
+    get encrypt() { reject() },
+    get decrypt() { reject() },
+    get token() { reject() },
+    get cardnum() { reject() },
+    get password() { reject() },
+    get name() { reject() },
+    get schoolnum() { reject() },
+    get cookie() { reject() }
+  }
+
+  ctx.useAuthCookie = reject
+
+  // 调用下游中间件
+  await next()
 }
