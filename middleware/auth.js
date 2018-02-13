@@ -178,6 +178,7 @@ module.exports = async (ctx, next) => {
 
     // 返回 token
     ctx.body = token
+    return
 
   } else if (ctx.request.headers.token && ctx.request.headers.token.length !== 36 * 2) {
 

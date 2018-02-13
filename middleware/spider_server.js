@@ -31,7 +31,6 @@ class SpiderServer {
     })
     this.socketServer.on('error', (error) => {error.errCode = SERVER_ERROR; console.log(error)})
     console.log(chalk.green('[+] 分布式硬件爬虫服务正在运行...'))
-
   }
 
   handleConnection(connection) {
@@ -173,15 +172,13 @@ class SpiderServer {
         let spider = this.pickSpider()
         spider.send(encodedRequest)
       } catch (e) {
-        console.log('[-] 向硬件爬虫发送请求数据期间出错，错误信息：')
-        console.log(e.message)
+        console.log('[-] 向硬件爬虫发送请求数据期间出错：' + e.message)
         e.errCode = WEBSOCKET_TRASFER_ERROR
         reject(e)
         clearTimeout(this.requestPool[name].timeout)
         delete this.requestPool[name]
       }
     })
-
   }
 
   async request(ctx, method, arg, config, transformRequest, transformResponse) {
@@ -213,7 +210,7 @@ class SpiderServer {
     }
     if (request.forceLocal) {
       console.log('[+] 该请求强制本地执行')
-      throw 'force_local'
+      throw new Error('force_local')
     }
     return this._request(ctx, request) // 传入ctx以满足cookieJar自动添加和实现
   }
@@ -230,7 +227,7 @@ class SpiderServer {
     }
     let length = avaliableList.length
     if (length === 0) {
-      throw {errCode:NO_SPIDER_ERROR, msg:'没有可用爬虫'}
+      throw { errCode: NO_SPIDER_ERROR, message: '没有可用爬虫' }
     }
     let r = Math.floor(Math.random() * length)
     return avaliableList[r]
