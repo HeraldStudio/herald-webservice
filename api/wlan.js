@@ -12,13 +12,13 @@ exports.route = {
 
     // 模拟登录
     await this.post(
-      'https://selfservice.seu.edu.cn/selfservice/campus_login.php',
+      'http://selfservice.seu.edu.cn/selfservice/campus_login.php',
       { username, password }
     )
 
     // 查询开通状态
     let res = await this.get(
-      'https://selfservice.seu.edu.cn/selfservice/service_manage_index.php'
+      'http://selfservice.seu.edu.cn/selfservice/service_manage_index.php'
     )
 
     // 开通状态 active/inactive/locked
@@ -37,7 +37,7 @@ exports.route = {
 
     // 查询使用状态
     res = await this.post(
-      'https://selfservice.seu.edu.cn/selfservice/service_manage_index.php',
+      'http://selfservice.seu.edu.cn/selfservice/service_manage_index.php',
       { operation: 'status', item: 'web' }
     )
 
@@ -66,7 +66,7 @@ exports.route = {
 
     // 查询余额
     let balance = await this.get(
-      'https://selfservice.seu.edu.cn/selfservice/service_fee_index.php'
+      'http://selfservice.seu.edu.cn/selfservice/service_fee_index.php'
     )
 
     // 解析余额
@@ -88,13 +88,13 @@ exports.route = {
 
     // 模拟登录
     await this.post(
-      'https://selfservice.seu.edu.cn/selfservice/campus_login.php',
+      'http://selfservice.seu.edu.cn/selfservice/campus_login.php',
       { username, password }
     )
 
     // 查询开通状态
     let res = await this.get(
-      'https://selfservice.seu.edu.cn/selfservice/service_manage_index.php'
+      'http://selfservice.seu.edu.cn/selfservice/service_manage_index.php'
     )
 
     // 开通状态
@@ -111,7 +111,7 @@ exports.route = {
 
     // 执行开通或续期
     res = await this.post(
-      'https://selfservice.seu.edu.cn/selfservice/service_manage_index.php',
+      'http://selfservice.seu.edu.cn/selfservice/service_manage_index.php',
       { operation, item: 'web', web_sel: months }
     )
 
@@ -146,7 +146,7 @@ exports.route = {
 
     // 执行下线或删除设备
     res = await this.post(
-      'https://selfservice.seu.edu.cn/selfservice/service_manage_status_web.php',
+      'http://selfservice.seu.edu.cn/selfservice/service_manage_status_web.php',
       { operation, kick_ip_address: ip, macaddress: mac }
     )
 
