@@ -7,7 +7,7 @@ class ModelBase {
     this.name = obj.name
   }
 
-  // 异步方法创建一个对象，按需被子类重写
+  // 异步创建一个对象，按需被子类重写（如子类对象创建时需读取数据库）
   static async create() {
     // 若未被子类重写，则通过构造函数正常创建一个对象
     return new this()
@@ -19,11 +19,11 @@ class ModelBase {
       .filter(v => v[0] !== '_') // 过滤掉采用Lazy Load机制的（复杂）属性
       .slice(1) // 过滤掉作为主键的id属性，同时name属性保证keys的长度至少为1
 
-    // 
+    // WIP
     await db.run(`
       create table if not exists ${this.name} (
         id    integer    primary key,
-        ${keys.map(k => `${k} ${typeof k == "number"? "integer" : "text"} not null`).toString()}
+        ${keys.map(k => `${k} ${typeof k === "number"? "integer" : "text"} not null`).toString()}
       )
     `)
   }
@@ -41,7 +41,7 @@ class ModelBase {
   static async load(id) {
     const row = await db.get(`select * from ${this.name} where id = ?`, [id])
     return new this(row) // this指代见上
-  }  
+  }
 
   // 从数据库中加载所有对象
   static async all() {
@@ -62,15 +62,26 @@ class ModelBase {
     )
   }
 
+  // 将类对象转化为正规形式，方便作为json返回
+  async formalize() {
+    let lazyKeys = Object.keys(this).filter(k => k[0] === '_')
+    for (k of lazyKeys) {
+      this[k.slice(1)] = await this[k.slice(1)] // 加载lazy属性
+      delete this[k] // 删除'_'开头的辅助属性
+      await this[k.slice(1)].formalize() // 上一层级属性递归调用
+    }
+    return this
+  }
+
   // 定义一个采用Lazy load机制读取的属性
   // 用于将当前对象的外键ID绑定到对应的对象上
   defineLazyProperty(propName, loadFunc, initVal = undefined) {
     // 若不需Lazy load，可为该属性先行绑定一个初值
     this['_' + propName] = initVal
     Object.defineProperty(this, propName, {
-      // 由于涉及到数据库读取，在触发Lazy load时，loadFunc会返回Promise
+      // 由于涉及到数据库读取，若触发lazy load, getter会返回Promise
       // 因此，使用getter时需加await保证返回正确的属性
-      get: () => this['_' + propName] || initFunc(),
+      get: () => this['_' + propName] || loadFunc().then(v => this['_' + propName] = v),
       set: v => this['_' + propName] = v 
     })
   }
@@ -99,9 +110,8 @@ class Campus extends ModelBase {
 class Building extends ModelBase {
   constructor(obj = {}) {
     super(obj)
-    // 可从两种位置获取对应的campusId，Classroom下同
-    this.campusId = obj.campusId// || obj.campus.id
-    // 定义采用Lazy Load机制的Campus属性。若obj.campus存在，则直接进行拷贝。
+    this.campusId = obj.campusId
+    // 定义采用Lazy Load机制的Campus属性。若obj.campus存在，则直接进行拷贝，下同
     this.defineLazyProperty("campus", () => Campus.load(this.campusId), obj.campus)
   }
 }
@@ -109,7 +119,7 @@ class Building extends ModelBase {
 class Classroom extends ModelBase {
   constructor(obj = {}) {
     super(obj)
-    this.buildingId          = obj.buildingId// || obj.building.id
+    this.buildingId          = obj.buildingId
     this.classroomTypeIdList = obj.classroomTypeIdList || []
     this.defineLazyProperty("building", () => Building.load(this.buildingId), obj.building)
     this.defineLazyProperty(
@@ -117,6 +127,10 @@ class Classroom extends ModelBase {
       () => Promise.all(this.classroomTypeIdList.map(Id => ClassroomType.load(Id))),
       obj.classroomTypeList && obj.classroomTypeList.map(v => new ClassroomType(v)) // node要是支持optional chaining就好了...
     )
+    // 将从数据库中读出的用于保存的字符串转为数组
+    if (typeof this.classroomTypeIdList == "string") {
+      this.classroomTypeIdList = this.classroomTypeIdList.split(',').map(Number)
+    }
   }
 }
 
@@ -129,27 +143,37 @@ class ClassroomType extends ModelBase {
 class ClassRecord extends ModelBase {
   constructor(obj = {}) {
     super(obj)
-    Object.assign(this, obj) // 直接拷贝
+    Object.assign(this, { // 属性全部写明并初始化，保证数据表的字段能正确创建
+      courseId      : null, // 课程Id
+      courseName    : null, // 课程名
+      startWeek     : null, // 开课周
+      endWeek       : null, // 结课周
+      dayOfWeek     : null, // 星期几的对应编号
+      startSequence : null, // 课程起始节次
+      endSequence   : null, // 课程结束节次
+      teacher       : null, // 教师名
+      year          : null, // 学生年级
+      campusId      : null, // 上课校区Id
+      buildingId    : null, // 上课楼宇Id
+      classroomId   : null, // 上课教室Id
+      termId        : null, // 开课学期Id
+      capacity      : null, // 最大容纳人数
+      size          : null, // 实际选课人数
+    }, obj) // obj 一般不会有以上全部属性
   }
 
-  // 由于需要读取数据库，因此需要异步创建对象
-  static async create(entry = new Array(13).fill("")) {
-    return new ClassRecord({
-      id          : 0,
-      name        : entry[1], // 班级名  
-      courseId    : entry[2],
-      courseName  : entry[3], // 课程名
-      startWeek   : parseInt(entry[4]),
-      endWeek     : parseInt(entry[5]),
-      dayOfWeek   : DayOfWeek[entry[6]], // 星期几的对应编号
-      sequences   : entry[7].split(',').map(e => ClassOfDay[e]), // 课程节次范围
-      teacher     : entry[8],
-      buildingId  : entry[9] && await Building.findId(entry[9]),
-      classroomId : entry[9] && await Classroom.findId(entry[9] + "-" + entry[10]),
-      campusId    : entry[9] && await Campus.findId(Campus.findName(entry[9])),
-      capacity    : parseInt(entry[11]), // 最大容纳人数
-      size        : parseInt(entry[12])  // 实际选课人数
-    })
+  // 获取当前学期Id。注意！8、9月末调用可能会出错！
+  static currentTermId() {
+    let today = new Date()
+    // 由上一年的9月开始，记录月份的偏移量
+    let m_offset = today.getMonth() + 4
+    // 到了第二年9月即偏移1年
+    let y_offset = Math.floor(m_offset / 12)
+    // yy为最终表示在学期Id上的2位年份数
+    let yy = today.getFullYear() - 2001 + y_offset
+    // n为当前学期数，分别在偏移1（10月），5（2月）时增1
+    let n = 1 + ((m_offset %= 12) && (m_offset < 5 ? 1 : 2))
+    return `${yy}-${yy + 1}-${n}`
   }
 }
 
@@ -180,6 +204,7 @@ const ClassOfDay = {
 }
 
 module.exports = {
+  db,
   Campus,
   Building,
   Classroom,
