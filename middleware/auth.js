@@ -180,11 +180,8 @@ module.exports = async (ctx, next) => {
     ctx.body = token
     return
 
-  } else if (ctx.request.headers.token && ctx.request.headers.token.length !== 36 * 2) {
-
-    // 排除 36 是为了防止把超级管理员身份当做普通用户查找
+  } else if (ctx.request.headers.token) {
     // 对于其他请求，根据 token 的哈希值取出表项
-
     let token = ctx.request.headers.token
     let tokenHash = new Buffer(crypto.createHash('md5').update(token).digest()).toString('base64')
 
