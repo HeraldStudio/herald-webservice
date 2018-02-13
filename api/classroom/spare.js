@@ -1,5 +1,4 @@
-const db = require("../../database/helper")("classroom")
-const { Classroom, ClassRecord } = require("./models")
+const { db, Classroom, ClassRecord } = require("./models")
 
 exports.route = {
 
@@ -21,22 +20,15 @@ exports.route = {
    *   对于其他建筑，学校接口暂未提供查询，因而从web service内置数据库中查询。
    **/
   async get() {
-    if (this.params.campusID === 22) {
-      // 九龙湖教一~教七
+    let results = null
 
+    if (this.params.campusID === 22) { // 九龙湖教一~教七
       // 转发请求至学校空教室接口
-      let results = (await this.post(
+      results = (await this.post(
         "http://58.192.114.179/classroom/show/getemptyclassroomlist",
         this.querystring
       )).data
-
-      // 利用Classroom类剔除多余属性，统一返回的JSON格式
-      results.rows = results.rows.map(c => new Classroom(c))
-
-      return results
-    } else {
-      // 纪忠楼 & 四牌楼 & 无线谷 & 无锡分校
-
+    } else { // 纪忠楼 & 四牌楼 & 无线谷 & 无锡分校
       // 利用开课列表筛选出当前条件下有课的教室ID
       let occupiedClassroomIds = (await db.all(`
         select classroomId from ClassRecord
@@ -55,22 +47,27 @@ exports.route = {
           this.params.startWeek,
           this.params.endSequence,
           this.params.startSequence
-        ])).map(row => row.classroomId)
+      ])).map(row => row.classroomId)
 
       // 筛选出所有无课的教室
-      let spareClassrooms = (await db.all(`
+      let spareClassrooms = await db.all(`
         select * from Classroom
         where buildingId = ifnull(?, buildingId)
         and   id not in(${occupiedClassroomIds.toString()})
       `, [
           this.params.buildingId || null,
-        ])).map(c => new Classroom(c))
+      ])
 
-      return {
+      result = {
         "pager.pageNo": params.pageNo,
         "pager.totalRows": spareClassrooms.length,
         "rows": spareClassrooms.slice(params.pageSize * (params.pageNo - 1), params.pageSize * params.pageNo)
       }
     }
+
+    // 利用Classroom类剔除多余属性，统一返回的JSON格式
+    results.rows = await Promise.all(results.rows.map(c => new Classroom(c).formalize()))
+
+    return result
   }
 }
