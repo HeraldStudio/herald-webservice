@@ -18,7 +18,7 @@ const SERVER_ERROR = 2 // 爬虫服务器错误
 const REQUEST_ERROR = 3 // 远端请求错误
 
 const dev = !(process.env.NODE_ENV === 'production') // 非生产环境
-const adminPhoneNumber = ['15651975186'] // 日后和鉴权平台融合
+const adminPhoneNumber = ['15651975186', '17512596961'] // 日后和鉴权平台融合
 class SpiderServer {
 
   constructor() {
