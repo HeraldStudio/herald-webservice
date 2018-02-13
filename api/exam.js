@@ -27,15 +27,19 @@ exports.route = {
       'http://xk.urp.seu.edu.cn/studentService/cs/stuServe/runQueryExamPlanAction.action'
     )
     let $ = cheerio.load(res.data)
-    let detail = $('#table2 tr').toArray().slice(1).map(tr => {
+    return $('#table2 tr').toArray().slice(1).map(tr => {
       let [semester, campus, course, courseType, teacher, time, place, duration]
         = $(tr).find('td').toArray().slice(1).map(td => {
           return $(td).text().trim()
         })
 
-      return {semester, campus, course, courseType, teacher, time, place, duration}
-    })
+      duration = parseInt(duration)
 
-    return detail
+      let [y, M, d, h, m] = time.split(/[- :(]/g)
+      let start = new Date(y, M - 1, d, h, m)
+      let end = new Date(start.getTime() + duration * 1000 * 60)
+
+      return {semester, campus, course, courseType, teacher, startTime, endTime, place, duration}
+    })
   }
 }
