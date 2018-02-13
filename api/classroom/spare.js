@@ -1,4 +1,5 @@
-const models = require("./models");
+const db = require("../../database/helper")("classroom")
+const { Classroom, ClassRecord } = require("./models")
 
 exports.route = {
 
@@ -13,60 +14,58 @@ exports.route = {
    * @apiParam dayOfWeek     查询一星期中的哪一天
    * @apiParam startSequence 一天中起始节次
    * @apiParam endSequence   一天中结束周次
-   * @apiParam termId        查询的学期
+   * @apiParam termId?       查询的学期，留空则查询当前学期
    * @remarks 查询空教室
-   * @note 若查询教一~教七则调用学校接口，其余则通过服务器自己获取课表信息后计算而得。
+   * @note 
+   *   若查询教一~教七则调用学校接口；
+   *   对于其他建筑，学校接口暂未提供查询，因而从web service内置数据库中查询。
    **/
   async get() {
-    if (this.params.campusID === 22) { // 教一~教七
-      let result = (await this.post(
+    if (this.params.campusID === 22) {
+      // 九龙湖教一~教七
+
+      // 转发请求至学校空教室接口
+      let results = (await this.post(
         "http://58.192.114.179/classroom/show/getemptyclassroomlist",
         this.querystring
       )).data
-  
-      // 利用Classroom类剔除多余属性，统一返回的JSON格式
-      result.rows.forEach((classroom, index) => {
-        try {
-          result.rows[index] = new models.Classroom(classroom);
-        } catch (ex) {
-          console.log(ex)
-        }
-      })
-  
-      return result
-    } else { 
-      // 查询纪忠楼 & 四牌楼 & 无线谷 & 无锡分校
-      // 由于学校空教室接口暂未提供服务，因此目前从web service内置数据库中查询
-      
-      let spareClassrooms = this.cache.get(this.querystring, )
-      
-      
 
-      let params = this.params
-      Object.keys(params).forEach(key => params[key] = (params[key] ? parseInt(params[key]) : null)); // 转换字符串属性至对应整数
-  
-      // 利用课表筛选出该条件下有课的教室ID
-      let occupiedClassroomIds = models.classRecords.filter(record =>
-        (params.campusId == null || record.campusId == params.campusId)
-        &&
-        (params.buildingId == null || record.buildingId == params.buildingId)
-        &&
-        (params.startWeek <= record.endWeek && record.startWeek <= params.endWeek)
-        &&
-        (params.dayOfWeek == record.dayOfWeek)
-        &&
-        record.sequences.some(value => value >= params.startSequence && value <= params.endSequence)
-      ).map(record => record.classroomId)
-  
+      // 利用Classroom类剔除多余属性，统一返回的JSON格式
+      results.rows = results.rows.map(c => new Classroom(c))
+
+      return results
+    } else {
+      // 纪忠楼 & 四牌楼 & 无线谷 & 无锡分校
+
+      // 利用开课列表筛选出当前条件下有课的教室ID
+      let occupiedClassroomIds = (await db.all(`
+        select classroomId from ClassRecord
+        where termId = ? 
+        and   campusId = ifnull(?, campusId)
+        and   buildingId = ifnull(?, buildingId)
+        and   dayOfWeek = ifnull(?, dayOfWeek)
+        and   (startWeek <= ? and endWeek >= ?)
+        and   (startSequence <= ? and endSequnce >= ?)
+      `, [
+          this.params.termId,
+          this.params.capmusId || null,
+          this.params.buildingId || null,
+          this.params.dayOfWeek || null,
+          this.params.endWeek,
+          this.params.startWeek,
+          this.params.endSequence,
+          this.params.startSequence
+        ])).map(row => row.classroomId)
+
       // 筛选出所有无课的教室
-      let spareClassrooms = Object.values(models.classrooms).map(c => new models.Classroom(c)).filter(classroom =>
-        (params.campusId == null || classroom.building.campusId == params.campusId)
-        &&
-        (params.buildingId == null || classroom.buildingId == params.buildingId)
-        &&
-        !occupiedClassroomIds.includes(classroom.Id)
-      )
-  
+      let spareClassrooms = (await db.all(`
+        select * from Classroom
+        where buildingId = ifnull(?, buildingId)
+        and   id not in(${occupiedClassroomIds.toString()})
+      `, [
+          this.params.buildingId || null,
+        ])).map(c => new Classroom(c))
+
       return {
         "pager.pageNo": params.pageNo,
         "pager.totalRows": spareClassrooms.length,
