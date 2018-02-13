@@ -36,6 +36,7 @@ exports.route = {
       duration = parseInt(duration)
 
       let [y, M, d, h, m] = time.split(/[- :(]/g)
+      
       let startTime = new Date(y, M - 1, d, h, m)
       let endTime = new Date(start.getTime() + duration * 1000 * 60)
 
