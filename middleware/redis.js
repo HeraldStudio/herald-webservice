@@ -55,11 +55,7 @@ const cache = {
 }
 
 /**
-<<<<<<< HEAD
-  ## 缓存时间字符串
-=======
   ## 缓存策略字符串
->>>>>>> cb599792fb8684cc3d791f609d1569d279beb9a0
 
   由于单位难以统一，缓存时间使用带单位字符串进行配置。
 
@@ -68,25 +64,6 @@ const cache = {
   - 单位：y -> 年，mo -> 月，d -> 日，h -> 小时，m -> 分，s -> 秒；
   - 原理：通过正则识别所有 "数字串+字母串" 的组合，将单位有效的部分相乘相加；
   - 有效值举例：`1y` (360天) , `1h30m` (1小时30分) , `0.1mo1.5d` (4.5天)
-<<<<<<< HEAD
- */
-const timeStrToSeconds = (str) => {
-  let units = { y: 0, mo: 0, d: 0, h: 0, m: 0, s: 0 }
-  str.match(/[\d\.]+[a-z]+/g).forEach(k => {
-    let parts = /([\d\.]+)([a-z]+)/g.exec(k)
-    units[parts[2]] = parseFloat(parts[1])
-  })
-  return ((((units.y * 12 + units.mo) * 30 + units.d) * 24 + units.h) * 60 + units.m) * 60 + units.s
-}
-
-/**
-  ### 解析
-
-  缓存时间字符串的解析需要一定的时间，因此使用一个 object 进行缓存。
- */
-let cacheTimeCache = {}
-=======
-
   - 除时间外，还可以设置缓存是否由所有用户共享（如教务处等），只需在缓存时间串前面或后面加上 public，并使用逗号隔开即可。
   - 注意！与具体用户有关的路由，切勿设置为 public！
  */
@@ -115,45 +92,10 @@ class CacheStrategy {
     })
   }
 }
->>>>>>> cb599792fb8684cc3d791f609d1569d279beb9a0
 
 module.exports = async (ctx, next) => {
 
 /**
-<<<<<<< HEAD
-  从 config.json 的 cache 项中向下寻找最符合当前条件的缓存时间
-
-  > 例如 GET /api/card/detail 时：
-    首先检测 cache 是否为 object，若不是，将其整数值作为缓存时间；
-    再检测 cache.api 是否为 object，若不是，将其整数值作为缓存时间；
-    再检测 cache.api 是否为 object，若不是，将其整数值作为缓存时间；
-    再检测 cache.api.card 是否为 object，若不是，将其整数值作为缓存时间；
-    再检测 cache.api.card.detail 是否为 object，若不是，将其整数值作为缓存时间；
-    最后检测 cache.api.card.detail.get 是否为 object，若不是，将其整数值作为缓存时间。
- */
-
-  let currentPath = config.cache
-  let path = ctx.path + '/' + ctx.method.toLowerCase()
-  let cacheTTL
-
-  if (cacheTimeCache.hasOwnProperty(path)) { // 若已经计算过这个路由的缓存时长，直接取计算过的
-
-    cacheTTL = cacheTimeCache[path]
-
-  } else { // 否则进行计算
-
-    let paths = path.replace(/^\//, '').split('/')
-    while (typeof currentPath === 'object') {
-      currentPath = currentPath.hasOwnProperty(paths[0]) ? currentPath[paths[0]] : currentPath['index']
-      paths.splice(0, 1)
-    }
-    cacheTTL = currentPath || 0
-    if (typeof cacheTTL === 'string' && /[a-z]/.test(cacheTTL)) {
-      cacheTTL = timeStrToSeconds(cacheTTL)
-    }
-    cacheTimeCache[path] = cacheTTL
-  }
-=======
   从 config.json 的 cache 项中向下寻找最符合当前条件的缓存策略
 
   > 例如 GET /api/card/detail 时：
@@ -174,7 +116,6 @@ module.exports = async (ctx, next) => {
     jsonToParse = ''
   }
   let strategy = new CacheStrategy(jsonToParse)
->>>>>>> cb599792fb8684cc3d791f609d1569d279beb9a0
 
 /**
   ## 缓存命中
@@ -184,39 +125,23 @@ module.exports = async (ctx, next) => {
 
   缓存命中的条件是 (缓存TTL > 0 && 缓存存在 && 缓存未过期 && 缓存解密成功)。
  */
-<<<<<<< HEAD
-  let cacheKey = JSON.stringify({
-    method: ctx.method,
-    path: ctx.path,
-    token: ctx.user.isLogin ? ctx.user.token : '',
-=======
   let cacheIsPrivate = !strategy.cacheIsPublic && ctx.user.isLogin
 
   let cacheKey = JSON.stringify({
     method: ctx.method,
     path: ctx.path,
     token: cacheIsPrivate ? ctx.user.token : '',
->>>>>>> cb599792fb8684cc3d791f609d1569d279beb9a0
     params: ctx.params
   })
 
   let cached = null
-<<<<<<< HEAD
-  if (cacheTTL) {
-    cached = await cache.get(cacheKey, cacheTTL)
-=======
   if (strategy.cacheTimeSeconds) {
     cached = await cache.get(cacheKey, strategy.cacheTimeSeconds)
->>>>>>> cb599792fb8684cc3d791f609d1569d279beb9a0
     if (cached) {
       try {
         // [*] 上游是 auth 中间件，若为已登录用户，auth 将完成解密并把加解密函数暴露出来
         // 这里利用 auth 的加解密函数，解密缓存数据
-<<<<<<< HEAD
-        if (ctx.user.isLogin) {
-=======
         if (cacheIsPrivate) {
->>>>>>> cb599792fb8684cc3d791f609d1569d279beb9a0
           cached = ctx.user.decrypt(cached)
         }
         cached = JSON.parse(cached)
@@ -237,20 +162,12 @@ module.exports = async (ctx, next) => {
   await next()
 
   // 若需要缓存，将中间件返回值存入 redis
-<<<<<<< HEAD
-  if (cacheTTL && ctx.body) {
-=======
   if (strategy.cacheTimeSeconds && ctx.body) {
->>>>>>> cb599792fb8684cc3d791f609d1569d279beb9a0
     cached = ctx.body
     cached = JSON.stringify(cached)
 
     // 同 [*]，这里利用 auth 的加解密函数，加密数据进行缓存
-<<<<<<< HEAD
-    if (ctx.user.isLogin) {
-=======
     if (cacheIsPrivate) {
->>>>>>> cb599792fb8684cc3d791f609d1569d279beb9a0
       cached = ctx.user.encrypt(cached)
     }
     cache.set(cacheKey, cached)

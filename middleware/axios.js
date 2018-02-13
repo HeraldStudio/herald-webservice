@@ -76,7 +76,7 @@ module.exports = async (ctx, next) => {
 
   ;['get','post','put','delete'].forEach(k => {
     ctx[k] = async function () {
-      if(config.spider.enable){
+      if (config.spider.enable){
         let transformRequest = (req) => {
           if (typeof req === 'object') {
             return qs.stringify(req)
@@ -85,10 +85,10 @@ module.exports = async (ctx, next) => {
         }
         let transformResponse = () => {}
         try {
-          let result =  await ctx.spiderServer.request(ctx, k, arguments, config.axios, transformRequest, transformResponse)
+          let result = await ctx.spiderServer.request(ctx, k, arguments, config.axios, transformRequest, transformResponse)
           return result
         }
-        catch(e) {
+        catch (e) {
           let release = await sem.acquire()
           let result = await _axios[k].apply(undefined, arguments)
           release()
