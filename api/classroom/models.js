@@ -29,7 +29,7 @@ class ModelBase {
     await db.run(`
       create table if not exists ${this.name} (
         id    integer    primary key,
-        ${entries.map(e => `${e[0]} ${typeof e[1] === "number"? "integer" : "text"}`).toString()}
+        ${entries.map(e => `${e[0]} ${typeof e[1] === "number"? "integer" : "text"} not null`).toString()}
       )
     `)
   }
@@ -103,7 +103,7 @@ class Campus extends ModelBase {
 
   // 根据建筑名字找到对应校区
   static findName(buildingName) {
-    // 虽说这种写法有点诡异……但可读性不算差，就当作一个有趣的语法trick放在这里吧~
+    // 虽然这种写法有点诡异……但可读性不算差，就当作一个有趣的语法trick吧~
     // 参见https://stackoverflow.com/questions/2896626/
     switch (true) {
       case /无线谷/.test(buildingName):
@@ -112,12 +112,11 @@ class Campus extends ModelBase {
         return "无锡分校"
       case /教[一二三四五六七八]/.test(buildingName):
         return "九龙湖"
-      case /四牌楼/.test(buildingName):
-        return "四牌楼"
       case /纪忠楼/.test(buildingName):
-        // 尽量给出一些湖区研究生楼的pattern，会直接落在default上
-      default:
         return "九龙湖研究生"
+      case /四牌楼/.test(buildingName):        
+      default:
+        return "四牌楼"
     }
   }
 }
@@ -152,11 +151,11 @@ class Classroom extends ModelBase {
       buildingId : 0,
       classroomTypeIdList: []
     }, init)
-    this.defineLazyProperty("building", () => Building.load(this.buildingId), obj.building)
+    this.defineLazyProperty("building", () => Building.load(this.buildingId), init.building)
     this.defineLazyProperty(
       "classroomTypeList", 
       () => Promise.all(this.classroomTypeIdList.map(Id => ClassroomType.load(Id))),
-      obj.classroomTypeList && obj.classroomTypeList.map(v => new ClassroomType(v)) // node要是支持optional chaining就好了...
+      init.classroomTypeList && init.classroomTypeList.map(v => new ClassroomType(v)) // node要是支持optional chaining就好了...
     )
     // TODO: 在基类中加入数组类型解析
     // 将从数据库中读出的用于保存的字符串转为数组
@@ -169,8 +168,8 @@ class Classroom extends ModelBase {
 /**
   ## Classroom 数据表结构
 
-  id            integer    教室类型Id
-  name          text       教室类型名，可能值有"空调"，"多媒体"，"录播"，"设计"，"电教"，"语音"，"活动"
+  id    integer    教室类型Id
+  name  text       教室类型名，可能值有"空调"，"多媒体"，"录播"，"设计"，"电教"，"语音"，"活动"
  */
 class ClassroomType extends ModelBase {
   constructor(init) {
