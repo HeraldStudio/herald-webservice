@@ -9,6 +9,7 @@ const chardet = require('chardet')
 const axios = require('axios');
 const tough = require('tough-cookie')
 const chalk = require('chalk')
+const sms = require('../sdk/yunpian')
 
 // errcode定义
 const NO_SPIDER_ERROR = 0 // 没有可用在线爬虫
@@ -17,7 +18,7 @@ const SERVER_ERROR = 2 // 爬虫服务器错误
 const REQUEST_ERROR = 3 // 远端请求错误
 
 const dev = !(process.env.NODE_ENV === 'production') // 非生产环境
-const adminPhoneNumber = ['15651975186'] // 日后和鉴权平台融合
+const adminPhoneNumber = ['15651975186', '17512596961'] // 日后和鉴权平台融合
 class SpiderServer {
 
   constructor() {
@@ -30,7 +31,6 @@ class SpiderServer {
     })
     this.socketServer.on('error', (error) => {error.errCode = SERVER_ERROR; console.log(error)})
     console.log(chalk.green('[+] 分布式硬件爬虫服务正在运行...'))
-
   }
 
   handleConnection(connection) {
@@ -44,12 +44,20 @@ class SpiderServer {
       // 生产环境token只发送到管理员手机
       console.log(`[I] 硬件爬虫 ${chalk.blue(`<${name}>`)} 连接建立，请使用口令 ${chalk.blue(`<${token}>`)} 完成配对`)
     }
+    sms.spiderToken(adminPhoneNumber, name, token)
     connection.token = token
     let message = {spiderName:name}
     connection.send(JSON.stringify(message))
 
     // 来自硬件爬虫数据的处理
     connection.on('message', (data) => {
+      // 有数据返回时即更新心跳时间戳
+      let date = new Date()
+      connection.finalHeartBeat = date.getTime()
+      // 如果是心跳包则拦截
+      if (data === '@herald—spider') {
+        return
+      }
       if (connection.active) {
         this.handleResponse(data)
       } else {
@@ -71,13 +79,15 @@ class SpiderServer {
 
     // 硬件爬虫关闭响应
     connection.on("close",(code, reason) => {
-      console.log(`[I] 硬件爬虫 <${connection.spiderName}> 连接关闭,code=${code}, reason=${reason}`)
+      // console.log(`[I]硬件爬虫 <${connection.spiderName}> 连接关闭,code=${code}, reason=${reason}`)
       delete this.connectionPool[connection.spiderName]
     })
 
     connection.on("error", (error) => {
-      console.log(`[W] 硬件爬虫 <${connection.spiderName}> 连接出错, 错误信息：`)
-      console.log(error)
+
+      console.log(chalk.red(`[W]硬件爬虫 <${connection.spiderName}> 连接出错, 错误信息：`))
+      console.log(error.message)
+
       delete this.connectionPool[connection.spiderName]
     })
 
@@ -153,16 +163,22 @@ class SpiderServer {
     return new Promise((resolve, reject) => {
       this.requestPool[name].resolve = resolve
       this.requestPool[name].reject = reject
+      this.requestPool[name].timeout = setTimeout(() => {
+        this.requestPool[name].isTimeout = true
+        reject('timeout')
+        delete this.requestPool[name]
+      }, 15000)
       try {
         let spider = this.pickSpider()
         spider.send(encodedRequest)
       } catch (e) {
-        console.log('[-] 向硬件爬虫发送请求数据期间出错，错误信息：')
+        console.log('[-] 向硬件爬虫发送请求数据期间出错：' + e.message)
         e.errCode = WEBSOCKET_TRASFER_ERROR
         reject(e)
+        clearTimeout(this.requestPool[name].timeout)
+        delete this.requestPool[name]
       }
     })
-
   }
 
   async request(ctx, method, arg, config, transformRequest, transformResponse) {
@@ -194,21 +210,24 @@ class SpiderServer {
     }
     if (request.forceLocal) {
       console.log('[+] 该请求强制本地执行')
-      throw 'force_local'
+      throw new Error('force_local')
     }
     return this._request(ctx, request) // 传入ctx以满足cookieJar自动添加和实现
   }
 
   pickSpider() {
+    let timestamp = new Date()
+    timestamp = timestamp.getTime()
     let avaliableList = []
     for (let name in this.connectionPool) {
-      if (this.connectionPool[name].active) {
+      let heartCycle = timestamp - this.connectionPool[name].finalHeartBeat
+      if (this.connectionPool[name].active && heartCycle <= config.spider.heartCycle) {
         avaliableList.push(this.connectionPool[name])
       }
     }
     let length = avaliableList.length
     if (length === 0) {
-      throw {errCode:NO_SPIDER_ERROR, msg:'没有可用爬虫'}
+      throw { errCode: NO_SPIDER_ERROR, message: '没有可用爬虫' }
     }
     let r = Math.floor(Math.random() * length)
     return avaliableList[r]
@@ -218,19 +237,26 @@ class SpiderServer {
     data = JSON.parse(data)
     let requestName = data.requestName
     let requestObj = this.requestPool[requestName]
+    if (requestObj.isTimeout) {
+      return
+    }
     if (data.succ) {
+      clearTimeout(requestObj.timeout)
       // 将data域解码为原始状态
       data.data = Buffer.from(data.data.data).toString()
       try { data.data = JSON.parse(data.data) } catch (e) {}
       // 自动更新cookieJar
       requestObj.ctx.cookieJar = tough.CookieJar.fromJSON(data.cookie)
       requestObj.resolve(data)
+      delete this.requestPool[requestName]
     } else {
+      clearTimeout(requestObj.timeout)
       data.errCode = REQUEST_ERROR
       if (data.hasOwnProperty('data')) {
         data.data = Buffer.from(data.data.data).toString()
       }
       requestObj.reject(data)
+      delete this.requestPool[requestName]
     }
   }
 

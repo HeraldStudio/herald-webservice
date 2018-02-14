@@ -11,12 +11,26 @@
   ctx.user.encrypt    from auth.js
   ctx.user.decrypt    from auth.js
  */
-const redis = require('redis')
-const client = redis.createClient()
-const bluebird = require('bluebird')
 const config = require('../config.json')
+let client
 
-bluebird.promisifyAll(redis.RedisClient.prototype)
+if (process.env.NODE_ENV === 'development') {
+  const pool = {}
+  client = {
+    set (key, value) {
+      pool[key] = value
+    },
+    async getAsync (key) {
+      return pool[key] || 'null'
+    }
+  }
+} else {
+  const redis = require('redis')
+  const bluebird = require('bluebird')
+  bluebird.promisifyAll(redis.RedisClient.prototype)
+
+  client = redis.createClient()
+}
 
 /**
   ## redis 缓存封装
@@ -34,14 +48,17 @@ const cache = {
   async get(key, ttl) {
     if (key && ttl) {
       let got = JSON.parse(await client.getAsync(JSON.stringify(key)))
-      return (got && Math.floor(new Date().getTime() / 1000) - got.time < ttl) ? got.value : null
+      if (got) {
+        let expired = Math.floor(new Date().getTime() / 1000) - got.time >= ttl
+        return [got.value, expired]
+      }
     }
-    return null
+    return [null, true]
   }
 }
 
 /**
-  ## 缓存时间字符串
+  ## 缓存策略字符串
 
   由于单位难以统一，缓存时间使用带单位字符串进行配置。
 
@@ -50,58 +67,61 @@ const cache = {
   - 单位：y -> 年，mo -> 月，d -> 日，h -> 小时，m -> 分，s -> 秒；
   - 原理：通过正则识别所有 "数字串+字母串" 的组合，将单位有效的部分相乘相加；
   - 有效值举例：`1y` (360天) , `1h30m` (1小时30分) , `0.1mo1.5d` (4.5天)
+  - 除时间外，还可以设置缓存是否由所有用户共享（如教务处等），只需在缓存时间串前面或后面加上 public，并使用逗号隔开即可。
+  - 注意！与具体用户有关的路由，切勿设置为 public！
  */
-const timeStrToSeconds = (str) => {
-  let units = { y: 0, mo: 0, d: 0, h: 0, m: 0, s: 0 }
-  str.match(/[\d\.]+[a-z]+/g).forEach(k => {
-    let parts = /([\d\.]+)([a-z]+)/g.exec(k)
-    units[parts[2]] = parseFloat(parts[1])
-  })
-  return ((((units.y * 12 + units.mo) * 30 + units.d) * 24 + units.h) * 60 + units.m) * 60 + units.s
+const strategyTimeCache = {}
+
+class CacheStrategy {
+  constructor(str = '') {
+    this.cacheTimeSeconds = 0
+    this.cacheIsPublic = false
+    this.cacheIsLazy = false
+    let properties = str.trim().split(/\s*,\s*/g)
+    properties.map(prop => {
+      if (/^\d+/.test(prop)) {
+        if (strategyTimeCache.hasOwnProperty(prop)) {
+          this.cacheTimeSeconds = strategyTimeCache[prop]
+        }
+        let units = { y: 0, mo: 0, d: 0, h: 0, m: 0, s: 0 }
+        prop.match(/[\d\.]+[a-z]+/g).forEach(k => {
+          let parts = /([\d\.]+)([a-z]+)/g.exec(k)
+          units[parts[2]] = parseFloat(parts[1])
+        })
+        this.cacheTimeSeconds = ((((units.y * 12 + units.mo) * 30 + units.d) * 24 + units.h) * 60 + units.m) * 60 + units.s
+        strategyTimeCache[prop] = this.cacheTimeSeconds
+      } else if (prop === 'public') {
+        this.cacheIsPublic = true
+      } else if (prop === 'lazy') {
+        this.cacheIsLazy = true
+      }
+    })
+  }
 }
-
-/**
-  ### 解析
-
-  缓存时间字符串的解析需要一定的时间，因此使用一个 object 进行缓存。
- */
-let cacheTimeCache = {}
 
 module.exports = async (ctx, next) => {
 
 /**
-  从 config.json 的 cache 项中向下寻找最符合当前条件的缓存时间
+  从 config.json 的 cache 项中向下寻找最符合当前条件的缓存策略
 
   > 例如 GET /api/card/detail 时：
-    首先检测 cache 是否为 object，若不是，将其整数值作为缓存时间；
-    再检测 cache.api 是否为 object，若不是，将其整数值作为缓存时间；
-    再检测 cache.api 是否为 object，若不是，将其整数值作为缓存时间；
-    再检测 cache.api.card 是否为 object，若不是，将其整数值作为缓存时间；
-    再检测 cache.api.card.detail 是否为 object，若不是，将其整数值作为缓存时间；
-    最后检测 cache.api.card.detail.get 是否为 object，若不是，将其整数值作为缓存时间。
+    首先检测 cache 是否为 object，若不是，将其字符串作为缓存策略；
+    再检测 cache.api 是否为 object，若不是，将其字符串作为缓存策略；
+    再检测 cache.api 是否为 object，若不是，将其字符串作为缓存策略；
+    再检测 cache.api.card 是否为 object，若不是，将其字符串作为缓存策略；
+    再检测 cache.api.card.detail 是否为 object，若不是，将其字符串作为缓存策略；
+    最后检测 cache.api.card.detail.get 是否为 object，若不是，将其字符串作为缓存策略。
  */
 
-  let currentPath = config.cache
-  let path = ctx.path + '/' + ctx.method.toLowerCase()
-  let cacheTTL
-
-  if (cacheTimeCache.hasOwnProperty(path)) { // 若已经计算过这个路由的缓存时长，直接取计算过的
-
-    cacheTTL = cacheTimeCache[path]
-
-  } else { // 否则进行计算
-
-    let paths = path.replace(/^\//, '').split('/')
-    while (typeof currentPath === 'object') {
-      currentPath = currentPath.hasOwnProperty(paths[0]) ? currentPath[paths[0]] : currentPath['index']
-      paths.splice(0, 1)
-    }
-    cacheTTL = currentPath || 0
-    if (typeof cacheTTL === 'string' && /[a-z]/.test(cacheTTL)) {
-      cacheTTL = timeStrToSeconds(cacheTTL)
-    }
-    cacheTimeCache[path] = cacheTTL
+  let jsonToParse = config.cache
+  let path = (ctx.path.replace(/^\//, '') + '/' + ctx.method.toLowerCase()).split('/')
+  while (typeof jsonToParse === 'object' && path.length) {
+    jsonToParse = jsonToParse[path.splice(0, 1)]
   }
+  if (typeof jsonToParse !== 'string') {
+    jsonToParse = ''
+  }
+  let strategy = new CacheStrategy(jsonToParse)
 
 /**
   ## 缓存命中
@@ -109,51 +129,97 @@ module.exports = async (ctx, next) => {
   将 method、地址 (路由 + querystring)、伪 token、请求体四个元素进行序列化，作为缓存命中判断的依据
   伪 token 是上游 auth 暴露的属性，用于区分用户，详见 auth.js##伪token
 
-  缓存命中的条件是 (缓存TTL > 0 && 缓存存在 && 缓存未过期 && 缓存解密成功)。
+  下述「回源」均指调用下游中间件，取得最新数据的过程。
+
+  缓存命中策略对照表：
+
+  - 判断缓存状态：
+    - 缓存有效未过期 => 取缓存，不回源
+    - 缓存有效已过期 => 判断缓存策略：
+      - 普通策略 => 等待回源，判断回源结果：
+        - 回源成功：取回源结果，更新缓存 √
+        - 回源失败：取缓存 √
+      - 懒抓取策略 => 取缓存 √ 同时后台开始回源（脱离等待链），回源成功则更新缓存
+    - 缓存无效 => 等待回源，判断回源结果：
+      - 回源成功：取回源结果，更新缓存 √
+      - 回源失败：返回错误信息 √
  */
+  let cacheIsPrivate = !strategy.cacheIsPublic && ctx.user.isLogin
+  let { cacheIsLazy } = strategy
+
+  // 懒抓取策略下，缓存时间至少1秒，防止缓存时间未设置导致始终不缓存
+  if (cacheIsLazy) {
+    strategy.cacheTimeSeconds = Math.max(strategy.cacheTimeSeconds, 1)
+  }
+
   let cacheKey = JSON.stringify({
     method: ctx.method,
     path: ctx.path,
-    token: ctx.user.isLogin ? ctx.user.token : '',
+    token: cacheIsPrivate ? ctx.user.token : '',
     params: ctx.params
   })
 
-  let cached = null
-  if (cacheTTL) {
-    cached = await cache.get(cacheKey, cacheTTL)
-    if (cached) {
-      try {
-        // [*] 上游是 auth 中间件，若为已登录用户，auth 将完成解密并把加解密函数暴露出来
-        // 这里利用 auth 的加解密函数，解密缓存数据
-        if (ctx.user.isLogin) {
-          cached = ctx.user.decrypt(cached)
-        }
-        cached = JSON.parse(cached)
+  let [cached, expired] = await cache.get(cacheKey, strategy.cacheTimeSeconds)
 
-        // 若到此均成功执行，说明缓存有效，直接返回
-        ctx.body = cached
-        return
-
-      } catch (e) {}
+  // 1. 无论是否过期，首先解析缓存，准确判断缓存是否可用，以便在缓存不可用时进行回源
+  // 此步骤结果保证：cached 成真 <=> 缓存可用，expired 成假 <=> 缓存未过期
+  if (cached) {
+    try {
+      // [*] 上游是 auth 中间件，若为已登录用户，auth 将完成解密并把加解密函数暴露出来
+      // 这里利用 auth 的加解密函数，解密缓存数据
+      if (cacheIsPrivate) {
+        cached = ctx.user.decrypt(cached)
+      }
+      cached = JSON.parse(cached)
+    } catch (e) {
+      cached = null
     }
   }
 
-/**
-  ## 缓存回源
+  // 2. 若缓存不可用或已过期，先回源，准确判断回源是否成功，以便在回源不成功时回落到过期缓存
+  if (!cached || expired) {
 
-  若缓存命中流程不能进入 if/if/try，说明缓存无效，回源调用下层中间件，回源后再更新缓存。
- */
-  await next()
+    // 判断是否执行脱离等待链策略
+    // 只有当设置了懒抓取模式且有缓存时，脱离等待链；否则不脱离等待链
+    let cacheNoAwait = cacheIsLazy && cached
 
-  // 若需要缓存，将中间件返回值存入 redis
-  if (cacheTTL && ctx.body) {
-    cached = ctx.body
-    cached = JSON.stringify(cached)
+    // 异步的回源任务（执行下游中间件、路由处理程序）
+    let task = async () => {
+      try {
+        await next()
 
-    // 同 [*]，这里利用 auth 的加解密函数，加密数据进行缓存
-    if (ctx.user.isLogin) {
-      cached = ctx.user.encrypt(cached)
+        // 若需要缓存，将中间件返回值存入 redis
+        if (strategy.cacheTimeSeconds && ctx.body) {
+          cached = ctx.body
+          cached = JSON.stringify(cached)
+
+          // 同 [*]，这里利用 auth 的加解密函数，加密数据进行缓存
+          if (cacheIsPrivate) {
+            cached = ctx.user.encrypt(cached)
+          }
+          cache.set(cacheKey, cached)
+
+          // 执行到此说明回源成功
+          return true
+        }
+      } catch (e) {}
+
+      // 回源失败
+      return false
     }
-    cache.set(cacheKey, cached)
+
+    if (cacheNoAwait) {
+      // 懒抓取模式且有缓存时，脱离等待链异步回源，忽略回源结果，然后直接继续到第三步取上次缓存值
+      task()
+    } else {
+      // 其余情况下，等待回源结束，若回源成功，返回回源结果，否则继续到第三步取上次缓存值
+      if (await task()) return
+    }
+  }
+
+  // 3. 执行到此表示缓存未过期或回源时出错
+  // 若缓存存在，返回缓存值；否则，必然有回源出错，此时不对结果进行覆盖，保留回源出错的信息
+  if (cached) {
+    ctx.body = cached
   }
 }
