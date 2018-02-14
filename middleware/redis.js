@@ -185,30 +185,28 @@ module.exports = async (ctx, next) => {
 
     // 异步的回源任务（执行下游中间件、路由处理程序）
     let task = async () => {
-      try {
-        // 回源前先将原有缓存重新设置一次，缓存内容保持不变，缓存时间改为现在
-        // 因此，若用户在回源完成前重复调用同一接口，将直接命中缓存，防止重复触发回源
-        if (strategy.cacheTimeSeconds) {
-          cache.set(cacheKey, cached)
+      // 回源前先将原有缓存重新设置一次，缓存内容保持不变，缓存时间改为现在
+      // 因此，若用户在回源完成前重复调用同一接口，将直接命中缓存，防止重复触发回源
+      if (strategy.cacheTimeSeconds) {
+        cache.set(cacheKey, cached)
+      }
+
+      await next()
+
+      // 若需要缓存，将中间件返回值存入 redis
+      if (strategy.cacheTimeSeconds && ctx.body) {
+        cached = ctx.body
+        cached = JSON.stringify(cached)
+
+        // 同 [*]，这里利用 auth 的加解密函数，加密数据进行缓存
+        if (cacheIsPrivate) {
+          cached = ctx.user.encrypt(cached)
         }
+        cache.set(cacheKey, cached)
 
-        await next()
-
-        // 若需要缓存，将中间件返回值存入 redis
-        if (strategy.cacheTimeSeconds && ctx.body) {
-          cached = ctx.body
-          cached = JSON.stringify(cached)
-
-          // 同 [*]，这里利用 auth 的加解密函数，加密数据进行缓存
-          if (cacheIsPrivate) {
-            cached = ctx.user.encrypt(cached)
-          }
-          cache.set(cacheKey, cached)
-
-          // 执行到此说明回源成功
-          return true
-        }
-      } catch (e) {}
+        // 执行到此说明回源成功
+        return true
+      }
 
       // 回源失败
       return false
@@ -216,7 +214,7 @@ module.exports = async (ctx, next) => {
 
     if (cacheNoAwait) {
       // 懒抓取模式且有缓存时，脱离等待链异步回源，忽略回源结果，然后直接继续到第三步取上次缓存值
-      task()
+      task().catch(() => {})
     } else {
       // 其余情况下，等待回源结束，若回源成功，返回回源结果，否则继续到第三步取上次缓存值
       if (await task()) return
