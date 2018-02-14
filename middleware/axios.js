@@ -76,27 +76,19 @@ module.exports = async (ctx, next) => {
 
   ;['get','post','put','delete'].forEach(k => {
     ctx[k] = async function () {
-      if(config.spider.enable){
+      if (config.spider.enable){
         let transformRequest = (req) => {
           if (typeof req === 'object') {
             return qs.stringify(req)
           }
           return req
         }
-        // transformResponse实际上被短路
-        let transformResponse = (res) => {
-          res = Buffer.from(res)
-          let encoding = chardet.detect(res)
-          res = new iconv.Iconv(encoding, 'UTF-8//TRANSLIT//IGNORE').convert(res).toString()
-          try { res = JSON.parse(res) } catch (e) {}
-          return res
-        }
+        let transformResponse = () => {}
         try {
-          let result =  await ctx.spiderServer.request(ctx, k, arguments, config.axios, transformRequest, transformResponse)
+          let result = await ctx.spiderServer.request(ctx, k, arguments, config.axios, transformRequest, transformResponse)
           return result
         }
-        catch(e) {
-          console.log(e)
+        catch (e) {
           let release = await sem.acquire()
           let result = await _axios[k].apply(undefined, arguments)
           release()
