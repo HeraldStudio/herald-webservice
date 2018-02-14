@@ -3,6 +3,10 @@ const app = new koa()
 const kf = require('kf-router')
 const config = require('./config.json')
 
+// 为 Sqlongo ORM 设置默认路径
+const sqlongo = require('sqlongo')
+sqlongo.defaults.path = 'database'
+
 // 出错输出
 process.on('unhandledRejection', e => { throw e })
 process.on('uncaughtException', console.trace)
@@ -48,8 +52,7 @@ app.use(require('./middleware/redis'))
   ## D. 路由层
   负责调用路由处理程序执行处理的中间件。
 */
-app.use(kf(module, { hotReload: process.env.NODE_ENV === 'development' }))
-
+app.use(kf(module, { ignore: ['/middleware/**/*', '/app', '/repl', '/sdk/**/*'] }))
 app.listen(config.port)
 
 // 开发环境下，启动 REPL

@@ -32,16 +32,26 @@ exports.route = {
 
       // 学分解析为浮点数；成绩可能为中文，不作解析
       credit = parseFloat(credit)
-      return {semester, courseId, course, courseType, credit, score, scoreType}
-    })
+      return { semester, courseId, course, courseType, credit, score, scoreType }
 
-    let [gpa, gpaNoRevamp, year, calculationTime]
+    }).reduce((a, b) => { // 按学期分组
+      let semester = b.semester
+      delete b.semester
+      if (!a.length || a.slice(-1)[0].semester !== semester) {
+        return a.concat([{ semester, courses: [b] }])
+      } else {
+        a.slice(-1)[0].courses.push(b)
+        return a
+      }
+    }, [])
+
+    let [gpa, gpaNoRepeat, year, calculationTime]
       = $('#table4 tr').eq(1).find('td').toArray().map(td => {
       return $(td).text().trim().replace(/&[0-9A-Za-z];/g, '')
     })
 
     // 时间解析为时间戳
     calculationTime = new Date(calculationTime).getTime()
-    return { gpa, gpaNoRevamp, year, calculationTime, detail }
+    return { gpa, gpaNoRepeat, year, calculationTime, detail }
   }
 }

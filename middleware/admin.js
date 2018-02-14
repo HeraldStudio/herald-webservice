@@ -1,31 +1,46 @@
-const db = require('../database/helper')('admin')
+const db = require('sqlongo')('admin')
 const chalk = require('chalk')
 const crypto = require('crypto')
 
 // 程序启动时，生成超级管理员 Token
 // 为了防止与普通用户碰撞，此处字节数跟普通用户 token 字节数做区分
-const superToken = new Buffer(crypto.randomBytes(36)).toString('hex')
+const superToken = new Buffer(crypto.randomBytes(16)).toString('hex')
 console.log('本次会话的超级管理员 Token 为：' + chalk.blue(superToken) + '，请妥善保管')
 
-db.run(`
-  create table if not exists admin (
-    cardnum       varchar(64)   not null, -- 管理员一卡通号，一个人可以为多个管理员，所以可重复
-    name          varchar(64)   not null, -- 管理员姓名
-    phone         varchar(64)   not null, -- 管理员电话
-    domain        varchar(64)   not null, -- 管理员权限域
-    level         integer       not null, -- 管理员权限等级
-    authorized    integer       not null, -- 管理员被授权时间
-    last_used     integer       not null  -- 管理员最后调用时间
-  )
-`)
+;(async () => {
+  await db.admin.define({
+    cardnum:    'text not null',  // 管理员一卡通号，一个人可以为多个管理员，所以可重复
+    name:       'text not null',  // 管理员姓名
+    phone:      'text not null',  // 管理员电话
+    domain:     'text not null',  // 管理员权限域
+    level:      'int not null',   // 管理员权限等级
+    authorized: 'int not null',   // 管理员被授权时间
+    last_used:  'int not null'    // 管理员最后调用时间
+  })
 
-db.run(`
-  create table if not exists domain (
-    domain        varchar(64)   primary key,  -- 管理员权限域
-    name          varchar(64)   not null,     -- 管理员权限域中文名
-    desc          varchar(384)  not null      -- 管理员权限域职责说明
-  )
-`)
+  await db.domain.define({
+    domain: 'text primary key',   // 管理员权限域
+    name:   'text not null',      // 管理员权限域中文名
+    desc:   'text not null'       // 管理员权限域职责说明
+  })
+
+  const define = async (domain, name, desc) => {
+    if (domain === 'super') {
+      throw 'super 为保留域'
+    }
+
+    if (await db.domain.find({ domain }, 1)) {
+      return
+    }
+
+    await db.domain.insert({ domain, name, desc })
+  }
+
+  require('./admin.json').map(k => {
+    let { domain, name, desc } = k
+    define(domain, name, desc)
+  })
+})()
 
 module.exports = async (ctx, next) => {
 
@@ -33,7 +48,7 @@ module.exports = async (ctx, next) => {
   ctx.admin = { super: false }
   if (ctx.request.headers.token === superToken) {
     ctx.admin.super = true
-    let domains = await db.all('select * from domain')
+    let domains = await db.domain.find()
     for (let domain of domains) {
       ctx.admin[domain.domain] = {
         domain: domain.name,
@@ -43,10 +58,10 @@ module.exports = async (ctx, next) => {
     }
   } else if (ctx.user.isLogin) {
     let { cardnum } = ctx.user
-    let admins = await db.all('select * from admin where cardnum = ?', [cardnum])
+    let admins = await db.admin.find({ cardnum })
     for (let admin of admins) {
       let domain = admin.domain
-      let domainInfo = await db.get('select * from domain where domain = ?', [domain])
+      let domainInfo = await db.domain.find({ domain }, 1)
       admin.domain = domainInfo.name
       admin.desc = domainInfo.desc
       ctx.admin[domain] = admin
@@ -61,7 +76,8 @@ module.exports = async (ctx, next) => {
       get(target, key) {
         if (target[key]) {
           let now = new Date().getTime()
-          db.run('update admin set last_used = ? where cardnum = ? and domain = ?',[now, cardnum, key])
+          let domain = key
+          db.admin.update({ cardnum, domain }, { last_used: now })
         }
         return target[key]
       }
@@ -79,7 +95,7 @@ module.exports = async (ctx, next) => {
      * 获取所有权限域
      */
     if (method === 'get') {
-      ctx.body = await db.all('select * from domain')
+      ctx.body = await db.domain.find()
       return
     }
 
@@ -94,10 +110,11 @@ module.exports = async (ctx, next) => {
         throw 'super 为保留域'
       }
 
-      await db.run(
-        'insert into domain(domain, name, desc) values(?, ?, ?)',
-        [domain.domain, domain.name, domain.desc]
-      )
+      if (await db.domain.find({ domain }, 1)) {
+        throw '权限域已存在'
+      }
+
+      await db.domain.insert(domain)
       ctx.body = 'OK'
       return
     }
@@ -109,10 +126,10 @@ module.exports = async (ctx, next) => {
      */
     if (method === 'put') {
       let { domain } = ctx.params
-      await db.run(
-        'update domain set name = ?, desc = ? where domain = ?',
-        [domain.name, domain.desc, domain.domain]
-      )
+
+      // 恶魔妈妈摸妹妹
+      await db.domain.update({ domain: domain.domain }, domain)
+
       ctx.body = 'OK'
       return
     }
@@ -124,8 +141,8 @@ module.exports = async (ctx, next) => {
      */
     if (method === 'delete') {
       let { domain } = ctx.params
-      await db.run('delete from domain where domain = ?', [domain])
-      await db.run('delete from admin where domain = ?', [domain])
+      await db.domain.remove({ domain })
+      await db.admin.remove({ domain })
       ctx.body = 'OK'
       return
     }
@@ -148,8 +165,8 @@ module.exports = async (ctx, next) => {
         }
 
         ctx.body = {
-          domain: await db.get('select * from domain where domain = ?', [domain]),
-          admins: await db.all('select * from admin where domain = ?', [domain])
+          domain: await db.domain.find({ domain }, 1),
+          admins: await db.admin.find({ domain })
         }
       }
       return
@@ -169,16 +186,18 @@ module.exports = async (ctx, next) => {
         throw 403
       }
 
-      let has = await db.get('select * from admin where cardnum = ? and domain = ?', [cardnum, domain])
+      let has = await db.admin.find({ cardnum, domain }, 1)
       if (has) {
         throw '管理员已存在'
       }
 
       let now = new Date().getTime()
-      await db.run(
-        'insert into admin(cardnum, name, phone, domain, level, authorized, last_used) values (?, ?, ?, ?, ?, ?, ?)',
-        [cardnum, name, phone, domain, ctx.admin[domain].level + 1, now, now]
-      )
+      await db.admin.insert({
+        cardnum, name, phone, domain,
+        level: ctx.admin[domain].level + 1,
+        authorized: now,
+        last_used: now
+      })
       ctx.body = 'OK'
       return
     }
@@ -196,14 +215,14 @@ module.exports = async (ctx, next) => {
         throw 403
       }
 
-      let has = await db.get('select * from admin where cardnum = ? and domain = ?', [cardnum, domain])
+      let has = await db.admin.find({ cardnum, domain }, 1)
       if (!has) {
         throw '管理员不存在'
       } else if (has.level <= ctx.admin[domain].level) {
         throw '无法删除同级或高级管理员'
       }
 
-      await db.run('delete from admin where cardnum = ? and domain = ?', [cardnum, domain])
+      await db.admin.remove({ cardnum, domain })
       ctx.body = 'OK'
       return
     }
