@@ -48,9 +48,12 @@ const cache = {
   async get(key, ttl) {
     if (key && ttl) {
       let got = JSON.parse(await client.getAsync(JSON.stringify(key)))
-      return (got && Math.floor(new Date().getTime() / 1000) - got.time < ttl) ? got.value : null
+      if (got) {
+        let expired = Math.floor(new Date().getTime() / 1000) - got.time >= ttl
+        return [got.value, expired]
+      }
     }
-    return null
+    return [null, true]
   }
 }
 
@@ -73,6 +76,7 @@ class CacheStrategy {
   constructor(str = '') {
     this.cacheTimeSeconds = 0
     this.cacheIsPublic = false
+    this.cacheIsLazy = false
     let properties = str.trim().split(/\s*,\s*/g)
     properties.map(prop => {
       if (/^\d+/.test(prop)) {
@@ -88,6 +92,8 @@ class CacheStrategy {
         strategyTimeCache[prop] = this.cacheTimeSeconds
       } else if (prop === 'public') {
         this.cacheIsPublic = true
+      } else if (prop === 'lazy') {
+        this.cacheIsLazy = true
       }
     })
   }
@@ -123,9 +129,28 @@ module.exports = async (ctx, next) => {
   将 method、地址 (路由 + querystring)、伪 token、请求体四个元素进行序列化，作为缓存命中判断的依据
   伪 token 是上游 auth 暴露的属性，用于区分用户，详见 auth.js##伪token
 
-  缓存命中的条件是 (缓存TTL > 0 && 缓存存在 && 缓存未过期 && 缓存解密成功)。
+  下述「回源」均指调用下游中间件，取得最新数据的过程。
+
+  缓存命中策略对照表：
+
+  - 判断缓存状态：
+    - 缓存有效未过期 => 取缓存，不回源
+    - 缓存有效已过期 => 判断缓存策略：
+      - 普通策略 => 等待回源，判断回源结果：
+        - 回源成功：取回源结果，更新缓存 √
+        - 回源失败：取缓存 √
+      - 懒抓取策略 => 取缓存 √ 同时后台开始回源（脱离等待链），回源成功则更新缓存
+    - 缓存无效 => 等待回源，判断回源结果：
+      - 回源成功：取回源结果，更新缓存 √
+      - 回源失败：返回错误信息 √
  */
   let cacheIsPrivate = !strategy.cacheIsPublic && ctx.user.isLogin
+  let { cacheIsLazy } = strategy
+
+  // 懒抓取策略下，缓存时间至少1秒，防止缓存时间未设置导致始终不缓存
+  if (cacheIsLazy) {
+    strategy.cacheTimeSeconds = Math.max(strategy.cacheTimeSeconds, 1)
+  }
 
   let cacheKey = JSON.stringify({
     method: ctx.method,
@@ -134,42 +159,67 @@ module.exports = async (ctx, next) => {
     params: ctx.params
   })
 
-  let cached = null
-  if (strategy.cacheTimeSeconds) {
-    cached = await cache.get(cacheKey, strategy.cacheTimeSeconds)
-    if (cached) {
-      try {
-        // [*] 上游是 auth 中间件，若为已登录用户，auth 将完成解密并把加解密函数暴露出来
-        // 这里利用 auth 的加解密函数，解密缓存数据
-        if (cacheIsPrivate) {
-          cached = ctx.user.decrypt(cached)
-        }
-        cached = JSON.parse(cached)
+  let [cached, expired] = await cache.get(cacheKey, strategy.cacheTimeSeconds)
 
-        // 若到此均成功执行，说明缓存有效，直接返回
-        ctx.body = cached
-        return
-
-      } catch (e) {}
+  // 1. 无论是否过期，首先解析缓存，准确判断缓存是否可用，以便在缓存不可用时进行回源
+  // 此步骤结果保证：cached 成真 <=> 缓存可用，expired 成假 <=> 缓存未过期
+  if (cached) {
+    try {
+      // [*] 上游是 auth 中间件，若为已登录用户，auth 将完成解密并把加解密函数暴露出来
+      // 这里利用 auth 的加解密函数，解密缓存数据
+      if (cacheIsPrivate) {
+        cached = ctx.user.decrypt(cached)
+      }
+      cached = JSON.parse(cached)
+    } catch (e) {
+      cached = null
     }
   }
 
-/**
-  ## 缓存回源
+  // 2. 若缓存不可用或已过期，先回源，准确判断回源是否成功，以便在回源不成功时回落到过期缓存
+  if (!cached || expired) {
 
-  若缓存命中流程不能进入 if/if/try，说明缓存无效，回源调用下层中间件，回源后再更新缓存。
- */
-  await next()
+    // 判断是否执行脱离等待链策略
+    // 只有当设置了懒抓取模式且有缓存时，脱离等待链；否则不脱离等待链
+    let cacheNoAwait = cacheIsLazy && cached
 
-  // 若需要缓存，将中间件返回值存入 redis
-  if (strategy.cacheTimeSeconds && ctx.body) {
-    cached = ctx.body
-    cached = JSON.stringify(cached)
+    // 异步的回源任务（执行下游中间件、路由处理程序）
+    let task = async () => {
+      try {
+        await next()
 
-    // 同 [*]，这里利用 auth 的加解密函数，加密数据进行缓存
-    if (cacheIsPrivate) {
-      cached = ctx.user.encrypt(cached)
+        // 若需要缓存，将中间件返回值存入 redis
+        if (strategy.cacheTimeSeconds && ctx.body) {
+          cached = ctx.body
+          cached = JSON.stringify(cached)
+
+          // 同 [*]，这里利用 auth 的加解密函数，加密数据进行缓存
+          if (cacheIsPrivate) {
+            cached = ctx.user.encrypt(cached)
+          }
+          cache.set(cacheKey, cached)
+
+          // 执行到此说明回源成功
+          return true
+        }
+      } catch (e) {}
+
+      // 回源失败
+      return false
     }
-    cache.set(cacheKey, cached)
+
+    if (cacheNoAwait) {
+      // 懒抓取模式且有缓存时，脱离等待链异步回源，忽略回源结果，然后直接继续到第三步取上次缓存值
+      task()
+    } else {
+      // 其余情况下，等待回源结束，若回源成功，返回回源结果，否则继续到第三步取上次缓存值
+      if (await task()) return
+    }
+  }
+
+  // 3. 执行到此表示缓存未过期或回源时出错
+  // 若缓存存在，返回缓存值；否则，必然有回源出错，此时不对结果进行覆盖，保留回源出错的信息
+  if (cached) {
+    ctx.body = cached
   }
 }
