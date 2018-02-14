@@ -16,7 +16,7 @@
  */
 const axios = require('axios')
 const { Semaphore } = require('await-semaphore')
-const config = require('../config.json')
+const { config } = require('../app')
 const sem = new Semaphore(10)
 const axiosCookieJarSupport = require('axios-cookiejar-support').default
 const tough = require('tough-cookie')

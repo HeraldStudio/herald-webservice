@@ -1,7 +1,11 @@
 const koa = require('koa')
 const app = new koa()
 const kf = require('kf-router')
-const config = require('./config.json')
+const fs = require('fs')
+
+// 解析 YAML 配置文件
+const config = require('js-yaml').load(fs.readFileSync('./config.yml'))
+exports.config = config
 
 // 为 Sqlongo ORM 设置默认路径
 const sqlongo = require('sqlongo')

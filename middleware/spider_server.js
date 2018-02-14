@@ -4,7 +4,7 @@
 
 const ws = require('ws')
 const net = require('net')
-const config = require('../config.json')
+const { config } = require('../app')
 const chardet = require('chardet')
 const axios = require('axios');
 const tough = require('tough-cookie')

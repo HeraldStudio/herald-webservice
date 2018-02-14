@@ -11,7 +11,7 @@
   ctx.user.encrypt    from auth.js
   ctx.user.decrypt    from auth.js
  */
-const config = require('../config.json')
+const { config } = require('../app')
 let client
 
 if (process.env.NODE_ENV === 'development') {
@@ -102,7 +102,7 @@ class CacheStrategy {
 module.exports = async (ctx, next) => {
 
 /**
-  从 config.json 的 cache 项中向下寻找最符合当前条件的缓存策略
+  从 config 的 cache 项中向下寻找最符合当前条件的缓存策略
 
   > 例如 GET /api/card/detail 时：
     首先检测 cache 是否为 object，若不是，将其字符串作为缓存策略；
@@ -147,9 +147,9 @@ module.exports = async (ctx, next) => {
   let cacheIsPrivate = !strategy.cacheIsPublic && ctx.user.isLogin
   let { cacheIsLazy } = strategy
 
-  // 懒抓取策略下，缓存时间至少1秒，防止缓存时间未设置导致始终不缓存
+  // 懒抓取策略下，缓存时间至少 5 秒，防止缓存时间未设置导致始终不缓存
   if (cacheIsLazy) {
-    strategy.cacheTimeSeconds = Math.max(strategy.cacheTimeSeconds, 1)
+    strategy.cacheTimeSeconds = Math.max(strategy.cacheTimeSeconds, 5)
   }
 
   let cacheKey = JSON.stringify({
@@ -186,6 +186,10 @@ module.exports = async (ctx, next) => {
     // 异步的回源任务（执行下游中间件、路由处理程序）
     let task = async () => {
       try {
+        // 回源前先将原有缓存重新设置一次，缓存内容保持不变，缓存时间改为现在
+        // 因此，若用户在回源完成前重复调用同一接口，将直接命中缓存，防止重复触发回源
+        cache.set(cacheKey, cached)
+
         await next()
 
         // 若需要缓存，将中间件返回值存入 redis

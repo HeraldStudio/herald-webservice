@@ -1,0 +1,28 @@
+axios:
+  timeout:      15000
+port:           3000
+auth:
+  expireDays:   90
+  cipher:       aes-256-cfb
+cache:
+  # 数据因用户线上操作而变化的，缓存时间设置为秒级，可使用 lazy 默认 5 秒；
+  # 数据因用户线下操作而变化的，缓存时间设置为分钟级，一般 1 分钟；
+  # 数据因学校方面操作而变化的，若每天或每周更新，缓存时间设置为小时级，一般 1 小时；
+  # 数据因学校方面操作而变化的，若每学期或每年更新，缓存时间设置为天级，一般 1 天。
+  api:
+    card:       1m,lazy
+    curriculum: 1d,lazy
+    exam:       1d,lazy
+    gpa:        1h,lazy
+    jwc:        1h,lazy,public
+    lecture:    1h,lazy
+    library:
+      post:     1m,lazy
+    pe:         1h,lazy
+    srtp:       1d,lazy
+    wlan:
+      get:      lazy
+spider:
+  enable:       true
+  port:         49034
+  heartCycle:   4000
