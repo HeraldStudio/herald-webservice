@@ -1,10 +1,14 @@
 const db = require("../../database/helper")("classroom")
 
-// 如有必要，通过学校接口返回的JSON中的杂七杂八的属性也可设置于此
+// 面向Sqlite的ORM基类
 class ModelBase { 
-  constructor(obj) {
-    this.id   = obj.id
-    this.name = obj.name
+  constructor(schema, init) {
+    Object.assign(this, {
+      // id与name为所有子类都会有的属性（在classroom API的context下）
+      // 如有必要，通过学校接口返回的JSON中的杂七杂八的属性也可设置于此
+      id   : 0,
+      name : ""
+    }, schema, init) // schema为默认构造对象，init为外部传入的用以初始化对象
   }
 
   // 异步创建一个对象，按需被子类重写（如子类对象创建时需读取数据库）
@@ -15,24 +19,23 @@ class ModelBase {
 
   // 初始化数据库表
   static async initDb() {
-    const keys = Object.keys(await this.create())
-      .filter(v => v[0] !== '_') // 过滤掉采用Lazy Load机制的（复杂）属性
+    const entries = Object.entries(await this.create()) // 通过this.create()构造一个默认对象作为schema
+      .filter(e => e[0][0] !== '_') // 过滤掉采用Lazy Load机制的（复杂）属性
       .slice(1) // 过滤掉作为主键的id属性，同时name属性保证keys的长度至少为1
 
-    // WIP
+    // 对于静态方法，this指向的就是constructor
+    // 即this === this.prototype.constructor -> true
+    // 因此this.name即为当前实例化的对象的类名
     await db.run(`
       create table if not exists ${this.name} (
         id    integer    primary key,
-        ${keys.map(k => `${k} ${typeof k === "number"? "integer" : "text"} not null`).toString()}
+        ${entries.map(e => `${e[0]} ${typeof e[1] === "number"? "integer" : "text"}`).toString()}
       )
     `)
   }
 
   // 通过名字找到对应记录的ID
   static async findId(name) {
-    // 对于静态方法，this指向的就是constructor
-    // 即this === this.prototype.constructor -> true
-    // 因此this.name即为当前实例化的对象的类名
     const row = await db.get(`select id from ${this.name} where name = ?`, [name])
     return row && row.id
   }
@@ -87,46 +90,75 @@ class ModelBase {
   }
 }
 
+/**
+  ## Campus 数据表结构
+
+  id      integer    校区Id
+  name    text       校区名 
+ */
 class Campus extends ModelBase {
-  constructor(obj = {}) {
-    super(obj)
+  constructor(init) {
+    super({}, init)
   }
 
+  // 根据建筑名字找到对应校区
   static findName(buildingName) {
-    if (buildingName.includes("教")) {
-      return "九龙湖"
-    } else if (buildingName.includes("纪忠楼")) {
-      return "九龙湖纪忠楼"
-    } else if (buildingName.includes("无线谷")) {
-      return "无线谷"
-    } else if (buildingName.includes("无锡分校")) {
-      return "无锡分校"
-    } else {
-      return "四牌楼"
+    // 虽说这种写法有点诡异……但可读性不算差，就当作一个有趣的语法trick放在这里吧~
+    // 参见https://stackoverflow.com/questions/2896626/
+    switch (true) {
+      case /无线谷/.test(buildingName):
+        return "无线谷"
+      case /无锡分校/.test(buildingName):
+        return "无锡分校"
+      case /教[一二三四五六七八]/.test(buildingName):
+        return "九龙湖"
+      case /四牌楼/.test(buildingName):
+        return "四牌楼"
+      case /纪忠楼/.test(buildingName):
+        // 尽量给出一些湖区研究生楼的pattern，会直接落在default上
+      default:
+        return "九龙湖研究生"
     }
   }
 }
 
+/**
+  ## Building 数据表结构
+
+  id          integer    建筑Id
+  name        text       建筑名 
+  campusId    integer    建筑所属校区Id
+ */
 class Building extends ModelBase {
-  constructor(obj = {}) {
-    super(obj)
-    this.campusId = obj.campusId
-    // 定义采用Lazy Load机制的Campus属性。若obj.campus存在，则直接进行拷贝，下同
-    this.defineLazyProperty("campus", () => Campus.load(this.campusId), obj.campus)
+  constructor(init) {
+    super({
+      campusId: 0
+    }, init)
+    // 定义采用Lazy Load机制的Campus属性。若init.campus存在，则直接进行拷贝，下同
+    this.defineLazyProperty("campus", () => Campus.load(this.campusId), init.campus)
   }
 }
 
+/**
+  ## Classroom 数据表结构
+
+  id            integer    教室Id
+  name          text       教室名 
+  buildingId    integer    教室所属建筑Id
+ */
 class Classroom extends ModelBase {
-  constructor(obj = {}) {
-    super(obj)
-    this.buildingId          = obj.buildingId
-    this.classroomTypeIdList = obj.classroomTypeIdList || []
+  constructor(init) {
+    super({
+      buildingId : 0,
+      classroomTypeIdList: []
+    }, init)
     this.defineLazyProperty("building", () => Building.load(this.buildingId), obj.building)
     this.defineLazyProperty(
       "classroomTypeList", 
       () => Promise.all(this.classroomTypeIdList.map(Id => ClassroomType.load(Id))),
       obj.classroomTypeList && obj.classroomTypeList.map(v => new ClassroomType(v)) // node要是支持optional chaining就好了...
     )
+    // TODO: 在基类中加入数组类型解析
     // 将从数据库中读出的用于保存的字符串转为数组
     if (typeof this.classroomTypeIdList == "string") {
       this.classroomTypeIdList = this.classroomTypeIdList.split(',').map(Number)
@@ -134,32 +166,42 @@ class Classroom extends ModelBase {
   }
 }
 
+/**
+  ## Classroom 数据表结构
+
+  id            integer    教室类型Id
+  name          text       教室类型名，可能值有"空调"，"多媒体"，"录播"，"设计"，"电教"，"语音"，"活动"
+ */
 class ClassroomType extends ModelBase {
-  constructor(obj = {}) {
-    super(obj)
+  constructor(init) {
+    super(init)
   }
 }
 
+/**
+  ## ClassRecord 数据表
+
+  数据表的一条记录代表某课程在某一天的开课信息
+ */
 class ClassRecord extends ModelBase {
-  constructor(obj = {}) {
-    super(obj)
-    Object.assign(this, { // 属性全部写明并初始化，保证数据表的字段能正确创建
-      courseId      : null, // 课程Id
-      courseName    : null, // 课程名
-      startWeek     : null, // 开课周
-      endWeek       : null, // 结课周
-      dayOfWeek     : null, // 星期几的对应编号
-      startSequence : null, // 课程起始节次
-      endSequence   : null, // 课程结束节次
-      teacher       : null, // 教师名
-      year          : null, // 学生年级
-      campusId      : null, // 上课校区Id
-      buildingId    : null, // 上课楼宇Id
-      classroomId   : null, // 上课教室Id
-      termId        : null, // 开课学期Id
-      capacity      : null, // 最大容纳人数
-      size          : null, // 实际选课人数
-    }, obj) // obj 一般不会有以上全部属性
+  constructor(init) {
+    super({ // 属性全部写明并初始化，保证数据表的字段能正确创建
+      courseId      : 0,    // 课程Id
+      courseName    : "",   // 课程名
+      startWeek     : 1,    // 开课周
+      endWeek       : 16,   // 结课周
+      dayOfWeek     : 0,    // 星期几的对应编号
+      startSequence : 0,    // 课程起始节次
+      endSequence   : 0,    // 课程结束节次
+      teacher       : "",   // 教师名
+      year          : 0,    // 学生年级
+      campusId      : 0,    // 上课校区Id
+      buildingId    : 0,    // 上课楼宇Id
+      classroomId   : 0,    // 上课教室Id
+      termId        : ClassRecord.currentTermId(), // 开课学期Id
+      capacity      : 0,    // 最大容纳人数
+      size          : 0,    // 实际选课人数
+    }, init) // init一般不会有以上全部属性
   }
 
   // 获取当前学期Id。注意！8、9月末调用可能会出错！
