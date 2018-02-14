@@ -16,6 +16,7 @@
     "cheerio": "^1.0.0-rc.2",
     "iconv": "^2.3.0",
     "iconv-lite": "latest",
+    "js-yaml": "^3.10.0",
     "kf-router": "^1.2.3",
     "koa": "^2.4.1",
     "koa-bodyparser": "^4.2.0",

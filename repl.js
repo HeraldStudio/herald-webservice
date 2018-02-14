@@ -3,7 +3,7 @@ const qs = require('querystring')
 const repl = require('repl')
 const axios = require('axios')
 const chalk = require('chalk')
-const config = require('./config.json')
+const { config } = require('./app')
 const prettyjson = require('prettyjson')
 
 function isRecoverableError(error) {

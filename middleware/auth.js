@@ -42,8 +42,8 @@
  */
 const db = require('sqlongo')('auth')
 const tough = require('tough-cookie')
-const config = require('../config.json')
 const crypto = require('crypto')
+const { config } = require('../app')
 
 db.auth = {
   token_hash:   'text primary key', // 令牌哈希值 = Base64(MD5(token))，用于根据私钥找到用户
