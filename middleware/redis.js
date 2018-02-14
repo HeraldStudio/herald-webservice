@@ -188,7 +188,9 @@ module.exports = async (ctx, next) => {
       try {
         // 回源前先将原有缓存重新设置一次，缓存内容保持不变，缓存时间改为现在
         // 因此，若用户在回源完成前重复调用同一接口，将直接命中缓存，防止重复触发回源
-        cache.set(cacheKey, cached)
+        if (strategy.cacheTimeSeconds) {
+          cache.set(cacheKey, cached)
+        }
 
         await next()
 
