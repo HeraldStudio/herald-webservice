@@ -6,7 +6,6 @@ exports.route = {
   /**
    * GET /api/lecture
    * 人文讲座信息查询
-   *
    **/
   async get() {
 
@@ -60,4 +59,3 @@ exports.route = {
     return realList
   }
 }
-

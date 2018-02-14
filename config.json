@@ -4,7 +4,7 @@
   },
   "port": 3000,
   "auth": {
-    "expireDays": 30,
+    "expireDays": 90,
     "cipher": "aes-256-cfb"
   },
   "cache": {

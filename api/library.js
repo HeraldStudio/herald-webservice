@@ -3,11 +3,9 @@ const cheerio = require('cheerio')
 exports.route = {
 
   /**
-   *
    * POST /api/library
    * @apiParam password
    * 图书馆信息查询
-   *
    **/
   async post() {
     let { cardnum } = this.user
@@ -48,13 +46,11 @@ exports.route = {
   },
 
   /**
-   *
    * PUT /api/library
    * @apiParam cookies
    * @apiParam bookId
    * @apiParam borrowId
    * 图书续借
-   *
    **/
 
    async put() {
