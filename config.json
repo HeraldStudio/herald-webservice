@@ -4,20 +4,30 @@
   },
   "port": 3000,
   "auth": {
-    "expireDays": 30,
+    "expireDays": 90,
     "cipher": "aes-256-cfb"
   },
   "cache": {
     "api": {
-      "card": "10m",
-      "curriculum": "3d",
-      "gpa": "1h",
-      "pe": "1h",
-      "srtp": "1d"
+      "card": "lazy",
+      "curriculum": "3d,lazy",
+      "exam": "1d,lazy",
+      "gpa": "1h,lazy",
+      "jwc": "1h,lazy,public",
+      "lecture": "1h,lazy",
+      "library": {
+        "post": "10m,lazy"
+      },
+      "pe": "1h,lazy",
+      "srtp": "1d,lazy",
+      "wlan": {
+        "get": "lazy"
+      }
     }
   },
-  "spider":{
+  "spider": {
     "enable": true,
-    "port": 49034
+    "port": 49034,
+    "heartCycle": 4000
   }
 }
