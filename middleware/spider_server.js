@@ -17,7 +17,6 @@ const WEBSOCKET_TRASFER_ERROR = 1 // WS传输错误
 const SERVER_ERROR = 2 // 爬虫服务器错误
 const REQUEST_ERROR = 3 // 远端请求错误
 
-const dev = !(process.env.NODE_ENV === 'production') // 非生产环境
 const adminPhoneNumber = ['15651975186', '17512596961'] // 日后和鉴权平台融合
 class SpiderServer {
 
@@ -39,11 +38,7 @@ class SpiderServer {
     this.connectionPool[name] = connection
     connection.active = false
     let token = this.generateToken()
-    if (dev) {
-      // 测试环境token在控制台输出
-      // 生产环境token只发送到管理员手机
-      console.log(`[I] 硬件爬虫 ${chalk.blue(`<${name}>`)} 连接建立，请使用口令 ${chalk.blue(`<${token}>`)} 完成配对`)
-    }
+    console.log(`[I] 硬件爬虫 ${chalk.blue(`<${name}>`)} 连接建立，请使用口令 ${chalk.blue(`<${token}>`)} 完成配对`)
     sms.spiderToken(adminPhoneNumber, name, token)
     connection.token = token
     let message = {spiderName:name}
