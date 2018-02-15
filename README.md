@@ -2,6 +2,8 @@
 
 小猴偷米 2018 WebService3 后端试验品，使用 Node.js + Koa 构建。
 
+<a href='https://heraldstudio.github.io/herald-webservice' class='hidden-in-docute'>文档页面</a>
+
 ## 开发进度
 
 1. **中间件和支撑框架**
