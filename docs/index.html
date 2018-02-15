@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0">
+  <link rel="stylesheet" href="https://unpkg.com/docute/dist/docute.css">
+  <title>WebService3</title>
+</head>
+<body>
+  <div id="app"></div>
+  <script src="https://unpkg.com/docute/dist/docute.js"></script>
+  <script>
+    docute.init({
+      announcement (route) {
+        let hour = new Date().getHours()
+        let night = hour >= 20 || hour < 6
+        return night ? {
+          type: 'success',
+          html: '欢迎进入 WebService3 文档页面，夜间开发请注意休息，劳逸结合，适度用眼，谨慎造轮子~'
+        } : {
+          type: 'success',
+          html: '欢迎进入 WebService3 文档页面，一起享受开发吧~'
+        }
+      },
+      url: 'https://raw.githubusercontent.com/HeraldStudio/herald-webservice/master/',
+      nav: [
+        { title: '＜ 主页', path: 'https://github.com/HeraldStudio/herald-webservice' },
+        { title: '文档', path: '/' },
+        { title: '讨论 (Issues)', path: 'https://github.com/HeraldStudio/herald-webservice/issues' }
+      ],
+      icons: [{
+        icon: 'edit',
+        label: '编辑文档',
+        link: 'https://github.com/HeraldStudio/herald-webservice/edit/master/README.md'
+      }]
+    })
+  </script>
+  <style>
+    .hidden-in-docute {
+      display: none;
+    }
+  </style>
+</body>
+</html>
