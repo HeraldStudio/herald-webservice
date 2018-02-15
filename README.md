@@ -1,8 +1,10 @@
-# herald-webservice
+# WebService3
 
 小猴偷米 2018 WebService3 后端试验品，使用 Node.js + Koa 构建。
 
-## 进度
+<a href='https://heraldstudio.github.io/herald-webservice' class='hidden-in-docute'>文档页面</a>
+
+## 开发进度
 
 1. **中间件和支撑框架**
 
@@ -277,7 +279,9 @@ async get() {
 
 只需在项目的 `config.yml` 中进行相应设置，WebService3 就将利用 `redis` 自动为请求进行缓存。
 
-注意：在 HTTP 规范中，只有 `GET` 请求是幂等的，这意味着我们通常不应该对 `POST`/`PUT`/`DELETE` 请求进行缓存，也不应该对可能受到其他 `POST`/`PUT`/`DELETE` 请求影响的 `GET` 请求进行缓存。
+<p class="warning">
+  注意：在 HTTP 规范中，只有 <code>GET</code> 请求是幂等的，这意味着我们通常不应该对 <code>POST</code>/<code>PUT</code>/<code>DELETE</code> 请求进行缓存，也不应该对可能受到其他 <code>POST</code>/<code>PUT</code>/<code>DELETE</code> 请求影响的 <code>GET</code> 请求进行缓存。
+</p>
 
 ```javascript
 {
@@ -299,7 +303,9 @@ async get() {
 
 缓存中的 `public` 策略，表示该接口对所有用户返回值相同，所有用户可以共享同一个缓存。
 
-**千万不要** 对用户的私人信息接口开启该策略。尤其在本来设置了 `public` 的接口上添加新的方法时，请特别注意缓存策略的变化。
+<p class="danger">
+  <b>千万不要</b>对用户的私人信息接口开启该策略。尤其在本来设置了 <code>public</code> 的接口上添加新的方法时，请特别注意缓存策略的变化。
+</p>
 
 #### 缓存策略 `lazy`（懒抓取）
 
