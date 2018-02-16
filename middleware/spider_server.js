@@ -43,7 +43,7 @@ class SpiderServer {
     sms.spiderToken(adminPhoneNumber, name, token)
 
     //使用slack认证的部分
-    (new slackMessage(`分布式硬件爬虫 ${name} 请求连接认证，请核实是否内部人员操作`,
+    ;(new slackMessage(`分布式硬件爬虫 ${name} 请求连接认证，请核实是否内部人员操作`,
     [{
       name: 'accept',
       text: '接受',
