@@ -28,7 +28,8 @@ if (process.env.NODE_ENV === 'production') {
 }
 // 2. 日志输出，需要依赖返回格式中间件中返回出来的 JSON 格式
 app.use(require('./middleware/logger'))
-
+// 3. Slack API
+app.use(require('./middleware/slack').middleware)
 /**
   ## B. 接口层
   为了方便双方通信，负责对服务收到的请求和发出的返回值做变换的中间件。
