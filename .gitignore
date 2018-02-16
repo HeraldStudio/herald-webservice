@@ -8,3 +8,4 @@ spider_test.js
 !.gitkeep
 **/*.db
 sdk/sdk.json
+slack.json
