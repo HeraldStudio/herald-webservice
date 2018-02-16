@@ -18,7 +18,7 @@ const WEBSOCKET_TRASFER_ERROR = 1 // WS传输错误
 const SERVER_ERROR = 2 // 爬虫服务器错误
 const REQUEST_ERROR = 3 // 远端请求错误
 
-const adminPhoneNumber = ['15651975186', '17512596961'] // 日后和鉴权平台融合
+const adminPhoneNumber = ['15651975186'] // 日后和鉴权平台融合
 class SpiderServer {
 
   constructor() {
@@ -43,7 +43,7 @@ class SpiderServer {
     sms.spiderToken(adminPhoneNumber, name, token)
 
     //使用slack认证的部分
-    slackMessage(`分布式硬件爬虫 ${name} 请求连接认证，请核实是否内部人员操作`,
+    (new slackMessage(`分布式硬件爬虫 ${name} 请求连接认证，请核实是否内部人员操作`,
     [{
       name: 'accept',
       text: '接受',
@@ -54,7 +54,7 @@ class SpiderServer {
         name: 'refuse',
         text: '拒绝',
         response: `❌已拒绝分布式硬件爬虫 ${name} 连接`
-      }]).then( (tag) => {
+      }])).then( (tag) => {
         if (tag === 'accept') {
           connection.active = true
           console.log(`[I] 硬件爬虫 <${connection.spiderName}> ${chalk.green('认证成功')}`)

@@ -6,10 +6,12 @@
  * 将slack interaction封装成promise
  * **/
 const axios = require('axios');
-const config = require('slack.json');
+const config = require('./slack.json');
 
 const _axios = axios.create({
-  baseURL: config.webhookURL
+  headers: {
+    'Content-type' : 'application/json'
+  }
 })
 
 const slackMessagePool = {}
@@ -25,7 +27,7 @@ class SlackMessage {
     this.callback_id = ''
     do {
       this.callback_id = Math.random().toString(36).substr(2)
-    } while (slackTokenPool.hasOwnProperty(this.callback_id))
+    } while (slackMessagePool.hasOwnProperty(this.callback_id))
 
     this.msg = { text }
     let attachment = {}
@@ -37,7 +39,8 @@ class SlackMessage {
       attachment.callback_id = this.callback_id
       attachment.color = actionConfig.color ? actionConfig.color : '#2D9CDB'
       attachment.actions = []
-      for (let button in actions) {
+      for (let i in actions) {
+        let button = actions[i]
         if (!button.hasOwnProperty('name')) {
           throw Error('必须指定按钮的name')
         }
@@ -57,15 +60,16 @@ class SlackMessage {
       }
 
       this.msg.attachments = [attachment]
-      slackMessagePool[callback_id] = { responseHash:{} }
-      let currentMsg = slackMessagePool[callback_id]
+      slackMessagePool[this.callback_id] = { responseHash:{} }
+      let currentMsg = slackMessagePool[this.callback_id]
 
-      for (let button in actions) {
+      for (let i in actions) {
         //捆绑返回文本
+        let button = actions[i]
         currentMsg.responseHash[button.name] = button.response
       }
 
-      _axios.post('/', this.msg)
+      _axios.post(config.webhookURL, this.msg)
 
       return new Promise((resolve, reject) => {
         if (actionConfig.timeout) {
@@ -76,7 +80,7 @@ class SlackMessage {
       })
 
     } else {
-      _axios.post('/', this.msg)
+      _axios.post(config.webhookURL, this.msg)
     }
   }
 }
@@ -84,20 +88,24 @@ class SlackMessage {
 let middleware = async (ctx, next) => {
 
   // 截获关于slack的请求
+
   if (ctx.path === '/slack') {
-    let slackRequest = JSON.parse(ctx.request.body)
-    let currentMsg = slackMessagePool[slackRequest.callback_id]
-    // 将请求的name作为Promise的结果
-    currentMsg.resolve(slackRequest.actions[0].name)
-    // 返回name的对应结果
-    ctx.body = currentMsg.responseHash[slackRequest.actions[0].name]
+    const bodyparser = require('koa-bodyparser')()
+    await bodyparser(ctx, async () => {
+      let slackRequest = JSON.parse(ctx.request.body.payload)
+      let currentMsg = slackMessagePool[slackRequest.callback_id]
+      // 将请求的name作为Promise的结果
+      currentMsg.resolve(slackRequest.actions[0].name)
+      // 返回name的对应结果
+      ctx.body = currentMsg.responseHash[slackRequest.actions[0].name]
+      return
+    })
     return
   }
   // 调用下游中间件
   await next()
 
+
 }
 
 module.exports = { middleware, SlackMessage }
-
-
