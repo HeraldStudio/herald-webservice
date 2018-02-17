@@ -12,6 +12,7 @@ const chalk = require('chalk')
 const sms = require('../sdk/yunpian')
 const slackMessage = require('./slack').SlackMessage
 
+
 // errcode定义
 const NO_SPIDER_ERROR = 0 // 没有可用在线爬虫
 const WEBSOCKET_TRASFER_ERROR = 1 // WS传输错误
@@ -48,7 +49,13 @@ class SpiderServer {
         name: 'accept',
         text: '接受',
         style: 'primary',
-        response: `👌分布式硬件爬虫 ${name} 已连接`
+        response: `👌分布式硬件爬虫 ${name} 已连接`,
+        confirm: {
+          title: "⚠️警告",
+          text: "连接的爬虫会截获webservice3发起请求包含的所有数据，请务必确认该操作由内部人员操作以保证信息安全！",
+          ok_text: "确认连接",
+          dismiss_text: "容我思考下"
+        }
       },
         {
           name: 'refuse',
