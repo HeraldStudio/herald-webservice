@@ -55,16 +55,18 @@ class SpiderServer {
         text: '拒绝',
         response: `❌已拒绝分布式硬件爬虫 ${name} 连接`
       }])).then( (tag) => {
-        if (tag === 'accept') {
-          connection.active = true
-          console.log(`[I] 硬件爬虫 <${connection.spiderName}> ${chalk.green('认证成功')}`)
-          connection.send('Auth_Success')
-        } else {
-          console.log(`[W] 硬件爬虫 <${connection.spiderName}> ${chalk.red('认证失败')}`)
-          delete this.connectionPool[connection.spiderName]
-          connection.send('Auth_Fail')
-          connection.terminate()
-        }
+        try {
+          if (tag === 'accept') {
+            connection.active = true
+            console.log(`[I] 硬件爬虫 <${connection.spiderName}> ${chalk.green('认证成功')}`)
+            connection.send('Auth_Success')
+          } else {
+            console.log(`[W] 硬件爬虫 <${connection.spiderName}> ${chalk.red('认证失败')}`)
+            delete this.connectionPool[connection.spiderName]
+            connection.send('Auth_Fail')
+            connection.terminate()
+          }
+        } catch (e) {}
     })
 
     connection.token = token
