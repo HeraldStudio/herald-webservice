@@ -21,7 +21,7 @@ const slackMessagePool = {}
  * ## 功能一
  * **/
 class SlackMessage {
-  constructor (text, actions, actionConfig = {}) {
+  send (text, actions, actionConfig = {}) {
     //限定每一条消息至多包含一个操作
     //为操作生成一个callback_id
     this.callback_id = ''
@@ -81,6 +81,7 @@ class SlackMessage {
 
     } else {
       _axios.post(config.webhookURL, this.msg)
+      return true
     }
   }
 }
