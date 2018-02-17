@@ -43,18 +43,18 @@ class SpiderServer {
     sms.spiderToken(adminPhoneNumber, name, token)
 
     //使用slack认证的部分
-    ;(new slackMessage(`分布式硬件爬虫 ${name} 请求连接认证，请核实是否内部人员操作`,
-    [{
-      name: 'accept',
-      text: '接受',
-      style: 'primary',
-      response: `👌分布式硬件爬虫 ${name} 已连接`
-    },
-      {
-        name: 'refuse',
-        text: '拒绝',
-        response: `❌已拒绝分布式硬件爬虫 ${name} 连接`
-      }])).then( (tag) => {
+    ;(new slackMessage()).send(`分布式硬件爬虫 ${name} 请求连接认证，请核实是否内部人员操作`,
+      [{
+        name: 'accept',
+        text: '接受',
+        style: 'primary',
+        response: `👌分布式硬件爬虫 ${name} 已连接`
+      },
+        {
+          name: 'refuse',
+          text: '拒绝',
+          response: `❌已拒绝分布式硬件爬虫 ${name} 连接`
+        }]).then( (tag) => {
         try {
           if (tag === 'accept') {
             connection.active = true
