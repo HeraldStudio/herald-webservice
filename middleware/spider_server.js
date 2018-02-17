@@ -4,7 +4,7 @@
 
 const ws = require('ws')
 const net = require('net')
-const { config } = require('../app')
+const {config} = require('../app')
 const chardet = require('chardet')
 const axios = require('axios');
 const tough = require('tough-cookie')
@@ -26,11 +26,14 @@ class SpiderServer {
     let that = this
     this.connectionPool = {}  // 连接池
     this.requestPool = {}  // 请求池
-    this.socketServer = new ws.Server({port:config.spider.port})
+    this.socketServer = new ws.Server({port: config.spider.port})
     this.socketServer.on('connection', (connection) => {
       this.handleConnection(connection)
     })
-    this.socketServer.on('error', (error) => {error.errCode = SERVER_ERROR; console.log(error)})
+    this.socketServer.on('error', (error) => {
+      error.errCode = SERVER_ERROR;
+      console.log(error)
+    })
     console.log(chalk.green('[+] 分布式硬件爬虫服务正在运行...'))
   }
 
@@ -61,23 +64,24 @@ class SpiderServer {
           name: 'refuse',
           text: '拒绝',
           response: `❌已拒绝分布式硬件爬虫 ${name} 连接`
-        }]).then( (tag) => {
-        try {
-          if (tag === 'accept') {
-            connection.active = true
-            console.log(`[I] 硬件爬虫 <${connection.spiderName}> ${chalk.green('认证成功')}`)
-            connection.send('Auth_Success')
-          } else {
-            console.log(`[W] 硬件爬虫 <${connection.spiderName}> ${chalk.red('认证失败')}`)
-            delete this.connectionPool[connection.spiderName]
-            connection.send('Auth_Fail')
-            connection.terminate()
-          }
-        } catch (e) {}
+        }]).then((tag) => {
+      try {
+        if (tag === 'accept') {
+          connection.active = true
+          console.log(`[I] 硬件爬虫 <${connection.spiderName}> ${chalk.green('认证成功')}`)
+          connection.send('Auth_Success')
+        } else {
+          console.log(`[W] 硬件爬虫 <${connection.spiderName}> ${chalk.red('认证失败')}`)
+          delete this.connectionPool[connection.spiderName]
+          connection.send('Auth_Fail')
+          connection.terminate()
+        }
+      } catch (e) {
+      }
     })
 
     connection.token = token
-    let message = {spiderName:name}
+    let message = {spiderName: name}
     connection.send(JSON.stringify(message))
 
     // 来自硬件爬虫数据的处理
@@ -110,7 +114,7 @@ class SpiderServer {
     })
 
     // 硬件爬虫关闭响应
-    connection.on("close",(code, reason) => {
+    connection.on("close", (code, reason) => {
       // console.log(`[I]硬件爬虫 <${connection.spiderName}> 连接关闭,code=${code}, reason=${reason}`)
       delete this.connectionPool[connection.spiderName]
     })
@@ -151,7 +155,7 @@ class SpiderServer {
   }
 
   requestEncoder(request) {
-  // 对于 Axios 库标准请求对象进行编码
+    // 对于 Axios 库标准请求对象进行编码
     let perEncode = {
       requestName: request.requestName,
       url: request.url,
@@ -178,8 +182,8 @@ class SpiderServer {
 
   _request(ctx, request) {
     let name = this.generateRequestName()
-    request.requestName  = name
-    this.requestPool[name] = { name , ctx }
+    request.requestName = name
+    this.requestPool[name] = {name, ctx}
     // 按照axios格式处理请求
     if (request.hasOwnProperty('transformRequest')) {
       request.data = request.transformRequest(request.data, request.headers)
@@ -225,7 +229,7 @@ class SpiderServer {
         request.url = arg[0]
       } else if (arg.length === 2) {
         // (url, config)
-        request = this.merge({url:arg[0]}, arg[1], request)
+        request = this.merge({url: arg[0]}, arg[1], request)
       }
     } else {
       // post\put\方法处理
@@ -234,10 +238,10 @@ class SpiderServer {
         request.url = arg[0]
       } else if (arg.length === 2) {
         // (url, data)
-        request = this.merge({url:arg[0], data:arg[1]}, request)
+        request = this.merge({url: arg[0], data: arg[1]}, request)
       } else if (arg.length === 3) {
         // (url, data, config)
-        request = this.merge({url:arg[0], data:arg[1]}, arg[2], request)
+        request = this.merge({url: arg[0], data: arg[1]}, arg[2], request)
       }
     }
     if (request.forceLocal) {
@@ -259,7 +263,7 @@ class SpiderServer {
     }
     let length = avaliableList.length
     if (length === 0) {
-      throw { errCode: NO_SPIDER_ERROR, message: '没有可用爬虫' }
+      throw {errCode: NO_SPIDER_ERROR, message: '没有可用爬虫'}
     }
     let r = Math.floor(Math.random() * length)
     return avaliableList[r]
@@ -276,7 +280,10 @@ class SpiderServer {
       clearTimeout(requestObj.timeout)
       // 将data域解码为原始状态
       data.data = Buffer.from(data.data.data).toString()
-      try { data.data = JSON.parse(data.data) } catch (e) {}
+      try {
+        data.data = JSON.parse(data.data)
+      } catch (e) {
+      }
       // 自动更新cookieJar
       requestObj.ctx.cookieJar = tough.CookieJar.fromJSON(data.cookie)
       requestObj.resolve(data)

@@ -116,7 +116,7 @@ let middleware = async (ctx, next) => {
 
   // 截获关于slack的请求
 
-  if (ctx.path === '/slack') {
+  if (ctx.path.search('slack') !== -1) {
     const bodyparser = require('koa-bodyparser')()
     await bodyparser(ctx, async () => {
       // 截获interaction请求
