@@ -5,5 +5,7 @@ yarn.lock
 .DS_Store
 spider_test.js
 *~
-*.db
+!.gitkeep
+**/*.db
 sdk/sdk.json
+slack.json

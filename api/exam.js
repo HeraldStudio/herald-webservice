@@ -3,10 +3,8 @@ const cheerio = require('cheerio')
 exports.route = {
 
   /**
-   *
    * GET /api/exam
    * 个人考试信息查询
-   *
    **/
 
   async get() {
@@ -29,14 +27,12 @@ exports.route = {
     let $ = cheerio.load(res.data)
     return $('#table2 tr').toArray().slice(1).map(tr => {
       let [semester, campus, course, courseType, teacher, time, place, duration]
-        = $(tr).find('td').toArray().slice(1).map(td => {
-          return $(td).text().trim()
-        })
+        = $(tr).find('td').toArray().slice(1).map(td => $(td).text().trim())
 
       duration = parseInt(duration)
 
       let [y, M, d, h, m] = time.split(/[- :(]/g)
-      
+
       let startTime = new Date(y, M - 1, d, h, m)
       let endTime = new Date(start.getTime() + duration * 1000 * 60)
 

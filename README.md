@@ -1,8 +1,10 @@
-# herald-webservice
+# WebService3
 
 小猴偷米 2018 WebService3 后端试验品，使用 Node.js + Koa 构建。
 
-## 进度
+<a href='https://heraldstudio.github.io/herald-webservice' class='hidden-in-docute'>文档页面</a>
+
+## 开发进度
 
 1. **中间件和支撑框架**
 
@@ -13,6 +15,7 @@
   - [x] 后台管理员权限系统 @rikumi
   - [x] CNN验证码识别平台 @狼剩子
   - [x] 分布式硬件爬虫系统 @狼剩子
+  - [x] 两种不同风格的 ORM @rikumi @Vigilans-Yea
   - [ ] 第三方授权平台
 
 2. **继承自 WebService2**
@@ -48,6 +51,64 @@
   - [ ] 通用抢票、选座系统（研会）
   - [ ] ……（欢迎补充）
 
+## 使用说明
+
+### 生产环境
+
+生产环境下请使用 `npm run start` 代替 `npm run dev`，以禁用 `REPL`，并且启用 `redis` 缓存。
+
+### 返回格式
+
+按照 ReSTful 接口设计的原则，只要请求经由 WebService3 处理，无论请求成功与否，都将遵循下面的返回格式：
+
+1. 返回 HTTP Code 一定为 200（这是为了把 HTTP Code 让给传输过程中的网络错误）；
+2. 所有成功返回格式均为：
+
+    ```javascript
+      {
+        "success": true,
+        "code": 200,
+        "result": <路由处理程序返回的结果>
+      }
+    ```
+3. 所有失败返回格式均为：
+
+    ```javascript
+      {
+        "success": false,
+        "code": <不小于400的整数>,
+        "reason": <用户可读的友好化错误信息>
+      }
+    ```
+
+### 用户登录
+
+用户登录时，需要向后端发送登录请求：
+
+```bash
+curl -X POST http://localhost:3000/auth -d cardnum=一卡通号 -d password=统一身份认证密码 platform=平台标识符
+```
+
+其中，**平台标识符** 为一个字符串，推荐格式为小写字母和短横线的组合，例如 `android`/`ios`/`web` 等。相同平台下不允许多处登录。
+
+后端收到登录请求，经过验证后，将返回一个64字节的字符串（`token`），作为当前用户的登录凭证。为了隐私安全，此登录凭证一旦发出将被后端丢弃。前端需要保存此凭证，并使用此凭证作为 HTTP Header 进行后续请求：
+
+```bash
+curl -X GET http://localhost:3000/api/card -H token:xxxxxxxx
+```
+
+> 务必注意，使用 urlencoded 格式 (`-d`) 书写 POST 参数时，键与值之间用 `=` 分隔；书写 HTTP Header (`-H`) 时，键与值之间用 `:` 分隔。这是 HTTP 报文标准规定的。
+
+当然，对于路由处理程序中不需要用户登录的功能，仍可以允许不带 `token` 进行请求；对于需要用户登录的功能，不带 `token` 的用户将收到 `401` 错误；若登录时用户名或密码不正确，也会收到 `401` 错误。
+
+### 过期机制
+
+由于后端数据库实行完全加密，密钥一旦发放给客户端即被丢弃，因此 WebService3 不可能像以前那样在用户多处登录时生成相同的密钥，这就难免导致数据库膨胀速度加快。因此，我们定义了更严格的过期机制，一定程度上限制了数据库规模的增长：
+
+1. 对于同一用户，不允许相同平台多处登录，一旦同平台发生多处登录，较早登录的将自动过期；
+2. 超过一定时间未调用接口的用户自动过期。该过期时间（天数）在 `config.yml` 中可配置，推荐的时间是 2~3 个月。
+
+用户身份过期后，token 的行为将与未登录状态一致，即对于任何需要用户身份的路由均会返回 401。客户端应当随时检测 401 错误，并在出现 401 错误时立即要求用户重新登录。
 
 ## 开发文档
 
@@ -72,10 +133,6 @@ Windows 的仅供参考。
 set NODE_ENV=development
 node app.js
 ```
-
-### 生产环境
-
-生产环境下请使用 `npm run start` 代替 `npm run dev`，以禁用 `kf-router` 的模块始终重载功能。
 
 ### Hello World
 
@@ -117,24 +174,6 @@ exports.route = {
 ### 认证 API
 
 WebService3 提供了完整的统一身份认证机制，如果模块需要，可以获取用户的一卡通号码、统一身份认证密码、身份识别码、统一身份认证 Cookie 等信息。
-
-#### 登录和 Token 格式
-
-用户登录时，需要向后端发送登录请求：
-
-```bash
-curl -X POST http://localhost:3000/auth -d cardnum=一卡通号 -d password=统一身份认证密码
-```
-
-后端收到登录请求，经过验证后，将返回一个64字节的字符串（`token`），作为当前用户的登录凭证。为了隐私安全，此登录凭证一旦发出将被后端丢弃。前端需要保存此凭证，并使用此凭证作为 HTTP Header 进行后续请求：
-
-```bash
-curl -X GET http://localhost:3000/api/card -H token:xxxxxxxx
-```
-
-> 务必注意，使用 urlencoded 格式 (`-d`) 书写 POST 参数时，键与值之间用 `=` 分隔；书写 HTTP Header (`-H`) 时，键与值之间用 `:` 分隔。这是 HTTP 报文标准规定的。
-
-当然，对于路由处理程序中不需要用户登录的功能，仍可以允许不带 `token` 进行请求；对于需要用户登录的功能，不带 `token` 的用户将收到 `401` 错误；若登录时用户名或密码不正确，也会收到 `401` 错误。
 
 #### 要求登录
 
@@ -230,28 +269,6 @@ async get() {
 
 ### 通用返回格式 & 错误处理
 
-按照 ReSTful 接口设计的原则，只要请求经由 WebService3 处理，无论请求成功与否，都将遵循下面的返回格式：
-
-1. 返回 HTTP Code 一定为 200（这是为了把 HTTP Code 让给传输过程中的网络错误）；
-2. 所有成功返回格式均为：
-
-    ```javascript
-      {
-        "success": true,
-        "code": 200,
-        "result": <路由处理程序返回的结果>
-      }
-    ```
-3. 所有失败返回格式均为：
-
-    ```javascript
-      {
-        "success": false,
-        "code": <不小于400的整数>,
-        "reason": <用户可读的友好化错误信息>
-      }
-    ```
-
 在书写路由处理程序时，对于成功返回和失败返回，推荐使用的返回方式分别如下：
 
 1. `return <结果>`：成功返回，状态码为 `200`；
@@ -260,56 +277,57 @@ async get() {
 
 ### 自动缓存
 
-只需在项目的 `config.json` 中进行相应设置，WebService3 就将利用 `redis` 自动为请求进行缓存。
+只需在项目的 `config.yml` 中进行相应设置，WebService3 就将利用 `redis` 自动为请求进行缓存。
+
+<p class="warning">
+  注意：在 HTTP 规范中，只有 <code>GET</code> 请求是幂等的，这意味着我们通常不应该对 <code>POST</code>/<code>PUT</code>/<code>DELETE</code> 请求进行缓存，也不应该对可能受到其他 <code>POST</code>/<code>PUT</code>/<code>DELETE</code> 请求影响的 <code>GET</code> 请求进行缓存。
+</p>
 
 ```javascript
 {
   ...,
   "cache": {
     "api": {
-      "hello": "1y",        // /api/hello      缓存1年(按360天计)
-      "foo": "10mo",        // /api/foo        缓存10个月(每月按30天计)
-      "bar": "10d,public",  // /api/bar        缓存10天，所有用户共享一个缓存
+      "hello": "1y",        // /api/hello 缓存1年(按360天计)
+      "foo": "10mo,lazy",   // /api/foo   缓存10个月(每月按30天计)，懒抓取（先返回上次缓存再后台更新）
+      "bar": "10d,public",  // /api/bar   缓存10天，所有用户共享一个缓存
       "foobar": {
-        "get": "1h20m6s"    // GET /api/foobar 缓存1小时20分6秒
+        "get": "1h20m6s"    // /api/foobar GET 请求 缓存1小时20分6秒
       }
     }
   }
 }
 ```
 
-注意：在 HTTP 规范中，只有 `GET` 请求是幂等的，这意味着我们通常不应该对 `POST`/`PUT`/`DELETE` 请求进行缓存，也不应该对可能受到其他 `POST`/`PUT`/`DELETE` 请求影响的 `GET` 请求进行缓存。
+#### 缓存策略 `public`（公用缓存）
 
-在缓存配置文件中，可以通过类似上述 `/api/foobar` 接口的做法来对适用于缓存的请求方法进行限制。
+缓存中的 `public` 策略，表示该接口对所有用户返回值相同，所有用户可以共享同一个缓存。
+
+<p class="danger">
+  <b>千万不要</b>对用户的私人信息接口开启该策略。尤其在本来设置了 <code>public</code> 的接口上添加新的方法时，请特别注意缓存策略的变化。
+</p>
+
+#### 缓存策略 `lazy`（懒抓取）
+
+`lazy` 策略表示，只要缓存存在且可以解析（无论是否过期），每个请求都立即返回上次缓存的值；然后如果缓存过期，在后台更新缓存，用户在一段时间后再次请求，将得到更新后的数据。
+
+为了方便理解，懒抓取策略与非懒抓取的区别仅在于缓存存在但过期的情况。在这种情况下，**非懒抓取策略将优先回源**，回源失败再取缓存，强调数据的时效性；**懒抓取策略将优先取缓存**，然后在后台更新缓存，强调响应速度。
+
+设置了 `lazy` 策略的路由中，上下文的生命周期将与具体的 HTTP 请求脱离，请务必注意由此导致的一些副作用。
+
+为了防止用户重复触发导致服务器压力，懒抓取的缓存时间被限制为至少 5 秒。
 
 ### 数据库
 
-WebService3 本身不强制要求模块自身使用任何数据库，对于用户自身的基本信息，最好提议我们写在 **auth 数据库** 中。如果模块确实需要使用数据库，目前推荐使用 `sqlite3` + 参数化查询语句的方式进行开发。
+WebService3 本身不强制要求模块自身使用任何数据库，对于用户自身的基本信息，最好提议我们写在 **auth 数据库** 中。如果模块确实需要使用数据库，可以根据自己的习惯选择合适的 Sqlite3 ORM 进行开发。
 
-在 `database/helper.js` 中，我们提供了 async 的数据库操作封装，将 `run` `get` `all` 三个方法封装成了异步方法。`helper.js` 模块导出的是一个工厂函数，可直接调用，传入需要的数据库名作为参数，即可得到经过异步封装的 `sqlite3` 库。以下是一个示例：
+目前 WebService3 集成了 1 种 ORM [sqlongo](https://github.com/HeraldStudio/sqlongo)，可以通过如下方式创建其实例：
 
 ```javascript
-const db = require('../database/helper')('my_database')
-
-;(async () => {
-
-  // run 方法可执行常规无返回的语句
-  await db.run('create table test(id integer primary key)')
-
-  // 执行参数化查询
-  await db.run('insert into test(id) values(?)', [42])
-
-  // get 方法将以 object 方式返回符合条件的第一个记录或 null
-  let row = await db.get('select count(*) as my_count from test')
-
-  // 在返回的记录中取字段名对应的 key 即得到字段值
-  console.log(row.my_count)
-
-  // all 方法将以 [object] 方式返回符合条件的所有记录
-  let rows = await db.all('select * from test')
-  console.log(rows.map(r => r.id + '').join(', '))
-})
+const db = require('sqlongo')('my_database')
 ```
+
+WebService3 后续将会集成更多不同风格的 ORM，欢迎持续关注和提出建议。
 
 ### 代码风格
 
