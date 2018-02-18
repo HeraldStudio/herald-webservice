@@ -40,47 +40,30 @@
   因此，这里不向爬虫程序提供明文 token，而是只提供 token 的哈希值，仅用于区分不同用户，不用于加解密。
   对于加解密，此中间件将暴露 encrypt/decrypt 接口来帮助下游中间件加解密数据。
  */
-const db = require('../database/helper')('auth')
-const config = require('../config.json')
-const crypto = require('crypto')
+const db = require('sqlongo')('auth')
 const tough = require('tough-cookie')
+const crypto = require('crypto')
+const { config } = require('../app')
 
-/**
-  ## auth 数据表结构
+db.auth = {
+  token_hash:   'text primary key', // 令牌哈希值 = Base64(MD5(token))，用于根据私钥找到用户
+  cardnum:      'text not null',    // 一卡通号
+  password:     'text not null',    // 密文密码 = Base64(MD5(cipher(token, 明文密码)))
+  name:         'text not null',    // 姓名
+  schoolnum:    'text not null',    // 学号（教师为空）
+  platform:     'text not null',    // 平台名，同一平台不允许多处登录
+  registered:   'int not null',     // 认证时间
+  last_invoked: 'int not null'      // 上次使用时间，超过一定设定值的会被清理
+}
 
-  token_hash    varchar  令牌哈希值 = Base64(MD5(token))，用于根据私钥找到用户
-  cardnum       varchar  一卡通号
-  password      varchar  密文密码 = Base64(MD5(cipher(token, 明文密码)))
-  name          varchar  姓名
-  schoolnum     varchar  学号（教师为空）
-  version_desc  varchar  版本备注，由调用端任意指定
-  registered    integer  认证时间
-  last_invoked  integer  上次使用时间，超过一定设定值的会被清理
- */
-;(async () => {
+const ONE_DAY = 1000 * 60 * 60 * 24
 
-  // 建表
-  await db.run(`
-    create table if not exists auth (
-      token_hash    varchar(64)   primary key,
-      cardnum       varchar(64)   not null,
-      password      varchar(128)  not null,
-      name          varchar(192)  not null,
-      schoolnum     varchar(64)   not null,
-      version_desc  varchar(128)  not null,
-      registered    integer       not null,
-      last_invoked  integer       not null
-    )
-  `, [])
-
-  const ONE_DAY = 1000 * 60 * 60 * 24
-
-  // 定期清理过期授权，超过指定天数未使用的将会过期
-  setInterval(() => {
-    db.run('delete from auth where last_invoked < ?',
-      [new Date().getTime() - config.auth.expireDays * ONE_DAY])
-  }, ONE_DAY)
-})()
+// 定期清理过期授权，超过指定天数未使用的将会过期
+setInterval(() => {
+  db.auth.remove({
+    last_invoked: { $lt: new Date().getTime() - config.auth.expireDays * ONE_DAY }
+  })
+}, ONE_DAY)
 
 // 对称加密算法，要求 value 是 String 或 Buffer，否则会报错
 const encrypt = (key, value) => {
@@ -128,7 +111,11 @@ module.exports = async (ctx, next) => {
     }
 
     // 获取一卡通号、密码、前端定义版本
-    let { cardnum, password, version } = ctx.params
+    let { cardnum, password, platform } = ctx.params
+
+    if (!platform) {
+      throw '缺少参数 platform: 必须指定平台名'
+    }
 
     await auth(ctx, cardnum, password)
 
@@ -168,13 +155,21 @@ module.exports = async (ctx, next) => {
 
     // 将新用户信息插入数据库
     let now = new Date().getTime()
-    await db.run(`insert into auth (
-      token_hash,  cardnum,  password,           name,  schoolnum,  version_desc,  registered, last_invoked
-    ) values (
-      ?,           ?,        ?,                  ?,     ?,          ?,             ?,          ?
-    )`, [
-      tokenHash,   cardnum,  passwordEncrypted,  name,  schoolnum,  version || '', now,        now
-    ])
+
+    // 同平台不允许多处登录
+    await db.auth.remove({ cardnum, platform })
+
+    // 插入用户数据
+    await db.auth.insert({
+      token_hash: tokenHash,
+      cardnum,
+      name,
+      schoolnum,
+      platform,
+      password: passwordEncrypted,
+      registered: now,
+      last_invoked: now
+    })
 
     // 返回 token
     ctx.body = token
@@ -185,14 +180,13 @@ module.exports = async (ctx, next) => {
     let token = ctx.request.headers.token
     let tokenHash = new Buffer(crypto.createHash('md5').update(token).digest()).toString('base64')
 
-    let record = await db.get('select * from auth where token_hash = ?', [tokenHash])
+    let record = await db.auth.find({ token_hash: tokenHash }, 1)
 
     if (record) { // 若 token 失效，穿透到未登录的情况去
       let now = new Date().getTime()
 
-      // await-free
       // 更新用户最近调用时间
-      db.run('update auth set last_invoked = ? where token_hash = ?', [now, tokenHash])
+      await db.auth.update({ token_hash: tokenHash }, { last_invoked: now })
 
       // 解密用户密码
       let { cardnum, password, name, schoolnum } = record

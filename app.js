@@ -1,7 +1,15 @@
 const koa = require('koa')
 const app = new koa()
 const kf = require('kf-router')
-const config = require('./config.json')
+const fs = require('fs')
+
+// 解析 YAML 配置文件
+const config = require('js-yaml').load(fs.readFileSync('./config.yml'))
+exports.config = config
+
+// 为 Sqlongo ORM 设置默认路径
+const sqlongo = require('sqlongo')
+sqlongo.defaults.path = 'database'
 
 // 出错输出
 process.on('unhandledRejection', e => { throw e })
@@ -18,7 +26,9 @@ process.on('uncaughtException', console.trace)
 if (process.env.NODE_ENV === 'production') {
   app.use(require('./middleware/counter'))
 }
-// 2. 日志输出，需要依赖返回格式中间件中返回出来的 JSON 格式
+// 2. Slack API
+app.use(require('./middleware/slack').middleware)
+// 3. 日志输出，需要依赖返回格式中间件中返回出来的 JSON 格式
 app.use(require('./middleware/logger'))
 
 /**
@@ -48,8 +58,7 @@ app.use(require('./middleware/redis'))
   ## D. 路由层
   负责调用路由处理程序执行处理的中间件。
 */
-app.use(kf(module, { hotReload: process.env.NODE_ENV === 'development' }))
-
+app.use(kf(module, { ignore: ['/middleware/**/*', '/app', '/repl', '/sdk/**/*'] }))
 app.listen(config.port)
 
 // 开发环境下，启动 REPL
