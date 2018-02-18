@@ -47,7 +47,7 @@ const slackMessagePool = {}
  *
  * **/
 class SlackMessage {
-  send (text, actions, actionConfig = {}) {
+  send (text, actions, {title='请选择操作', color='#2D9CDB',timeout}) {
     //限定每一条消息至多包含一个操作
     //为操作生成一个callback_id
     this.callback_id = ''
@@ -60,10 +60,10 @@ class SlackMessage {
 
     if (actions) {
       // 如果包含actions
-      attachment.title = actionConfig.title ? actionConfig.title : '请选择操作'
+      attachment.title = title
       attachment.fallback = 'Ooops，你的客户端不支持耶！'
       attachment.callback_id = this.callback_id
-      attachment.color = actionConfig.color ? actionConfig.color : '#2D9CDB'
+      attachment.color = color
       attachment.actions = []
       for (let i in actions) {
         let button = actions[i]
@@ -98,9 +98,9 @@ class SlackMessage {
       _axios.post(config.webhookURL, this.msg)
 
       return new Promise((resolve, reject) => {
-        if (actionConfig.timeout) {
+        if (timeout) {
           //如果设置了超时
-          setTimeout(() => {reject('Interact Timeout')}, actionConfig.timeout)
+          setTimeout(() => {reject('Interact Timeout')}, timeout)
         }
         currentMsg.resolve = resolve // 将resolve绑定到任务池
       })
@@ -116,11 +116,11 @@ let middleware = async (ctx, next) => {
 
   // 截获关于slack的请求
 
-  if (ctx.path.search('slack') !== -1) {
+  if (ctx.path.includes('/slack')) {
     const bodyparser = require('koa-bodyparser')()
     await bodyparser(ctx, async () => {
       // 截获interaction请求
-      if (ctx.path === '/slack/interaction') {
+      if (ctx.path.endsWith('interaction')) {
         let slackRequest = JSON.parse(ctx.request.body.payload)
         let currentMsg = slackMessagePool[slackRequest.callback_id]
         // 将请求的name作为Promise的结果
@@ -128,15 +128,11 @@ let middleware = async (ctx, next) => {
         // 返回name的对应结果
         ctx.body = currentMsg.responseHash[slackRequest.actions[0].name]
       }
-
-      return
     })
     return
   }
   // 调用下游中间件
   await next()
-
-
 }
 
 module.exports = { middleware, SlackMessage }
