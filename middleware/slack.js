@@ -47,7 +47,7 @@ const slackMessagePool = {}
  *
  * **/
 class SlackMessage {
-  send (text, actions, {title='请选择操作', color='#2D9CDB',timeout}) {
+  send (text, actions, {title='请选择操作', color='#2D9CDB',timeout} = {}) {
     //限定每一条消息至多包含一个操作
     //为操作生成一个callback_id
     this.callback_id = ''
