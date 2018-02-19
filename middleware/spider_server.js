@@ -279,7 +279,7 @@ class SpiderServer {
     if (data.succ) {
       clearTimeout(requestObj.timeout)
       // 将data域解码为原始状态
-      data.data = Buffer.from(data.data.data).toString()
+      data.data = requestObj.transformResponse(Buffer.from(data.data.data))
       try {
         data.data = JSON.parse(data.data)
       } catch (e) {
