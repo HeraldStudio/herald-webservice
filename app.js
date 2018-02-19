@@ -26,7 +26,9 @@ process.on('uncaughtException', console.trace)
 if (process.env.NODE_ENV === 'production') {
   app.use(require('./middleware/counter'))
 }
-// 2. 日志输出，需要依赖返回格式中间件中返回出来的 JSON 格式
+// 2. Slack API
+app.use(require('./middleware/slack').middleware)
+// 3. 日志输出，需要依赖返回格式中间件中返回出来的 JSON 格式
 app.use(require('./middleware/logger'))
 
 /**

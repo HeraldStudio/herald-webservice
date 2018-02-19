@@ -85,7 +85,12 @@ module.exports = async (ctx, next) => {
           }
           return req
         }
-        let transformResponse = () => {}
+        let transformResponse = (res) => {
+          let encoding = chardet.detect(res)
+          res = new iconv.Iconv(encoding, 'UTF-8//TRANSLIT//IGNORE').convert(res).toString()
+          try { res = JSON.parse(res) } catch (e) {}
+          return res
+        }
         try {
           let result = await ctx.spiderServer.request(ctx, k, arguments, config.axios, transformRequest, transformResponse)
           return result
