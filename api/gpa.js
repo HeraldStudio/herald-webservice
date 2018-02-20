@@ -45,13 +45,13 @@ exports.route = {
       }
     }, [])
 
-    let [gpa, gpaNoRepeat, year, calculationTime]
+    let [gpa, gpaBeforeMakeup, year, calculationTime]
       = $('#table4 tr').eq(1).find('td').toArray().map(td => {
       return $(td).text().trim().replace(/&[0-9A-Za-z];/g, '')
     })
 
     // 时间解析为时间戳
     calculationTime = calculationTime ? new Date(calculationTime).getTime() : null
-    return { gpa, gpaNoRepeat, year, calculationTime, detail }
+    return { gpa, gpaBeforeMakeup, year, calculationTime, detail }
   }
 }
