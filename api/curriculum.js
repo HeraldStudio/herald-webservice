@@ -36,15 +36,17 @@ exports.route = {
     } catch (e) { throw 401 }
 
     // 抓取学期详情列表
-    let termRes = await this.get('http://58.192.114.179/classroom/common/gettermlistex')
+    try {
+      let termRes = await this.get('http://58.192.114.179/classroom/common/gettermlistex', {
+        timeout: 1000
+      })
 
-    // 学期详情中的格式为 2017-2018-2 的形式，取年份后两位进行匹配，匹配到的学期详情留下
-    term = termRes.data.filter(k => {
-      let found = /^..(..-)..(..-.*)$/.exec(k.code)
-      return found && found.slice(1).join('') === term
-    })[0]
+      // 学期详情中的格式为 2017-2018-2 的形式，取年份后两位进行匹配，匹配到的学期详情留下
+      term = termRes.data.find(k => {
+        let found = /^..(..-)..(..-.*)$/.exec(k.code)
+        return found && found.slice(1).join('') === term
+      })
 
-    if (term) {
       term = {
         code: term.code,
         startDate: term.startDate.time,
@@ -52,6 +54,8 @@ exports.route = {
         startWeek: term.startWeek,
         endWeek: term.endWeek
       }
+    } catch (e) {
+      term = { code: term }
     }
 
     // 从课表页面抓取身份信息
