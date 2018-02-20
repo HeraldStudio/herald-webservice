@@ -63,8 +63,8 @@ exports.route = {
    *     type,        // 类别，例如「基础性实验（上）」
    *     labName,     // 实验名
    *     teacherName, // 教师名
-   *     startDate,   // 开始时间戳
-   *     endDate,     // 结束时间戳（开始3小时后）
+   *     startTime,   // 开始时间戳
+   *     endTime,     // 结束时间戳（开始3小时后）
    *     location,    // 地点
    *     score        // 成绩，空串表示暂无成绩
    *   }
@@ -101,9 +101,9 @@ exports.route = {
           let [labName, teacherName, date, time, location, score] = data.splice(0, 6)
           let [y, M, d] = date.split(/[年月日（ (]/g)
           let [h, m] = { '上午': [9, 45], '下午': [13, 45], '晚上': [18, 15] }[time]
-          let startDate = new Date(y, M - 1, d, h, m).getTime()
-          let endDate = startDate + 1000 * 60 * 60 * 3
-          labs.push({type, labName, teacherName, startDate, endDate, location, score})
+          let startTime = new Date(y, M - 1, d, h, m).getTime()
+          let endTime = startTime + 1000 * 60 * 60 * 3
+          labs.push({type, labName, teacherName, startTime, endTime, location, score})
         }
         return labs
       }

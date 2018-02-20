@@ -26,7 +26,7 @@ exports.route = {
     )
     let $ = cheerio.load(res.data)
     return $('#table2 tr').toArray().slice(1).map(tr => {
-      let [semester, campus, courseName, courseType, teacher, time, place, duration]
+      let [semester, campus, courseName, courseType, teacherName, time, location, duration]
         = $(tr).find('td').toArray().slice(1).map(td => $(td).text().trim())
 
       duration = parseInt(duration)
@@ -36,7 +36,7 @@ exports.route = {
       let startTime = new Date(y, M - 1, d, h, m)
       let endTime = new Date(start.getTime() + duration * 1000 * 60)
 
-      return {semester, campus, courseName, courseType, teacher, startTime, endTime, place, duration}
+      return {semester, campus, courseName, courseType, teacherName, startTime, endTime, location, duration}
     })
   }
 }
