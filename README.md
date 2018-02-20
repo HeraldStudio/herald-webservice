@@ -25,7 +25,7 @@
   - [x] 跑操次数 @rikumi
   - [x] 空教室 @Vigilans-Yea
   - [ ] 跑操详情、跑操预告
-  - [ ] 物理实验 @tusooa WIP
+  - [x] 物理实验 @tusooa @rikumi
   - [x] 考试安排 @sleepyjoker
   - [x] 成绩 GPA @rikumi
   - [x] SRTP @imfinethanks

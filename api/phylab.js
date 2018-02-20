@@ -1,74 +1,111 @@
 const cheerio = require('cheerio')
 const loginUrl = 'http://phylab.seu.edu.cn/plms/UserLogin.aspx?ReturnUrl=%2fplms%2fSelectLabSys%2fDefault.aspx'
 const courseUrl = 'http://phylab.seu.edu.cn/plms/SelectLabSys/StuViewCourse.aspx'
-const courseGroupSelName = 'ctl00$cphSltMain$ShowAStudentScore1$ucDdlCourseGroup$ddlCgp'
-const scoreTypeSelName = 'ctl00$cphSltMain$ShowAStudentScore1$ucDdlCourseScoreType$ddlCourseScoreType'
 
+const headers = {
+  'Cache-Control': 'no-cache',
+  'Origin': 'http://phylab.seu.edu.cn',
+  'X-MicrosoftAjax': 'Delta=true',
+  'Cookie': '',
+  'User-Agent': 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.115 Safari/537.36',
+  'Content-Type': 'application/x-www-form-urlencoded',
+  'Accept': '*/*',
+  'Referer': 'http://phylab.seu.edu.cn/plms/Default.aspx',
+  'Accept-Encoding': 'gzip, deflate',
+  'Accept-Language': 'zh-CN,zh;q=0.8,en;q=0.6,ja;q=0.4'
+}
+
+const generateLoginForm = ($, cardnum, password) => {
+  let skeleton = {
+    'ctl00$ScriptManager1': 'UpdatePanel3|UserLogin1$btnLogin',
+    'ctl00$cphSltMain$UserLogin1$rblUserType': 'Stu',
+    'ctl00$cphSltMain$UserLogin1$btnLogin': '登  陆',
+    '__ASYNCPOST': 'true'
+  }
+
+  $('input[type="hidden"]').toArray().map(k => $(k)).map(k => {
+    skeleton[k.attr('name')] = k.attr('value')
+  })
+
+  skeleton['ctl00$cphSltMain$UserLogin1$txbUserCodeID'] = cardnum
+  skeleton['ctl00$cphSltMain$UserLogin1$txbUserPwd'] = password
+  return skeleton
+}
+
+const generateQueryForm = ($, groupId) => {
+  let skeleton = {
+    'ctl00$ScriptManager1': 'ctl00$cphSltMain$UpdatePanel1|ctl00$cphSltMain$ShowAStudentScore1$ucDdlCourseGroup$ddlCgp',
+    '__EVENTTARGET': 'ctl00$cphSltMain$ShowAStudentScore1$ucDdlCourseGroup$ddlCgp',
+    '__EVENTARGUMENT': '',
+    '__LASTFOCUS': '',
+    'ctl00$cphSltMain$ShowAStudentScore1$ucDdlCourseScoreType$ddlCourseScoreType': '1',
+    '__VIEWSTATEENCRYPTED': '',
+    '__ASYNCPOST': 'true'
+  }
+
+  $('input[type="hidden"]').toArray().map(k => $(k)).map(k => {
+    skeleton[k.attr('name')] = k.attr('value')
+  })
+
+  skeleton['ctl00$cphSltMain$ShowAStudentScore1$ucDdlCourseGroup$ddlCgp'] = groupId
+  return skeleton
+}
 
 exports.route = {
 
   /**
    * GET /api/phylab
    * 物理实验查询
+   *
+   * 返回格式举例：
+   * [
+   *   {
+   *     groupName: '基础性实验(下)',
+   *     labs: [
+   *       { labName, teacherName, startDate, endDate, location, score }
+   *     ]
+   *   }
+   * ]
    **/
   async get() {
-    function getForm($) {
-      let form = {}
-      $('input').map((n, item) => {
-        let i = $(item)
-        form[i.attr('name')] = i.attr('value')
-      })
-      return form
-    }
-    // 要单独登陆，需要知道 card 和密码
     let { cardnum, password } = this.user
+
     // 先抓一下页面，得到 Cookie 和隐藏值，否则无法登陆
-    let firstRes = await this.get(loginUrl)
-    let $ = cheerio.load(firstRes.data)
-    // 把 input 的内容都扔到 form 里
-    let loginForm = getForm($)
-    // 修改几个信息
-    // 登陆类型设为学生
-    loginForm['ctl00$cphSltMain$UserLogin1$rblUserType'] = 'Stu'
-    loginForm['ctl00$cphSltMain$UserLogin1$txbUserCodeID'] = cardnum
-    loginForm['ctl00$cphSltMain$UserLogin1$txbUserPwd'] = password
-    // 然后 post 一下就登进去了
-    let res = await this.post(loginUrl, loginForm)
-    // TODO: 我现在没有实验可供查看，所以不知道接下来该怎么弄
-    firstRes = await this.get(courseUrl)
-    $ = cheerio.load(firstRes.data)
-    let courseForm = getForm($)
+    let res = await this.get(loginUrl, { headers })
+    let $ = cheerio.load(res.data)
+    let loginForm = generateLoginForm($, cardnum, password)
+
+    res = await this.post(loginUrl, loginForm, { headers })
+    res = await this.get(courseUrl, { headers })
+    $ = cheerio.load(res.data)
+
     // 课程组。键是序号，值是名称。
     let groups = {}
-    $(`select[name="${courseGroupSelName}"] option`)
-      .toArray()
-      .map(i => $(i))
-      .map(i => groups[i.attr('value')] = i.text)
-    courseForm[scoreTypeSelName] = 1 // "单实验总分"
-    let courses = {}
-    // 一组一组获取
-    /*await Object.keys(groups).forEach(async function (k) {
-      courseForm[courseGroupSelName] = k
-      let res = await this.post(courseUrl, courseForm)
-      let $ = cheerio.load(res.data)
-      // 以下来自 ws2。目前我无法对其正确性进行测试。
-      let table = $('table#ctl00_cphSltMain_ShowAStudentScore1_gvStudentCourse')
-      let data = $('table#ctl00_cphSltMain_ShowAStudentScore1_gvStudentCourse span').toArray().map(i => $(i).text)
-      if (!data.length) {
-        return
+    $('select[name="ctl00$cphSltMain$ShowAStudentScore1$ucDdlCourseGroup$ddlCgp"] option')
+      .toArray().map(k => $(k)).map(k => groups[k.attr('value')] = k.text())
+
+    let result = await Promise.all(Object.keys(groups).map(k => (async () => {
+      let groupName = groups[k]
+      let form = generateQueryForm($, k)
+      let res = await this.post(courseUrl, form, { headers })
+      {
+        let $ = cheerio.load(res.data)
+        let table = $('table#ctl00_cphSltMain_ShowAStudentScore1_gvStudentCourse')
+        let data = $('table#ctl00_cphSltMain_ShowAStudentScore1_gvStudentCourse span')
+          .toArray().map(i => $(i).text())
+        let labs = []
+        while (data.length) {
+          let [labName, teacherName, date, time, location, score] = data.splice(0, 6)
+          let [y, M, d] = date.split(/[年月日（ (]/g)
+          let [h, m] = { '上午': [9, 45], '下午': [13, 45], '晚上': [18, 15] }[time]
+          let startDate = new Date(y, M - 1, d, h, m).getTime()
+          let endDate = startDate + 1000 * 60 * 60 * 3
+          labs.push({labName, teacherName, startDate, endDate, location, score})
+        }
+        return { groupName, labs }
       }
-      // 六个一组
-      while (data.length) {
-        let thisCourse = data.splice(0, 6)
-        let cur = { group: groups[k] }
-        ;['name', 'teacher', 'date',
-          'day', 'address', 'grade']
-            .forEach((k, i) => {
-              cur[k] = thisCourse[i]
-            })
-        courses.push(cur)
-      }
-    }, this)
-    return courses*/
+    })()))
+
+    return result.filter(k => k.labs.length)
   }
 }
