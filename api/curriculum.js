@@ -13,7 +13,7 @@ exports.route = {
    *   user: { cardnum, schoolnum, name, collegeId, collegeName, majorId, majorName }
    *   curriculum: [
    *     { // 浮动课程只有前五个属性
-   *       className, teacherName, score,
+   *       courseName, teacherName, score,
    *       beginWeek, endWeek,       // 1 ~ 16
    *       // 非浮动课程兼有后面这些属性
    *       dayOfWeek?,               // 为了数据直观以及前端绘图方便，1-7 分别表示周一到周日
@@ -139,7 +139,7 @@ exports.route = {
             // 这里我们取和学生课表相同的部分
             courseData = [courseData[1],courseData[3],courseData[7],courseData[9]]
           }
-          let [className, teacherName, score, weeks] = courseData.map(td => cheerio.load(td).text().trim())
+          let [courseName, teacherName, score, weeks] = courseData.map(td => cheerio.load(td).text().trim())
           score = parseFloat(score || 0)
           let [beginWeek, endWeek] = (weeks.match(/\d+/g) || []).map(k => parseInt(k))
           if (!isStudent) { // 只留下名字
@@ -147,8 +147,8 @@ exports.route = {
           }
 
           // 表格中有空行，忽略空行，将非空行的值加入哈希表进行索引，以课程名+周次为索引条件
-          if (className || weeks) {
-            sidebar[className.trim() + '/' + weeks] = { className, teacherName, score, beginWeek, endWeek }
+          if (courseName || weeks) {
+            sidebar[courseName.trim() + '/' + weeks] = { courseName, teacherName, score, beginWeek, endWeek }
           }
         })
 
@@ -163,7 +163,7 @@ exports.route = {
           (cellContent.match(/[^<>]*<br>(?:<br>)?\[\d+-\d+周]\d+-\d+节<br>[^<>]*/img) || []).map(k => {
 
             // 在搜索结果中分别匹配课程名、起止周次、起止节数、单双周、上课地点
-            let [className, beginWeek, endWeek, beginPeriod, endPeriod, flip, location]
+            let [courseName, beginWeek, endWeek, beginPeriod, endPeriod, flip, location]
               = /([^<>]*)<br>(?:<br>)?\[(\d+)-(\d+)周](\d+)-(\d+)节<br>(\([单双]\))?([^<>]*)/.exec(k).slice(1);
 
             // 对于起止周次、起止节数，转化成整数
@@ -173,7 +173,7 @@ exports.route = {
             flip = {'(单)': 'odd', '(双)': 'even'}[flip] || 'none'
 
             // 根据课程名和起止周次，拼接索引键，在侧栏表中查找对应的课程信息
-            let key = className.trim() + '/' + beginWeek + '-' + endWeek
+            let key = courseName.trim() + '/' + beginWeek + '-' + endWeek
             let teacherName = '', score = ''
 
             // 若在侧栏中找到该课程信息，取其教师名和学分数，并标记该侧栏课程已经使用
@@ -184,7 +184,7 @@ exports.route = {
             }
 
             // 返回课程名，教师名，学分，上课地点，起止周次，起止节数，单双周，交给 concat 拼接给对应星期的课程列表
-            return { className, teacherName, score, location, beginWeek, endWeek, dayOfWeek, beginPeriod, endPeriod, flip }
+            return { courseName, teacherName, score, location, beginWeek, endWeek, dayOfWeek, beginPeriod, endPeriod, flip }
           })
         )
       }
