@@ -5,7 +5,24 @@ exports.route = {
   /**
    * GET /api/curriculum
    * 课表查询
-   * @apiParam term     学期号
+   * @apiParam term 学期号（不填则为教务处设定的当前学期）
+   *
+   * 返回格式举例：
+   * {
+   *   term: { code, startDate?, endDate?, startWeek?, endWeek? } // 查不到开学日期时只有 code
+   *   user: { cardnum, schoolnum, name, collegeId, collegeName, majorId, majorName }
+   *   curriculum: [
+   *     { // 浮动课程只有前五个属性
+   *       className, teacherName, score,
+   *       beginWeek, endWeek,       // 1 ~ 16
+   *       // 非浮动课程兼有后面这些属性
+   *       dayOfWeek?,               // 为了数据直观以及前端绘图方便，1-7 分别表示周一到周日
+   *       flip?,                    // even 双周, odd 单周, none 全周
+   *       location?,
+   *       beginPeriod?, endPeriod?  // 1 ~ 13
+   *     }
+   *   ]
+   * }
    **/
   async get() {
     let { term } = this.params
@@ -36,6 +53,8 @@ exports.route = {
     } catch (e) { throw 401 }
 
     // 抓取学期详情列表
+    // 如果抓取成功，学期内容为 term: { code, startDate, endDate, startWeek, endWeek }
+    // 如果访问不到，则学期只有 term: { code: '17-18-3' }
     try {
       let termRes = await this.get('http://58.192.114.179/classroom/common/gettermlistex', {
         timeout: 1000
