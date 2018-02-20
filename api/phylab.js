@@ -32,7 +32,7 @@ const generateLoginForm = ($, cardnum, password) => {
   return skeleton
 }
 
-const generateQueryForm = ($, groupId) => {
+const generateQueryForm = ($, typeId) => {
   let skeleton = {
     'ctl00$ScriptManager1': 'ctl00$cphSltMain$UpdatePanel1|ctl00$cphSltMain$ShowAStudentScore1$ucDdlCourseGroup$ddlCgp',
     '__EVENTTARGET': 'ctl00$cphSltMain$ShowAStudentScore1$ucDdlCourseGroup$ddlCgp',
@@ -47,7 +47,7 @@ const generateQueryForm = ($, groupId) => {
     skeleton[k.attr('name')] = k.attr('value')
   })
 
-  skeleton['ctl00$cphSltMain$ShowAStudentScore1$ucDdlCourseGroup$ddlCgp'] = groupId
+  skeleton['ctl00$cphSltMain$ShowAStudentScore1$ucDdlCourseGroup$ddlCgp'] = typeId
   return skeleton
 }
 
@@ -60,10 +60,13 @@ exports.route = {
    * 返回格式举例：
    * [
    *   {
-   *     groupName: '基础性实验(下)',
-   *     labs: [
-   *       { labName, teacherName, startDate, endDate, location, score }
-   *     ]
+   *     type,        // 类别，例如「基础性实验（上）」
+   *     labName,     // 实验名
+   *     teacherName, // 教师名
+   *     startDate,   // 开始时间戳
+   *     endDate,     // 结束时间戳（开始3小时后）
+   *     location,    // 地点
+   *     score        // 成绩，空串表示暂无成绩
    *   }
    * ]
    **/
@@ -80,12 +83,12 @@ exports.route = {
     $ = cheerio.load(res.data)
 
     // 课程组。键是序号，值是名称。
-    let groups = {}
+    let types = {}
     $('select[name="ctl00$cphSltMain$ShowAStudentScore1$ucDdlCourseGroup$ddlCgp"] option')
-      .toArray().map(k => $(k)).map(k => groups[k.attr('value')] = k.text())
+      .toArray().map(k => $(k)).map(k => types[k.attr('value')] = k.text())
 
-    let result = await Promise.all(Object.keys(groups).map(k => (async () => {
-      let groupName = groups[k]
+    let result = await Promise.all(Object.keys(types).map(k => (async () => {
+      let type = types[k]
       let form = generateQueryForm($, k)
       let res = await this.post(courseUrl, form, { headers })
       {
@@ -100,12 +103,12 @@ exports.route = {
           let [h, m] = { '上午': [9, 45], '下午': [13, 45], '晚上': [18, 15] }[time]
           let startDate = new Date(y, M - 1, d, h, m).getTime()
           let endDate = startDate + 1000 * 60 * 60 * 3
-          labs.push({labName, teacherName, startDate, endDate, location, score})
+          labs.push({type, labName, teacherName, startDate, endDate, location, score})
         }
-        return { groupName, labs }
+        return labs
       }
     })()))
 
-    return result.filter(k => k.labs.length)
+    return result.reduce((a, b) => a.concat(b), [])
   }
 }
