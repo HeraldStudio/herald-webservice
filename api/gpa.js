@@ -51,7 +51,7 @@ exports.route = {
     })
 
     // 时间解析为时间戳
-    calculationTime = new Date(calculationTime).getTime()
+    calculationTime = calculationTime ? new Date(calculationTime).getTime() : null
     return { gpa, gpaNoRepeat, year, calculationTime, detail }
   }
 }
