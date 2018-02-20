@@ -49,8 +49,6 @@ exports.route = {
     // 为了兼容丁家桥格式，短学期没有课的时候需要自动查询长学期
     // 为此不得已使用了一个循环
     do {
-      console.log(term, cardnum)
-
       // 老师的号码是1开头的九位数
       // 考虑到学号是八位数的情况
       let isStudent = !(/^1\d{8}$/.exec(cardnum))
