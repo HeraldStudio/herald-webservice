@@ -81,7 +81,7 @@ exports.route = {
     let user = { cardnum, schoolnum, name, collegeId, collegeName, majorId, majorName }
 
     // 初始化侧边栏和课表解析结果
-    let sidebar = {}, curriculum = {};
+    let sidebar = {}, curriculum = [];
 
     // 解析侧边栏，先搜索侧边栏所在的 table
     res.data.match(/class="tableline">([\s\S]*?)<\/table/img)[0]
@@ -104,25 +104,22 @@ exports.route = {
         }
         let [className, teacherName, score, weeks] = courseData.map(td => cheerio.load(td).text().trim())
         score = parseFloat(score || 0)
-        if (! isStudent) { // 只留下名字
+        let [beginWeek, endWeek] = (weeks.match(/\d+/g) || []).map(k => parseInt(k))
+        if (!isStudent) { // 只留下名字
           teacherName = teacherName.replace(/^\d+系 /, '')
         }
 
         // 表格中有空行，忽略空行，将非空行的值加入哈希表进行索引，以课程名+周次为索引条件
         if (className || weeks) {
-          sidebar[className.trim() + '/' + weeks] = { className, teacherName, score, weeks }
+          sidebar[className.trim() + '/' + weeks] = { className, teacherName, score, beginWeek, endWeek }
         }
       })
 
-    // 初始化周一至周日每天的课程列表
-    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-    days.forEach(k => curriculum[k] = [])
-
     // 方法复用，传入某个单元格的 html 内容（td 标签可有可无），将单元格中课程进行解析并放入对应星期的课程列表中
-    function appendClasses(cellContent, dayIndex) {
+    function appendClasses(cellContent, dayOfWeek) {
 
       // 流式编程高能警告
-      curriculum[days[dayIndex]] = curriculum[days[dayIndex]].concat(
+      curriculum = curriculum.concat(
 
         // 在单元格内容中搜索连续的三行，使得这三行中的中间一行是 [X-X周]X-X节 的格式，对于所有搜索结果
         // 老师课表(可能会)多出来一个空行
@@ -150,7 +147,7 @@ exports.route = {
           }
 
           // 返回课程名，教师名，学分，上课地点，起止周次，起止节数，单双周，交给 concat 拼接给对应星期的课程列表
-          return { className, teacherName, score, location, beginWeek, endWeek, beginPeriod, endPeriod, flip }
+          return { className, teacherName, score, location, beginWeek, endWeek, dayOfWeek, beginPeriod, endPeriod, flip }
         })
       )
     }
@@ -161,18 +158,18 @@ exports.route = {
       // 取出每一行最末尾的五个单元格，排除第一行
       .match(/(<td[^>]*>.*?<\/td>[^<]*){5}<\/tr/img).slice(1).map(k => {
 
-        // 对于每行每个单元格中的内容，利用 map 的双参数用法，把五列内容分别交给周一到周五
-        k.match(/<td[^>]*>.*?<\/td>/img).map(appendClasses)
+        // 第 0 格交给周 1，以此类推
+        k.match(/<td[^>]*>.*?<\/td>/img).map((k, i) => appendClasses(k, i + 1))
       });
 
     // 取周六大单元格的内容，交给周六
-    appendClasses(/>周六<\/td>[^<]*<td[^>]*>([\s\S]*?)<\/td>/img.exec(res.data)[1], 5)
+    appendClasses(/>周六<\/td>[^<]*<td[^>]*>([\s\S]*?)<\/td>/img.exec(res.data)[1], 6)
 
     // 取周日大单元格的内容，交给周日
-    appendClasses(/>周日<\/td>[^<]*<td[^>]*>([\s\S]*?)<\/td>/img.exec(res.data)[1], 6)
+    appendClasses(/>周日<\/td>[^<]*<td[^>]*>([\s\S]*?)<\/td>/img.exec(res.data)[1], 7)
 
     // 将侧栏中没有用过的剩余课程（浮动课程）放到 other 字段里
-    curriculum.other = Object.values(sidebar).filter(k => !k.used)
+    curriculum = curriculum.concat(Object.values(sidebar).filter(k => !k.used))
     return { term, user, curriculum }
   }
 }
