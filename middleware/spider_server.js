@@ -46,39 +46,38 @@ class SpiderServer {
     console.log(`[I] 硬件爬虫 ${chalk.blue(`<${name}>`)} 连接建立，请使用口令 ${chalk.blue(`<${token}>`)} 完成配对`)
     sms.spiderToken(adminPhoneNumber, name, token)
 
-    //使用slack认证的部分
-    ;(new slackMessage()).send(`分布式硬件爬虫 ${name} 请求连接认证，请核实是否内部人员操作`,
-      [{
-        name: 'accept',
-        text: '接受',
-        style: 'primary',
-        response: `👌分布式硬件爬虫 ${name} 已连接`,
-        confirm: {
-          title: "⚠️警告",
-          text: "连接的爬虫会截获webservice3发起请求包含的所有数据，请务必确认该操作由内部人员操作以保证信息安全！",
-          ok_text: "确认连接",
-          dismiss_text: "容我思考下"
-        }
-      },
+    // 使用 slack 认证的部分
+    new slackMessage().send(`分布式硬件爬虫 ${name} 请求连接认证，请核实是否内部人员操作`, [
         {
+          name: 'accept',
+          text: '接受',
+          style: 'primary',
+          response: `👌分布式硬件爬虫 ${name} 已连接`,
+          confirm: {
+            title: "⚠️警告",
+            text: "连接的爬虫会截获webservice3发起请求包含的所有数据，请务必确认该操作由内部人员操作以保证信息安全！",
+            ok_text: "确认连接",
+            dismiss_text: "容我思考下"
+          }
+        }, {
           name: 'refuse',
           text: '拒绝',
           response: `❌已拒绝分布式硬件爬虫 ${name} 连接`
-        }]).then((tag) => {
-      try {
-        if (tag === 'accept') {
-          connection.active = true
-          console.log(`[I] 硬件爬虫 <${connection.spiderName}> ${chalk.green('认证成功')}`)
-          connection.send('Auth_Success')
-        } else {
-          console.log(`[W] 硬件爬虫 <${connection.spiderName}> ${chalk.red('认证失败')}`)
-          delete this.connectionPool[connection.spiderName]
-          connection.send('Auth_Fail')
-          connection.terminate()
         }
-      } catch (e) {
-      }
-    })
+      ]).then((tag) => {
+        try {
+          if (tag === 'accept') {
+            connection.active = true
+            console.log(`[I] 硬件爬虫 <${connection.spiderName}> ${chalk.green('认证成功')}`)
+            connection.send('Auth_Success')
+          } else {
+            console.log(`[W] 硬件爬虫 <${connection.spiderName}> ${chalk.red('认证失败')}`)
+            delete this.connectionPool[connection.spiderName]
+            connection.send('Auth_Fail')
+            connection.terminate()
+          }
+        } catch (e) {}
+      })
 
     connection.token = token
     let message = {spiderName: name}
