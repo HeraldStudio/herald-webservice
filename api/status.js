@@ -23,7 +23,7 @@ Array.prototype.groupBy = function(keyOfKey, keyOfValue) {
 exports.route = {
   async get () {
     if (!this.admin.maintenance) {
-      return 403
+      throw 403
     }
 
     const testConnection = async (url) => {
@@ -99,7 +99,7 @@ exports.route = {
     // 用户量统计
     let users = {
       totalCount: await authdb.auth.count(),
-      realUserCount: await authdb.auth.distinct('cardnum').length,
+      realUserCount: (await authdb.auth.distinct('cardnum')).length,
       dailyRegister: await authdb.auth.count({ registered: { $gte: yesterday }}),
       dailyInvoke: await authdb.auth.count({ last_invoked: { $gte: yesterday }}),
       monthlyRegister: await authdb.auth.count({ registered: { $gte: lastMonth }}),
@@ -110,7 +110,7 @@ exports.route = {
             return {
               name: platform,
               count: await authdb.auth.count({ platform }),
-              realUserCount: await authdb.auth.distinct('cardnum', { platform }).length,
+              realUserCount: (await authdb.auth.distinct('cardnum', { platform })).length,
               dailyRegister: await authdb.auth.count({ registered: { $gte: yesterday }, platform }),
               dailyInvoke: await authdb.auth.count({ last_invoked: { $gte: yesterday }, platform }),
               monthlyRegister: await authdb.auth.count({ registered: { $gte: lastMonth }, platform }),
