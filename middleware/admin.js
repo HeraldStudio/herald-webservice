@@ -91,7 +91,8 @@ module.exports = async (ctx, next) => {
     }
 
     /**
-     * GET /admin/domain
+     * api {GET} /admin/domain
+     *
      * 获取所有权限域
      */
     if (method === 'get') {
@@ -102,7 +103,7 @@ module.exports = async (ctx, next) => {
     /**
      * POST /admin/domain
      * 新建权限域
-     * @apiParam { domain: { domain, name, desc } }
+     * apiParam { domain: { domain, name, desc } }
      */
     if (method === 'post') {
       let { domain } = ctx.params
@@ -122,7 +123,7 @@ module.exports = async (ctx, next) => {
     /**
      * PUT /admin/domain
      * 修改权限域
-     * @apiParam { domain: { domain, name, desc } }
+     * apiParam { domain: { domain, name, desc } }
      */
     if (method === 'put') {
       let { domain } = ctx.params
@@ -137,7 +138,7 @@ module.exports = async (ctx, next) => {
     /**
      * DELETE /admin/domain
      * 删除权限域
-     * @apiParam domain
+     * apiParam domain
      */
     if (method === 'delete') {
       let { domain } = ctx.params
@@ -175,7 +176,7 @@ module.exports = async (ctx, next) => {
     /**
      * POST /admin
      * 任命管理员
-     * @apiParam { domain, admin: { name, cardnum, phone } }
+     * apiParam { domain, admin: { name, cardnum, phone } }
      */
     if (method === 'post') {
       let { domain, admin } = ctx.params
@@ -205,7 +206,7 @@ module.exports = async (ctx, next) => {
     /**
      * DELETE /admin
      * 删除管理员
-     * @apiParam { domain, cardnum }
+     * apiParam { domain, cardnum }
      */
     if (method === 'delete') {
       let { domain, cardnum } = ctx.params
