@@ -234,3 +234,27 @@ exports.middleware = async (ctx, next) => {
   // 调用下游中间件
   await next()
 }
+
+/**
+ * @api {post} /auth
+ * @apiName Auth
+ * @apiGroup Auth
+ *
+ * @apiParam {String} cardnum 一卡通号
+ * @apiParam {String} password 统一身份认证密码
+ * @apiParam {String} platform 平台识别字符串
+ *
+ * @apiSuccess {String} token 全局身份标识token
+ *
+ * @apiSuccessExample Success-Response:
+ *     "8f1d3da16e830a1dd88f471d130dffe324db6e15fd2734740f5deaa4d2929599"
+ *
+ * @apiError AuthFail 统一身份认证过程失败
+ *
+ * @apiErrorExample Error-Response:
+ *     {
+ *        "code":401,
+ *        "reason":"需要登录"
+ *     }
+ *
+ */
