@@ -20,6 +20,7 @@ cache:
       post:     1m,lazy
     pe:         1h,lazy
     srtp:       1d,lazy
+    status:     10s
     wlan:
       get:      lazy
 spider:

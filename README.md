@@ -192,9 +192,13 @@ exports.route = {
     let { encrypt, decrypt } = this.user
     console.log(decrypt(encrypt(cardnum)) === cardnum) // true
 
-    // 为了保证隐私安全，伪 token 不能用于解密数据，只用于区分用户
+    // 两个用于区分用户的 API，有一定差别：
+    // 这里的 token 是不具有隐私性的伪 token，不能用于解密数据，只用于区分用户
+    // 同一个实体用户在多处登录时，多个端的伪 token 互不相同，真正用于加解密的 token 也互不相同，因此伪 token 多用于与加解密相关的场合。
+    // 而 identity 是区分实体用户的标志，每个实体用户 identity 一定唯一，多用于用户行为分析等。
+    let { token, identity } = this.user
+
     // 原 cookie 由于过期太快已被改为 useAuthCookie() 方法，详见下文「自动 Cookie」
-    let { token } = this.user
 
     return `Hello, ${cardnum}!`
   }
