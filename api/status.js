@@ -94,30 +94,43 @@ exports.route = {
       return operation
     })
 
+    // 并行查询
     let lastMonth = new Date().getTime() - 1000 * 60 * 60 * 24 * 30
+    let [
+      userCount, realUserCount, dailyRegister,
+      dailyInvoke, monthlyRegister, monthlyInvoke, platforms
+    ] = await Promise.all([
+      authdb.auth.count(),
+      authdb.auth.distinct('cardnum').then(k => k.length),
+      authdb.auth.count({ registered: { $gte: yesterday }}),
+      authdb.auth.count({ last_invoked: { $gte: yesterday }}),
+      authdb.auth.count({ registered: { $gte: lastMonth }}),
+      authdb.auth.count({ last_invoked: { $gte: lastMonth }}),
+      authdb.auth.distinct('platform')
+    ])
 
     // 用户量统计
     let users = {
-      totalCount: await authdb.auth.count(),
-      realUserCount: (await authdb.auth.distinct('cardnum')).length,
-      dailyRegister: await authdb.auth.count({ registered: { $gte: yesterday }}),
-      dailyInvoke: await authdb.auth.count({ last_invoked: { $gte: yesterday }}),
-      monthlyRegister: await authdb.auth.count({ registered: { $gte: lastMonth }}),
-      monthlyInvoke: await authdb.auth.count({ last_invoked: { $gte: lastMonth }}),
-      platforms: await Promise.all(
-        (await authdb.auth.distinct('platform'))
-          .map(platform => (async () => {
-            return {
-              name: platform,
-              count: await authdb.auth.count({ platform }),
-              realUserCount: (await authdb.auth.distinct('cardnum', { platform })).length,
-              dailyRegister: await authdb.auth.count({ registered: { $gte: yesterday }, platform }),
-              dailyInvoke: await authdb.auth.count({ last_invoked: { $gte: yesterday }, platform }),
-              monthlyRegister: await authdb.auth.count({ registered: { $gte: lastMonth }, platform }),
-              monthlyInvoke: await authdb.auth.count({ last_invoked: { $gte: lastMonth }, platform })
-            }
-          })())
-      )
+      userCount, realUserCount, dailyRegister,
+      dailyInvoke, monthlyRegister, monthlyInvoke,
+      platforms: await Promise.all(platforms.map(platform => (async () => {
+        let [
+          userCount, realUserCount, dailyRegister,
+          dailyInvoke, monthlyRegister, monthlyInvoke
+        ] = await Promise.all([
+          authdb.auth.count({ platform }),
+          authdb.auth.distinct('cardnum', { platform }).then(k => k.length),
+          authdb.auth.count({ registered: { $gte: yesterday }, platform }),
+          authdb.auth.count({ last_invoked: { $gte: yesterday }, platform }),
+          authdb.auth.count({ registered: { $gte: lastMonth }, platform }),
+          authdb.auth.count({ last_invoked: { $gte: lastMonth }, platform })
+        ])
+        return {
+          name: platform,
+          userCount, realUserCount, dailyRegister,
+          dailyInvoke, monthlyRegister, monthlyInvoke
+        }
+      })()))
     }
     return { upstream, users, dailyStat }
   }
