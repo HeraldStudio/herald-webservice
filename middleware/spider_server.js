@@ -198,11 +198,14 @@ class SpiderServer {
     return new Promise((resolve, reject) => {
       this.requestPool[name].resolve = resolve
       this.requestPool[name].reject = reject
+      if (!request.timeout) {
+        request.timeout = 1000
+      }
       this.requestPool[name].timeout = setTimeout(() => {
         this.requestPool[name].isTimeout = true
         reject('timeout')
         delete this.requestPool[name]
-      }, 15000)
+      }, request.timeout)
       try {
         let spider = this.pickSpider()
         spider.send(encodedRequest)
