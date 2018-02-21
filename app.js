@@ -30,6 +30,8 @@ if (process.env.NODE_ENV === 'production') {
 app.use(require('./middleware/slack').middleware)
 // 3. 日志输出，需要依赖返回格式中间件中返回出来的 JSON 格式
 app.use(require('./middleware/logger'))
+// 4. 日志统计，用于匿名统计用户行为、接口调用成功率等
+app.use(require('./middleware/statistics').middleware)
 
 /**
   ## B. 接口层
@@ -48,7 +50,7 @@ app.use(require('./middleware/spider_server'))
 // 2. 网络请求，为身份认证和路由处理程序提供了网络请求 API
 app.use(require('./middleware/axios'))
 // 3. 身份认证，为下面 redis 缓存提供了加解密函数
-app.use(require('./middleware/auth'))
+app.use(require('./middleware/auth').middleware)
 // 4. 管理员权限，需要依赖身份认证
 app.use(require('./middleware/admin'))
 // 5. redis 缓存，为路由处理程序提供自动缓存

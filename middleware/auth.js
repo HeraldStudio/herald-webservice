@@ -16,11 +16,13 @@
   ctx.user.isLogin    boolean             仅已登录用户带 token 请求时有效，否则为 false
   ctx.user.encrypt    (string => string)? 使用用户 token 加密字符串，返回加密后的十六进制字符串
   ctx.user.decrypt    (string => string)? 使用用户 token 解密十六进制字符串，返回解密后的字符串
-  ctx.user.token      string?             伪 token，不能用于加解密，只用于区分用户
+  ctx.user.token      string?             伪 token，每个用户唯一的识别码。若同一个人多处登录，该识别码不相同
+  ctx.user.identity   string?             每个人唯一的识别码，若同一个人多处登录，识别码也相同。用于精确区分用户
   ctx.user.cardnum    string?             用户一卡通号码
   ctx.user.password   string?             用户密码
   ctx.user.name       string?             用户姓名
   ctx.user.schoolnum  string?             用户学号（教师为空）
+  ctx.user.platform   string?             用户登录时使用的平台识别符
   ctx.useAuthCookie   (() => Promise)?    在接下来的请求中自动使用用户统一身份认证 Cookie
 
   注：
@@ -65,6 +67,8 @@ setInterval(() => {
   })
 }, ONE_DAY)
 
+exports.db = db
+
 // 对称加密算法，要求 value 是 String 或 Buffer，否则会报错
 const encrypt = (key, value) => {
   let cipher = crypto.createCipher(config.auth.cipher, key)
@@ -102,7 +106,7 @@ const auth = async (ctx, username, password) => {
 }
 
 // 加密和解密过程
-module.exports = async (ctx, next) => {
+exports.middleware = async (ctx, next) => {
 
   // 对于 auth 路由的请求，直接截获，不交给 kf-router
   if (ctx.path === '/auth') {
@@ -179,7 +183,7 @@ module.exports = async (ctx, next) => {
     // 对于其他请求，根据 token 的哈希值取出表项
     let token = ctx.request.headers.token
     let tokenHash = new Buffer(crypto.createHash('md5').update(token).digest()).toString('base64')
-
+    let identity = new Buffer(crypto.createHash('md5').update(cardnum + name).digest()).toString('base64')
     let record = await db.auth.find({ token_hash: tokenHash }, 1)
 
     if (record) { // 若 token 失效，穿透到未登录的情况去
@@ -189,19 +193,19 @@ module.exports = async (ctx, next) => {
       await db.auth.update({ token_hash: tokenHash }, { last_invoked: now })
 
       // 解密用户密码
-      let { cardnum, password, name, schoolnum } = record
+      let { cardnum, password, name, schoolnum, platform } = record
       password = decrypt(token, password)
 
       // 将统一身份认证 Cookie 获取器暴露给模块
       ctx.useAuthCookie = auth.bind(undefined, ctx, cardnum, password)
 
-      // 将伪 token、解密后的一卡通号、密码和 Cookie、加解密接口暴露给下层中间件
+      // 将身份识别码、解密后的一卡通号、密码和 Cookie、加解密接口暴露给下层中间件
       ctx.user = {
         isLogin: true,
         encrypt: encrypt.bind(undefined, token),
         decrypt: decrypt.bind(undefined, token),
         token: tokenHash,
-        cardnum, password, name, schoolnum
+        identity, cardnum, password, name, schoolnum, platform
       }
 
       // 调用下游中间件
@@ -216,12 +220,13 @@ module.exports = async (ctx, next) => {
     isLogin: false,
     get encrypt() { reject() },
     get decrypt() { reject() },
+    get identity() { reject() },
     get token() { reject() },
     get cardnum() { reject() },
     get password() { reject() },
     get name() { reject() },
     get schoolnum() { reject() },
-    get cookie() { reject() }
+    get platform() { reject() }
   }
 
   ctx.useAuthCookie = reject
