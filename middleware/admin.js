@@ -56,7 +56,8 @@ module.exports = async (ctx, next) => {
         level: 0
       }
     }
-  } else if (ctx.request.headers.token.length === superToken.length) {
+  } else if (ctx.request.headers.token
+    && ctx.request.headers.token.length === superToken.length) {
     // 若 token 与超管 token 长度相同但不是超管 token，认为是老超管登录过期
     ctx.throw(401)
   } else if (ctx.user.isLogin) {
