@@ -30,6 +30,9 @@ console.log('')
 
 module.exports = async (ctx, next) => {
   updateConnections(++connections)
-  await next()
-  updateConnections(--connections)
+  try {
+    await next()
+  } finally {
+    updateConnections(--connections)
+  }
 }

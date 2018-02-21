@@ -8,54 +8,38 @@ exports.route = {
    * 人文讲座信息查询
    **/
   async get() {
-
     await this.useAuthCookie()
     await this.get('http://allinonecard.seu.edu.cn/ecard/dongnanportalHome.action')
-    //获取账号信息
-    let res = await this.get("http://allinonecard.seu.edu.cn/accounthisTrjn.action")
+
+    // 获取账号信息
+    let res = await this.get('http://allinonecard.seu.edu.cn/accounthisTrjn.action')
     let $ = cheerio.load(res.data)
     let account = $("#account option").attr('value')
 
-    //获取记录页数
-    res = await this.post(
-      'http://allinonecard.seu.edu.cn/mjkqBrows.action',
-      {account: account, startDate:'', endDate:''}
-    )
+    // 获取记录页数
+    res = await this.post('http://allinonecard.seu.edu.cn/mjkqBrows.action', { account, startDate: '', endDate: '' })
     $ = cheerio.load(res.data)
-    let pageTotal = $("#pagetotal").text()
+    let length = $("#pagetotal").text()
 
-    //单独获取第一页的数据
-    let lectureList = $(".dangrichaxun tr").toArray().slice(1,-2).map(tr => {
-      let td = $(tr).find('td')
-      let where = td.eq(-1).text()
-      let time = td.eq(0).text()
-      return {time,where}
-    })
+    // 根据长度生成 [0, length) 的整数数组用于流式编程
+    // 相当于调用 Python range 函数
+    let range = [].slice.call([].fill.call({ length }, 0)).map((k, i) => i)
 
-    //逐页查询
-    for (var i=2;i<=pageTotal;i++){
+    // 并行获取每一页数据
+    return (await Promise.all(range.map(i => (async () => {
       res = await this.post(
         'http://allinonecard.seu.edu.cn/mjkqBrows.action',
-        {account: account, startDate:'', endDate:'', pageno:i}
+        { account, startDate: '', endDate: '', pageno: i + 1 }
       )
       $ = cheerio.load(res.data)
-      $(".dangrichaxun tr").toArray().slice(1,-1).map(tr => {
+      return $('.dangrichaxun tr').toArray().slice(1,-1).map(tr => {
         let td = $(tr).find('td')
-        let where = td.eq(-1).text()
-        let time = td.eq(0).text()
-        lectureList.push({time,where})
+        let location = td.eq(-1).text()
+        let time = new Date(td.eq(0).text()).getTime()
+        return { time, location }
       })
-    }
-
-    //判断条件（参考了上一版Python代码）
-    const filterParms = ['九龙湖', '手持考', '行政楼', '网络中', '机电大', '校医院', '研究生']
-    const placeFilter = value => {
-      return filterParms.indexOf(value['where'].substr(0,3)) == -1
-    }
-
-    //根据判断条件筛选lectureList
-    let realList = lectureList.filter(placeFilter)
-
-    return realList
+    })()))).reduce((a, b) => a.concat(b), []).filter(k =>
+      !/^(九龙湖|手持考|行政楼|网络中|机电大|校医院|研究生)/.test(k.location)
+    )
   }
 }
