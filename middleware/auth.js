@@ -183,7 +183,6 @@ exports.middleware = async (ctx, next) => {
     // 对于其他请求，根据 token 的哈希值取出表项
     let token = ctx.request.headers.token
     let tokenHash = new Buffer(crypto.createHash('md5').update(token).digest()).toString('base64')
-    let identity = new Buffer(crypto.createHash('md5').update(cardnum + name).digest()).toString('base64')
     let record = await db.auth.find({ token_hash: tokenHash }, 1)
 
     if (record) { // 若 token 失效，穿透到未登录的情况去
@@ -195,6 +194,7 @@ exports.middleware = async (ctx, next) => {
       // 解密用户密码
       let { cardnum, password, name, schoolnum, platform } = record
       password = decrypt(token, password)
+      let identity = new Buffer(crypto.createHash('md5').update(cardnum + name).digest()).toString('base64')
 
       // 将统一身份认证 Cookie 获取器暴露给模块
       ctx.useAuthCookie = auth.bind(undefined, ctx, cardnum, password)
