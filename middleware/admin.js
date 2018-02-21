@@ -3,7 +3,7 @@ const chalk = require('chalk')
 const crypto = require('crypto')
 
 // 程序启动时，生成超级管理员 Token
-// 为了防止与普通用户碰撞，此处字节数跟普通用户 token 字节数做区分
+// 为了防止与普通用户碰撞，此处字节数跟普通用户 token 字节数做区分，切勿轻易改成跟普通用户长度相同，否则会有问题
 const superToken = new Buffer(crypto.randomBytes(16)).toString('hex')
 console.log('本次会话的超级管理员 Token 为：' + chalk.blue(superToken) + '，请妥善保管')
 
@@ -56,6 +56,9 @@ module.exports = async (ctx, next) => {
         level: 0
       }
     }
+  } else if (ctx.request.headers.token.length === superToken.length) {
+    // 若 token 与超管 token 长度相同但不是超管 token，认为是老超管登录过期
+    ctx.throw(401)
   } else if (ctx.user.isLogin) {
     let { cardnum } = ctx.user
     let admins = await db.admin.find({ cardnum })
