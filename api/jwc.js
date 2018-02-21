@@ -16,6 +16,7 @@ exports.route = {
   async get () {
     let res = await this.get('http://jwc.seu.edu.cn')
     let $ = cheerio.load(res.data)
+    let now = new Date().getTime()
 
     let timeList = list.map(ele =>
       $(ele[0]).find('div').toArray()
@@ -37,5 +38,11 @@ exports.route = {
           }
         })
       ).reduce((a, b) => a.concat(b), []).sort((a, b) => b.time - a.time)
+
+      // 2 天内的通知全部保留，超出 2 天则只保留十条
+      .filter((k, i) => i < 10 || now - k.time < 1000 * 60 * 60 * 24 * 2)
+
+      // 重要性排序
+      .sort((a, b) => b.isImportant - a.isImportant)
   }
 }

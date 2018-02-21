@@ -25,7 +25,7 @@
   - [x] 跑操次数 @rikumi
   - [x] 空教室 @Vigilans-Yea
   - [ ] 跑操详情、跑操预告
-  - [ ] 物理实验 @tusooa WIP
+  - [x] 物理实验 @tusooa @rikumi
   - [x] 考试安排 @sleepyjoker
   - [x] 成绩 GPA @rikumi
   - [x] SRTP @imfinethanks
@@ -334,8 +334,29 @@ WebService3 后续将会集成更多不同风格的 ORM，欢迎持续关注和�
 1. **使用二空格缩进；**
 2. 使用 WebStorm / Atom / Sublime Text 等专业工具进行开发；
 3. 用 Promise 封装事件机制和回调机制的 API；Promise 封装尽可能精炼；用 `async/await` 代替 `then`；
-4. 建议不要分号，以 `[` 或 `(` 开头的行前补分号；
-5. **善用解构赋值**、**善用流式编程**可以让代码更简练。
+4. 关于分号有两种选择：① 不要分号，以 `[` 或 `(` 开头的行前补分号；② 按照标准，语句全部加分号。请根据自己的习惯选择合适的方案，两种方案不要混用；
+5. **善用解构赋值**、**善用流式编程** 可以让代码更简练。
+
+### 命名规范
+
+下面列举了本系统可能用到的一些有多种译法的名词。不同译法可能各有好处，但一个系统内部需要有一致性，因此对于每个名词，随机规定其中一种译法作为标准。
+
+此规范适用于系统的 JSON 返回格式。在代码内部不必严格遵照这个规范。
+
+目前已规定的译法有：
+
+1. 课程（结构）用 course（不要 class/lesson）
+2. 课程（字符串）用 courseName（不要 course/className/lessonName）
+3. 教师（结构）用 teacher（不要 lecturer）
+4. 教师（字符串）用 teacherName（不要 teacher/lecturerName）
+5. 时间戳（表示年月日级别的）用 Date 结尾；
+6. 时间戳（表示年月日时分秒级别的）用 Time 结尾；
+7. 节次（课程的第几节）用 period；
+8. 开始/结束（时间戳）用 start/end，例如 startTime/endTime；
+9. 开始/结束（其他类型）用 begin/end，例如 beginWeek/endWeek；
+10. 地点用 location（不要 place）
+11. 学分用 credit，成绩用 score，绩点（通称）用 points；绩点（专名）用 GPA；
+12. 重修用 makeup，首修用 before makeup。
 
 ### 关于分布式爬虫
 
