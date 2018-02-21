@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "NODE_ENV=development node app.js",
-    "start": "NODE_ENV=production node app.js"
+    "start": "NODE_ENV=production node app.js",
+    "doc": "apidoc -i . -e ./node_modules -o ./webservice-doc"
   },
   "dependencies": {
     "await-semaphore": "^0.1.3",
