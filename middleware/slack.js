@@ -68,13 +68,13 @@ class SlackMessage {
       for (let i in actions) {
         let button = actions[i]
         if (!button.hasOwnProperty('name')) {
-          throw Error('必须指定按钮的name')
+          throw new Error('必须指定按钮的name')
         }
         if (!button.hasOwnProperty('text')) {
-          throw Error('必须指定按钮的text')
+          throw new Error('必须指定按钮的text')
         }
         if (!button.hasOwnProperty('response')) {
-          throw Error('必须指定按钮的response')
+          throw new Error('必须指定按钮的response')
         }
         attachment.actions.push({
           name: button.name,
