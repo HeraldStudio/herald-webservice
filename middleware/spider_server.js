@@ -231,7 +231,7 @@ class SpiderServer {
         request.url = arg[0]
       } else if (arg.length === 2) {
         // (url, config)
-        request = this.merge({url: arg[0]}, arg[1], request)
+        request = this.merge(request, arg[1], {url: arg[0]})
       }
     } else {
       // post\put\方法处理
@@ -240,10 +240,10 @@ class SpiderServer {
         request.url = arg[0]
       } else if (arg.length === 2) {
         // (url, data)
-        request = this.merge({url: arg[0], data: arg[1]}, request)
+        request = this.merge(request, {url: arg[0], data: arg[1]})
       } else if (arg.length === 3) {
         // (url, data, config)
-        request = this.merge({url: arg[0], data: arg[1]}, arg[2], request)
+        request = this.merge(request, arg[2], {url: arg[0], data: arg[1]})
       }
     }
     if (request.forceLocal) {
