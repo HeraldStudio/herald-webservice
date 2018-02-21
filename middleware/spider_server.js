@@ -199,7 +199,7 @@ class SpiderServer {
       this.requestPool[name].resolve = resolve
       this.requestPool[name].reject = reject
       if (!request.timeout) {
-        request.timeout = 1000
+        request.timeout = 15000
       }
       this.requestPool[name].timeout = setTimeout(() => {
         this.requestPool[name].isTimeout = true
