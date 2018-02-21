@@ -27,8 +27,8 @@ exports.middleware = async (ctx, next) => {
     let end = new Date().getTime()
     let time = start
     let duration = end - start
-    let identity = ctx.user.isLogin ? ctx.user.identity : 'guest'
-    let platform = ctx.user.isLogin ? ctx.user.platform : 'guest'
+    let identity = ctx.user && ctx.user.isLogin ? ctx.user.identity : 'guest'
+    let platform = ctx.user && ctx.user.isLogin ? ctx.user.platform : 'guest'
     let route = ctx.path
     let method = ctx.method.toLowerCase()
     let status = ctx.body.code
