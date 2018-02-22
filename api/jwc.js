@@ -26,18 +26,20 @@ exports.route = {
 
     return list.map(ele =>
       $(ele[0]).find('a').toArray()
-        .map(k => $(k)).map((k, i) => {
+        .map(k => $(k)).map(k => {
           let href = k.attr('href')
           return {
             category: ele[1],
             title: k.attr('title'),
             url: /^\//.test(href) ? 'http://jwc.seu.edu.cn' + href : href,
-            time: timeList[i],
             isAttachment: !/.+.html?$/.test(k.attr('href')),
             isImportant: !!k.find('font').length,
           }
         })
-      ).reduce((a, b) => a.concat(b), []).sort((a, b) => b.time - a.time)
+      ).reduce((a, b) => a.concat(b), []).map((k, i) => {
+        k.time = timeList[i]
+        return k
+      }).sort((a, b) => b.time - a.time)
 
       // 2 天内的通知全部保留，超出 2 天则只保留十条
       .filter((k, i) => i < 10 || now - k.time < 1000 * 60 * 60 * 24 * 2)
