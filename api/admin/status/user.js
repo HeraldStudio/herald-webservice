@@ -27,7 +27,7 @@ exports.route = {
     return {
       userCount, realUserCount, dailyRegister,
       dailyInvoke, monthlyRegister, monthlyInvoke,
-      platforms: await Promise.all(platforms.map(platform => (async () => {
+      platforms: (await Promise.all(platforms.map(platform => (async () => {
         let [
           userCount, realUserCount, dailyRegister,
           dailyInvoke, monthlyRegister, monthlyInvoke
@@ -44,7 +44,7 @@ exports.route = {
           userCount, realUserCount, dailyRegister,
           dailyInvoke, monthlyRegister, monthlyInvoke
         }
-      })()))
+      })()))).sort((a, b) => b.userCount - a.userCount)
     }
   }
 }
