@@ -15,7 +15,10 @@
   - [x] 后台管理员权限系统 @rikumi
   - [x] CNN验证码识别平台 @狼剩子
   - [x] 分布式硬件爬虫系统 @狼剩子
+  - [x] slack集成中间件 @狼剩子
   - [x] 两种不同风格的 ORM @rikumi @Vigilans-Yea
+  - [x] 接口调用统计中间件 @rikumi
+  - [x] 接口互解释中间件 @rikumi
   - [ ] 第三方授权平台
 
 2. **继承自 WebService2**
@@ -41,7 +44,7 @@
   - [x] 一卡通充值 @rikumi
   - [ ] 系统通知发布系统
   - [ ] 广告自助发布审核系统
-  - [ ] 完整的 Web 管理后台
+  - [ ] 完整的 Web 管理后台 @rikumi WIP
 
 4. **新功能提案**
 
@@ -332,6 +335,47 @@ const db = require('sqlongo')('my_database')
 ```
 
 WebService3 后续将会集成更多不同风格的 ORM，欢迎持续关注和提出建议。
+
+### 接口互解释
+
+接口互解释是指，一部分路由处理程序不仅实现自身的功能，还充当向导的角色，介绍相关的其他接口。有了接口互解释的机制，开发者无需提供接口文档供调用者查阅，只需要通过不断调用接口，即可了解所有接口的使用方法。接口互解释在 [GitHub API](https://api.github.com) 中有广泛的应用。
+
+related 中间件提供了接口之间相互解释的 API，以便在不需要接口文档的情况下直接寻找到需要的接口。只要在需要充当向导的接口中尽早调用 `this.related(<相对路径>, { get: <说明文字>, post: <说明文字>, ... })`：
+
+```javascript
+//- /api/index.js
+this.related('card', {
+  get: '{ date?: yyyy-M-d, page? } 一卡通信息及消费流水，不带 date 为当日流水',
+  put: '{ password, amount: float, eacc?=1 } 一卡通在线充值'
+})
+```
+
+如果只有 GET 方法，也可以直接在第二个参数中写介绍。
+
+```javascript
+this.related('srtp', 'SRTP 学分及项目查询')
+```
+
+为了更加清晰明确，适合 WebService3 的特殊情形，我们所使用的接口互解释与 GitHub 的返回格式不同：
+
+```javascript
+GET /api => {
+  success: true,
+  code:    200,
+  result:  '',
+  related: [
+    {
+      url: '/api/card',
+      get: '{ date?: yyyy-M-d, page? } 一卡通信息及消费流水，不带 date 为当日流水',
+      put: '{ password, amount: float, eacc?=1 } 一卡通在线充值'
+    },
+    {
+      url: '/api/srtp',
+      get: 'SRTP 学分及项目查询'
+    }
+  ]
+}
+```
 
 ### 代码风格
 

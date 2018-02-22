@@ -42,32 +42,10 @@
   因此，这里不向爬虫程序提供明文 token，而是只提供 token 的哈希值，仅用于区分不同用户，不用于加解密。
   对于加解密，此中间件将暴露 encrypt/decrypt 接口来帮助下游中间件加解密数据。
  */
-const db = require('sqlongo')('auth')
+const db = require('../database/auth')
 const tough = require('tough-cookie')
 const crypto = require('crypto')
 const { config } = require('../app')
-
-db.auth = {
-  token_hash:   'text primary key', // 令牌哈希值 = Base64(MD5(token))，用于根据私钥找到用户
-  cardnum:      'text not null',    // 一卡通号
-  password:     'text not null',    // 密文密码 = Base64(MD5(cipher(token, 明文密码)))
-  name:         'text not null',    // 姓名
-  schoolnum:    'text not null',    // 学号（教师为空）
-  platform:     'text not null',    // 平台名，同一平台不允许多处登录
-  registered:   'int not null',     // 认证时间
-  last_invoked: 'int not null'      // 上次使用时间，超过一定设定值的会被清理
-}
-
-const ONE_DAY = 1000 * 60 * 60 * 24
-
-// 定期清理过期授权，超过指定天数未使用的将会过期
-setInterval(() => {
-  db.auth.remove({
-    last_invoked: { $lt: new Date().getTime() - config.auth.expireDays * ONE_DAY }
-  })
-}, ONE_DAY)
-
-exports.db = db
 
 // 对称加密算法，要求 value 是 String 或 Buffer，否则会报错
 const encrypt = (key, value) => {
@@ -106,8 +84,31 @@ const auth = async (ctx, username, password) => {
 }
 
 // 加密和解密过程
-exports.middleware = async (ctx, next) => {
+module.exports = async (ctx, next) => {
 
+  /**
+   * @api {post} /auth
+   * @apiName Auth
+   * @apiGroup Auth
+   *
+   * @apiParam {String} cardnum 一卡通号
+   * @apiParam {String} password 统一身份认证密码
+   * @apiParam {String} platform 平台识别字符串
+   *
+   * @apiSuccess {String} token 全局身份标识token
+   *
+   * @apiSuccessExample Success-Response:
+   *     "8f1d3da16e830a1dd88f471d130dffe324db6e15fd2734740f5deaa4d2929599"
+   *
+   * @apiError AuthFail 统一身份认证过程失败
+   *
+   * @apiErrorExample Error-Response:
+   *     {
+   *        "code":401,
+   *        "reason":"需要登录"
+   *     }
+   *
+   */
   // 对于 auth 路由的请求，直接截获，不交给 kf-router
   if (ctx.path === '/auth') {
     if (ctx.method.toUpperCase() !== 'POST') {
@@ -234,27 +235,3 @@ exports.middleware = async (ctx, next) => {
   // 调用下游中间件
   await next()
 }
-
-/**
- * @api {post} /auth
- * @apiName Auth
- * @apiGroup Auth
- *
- * @apiParam {String} cardnum 一卡通号
- * @apiParam {String} password 统一身份认证密码
- * @apiParam {String} platform 平台识别字符串
- *
- * @apiSuccess {String} token 全局身份标识token
- *
- * @apiSuccessExample Success-Response:
- *     "8f1d3da16e830a1dd88f471d130dffe324db6e15fd2734740f5deaa4d2929599"
- *
- * @apiError AuthFail 统一身份认证过程失败
- *
- * @apiErrorExample Error-Response:
- *     {
- *        "code":401,
- *        "reason":"需要登录"
- *     }
- *
- */
