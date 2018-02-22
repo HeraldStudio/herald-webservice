@@ -54,6 +54,30 @@ exports.route = {
   },
 
   /**
+   * api {PUT} /api/admin/admin
+   * 修改管理员信息
+   * apiParam { domain, admin }
+   */
+  async put() {
+    let { domain, admin } = this.params
+
+    // 只允许同域任免
+    if (!this.admin[domain]) {
+      throw 403
+    }
+
+    let has = await db.admin.find({ cardnum: admin.cardnum, domain }, 1)
+    if (!has) {
+      throw '管理员不存在'
+    } else if (has.level <= this.admin[domain].level) {
+      throw '无法修改同级或高级管理员'
+    }
+
+    await db.admin.update({ cardnum: admin.cardnum, domain }, admin)
+    return 'OK'
+  },
+
+  /**
    * api {DELETE} /api/admin/admin
    * 删除管理员
    * apiParam { domain, cardnum }
