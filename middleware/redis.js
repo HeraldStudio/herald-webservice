@@ -152,6 +152,11 @@ module.exports = async (ctx, next) => {
     strategy.cacheTimeSeconds = Math.max(strategy.cacheTimeSeconds, 5)
   }
 
+  // 对于超管，强制禁用任何缓存机制（否则由于超管不是用户，会被当做游客进行缓存，造成严重影响）
+  if (ctx.admin.super) {
+    strategy.cacheTimeSeconds = 0
+  }
+
   let cacheKey = JSON.stringify({
     method: ctx.method,
     path: ctx.path,
