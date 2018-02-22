@@ -24,9 +24,9 @@ exports.route = {
         .map(item => new Date($(item).text()).getTime())
       ).reduce((a, b) => a.concat(b), [])
 
-    return list.map((ele, i) =>
+    return list.map(ele =>
       $(ele[0]).find('a').toArray()
-        .map(k => $(k)).map(k => {
+        .map(k => $(k)).map((k, i) => {
           let href = k.attr('href')
           return {
             category: ele[1],
