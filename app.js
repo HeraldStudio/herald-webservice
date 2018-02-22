@@ -31,7 +31,7 @@ app.use(require('./middleware/slack').middleware)
 // 3. 日志输出，需要依赖返回格式中间件中返回出来的 JSON 格式
 app.use(require('./middleware/logger'))
 // 4. 日志统计，用于匿名统计用户行为、接口调用成功率等
-app.use(require('./middleware/statistics').middleware)
+app.use(require('./middleware/statistics'))
 
 /**
   ## B. 接口层
@@ -45,15 +45,17 @@ app.use(require('./middleware/params'))
   ## C. API 层
   负责为路由处理程序提供 API 以便路由处理程序使用的中间件。
  */
-// 1. 分布式硬件爬虫，为 axios 提供了底层依赖
+// 1. 接口之间相互介绍的 API
+app.use(require('./middleware/related'))
+// 2. 分布式硬件爬虫，为 axios 提供了底层依赖
 app.use(require('./middleware/spider_server'))
-// 2. 网络请求，为身份认证和路由处理程序提供了网络请求 API
+// 3. 网络请求，为身份认证和路由处理程序提供了网络请求 API
 app.use(require('./middleware/axios'))
-// 3. 身份认证，为下面 redis 缓存提供了加解密函数
-app.use(require('./middleware/auth').middleware)
-// 4. 管理员权限，需要依赖身份认证
+// 4. 身份认证，为下面 redis 缓存提供了加解密函数
+app.use(require('./middleware/auth'))
+// 5. 管理员权限，需要依赖身份认证
 app.use(require('./middleware/admin'))
-// 5. redis 缓存，为路由处理程序提供自动缓存
+// 6. redis 缓存，为路由处理程序提供自动缓存
 app.use(require('./middleware/redis'))
 
 /**
