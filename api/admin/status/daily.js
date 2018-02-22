@@ -31,7 +31,7 @@ exports.route = {
     let totalCount = dailyStat.length
 
     // 过滤管理接口
-    dailyStat = dailyStat.filter(k => !/^\/admin\//.test(k.route)).map(k => {
+    dailyStat = dailyStat.filter(k => !/^\/api\/admin\//.test(k.route)).map(k => {
       k.operation = k.method + ' ' + k.route
       k.period = Math.floor((k.time - yesterday) / (1000 * 60 * 30))
       return k
