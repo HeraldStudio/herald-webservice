@@ -15,11 +15,11 @@ exports.route = {
       dailyInvoke, monthlyRegister, monthlyInvoke, platforms
     ] = await Promise.all([
       db.auth.count(),
-      db.auth.distinct('cardnum').then(k => k.length),
-      db.auth.count({ registered: { $gte: yesterday }}),
-      db.auth.count({ last_invoked: { $gte: yesterday }}),
-      db.auth.count({ registered: { $gte: lastMonth }}),
-      db.auth.count({ last_invoked: { $gte: lastMonth }}),
+      db.auth.count('cardnum'),
+      db.auth.count('cardnum', { registered: { $gte: yesterday }}),
+      db.auth.count('cardnum', { last_invoked: { $gte: yesterday }}),
+      db.auth.count('cardnum', { registered: { $gte: lastMonth }}),
+      db.auth.count('cardnum', { last_invoked: { $gte: lastMonth }}),
       db.auth.distinct('platform')
     ])
 
@@ -33,11 +33,11 @@ exports.route = {
           dailyInvoke, monthlyRegister, monthlyInvoke
         ] = await Promise.all([
           db.auth.count({ platform }),
-          db.auth.distinct('cardnum', { platform }).then(k => k.length),
-          db.auth.count({ registered: { $gte: yesterday }, platform }),
-          db.auth.count({ last_invoked: { $gte: yesterday }, platform }),
-          db.auth.count({ registered: { $gte: lastMonth }, platform }),
-          db.auth.count({ last_invoked: { $gte: lastMonth }, platform })
+          db.auth.count('cardnum', { platform }),
+          db.auth.count('cardnum', { registered: { $gte: yesterday }, platform }),
+          db.auth.count('cardnum', { last_invoked: { $gte: yesterday }, platform }),
+          db.auth.count('cardnum', { registered: { $gte: lastMonth }, platform }),
+          db.auth.count('cardnum', { last_invoked: { $gte: lastMonth }, platform })
         ])
         return {
           name: platform,
