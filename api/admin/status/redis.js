@@ -13,7 +13,6 @@ exports.route = {
       .map(section => section.trim().split('\n'))
       .map(section => {
         let title = section.shift().replace(/^#\s+/, '').toLowerCase().replace(/\s\S/g, k => k[1].toUpperCase())
-        console.log(title, section)
         let sectionObj = {}
         section.map(row => {
           let [key, value] = row.split(':')
