@@ -115,7 +115,7 @@ module.exports = async (ctx, next) => {
 
   let jsonToParse = config.cache
   let path = (ctx.path.replace(/^\//, '') + '/' + ctx.method.toLowerCase()).split('/')
-  while (typeof jsonToParse === 'object' && path.length) {
+  while (jsonToParse && typeof jsonToParse === 'object' && path.length) {
     jsonToParse = jsonToParse[path.splice(0, 1)]
   }
   if (typeof jsonToParse !== 'string') {

@@ -67,14 +67,9 @@ class SpiderServer {
       ]).then((tag) => {
         try {
           if (tag === 'accept') {
-            connection.active = true
-            console.log(`[I] 硬件爬虫 <${connection.spiderName}> ${chalk.green('认证成功')}`)
-            connection.send('Auth_Success')
+            this.acceptSpider(connection)
           } else {
-            console.log(`[W] 硬件爬虫 <${connection.spiderName}> ${chalk.red('认证失败')}`)
-            delete this.connectionPool[connection.spiderName]
-            connection.send('Auth_Fail')
-            connection.terminate()
+            this.rejectSpider(connection)
           }
         } catch (e) {}
       })
@@ -98,16 +93,9 @@ class SpiderServer {
         //使用控制台token认证的部分
         let token = JSON.parse(data).token
         if (token === connection.token) {
-          // 验证成功
-          connection.active = true
-          console.log(`[I] 硬件爬虫 <${connection.spiderName}> ${chalk.green('认证成功')}`)
-          connection.send('Auth_Success')
+          this.acceptSpider(connection)
         } else {
-          //验证失败，关闭连接
-          console.log(`[W] 硬件爬虫 <${connection.spiderName}> ${chalk.red('认证失败')}`)
-          delete this.connectionPool[connection.spiderName]
-          connection.send('Auth_Fail')
-          connection.terminate()
+          this.rejectSpider(connection)
         }
       }
     })
@@ -125,7 +113,19 @@ class SpiderServer {
 
       delete this.connectionPool[connection.spiderName]
     })
+  }
 
+  acceptSpider(connection) {
+    connection.active = true
+    console.log(`[I] 硬件爬虫 <${connection.spiderName}> ${chalk.green('认证成功')}`)
+    connection.send('Auth_Success')
+  }
+
+  rejectSpider(connection) {
+    console.log(`[W] 硬件爬虫 <${connection.spiderName}> ${chalk.red('认证失败')}`)
+    delete this.connectionPool[connection.spiderName]
+    connection.send('Auth_Fail')
+    connection.terminate()
   }
 
   generateSpiderName() {
@@ -349,4 +349,27 @@ const spiderServer = new SpiderServer()
 module.exports = async (ctx, next) => {
   ctx.spiderServer = spiderServer
   await next()
+}
+
+// 留给统计接口的三个 API：查询当前爬虫，接受爬虫，拒绝爬虫
+Object.defineProperty(module.exports, 'spiders', {
+  get () {
+    let pool = spiderServer.connectionPool
+    let connections = Object.keys(pool).map(k => [k, pool[k]])
+    let totalCount = connections.length
+    let inactiveList = connections.filter(k => !k[1].active).map(k => k[0])
+    let inactiveCount = inactiveList.length
+    let activeCount = totalCount - inactiveCount
+    return {
+      activeCount, inactiveCount, inactiveList
+    }
+  }
+})
+
+module.exports.acceptSpider = (name) => {
+  spiderServer.acceptSpider(spiderServer.connectionPool[name])
+}
+
+module.exports.rejectSpider = (name) => {
+  spiderServer.rejectSpider(spiderServer.connectionPool[name])
 }

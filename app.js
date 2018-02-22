@@ -23,9 +23,7 @@ process.on('uncaughtException', console.trace)
   负责对服务运行状况进行监控，便于后台分析和交互，对服务本身不存在影响的中间件。
  */
 // 1. 如果是生产环境，显示请求计数器；此中间件在 module load 时，会对 console 的方法做修改
-if (process.env.NODE_ENV === 'production') {
-  app.use(require('./middleware/counter'))
-}
+app.use(require('./middleware/counter'))
 // 2. Slack API
 app.use(require('./middleware/slack').middleware)
 // 3. 日志输出，需要依赖返回格式中间件中返回出来的 JSON 格式
