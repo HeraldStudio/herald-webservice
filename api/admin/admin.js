@@ -48,7 +48,7 @@ exports.route = {
       cardnum, name, phone, domain,
       level: this.admin[domain].level + 1,
       authorized: now,
-      last_used: now
+      lastUsed: now
     })
     return 'OK'
   },

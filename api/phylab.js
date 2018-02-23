@@ -87,7 +87,7 @@ exports.route = {
     $('select[name="ctl00$cphSltMain$ShowAStudentScore1$ucDdlCourseGroup$ddlCgp"] option')
       .toArray().map(k => $(k)).map(k => types[k.attr('value')] = k.text())
 
-    let result = await Promise.all(Object.keys(types).map(k => (async () => {
+    let result = await Promise.all(Object.keys(types).map(async k => {
       let type = types[k]
       let form = generateQueryForm($, k)
       let res = await this.post(courseUrl, form, { headers })
@@ -107,7 +107,7 @@ exports.route = {
         }
         return labs
       }
-    })()))
+    }))
 
     return result.reduce((a, b) => a.concat(b), [])
   }

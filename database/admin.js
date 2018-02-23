@@ -8,7 +8,7 @@ const db = require('sqlongo')('admin')
     domain:     'text not null',  // 管理员权限域
     level:      'int not null',   // 管理员权限等级
     authorized: 'int not null',   // 管理员被授权时间
-    last_used:  'int not null'    // 管理员最后调用时间
+    lastUsed:  'int not null'    // 管理员最后调用时间
   })
 
   await db.domain.define({

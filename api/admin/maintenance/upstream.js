@@ -31,11 +31,11 @@ exports.route = {
     }
 
     // 上游测试结果
-    return await Promise.all(Object.keys(tests).map(k => (async () => {
+    return await Promise.all(Object.keys(tests).map(async k => {
       let name = k, url = tests[k]
       let timeout = await testConnection(tests[k])
       let health = timeout >= 0 && timeout < 1000
       return { name, url, timeout, health }
-    })()))
+    }))
   }
 }

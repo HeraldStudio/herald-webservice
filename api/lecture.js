@@ -26,7 +26,7 @@ exports.route = {
     let range = [].slice.call([].fill.call({ length }, 0)).map((k, i) => i)
 
     // 并行获取每一页数据
-    return (await Promise.all(range.map(i => (async () => {
+    return (await Promise.all(range.map(async i => {
       res = await this.post(
         'http://allinonecard.seu.edu.cn/mjkqBrows.action',
         { account, startDate: '', endDate: '', pageno: i + 1 }
@@ -38,7 +38,7 @@ exports.route = {
         let time = new Date(td.eq(0).text()).getTime()
         return { time, location }
       })
-    })()))).reduce((a, b) => a.concat(b), []).filter(k =>
+    }))).reduce((a, b) => a.concat(b), []).filter(k =>
       !/^(九龙湖|手持考|行政楼|网络中|机电大|校医院|研究生)/.test(k.location)
     )
   }

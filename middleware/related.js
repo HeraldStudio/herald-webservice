@@ -30,4 +30,7 @@ module.exports = async (ctx, next) => {
     }
   }
   await next()
+  if (!ctx._related.length) {
+    ctx._related = undefined
+  }
 }
