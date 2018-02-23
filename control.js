@@ -23,15 +23,6 @@ module.exports = {
     return { changed, stdout, stderr }
   },
   restart () {
-    setTimeout(() => {
-      process.on('exit', () => {
-        cp.spawn(process.argv.shift(), process.argv, {
-          cwd: process.cwd(),
-          detached: true,
-          stdio: 'inherit'
-        })
-      })
-      process.exit()
-    }, 1000)
+    require('rebirth')()
   }
 }
