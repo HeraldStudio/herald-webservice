@@ -1,12 +1,12 @@
 [
   {
-    "domain": "advertise",
-    "name": "广告管理员",
-    "desc": "审核活动宣传及轮播图管理"
+    "domain": "maintenance",
+    "name": "运维人员",
+    "desc": "查看系统状态及统计数据，发起系统更新，管理分布式爬虫等"
   },
   {
-    "domain": "maintenance",
-    "name": "运维管理员",
-    "desc": "发布通知公告、管理分布式爬虫等"
+    "domain": "publicity",
+    "name": "运营者",
+    "desc": "管理通知公告、活动宣传、轮播广告等"
   }
 ]
