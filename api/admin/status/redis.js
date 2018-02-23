@@ -1,11 +1,20 @@
-const control = require('../../../control')
+const cp = require('child_process')
+const exec = (command) => new Promise((resolve, reject) => {
+  cp.exec(command, (err, stdout, stderr) => {
+    if (err) {
+      reject(err)
+    } else {
+      resolve({ stdout: stdout.trim(), stderr: stderr.trim() })
+    }
+  })
+})
 
 exports.route = {
   async get() {
     if (!this.admin.maintenance) {
       throw 403
     }
-    let { stdout } = await control.exec('redis-cli info')
+    let { stdout } = await exec('redis-cli info')
     let result = {}
 
     // 将 redis 状态解析为对象

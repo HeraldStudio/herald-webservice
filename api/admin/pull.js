@@ -9,9 +9,11 @@ const exec = (command) => new Promise((resolve, reject) => {
   })
 })
 
-module.exports = {
-  exec,
-  async pull () {
+exports.route = {
+  async get() {
+    if (!this.admin.maintenance) {
+      throw 403
+    }
     let res1 = await exec('git pull')
     let { stdout, stderr } = res1
     let changed = stdout !== 'Already up-to-date.'
@@ -20,9 +22,10 @@ module.exports = {
       stdout = [stdout, res2.stdout].join('\n').trim()
       stderr = [stderr, res2.stderr].join('\n').trim()
     }
-    return { changed, stdout, stderr }
-  },
-  restart () {
-    require('rebirth')()
+    let out = (stdout + '\n' + stderr).trim()
+    if (changed && this.admin.super) {
+      throw 401
+    }
+    return { changed, out }
   }
 }
