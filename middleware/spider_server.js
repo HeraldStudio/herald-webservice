@@ -272,9 +272,18 @@ class SpiderServer {
   }
 
   handleResponse(data) {
-    data = JSON.parse(data)
-    let requestName = data.requestName
-    let requestObj = this.requestPool[requestName]
+    try {
+      data = JSON.parse(data);
+    } catch (e) {
+      console.log(e.message);
+      console.log(data);
+      throw e;
+    }
+    let requestName = data.requestName;
+    let requestObj = this.requestPool[requestName];
+    if (!requestObj) {
+      return
+    }
     if (requestObj.isTimeout) {
       return
     }
