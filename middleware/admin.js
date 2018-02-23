@@ -46,7 +46,7 @@ module.exports = async (ctx, next) => {
         if (target[key]) {
           let now = new Date().getTime()
           let domain = key
-          db.admin.update({ cardnum, domain }, { last_used: now })
+          db.admin.update({ cardnum, domain }, { lastUsed: now })
         }
         return target[key]
       }

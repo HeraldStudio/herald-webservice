@@ -166,14 +166,14 @@ module.exports = async (ctx, next) => {
 
     // 插入用户数据
     await db.auth.insert({
-      token_hash: tokenHash,
+      tokenHash: tokenHash,
       cardnum,
       name,
       schoolnum,
       platform,
       password: passwordEncrypted,
       registered: now,
-      last_invoked: now
+      lastInvoked: now
     })
 
     // 返回 token
@@ -184,13 +184,13 @@ module.exports = async (ctx, next) => {
     // 对于其他请求，根据 token 的哈希值取出表项
     let token = ctx.request.headers.token
     let tokenHash = new Buffer(crypto.createHash('md5').update(token).digest()).toString('base64')
-    let record = await db.auth.find({ token_hash: tokenHash }, 1)
+    let record = await db.auth.find({ tokenHash: tokenHash }, 1)
 
     if (record) { // 若 token 失效，穿透到未登录的情况去
       let now = new Date().getTime()
 
       // 更新用户最近调用时间
-      await db.auth.update({ token_hash: tokenHash }, { last_invoked: now })
+      await db.auth.update({ tokenHash: tokenHash }, { lastInvoked: now })
 
       // 解密用户密码
       let { cardnum, password, name, schoolnum, platform } = record
