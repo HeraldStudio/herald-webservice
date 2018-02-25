@@ -65,23 +65,22 @@ class SlackMessage {
       attachment.callback_id = this.callback_id
       attachment.color = color
       attachment.actions = []
-      for (let i in actions) {
-        let button = actions[i]
-        if (!button.hasOwnProperty('name')) {
-          throw Error('必须指定按钮的name')
+      for (let action of actions) {
+        if (!action.hasOwnProperty('name')) {
+          throw new Error('必须指定按钮的name')
         }
-        if (!button.hasOwnProperty('text')) {
-          throw Error('必须指定按钮的text')
+        if (!action.hasOwnProperty('text')) {
+          throw new Error('必须指定按钮的text')
         }
-        if (!button.hasOwnProperty('response')) {
-          throw Error('必须指定按钮的response')
+        if (!action.hasOwnProperty('response')) {
+          throw new Error('必须指定按钮的response')
         }
         attachment.actions.push({
-          name: button.name,
-          text: button.text,
+          name: action.name,
+          text: action.text,
           type: 'button',
-          style: button.style,
-          confirm: button.confirm
+          style: action.style,
+          confirm: action.confirm
         })
       }
 

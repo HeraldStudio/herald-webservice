@@ -46,39 +46,33 @@ class SpiderServer {
     console.log(`[I] 硬件爬虫 ${chalk.blue(`<${name}>`)} 连接建立，请使用口令 ${chalk.blue(`<${token}>`)} 完成配对`)
     sms.spiderToken(adminPhoneNumber, name, token)
 
-    //使用slack认证的部分
-    ;(new slackMessage()).send(`分布式硬件爬虫 ${name} 请求连接认证，请核实是否内部人员操作`,
-      [{
-        name: 'accept',
-        text: '接受',
-        style: 'primary',
-        response: `👌分布式硬件爬虫 ${name} 已连接`,
-        confirm: {
-          title: "⚠️警告",
-          text: "连接的爬虫会截获webservice3发起请求包含的所有数据，请务必确认该操作由内部人员操作以保证信息安全！",
-          ok_text: "确认连接",
-          dismiss_text: "容我思考下"
-        }
-      },
+    // 使用 slack 认证的部分
+    new slackMessage().send(`分布式硬件爬虫 ${name} 请求连接认证，请核实是否内部人员操作`, [
         {
+          name: 'accept',
+          text: '接受',
+          style: 'primary',
+          response: `👌分布式硬件爬虫 ${name} 已连接`,
+          confirm: {
+            title: "⚠️警告",
+            text: "连接的爬虫会截获webservice3发起请求包含的所有数据，请务必确认该操作由内部人员操作以保证信息安全！",
+            ok_text: "确认连接",
+            dismiss_text: "容我思考下"
+          }
+        }, {
           name: 'refuse',
           text: '拒绝',
           response: `❌已拒绝分布式硬件爬虫 ${name} 连接`
-        }]).then((tag) => {
-      try {
-        if (tag === 'accept') {
-          connection.active = true
-          console.log(`[I] 硬件爬虫 <${connection.spiderName}> ${chalk.green('认证成功')}`)
-          connection.send('Auth_Success')
-        } else {
-          console.log(`[W] 硬件爬虫 <${connection.spiderName}> ${chalk.red('认证失败')}`)
-          delete this.connectionPool[connection.spiderName]
-          connection.send('Auth_Fail')
-          connection.terminate()
         }
-      } catch (e) {
-      }
-    })
+      ]).then((tag) => {
+        try {
+          if (tag === 'accept') {
+            this.acceptSpider(connection)
+          } else {
+            this.rejectSpider(connection)
+          }
+        } catch (e) {}
+      })
 
     connection.token = token
     let message = {spiderName: name}
@@ -99,16 +93,9 @@ class SpiderServer {
         //使用控制台token认证的部分
         let token = JSON.parse(data).token
         if (token === connection.token) {
-          // 验证成功
-          connection.active = true
-          console.log(`[I] 硬件爬虫 <${connection.spiderName}> ${chalk.green('认证成功')}`)
-          connection.send('Auth_Success')
+          this.acceptSpider(connection)
         } else {
-          //验证失败，关闭连接
-          console.log(`[W] 硬件爬虫 <${connection.spiderName}> ${chalk.red('认证失败')}`)
-          delete this.connectionPool[connection.spiderName]
-          connection.send('Auth_Fail')
-          connection.terminate()
+          this.rejectSpider(connection)
         }
       }
     })
@@ -126,7 +113,19 @@ class SpiderServer {
 
       delete this.connectionPool[connection.spiderName]
     })
+  }
 
+  acceptSpider(connection) {
+    connection.active = true
+    console.log(`[I] 硬件爬虫 <${connection.spiderName}> ${chalk.green('认证成功')}`)
+    connection.send('Auth_Success')
+  }
+
+  rejectSpider(connection) {
+    console.log(`[W] 硬件爬虫 <${connection.spiderName}> ${chalk.red('认证失败')}`)
+    delete this.connectionPool[connection.spiderName]
+    connection.send('Auth_Fail')
+    connection.terminate()
   }
 
   generateSpiderName() {
@@ -199,11 +198,14 @@ class SpiderServer {
     return new Promise((resolve, reject) => {
       this.requestPool[name].resolve = resolve
       this.requestPool[name].reject = reject
+      if (!request.timeout) {
+        request.timeout = 15000
+      }
       this.requestPool[name].timeout = setTimeout(() => {
         this.requestPool[name].isTimeout = true
         reject('timeout')
         delete this.requestPool[name]
-      }, 15000)
+      }, request.timeout)
       try {
         let spider = this.pickSpider()
         spider.send(encodedRequest)
@@ -229,7 +231,7 @@ class SpiderServer {
         request.url = arg[0]
       } else if (arg.length === 2) {
         // (url, config)
-        request = this.merge({url: arg[0]}, arg[1], request)
+        request = this.merge(request, arg[1], {url: arg[0]})
       }
     } else {
       // post\put\方法处理
@@ -238,10 +240,10 @@ class SpiderServer {
         request.url = arg[0]
       } else if (arg.length === 2) {
         // (url, data)
-        request = this.merge({url: arg[0], data: arg[1]}, request)
+        request = this.merge(request, {url: arg[0], data: arg[1]})
       } else if (arg.length === 3) {
         // (url, data, config)
-        request = this.merge({url: arg[0], data: arg[1]}, arg[2], request)
+        request = this.merge(request, arg[2], {url: arg[0], data: arg[1]})
       }
     }
     if (request.forceLocal) {
@@ -270,16 +272,25 @@ class SpiderServer {
   }
 
   handleResponse(data) {
-    data = JSON.parse(data)
-    let requestName = data.requestName
-    let requestObj = this.requestPool[requestName]
+    try {
+      data = JSON.parse(data);
+    } catch (e) {
+      console.log(e.message);
+      console.log(data);
+      throw e;
+    }
+    let requestName = data.requestName;
+    let requestObj = this.requestPool[requestName];
+    if (!requestObj) {
+      return
+    }
     if (requestObj.isTimeout) {
       return
     }
     if (data.succ) {
       clearTimeout(requestObj.timeout)
       // 将data域解码为原始状态
-      data.data = Buffer.from(data.data.data).toString()
+      data.data = requestObj.transformResponse(Buffer.from(data.data.data))
       try {
         data.data = JSON.parse(data.data)
       } catch (e) {
@@ -347,4 +358,27 @@ const spiderServer = new SpiderServer()
 module.exports = async (ctx, next) => {
   ctx.spiderServer = spiderServer
   await next()
+}
+
+// 留给统计接口的三个 API：查询当前爬虫，接受爬虫，拒绝爬虫
+Object.defineProperty(module.exports, 'spiders', {
+  get () {
+    let pool = spiderServer.connectionPool
+    let connections = Object.keys(pool).map(k => [k, pool[k]])
+    let totalCount = connections.length
+    let inactiveList = connections.filter(k => !k[1].active).map(k => k[0])
+    let inactiveCount = inactiveList.length
+    let activeCount = totalCount - inactiveCount
+    return {
+      activeCount, inactiveCount, inactiveList
+    }
+  }
+})
+
+module.exports.acceptSpider = (name) => {
+  spiderServer.acceptSpider(spiderServer.connectionPool[name])
+}
+
+module.exports.rejectSpider = (name) => {
+  spiderServer.rejectSpider(spiderServer.connectionPool[name])
 }

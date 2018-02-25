@@ -115,7 +115,7 @@ module.exports = async (ctx, next) => {
 
   let jsonToParse = config.cache
   let path = (ctx.path.replace(/^\//, '') + '/' + ctx.method.toLowerCase()).split('/')
-  while (typeof jsonToParse === 'object' && path.length) {
+  while (jsonToParse && typeof jsonToParse === 'object' && path.length) {
     jsonToParse = jsonToParse[path.splice(0, 1)]
   }
   if (typeof jsonToParse !== 'string') {
@@ -150,6 +150,11 @@ module.exports = async (ctx, next) => {
   // 懒抓取策略下，缓存时间至少 5 秒，防止缓存时间未设置导致始终不缓存
   if (cacheIsLazy) {
     strategy.cacheTimeSeconds = Math.max(strategy.cacheTimeSeconds, 5)
+  }
+
+  // 对于超管，强制禁用任何缓存机制（否则由于超管不是用户，会被当做游客进行缓存，造成严重影响）
+  if (ctx.admin.super) {
+    strategy.cacheTimeSeconds = 0
   }
 
   let cacheKey = JSON.stringify({
