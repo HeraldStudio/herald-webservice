@@ -15,7 +15,10 @@
   - [x] 后台管理员权限系统 @rikumi
   - [x] CNN验证码识别平台 @狼剩子
   - [x] 分布式硬件爬虫系统 @狼剩子
+  - [x] slack集成中间件 @狼剩子
   - [x] 两种不同风格的 ORM @rikumi @Vigilans-Yea
+  - [x] 接口调用统计中间件 @rikumi
+  - [x] 接口互解释中间件 @rikumi
   - [ ] 第三方授权平台
 
 2. **继承自 WebService2**
@@ -25,7 +28,7 @@
   - [x] 跑操次数 @rikumi
   - [x] 空教室 @Vigilans-Yea
   - [ ] 跑操详情、跑操预告
-  - [ ] 物理实验 @tusooa WIP
+  - [x] 物理实验 @tusooa @rikumi
   - [x] 考试安排 @sleepyjoker
   - [x] 成绩 GPA @rikumi
   - [x] SRTP @imfinethanks
@@ -41,7 +44,7 @@
   - [x] 一卡通充值 @rikumi
   - [ ] 系统通知发布系统
   - [ ] 广告自助发布审核系统
-  - [ ] 完整的 Web 管理后台
+  - [ ] 完整的 Web 管理后台 @rikumi WIP
 
 4. **新功能提案**
 
@@ -192,9 +195,13 @@ exports.route = {
     let { encrypt, decrypt } = this.user
     console.log(decrypt(encrypt(cardnum)) === cardnum) // true
 
-    // 为了保证隐私安全，伪 token 不能用于解密数据，只用于区分用户
+    // 两个用于区分用户的 API，有一定差别：
+    // 这里的 token 是不具有隐私性的伪 token，不能用于解密数据，只用于区分用户
+    // 同一个实体用户在多处登录时，多个端的伪 token 互不相同，真正用于加解密的 token 也互不相同，因此伪 token 多用于与加解密相关的场合。
+    // 而 identity 是区分实体用户的标志，每个实体用户 identity 一定唯一，多用于用户行为分析等。
+    let { token, identity } = this.user
+
     // 原 cookie 由于过期太快已被改为 useAuthCookie() 方法，详见下文「自动 Cookie」
-    let { token } = this.user
 
     return `Hello, ${cardnum}!`
   }
@@ -329,13 +336,75 @@ const db = require('sqlongo')('my_database')
 
 WebService3 后续将会集成更多不同风格的 ORM，欢迎持续关注和提出建议。
 
+### 接口互解释
+
+接口互解释是指，一部分路由处理程序不仅实现自身的功能，还充当向导的角色，介绍相关的其他接口。有了接口互解释的机制，开发者无需提供接口文档供调用者查阅，只需要通过不断调用接口，即可了解所有接口的使用方法。接口互解释在 [GitHub API](https://api.github.com) 中有广泛的应用。
+
+related 中间件提供了接口之间相互解释的 API，以便在不需要接口文档的情况下直接寻找到需要的接口。只要在需要充当向导的接口中尽早调用 `this.related(<相对路径>, { get: <说明文字>, post: <说明文字>, ... })`：
+
+```javascript
+//- /api/index.js
+this.related('card', {
+  get: '{ date?: yyyy-M-d, page? } 一卡通信息及消费流水，不带 date 为当日流水',
+  put: '{ password, amount: float, eacc?=1 } 一卡通在线充值'
+})
+```
+
+如果只有 GET 方法，也可以直接在第二个参数中写介绍。
+
+```javascript
+this.related('srtp', 'SRTP 学分及项目查询')
+```
+
+为了更加清晰明确，适合 WebService3 的特殊情形，我们所使用的接口互解释与 GitHub 的返回格式不同：
+
+```javascript
+GET /api => {
+  success: true,
+  code:    200,
+  result:  '',
+  related: [
+    {
+      url: '/api/card',
+      get: '{ date?: yyyy-M-d, page? } 一卡通信息及消费流水，不带 date 为当日流水',
+      put: '{ password, amount: float, eacc?=1 } 一卡通在线充值'
+    },
+    {
+      url: '/api/srtp',
+      get: 'SRTP 学分及项目查询'
+    }
+  ]
+}
+```
+
 ### 代码风格
 
 1. **使用二空格缩进；**
 2. 使用 WebStorm / Atom / Sublime Text 等专业工具进行开发；
 3. 用 Promise 封装事件机制和回调机制的 API；Promise 封装尽可能精炼；用 `async/await` 代替 `then`；
-4. 建议不要分号，以 `[` 或 `(` 开头的行前补分号；
-5. **善用解构赋值**、**善用流式编程**可以让代码更简练。
+4. 关于分号有两种选择：① 不要分号，以 `[` 或 `(` 开头的行前补分号；② 按照标准，语句全部加分号。请根据自己的习惯选择合适的方案，两种方案不要混用；
+5. **善用解构赋值**、**善用流式编程** 可以让代码更简练。
+
+### 命名规范
+
+下面列举了本系统可能用到的一些有多种译法的名词。不同译法可能各有好处，但一个系统内部需要有一致性，因此对于每个名词，随机规定其中一种译法作为标准。
+
+此规范适用于系统的 JSON 返回格式。在代码内部不必严格遵照这个规范。
+
+目前已规定的译法有：
+
+1. 课程（结构）用 course（不要 class/lesson）
+2. 课程（字符串）用 courseName（不要 course/className/lessonName）
+3. 教师（结构）用 teacher（不要 lecturer）
+4. 教师（字符串）用 teacherName（不要 teacher/lecturerName）
+5. 时间戳（表示年月日级别的）用 Date 结尾；
+6. 时间戳（表示年月日时分秒级别的）用 Time 结尾；
+7. 节次（课程的第几节）用 period；
+8. 开始/结束（时间戳）用 start/end，例如 startTime/endTime；
+9. 开始/结束（其他类型）用 begin/end，例如 beginWeek/endWeek；
+10. 地点用 location（不要 place）
+11. 学分用 credit，成绩用 score，绩点（通称）用 points；绩点（专名）用 GPA；
+12. 重修用 makeup，首修用 before makeup。
 
 ### 关于分布式爬虫
 

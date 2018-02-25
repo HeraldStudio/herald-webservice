@@ -3,11 +3,11 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "NODE_ENV=development node app.js",
-    "start": "NODE_ENV=production node app.js"
+    "dev": "yarn; NODE_ENV=development nodemon app.js",
+    "start": "yarn; NODE_ENV=production nodemon app.js",
+    "doc": "apidoc -i . -e ./node_modules -o ./webservice-doc"
   },
   "dependencies": {
-    "await-semaphore": "^0.1.3",
     "axios": "^0.17.1",
     "axios-cookiejar-support": "^0.3.2",
     "bluebird": "^3.5.1",
@@ -20,12 +20,13 @@
     "kf-router": "^1.2.3",
     "koa": "^2.4.1",
     "koa-bodyparser": "^4.2.0",
+    "nodemon": "^1.15.1",
     "ora": "^1.4.0",
     "prettyjson": "^1.2.1",
     "qiniu": "^7.1.2",
     "redis": "^2.8.0",
     "sqlite3": "^3.1.13",
-    "sqlongo": "^1.1.0",
+    "sqlongo": "^1.1.3",
     "tough-cookie": "^2.3.3",
     "ws": "^4.0.0"
   }

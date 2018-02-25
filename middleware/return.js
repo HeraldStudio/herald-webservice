@@ -12,6 +12,7 @@ module.exports = async (ctx, next) => {
   try {
     await next()
   } catch (e) {
+    ctx.body = ''
     if (typeof e === 'number') {
       ctx.status = e
     } else if (typeof e === 'string') {
@@ -38,13 +39,15 @@ module.exports = async (ctx, next) => {
     json = {
       success: true,
       code: ctx.status,
-      result: ctx.body
+      result: ctx.body,
+      related: ctx._related
     }
   } else {
     json = {
       success: false,
       code: ctx.status,
-      reason: ctx.body
+      reason: ctx.body,
+      related: ctx._related
     }
     if (!ctx.body) {
       if (ctx.status === 400) {

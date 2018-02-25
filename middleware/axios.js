@@ -15,9 +15,7 @@
   - `let res = (await this.get/post/put/delete('http://google.com')).data`
  */
 const axios = require('axios')
-const { Semaphore } = require('await-semaphore')
 const { config } = require('../app')
-const sem = new Semaphore(10)
 const axiosCookieJarSupport = require('axios-cookiejar-support').default
 const tough = require('tough-cookie')
 const chardet = require('chardet')
@@ -46,7 +44,7 @@ module.exports = async (ctx, next) => {
 /**
   ## 实现
 
-  利用 10 线程的伪线程池 semaphore 进行网络请求，支持 get/post/put/delete 四个方法
+  支持 get/post/put/delete 四个方法
  */
   let _axios = axios.create({
 
@@ -66,8 +64,10 @@ module.exports = async (ctx, next) => {
     responseType: 'arraybuffer',
     transformResponse(res) {
       let encoding = chardet.detect(res)
-      res = new iconv.Iconv(encoding, 'UTF-8//TRANSLIT//IGNORE').convert(res).toString()
-      try { res = JSON.parse(res) } catch (e) {}
+      if (encoding) { // 若 chardet 返回 null，表示不是一个已知编码的字符串，就当做二进制，不做处理
+        res = new iconv.Iconv(encoding, 'UTF-8//TRANSLIT//IGNORE').convert(res).toString()
+        try { res = JSON.parse(res) } catch (e) {}
+      }
       return res
     },
 
@@ -83,23 +83,21 @@ module.exports = async (ctx, next) => {
           }
           return req
         }
-        let transformResponse = () => {}
+        let transformResponse = (res) => {
+          let encoding = chardet.detect(res)
+          if (encoding) { // 若 chardet 返回 null，表示不是一个已知编码的字符串，就当做二进制，不做处理
+            res = new iconv.Iconv(encoding, 'UTF-8//TRANSLIT//IGNORE').convert(res).toString()
+            try { res = JSON.parse(res) } catch (e) {}
+          }
+          return res
+        }
         try {
-          let result = await ctx.spiderServer.request(ctx, k, arguments, config.axios, transformRequest, transformResponse)
-          return result
+          return await ctx.spiderServer.request(ctx, k, arguments, config.axios, transformRequest, transformResponse)
+        } catch (e) {
+          return await _axios[k].apply(undefined, arguments)
         }
-        catch (e) {
-          let release = await sem.acquire()
-          let result = await _axios[k].apply(undefined, arguments)
-          release()
-          return result
-        }
-      }
-      else {
-        let release = await sem.acquire()
-        let result = await _axios[k].apply(undefined, arguments)
-        release()
-        return result
+      } else {
+        return await _axios[k].apply(undefined, arguments)
       }
     }
   })
