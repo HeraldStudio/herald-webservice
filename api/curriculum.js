@@ -171,11 +171,19 @@ exports.route = {
             flip = {'(单)': 'odd', '(双)': 'even'}[flip] || 'none'
 
             // 根据课程名和起止周次，拼接索引键，在侧栏表中查找对应的课程信息
-            let key = courseName.trim() + '/' + beginWeek + '-' + endWeek
+            let keyStart = courseName.trim() + '/'
+            let key = keyStart + beginWeek + '-' + endWeek
             let teacherName = '', credit = ''
 
             // 若在侧栏中找到该课程信息，取其教师名和学分数，并标记该侧栏课程已经使用
-            if (sidebar.hasOwnProperty(key)) {
+            key = sidebar.hasOwnProperty(key)
+              ? key
+              : (Object.getOwnPropertyNames(sidebar)
+                 // 考虑每个课程由不同的老师教授的情况
+                 // 这时侧栏上的周次并不和表格中的一致
+                 // TODO 是否需要合并成一个课程?
+                 .filter(k => k.startsWith(keyStart)))[0]
+            if (key) {
               teacherName = sidebar[key].teacherName
               credit = sidebar[key].credit
               sidebar[key].used = true
