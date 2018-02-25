@@ -10,7 +10,9 @@ exports.route = {
   async get () {
     let schoolnum = this.user.isLogin ? this.user.schoolnum : ''
     let identity = this.user.isLogin ? this.user.identity : ''
-    let { type } = this.params
+    let { type, page, pagesize } = this.params
+    page = page || 0
+    pagesize = pagesize || 20
 
     let now = new Date().getTime()
     let criteria = type === 'activity' ? {
@@ -24,7 +26,7 @@ exports.route = {
       admittedBy: { $ne: '' }
     }
 
-    let selected = (await db.publicity.find(criteria)).filter(row =>
+    let selected = (await db.publicity.find(criteria, pagesize, pagesize * page)).filter(row =>
       schoolnum.indexOf(row.schoolnumPrefix === 0) // 手动过滤，符合学号前缀条件
     )
 

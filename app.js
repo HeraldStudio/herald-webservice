@@ -19,6 +19,13 @@ process.on('uncaughtException', console.trace)
   # WS3 框架中间件
   以下中间件共分为四层，每层内部、层与层之间都严格按照依赖关系排序。
 
+  ## A0. 兼容性解包层
+  对于兼容旧版 API 的兼容性接口，从兼容性临时层出来后被返回格式层进行封装，以便安全通过监控层，
+  然后在最外层进行解包，以便调用者能得到符合旧版 API 返回格式的结果。
+ */
+app.use(require('./middleware/adapter/unpacker'))
+
+/**
   ## A. 监控层
   负责对服务运行状况进行监控，便于后台分析和交互，对服务本身不存在影响的中间件。
  */
@@ -38,6 +45,12 @@ app.use(require('./middleware/statistics'))
 // 1. 返回格式化和参数格式化，属于同一层，互不依赖
 app.use(require('./middleware/return'))
 app.use(require('./middleware/params'))
+
+/**
+  ## B1. 兼容性临时层
+  为了兼容使用旧版 webserv2 接口的前端，引入以下兼容性中间件，实现老接口的部分子集
+ */
+app.use(require('./middleware/adapter/ws2'))
 
 /**
   ## C. API 层
