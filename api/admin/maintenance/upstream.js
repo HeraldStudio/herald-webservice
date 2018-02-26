@@ -27,8 +27,7 @@ exports.route = {
       '物理实验中心': 'http://phylab.seu.edu.cn/plms/UserLogin.aspx',
       '场馆预约': 'http://yuyue.seu.edu.cn/eduplus/phoneOrder/initOrderIndexP.do',
       'SRTP': 'http://10.1.30.98:8080/srtp2/USerPages/SRTP/Report3.aspx',
-      '网络中心': 'https://selfservice.seu.edu.cn/selfservice/campus_login.php',
-      '实时班车': 'http://121.248.63.119/busservice/lines'
+      '网络中心': 'https://selfservice.seu.edu.cn/selfservice/campus_login.php'
     }
 
     // 上游测试结果
