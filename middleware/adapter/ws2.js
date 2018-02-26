@@ -1,5 +1,7 @@
 const db = require('sqlongo')('adapter-ws2-auth')
 const crypto = require('crypto')
+const axios = require('axios')
+const cheerio = require('cheerio')
 
 db.auth = {
   uuid: 'text primary key',   // ws2 uuid
@@ -254,12 +256,44 @@ module.exports = async (ctx, next) => {
       ctx.body = { content, code: 200 }
 
     } else if (ctx.path === '/api/renew') {
+      ctx.path = '/api/library'
       let { barcode } = ctx.params
       let { libCookie } = await db.auth.find({ uuid }, 1)
 
-      // FIXME ws3 图书馆续借需要两个 id 参数，ws2 只需要一个，理论上两个更准确一些，
-      // 但这里为了符合 ws2 接口是不是要跟 ws2 一样通过遍历列表搜索一下 borrowId？
-      ctx.body = { code: 400 }
+      let res = await axios.get(
+        'http://www.libopac.seu.edu.cn:8080/reader/book_lst.php',
+        {
+          headers: {
+            "Cookie" : libCookie
+          }
+        }
+      )
+      let $ = cheerio.load(res.data)
+      let bookList = $('#mylib_content tr').toArray().slice(1).map(tr => {
+        let bookId = $(tr).find('td').toArray().map(td => {
+          return $(td).text().trim()
+        })[0]
+
+        let borrowId = $(tr).find('input').attr('onclick').substr(20,8)
+
+        return { bookId, borrowId }
+      })
+
+      bookList.forEach( book => {
+        if(book['bookId'] === barcode) {
+          ctx.params = { cookies: libCookie, bookId: barcode, borrowId: book['borrowId']}
+        }
+      })
+      ctx.method = ctx.request.method = 'POST'
+      await next()
+      ctx.path = '/api/renew'
+
+      let content = ctx.body
+      if ( content === 'invalid call') {
+        ctx.body = { content:'fail', code:400 }
+      }else {
+        ctx.body = { content, code:200 }
+      }
 
     } else if (ctx.path === '/api/nic') {
       ctx.path = '/api/wlan'
