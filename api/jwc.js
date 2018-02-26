@@ -41,8 +41,8 @@ exports.route = {
         return k
       }).sort((a, b) => b.time - a.time)
 
-      // 2 天内的通知全部保留，超出 2 天则只保留十条
-      .filter((k, i) => i < 10 || now - k.time < 1000 * 60 * 60 * 24 * 2)
+      // 5 天内的通知全部保留，超出 5 天则只保留十条
+      .filter((k, i) => i < 10 || now - k.time < 1000 * 60 * 60 * 24 * 5)
 
       // 重要性排序
       .sort((a, b) => b.isImportant - a.isImportant)

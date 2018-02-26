@@ -1,6 +1,8 @@
 exports.route = {
   get () {
     this.related('admin', '所有管理员端接口')
+    this.related('activity', '{ page, pagesize } 获取校园活动列表')
+    this.related('banner', '获取轮播图列表')
     this.related('card', {
       get: '{ date?: yyyy-M-d, page? } 一卡通信息及消费流水，不带 date 为当日流水',
       put: '{ password, amount: float, eacc?=1 } 一卡通在线充值'
@@ -11,9 +13,10 @@ exports.route = {
     this.related('jwc', '教务通知')
     this.related('lecture', '讲座打卡记录')
     this.related('library', {
-      post: '{ password: 图书馆密码 } 查询已借图书',
-      put: '{ cookies, bookId, borrowId } 续借图书'
+      get: '{ password?: 图书馆密码 } 查询已借图书',
+      post: '{ cookies, bookId, borrowId } 续借图书'
     })
+    this.related('notice', '获取系统公告列表')
     this.related('pe', '跑操次数查询')
     this.related('phylab', '物理实验查询')
     this.related('qiniu', '前端执行七牛上传所需的 uptoken')
