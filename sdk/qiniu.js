@@ -12,5 +12,5 @@ exports.getUptoken = () => {
     returnBody: `{"url":"http://static.myseu.cn/${key}"}`
   }).uploadToken(mac)
 
-  return uptoken
+  return { key, uptoken }
 }
