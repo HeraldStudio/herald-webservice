@@ -53,7 +53,9 @@ module.exports = async (ctx, next) => {
       if (ctx.status === 400) {
         json.reason = '请求出错'
       } else if (ctx.status === 401) {
-        json.reason = ctx.request.headers.token ? '登录失败或已过期' : '需要登录'
+        json.reason =
+          ctx.request.path === '/auth' ?
+            '登录失败' : (ctx.request.headers.token ? '登录失败或已过期' : '需要登录')
       } else if (ctx.status === 403) {
         json.reason = '权限不允许'
       } else if (ctx.status === 404) {

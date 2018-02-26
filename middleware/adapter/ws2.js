@@ -151,6 +151,10 @@ module.exports = async (ctx, next) => {
 
       ctx.body = { content, term: term.code, code: 200, sidebar }
 
+    } else if (ctx.path === '/api/emptyroom') {
+      // FIXME 空教室暂无法获取
+      ctx.body = { code: 400 }
+
     } else if (ctx.path === '/api/exam') {
       await next()
       let content = ctx.body.map(k => {
@@ -255,7 +259,147 @@ module.exports = async (ctx, next) => {
 
       // FIXME ws3 图书馆续借需要两个 id 参数，ws2 只需要一个，理论上两个更准确一些，
       // 但这里为了符合 ws2 接口是不是要跟 ws2 一样通过遍历列表搜索一下 borrowId？
-      ctx.body = { content, code: 400 }
+      ctx.body = { code: 400 }
+
+    } else if (ctx.path === '/api/nic') {
+      ctx.path = '/api/wlan'
+      await next()
+      ctx.path = '/api/nic'
+      let content = {
+        state: {
+          active: `已开通，${ctx.body.connections.length} 个在线`,
+          locked: '超额锁定',
+          inactive: '未开通'
+        }[ctx.body.state.service],
+        left: ctx.body.balance.toString(),
+        used: ctx.body.usage.used
+      }
+
+      ctx.body = { content, code: 200 }
+
+    } else if (ctx.path === '/api/pc' || ctx.path === '/api/pe' || ctx.path === '/api/pedetail') {
+      // FIXME 跑操暂无法获取
+      ctx.body = { code: 400 }
+
+    } else if (ctx.path === '/api/phylab') {
+
+      // 物理实验转换策略：与教务通知相似
+      await next()
+
+      let content = {
+        '基础性实验(上)': [],
+        '基础性实验(上)选做': [],
+        '基础性实验(下)': [],
+        '基础性实验(下)选做': [],
+        '文科及医学实验': [],
+        '文科及医学实验选做': []
+      }
+      ctx.body.map(k => {
+        if (!content[k.type]) {
+          content[k.type] = []
+        }
+        let date = new Date(k.startTime)
+        let day = '上午'
+        if (date.getHours() >= 12) {
+          day = '下午'
+        }
+        if (date.getHours() >= 18) {
+          day = '晚上'
+        }
+        content[k.type].push({
+          'name': k.labName,
+          // 本来括号里是第几周周几，但这里很难拿到第几周，前端也不用这个参数，就只写周几就好了
+          'Date': date.format('yyyy年M月d日（EE）'),
+          'Day': day,
+          'Teacher': k.teacherName,
+          'Address': k.location,
+          'Grade': k.score
+        })
+      })
+      ctx.body = { content, code: 200 }
+    } else if (ctx.path === '/api/schoolbus') {
+      ctx.body = {
+        content: {
+          weekend: {
+            '前往地铁站': [
+              {time: '8:00-9:30', bus: '每 30min 一班'},
+              {time: '9:30-11:30', bus: '每 1h 一班'},
+              {time: '11:30-13:00', bus: '每 30min 一班'},
+              {time: '13:30-16:30', bus: '每 1h 一班'},
+              {time: '17:00-19:00', bus: '每 30min 一班'},
+              {time: '19:00-22:00', bus: '每 1h 一班'}
+            ],
+            '返回九龙湖': [
+              {time: '8:00-9:30', bus: '每 30min 一班'},
+              {time: '9:30-11:30', bus: '每 1h 一班'},
+              {time: '11:30-13:00', bus: '每 30min 一班'},
+              {time: '13:30-16:30', bus: '每 1h 一班'},
+              {time: '17:00-19:00', bus: '每 30min 一班'},
+              {time: '19:00-22:00', bus: '每 1h 一班'}
+            ]
+          },
+          weekday:{
+            '前往地铁站': [
+              {time: '7:10-10:00', bus: '每 10min 一班'},
+              {time: '10:00-11:30', bus: '每 30min 一班'},
+              {time: '11:30-13:30', bus: '每 10min 一班'},
+              {time: '13:30-15:00', bus: '13:30,14:00'},
+              {time: '15:00-15:50', bus: '每 10min 一班'},
+              {time: '16:00-17:00', bus: '16:00'},
+              {time: '17:00-18:30', bus: '每 10min 一班'},
+              {time: '18:30-22:00', bus: '每 30min 一班(20:30没有班车)'}
+            ],
+            '返回九龙湖': [
+              {time: '7:10-10:00', bus: '每 10min 一班'},
+              {time: '10:00-11:30', bus: '每 30min 一班'},
+              {time: '11:30-13:30', bus: '每 10min 一班'},
+              {time: '13:30-15:00', bus: '13:30,14:00'},
+              {time: '15:00-15:50', bus: '每 10min 一班'},
+              {time: '16:00-17:00', bus: '16:00'},
+              {time: '17:00-18:30', bus: '每 10min 一班'},
+              {time: '18:30-22:00', bus: '每 30min 一班(20:30没有班车)'}
+            ]
+          }
+        },
+        code: 200
+      }
+    } else if (ctx.path === '/api/srtp') {
+      await next()
+      let { info, projects } = ctx.body
+      let content = [
+        {
+          score: info.grade,
+          total: info.points.toString(),
+          name: ctx.user.name,
+          'card number': ctx.user.schoolnum
+        }
+      ].concat(projects.map(k => {
+        return {
+          credit: k.credit.toString(),
+          proportion: k.proportion.toString(),
+          project: k.project,
+          department: k.department,
+          date: k.date,
+          type: k.type,
+          'total credit': k.total.toString()
+        }
+      }))
+
+      ctx.body = { content, code: 200 }
+
+    } else if (ctx.path === '/api/user') {
+      await next()
+      let content = {
+        sex: ctx.body.gender,
+        cardnum: ctx.body.cardnum,
+        name: ctx.body.name,
+        schoolnum: ctx.body.schoolnum
+      }
+      ctx.body = { content, code: 200 }
+
+    } else if (ctx.path === '/api/yuyue') {
+      // FIXME 场馆预约暂无法获取
+      ctx.body = { code: 400 }
     }
 
     // 还原原始 path 和 method 以便上游中间件处理
