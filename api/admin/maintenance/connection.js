@@ -9,8 +9,7 @@ exports.route = {
     }
     let requestCount = counter.connections - 1 // 去掉当前请求自身
     let spiders = spider.spiders
-    let runTime = new Date().getTime() - startTime
-    return { requestCount, spiders, runTime }
+    return { requestCount, spiders, startTime }
   },
   async post() {
     if (!this.admin.maintenance) {
