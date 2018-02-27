@@ -1,4 +1,5 @@
 const db = require('../../database/publicity')
+const admindb = require('../../database/admin')
 
 exports.route = {
   async get () {
@@ -7,9 +8,16 @@ exports.route = {
     if (this.admin.publisher) {
       let { cardnum } = this.user
       let { page = 1, pagesize = 10 } = this.params
-      return (await db.activity.find({ committedBy: cardnum }))
+      return await Promise.all((await db.activity.find({ committedBy: cardnum }))
         .sort((a, b) => b.startTime - a.startTime)
         .slice((page - 1) * pagesize, page * pagesize)
+        .map(async k => {
+          k.committedByName = (await admindb.admin.find({ cardnum: k.committedBy }, 1)).name
+          if (k.admittedBy) {
+            k.admittedByName = (await admindb.admin.find({ cardnum: k.admittedBy }, 1)).name
+          }
+          return k
+        }))
     } else if (this.admin.publicity) {
       let { page = 1, pagesize = 10 } = this.params
       return (await db.activity.find())
