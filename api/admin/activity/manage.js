@@ -1,5 +1,5 @@
-const db = require('../../database/publicity')
-const admindb = require('../../database/admin')
+const db = require('../../../database/publicity')
+const admindb = require('../../../database/admin')
 
 exports.route = {
   async get () {
