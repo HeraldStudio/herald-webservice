@@ -24,8 +24,8 @@ exports.route = {
     let projects = stbody.slice(2, -2).map(k => {
       let td = k.children('td')
       let project = {}
-      ;['type', 'project', 'date', 'department', 'total', 'proportion', 'credit'].map((k, i) => {
-        project[k] = td.eq(i).text().replace(/\s/g, '')
+      'type,project,date,department,total,proportion,credit'.split(',').map((k, i) => {
+        project[k] = td.eq(i).text().replace(/\s+/g, ' ').trim()
       })
 
       if (parseFloat(project.credit)) {
