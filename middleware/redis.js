@@ -99,6 +99,9 @@ class CacheStrategy {
   }
 }
 
+// 当前脱离等待链的回源任务计数
+let detachedTaskCount = 0
+
 module.exports = async (ctx, next) => {
 
 /**
@@ -190,13 +193,16 @@ module.exports = async (ctx, next) => {
 
     // 异步的回源任务（执行下游中间件、路由处理程序）
     let task = async () => {
+
       // 回源前先将原有缓存重新设置一次，缓存内容保持不变，缓存时间改为现在
       // 因此，若用户在回源完成前重复调用同一接口，将直接命中缓存，防止重复触发回源
       if (strategy.cacheTimeSeconds) {
         cache.set(cacheKey, cached)
       }
 
+      detachedTaskCount++
       await next()
+      detachedTaskCount--
 
       // 若需要缓存，将中间件返回值存入 redis
       if (strategy.cacheTimeSeconds && ctx.body) {
@@ -232,3 +238,10 @@ module.exports = async (ctx, next) => {
     ctx.body = cached
   }
 }
+
+// 可导入本模块之后取 detachedTaskCount 获得当前脱离等待链任务数
+Object.defineProperty(module.exports, 'detachedTaskCount', {
+  get () {
+    return detachedTaskCount
+  }
+})

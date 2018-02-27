@@ -1,5 +1,6 @@
 const counter = require('../../../middleware/counter')
 const spider = require('../../../middleware/spider_server')
+const redis = require('../../../middleware/redis')
 const startTime = new Date().getTime()
 
 exports.route = {
@@ -9,7 +10,8 @@ exports.route = {
     }
     let requestCount = counter.connections - 1 // 去掉当前请求自身
     let spiders = spider.spiders
-    return { requestCount, spiders, startTime }
+    let detachedTaskCount = redis.detachedTaskCount
+    return { requestCount, spiders, startTime, detachedTaskCount }
   },
   async post() {
     if (!this.admin.maintenance) {

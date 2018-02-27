@@ -69,6 +69,7 @@ exports.start = () => {
           console.log(`\n基地址改为 ${params} 了！`)
           return callback(null)
         } else if (/^auth$/.test(path)) {
+          method = 'post'
           let [cardnum, password, platform] = params.split(/\s+/g)
           if (password) {
             composedParams = { cardnum, password, platform }
