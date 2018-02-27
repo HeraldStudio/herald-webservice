@@ -13,7 +13,8 @@ cache:
     admin:      # 请避免对管理员接口进行缓存操作，以防导致意外影响。
     activity:   1m,public
     banner:     # 轮播图有定向推送，不能使用 public 存储，因此为了节省空间也不设缓存
-    card:       1m,lazy
+    card:
+      get:      1m,lazy
     curriculum: 1d,lazy
     exam:       1d,lazy
     gpa:        1h,lazy
