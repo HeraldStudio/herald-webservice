@@ -5,7 +5,7 @@ exports.route = {
     if (!this.admin.publicity) {
       throw 403
     }
-    return await db.banner.find()
+    return (await db.banner.find()).sort((a, b) => b.startTime - a.startTime)
   },
   async post () {
     if (!this.admin.publicity) {

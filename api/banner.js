@@ -11,6 +11,6 @@ exports.route = {
       schoolnum.indexOf(k.schoolnumPrefix) === 0 ||
       !schoolnum && k.schoolnumPrefix === 'guest' ||
       schoolnum && k.schoolnumPrefix === '!guest'
-    )
+    ).sort((a, b) => b.startTime - a.startTime)
   }
 }
