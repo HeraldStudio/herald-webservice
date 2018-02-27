@@ -64,7 +64,11 @@ const decrypt = (key, value) => {
 }
 
 const auth = async (ctx, username, password) => {
+  
   // 调用东大 APP 统一身份认证
+  // 若需要修改此请求，请保证该请求符合以下两个条件：
+  // 1. 能获取到正确的统一身份认证 Cookie（一卡通等调用了 useAuthCookie() 的接口能正常使用）；
+  // 2. 若用户名或密码错误，能抛出 401 异常。
   let res = await ctx.post(
     'http://mobile4.seu.edu.cn/_ids_mobile/login18_9',
     { username, password }
