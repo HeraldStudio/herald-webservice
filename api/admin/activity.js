@@ -5,13 +5,7 @@ exports.route = {
   async get () {
     // 发布者获取所有自己发布的活动
     // 管理员获取所有活动
-    if (this.admin.publisher) {
-      let { cardnum } = this.user
-      let { page = 1, pagesize = 10 } = this.params
-      return (await db.activity.find({ committedBy: cardnum }))
-        .sort((a, b) => b.startTime - a.startTime)
-        .slice((page - 1) * pagesize, page * pagesize)
-    } else if (this.admin.publicity) {
+    if (this.admin.publicity) {
       let { page = 1, pagesize = 10 } = this.params
       return await Promise.all((await db.activity.find())
         .sort((a, b) => b.startTime - a.startTime)
@@ -23,6 +17,12 @@ exports.route = {
           }
           return k
         }))
+    } else if (this.admin.publisher) {
+      let { cardnum } = this.user
+      let { page = 1, pagesize = 10 } = this.params
+      return (await db.activity.find({ committedBy: cardnum }))
+        .sort((a, b) => b.startTime - a.startTime)
+        .slice((page - 1) * pagesize, page * pagesize)
     }
     throw 403
   },
@@ -41,17 +41,17 @@ exports.route = {
   async put () {
     // 发布者修改活动，只能修改自己发布的活动，无论活动是否已审核，一律变为未审核状态
     // 管理员通过此接口修改活动，保存后活动将自动通过审核
-    if (this.admin.publisher) {
+    if (this.admin.publicity) {
+      let { activity } = this.params
+      let { cardnum } = this.user
+      activity.admittedBy = cardnum
+      await db.activity.update({ aid: activity.aid }, activity)
+    } else if (this.admin.publisher) {
       let { activity } = this.params
       let { cardnum } = this.user
       activity.committedBy = cardnum
       activity.admittedBy = ''
       await db.activity.update({ aid: activity.aid, committedBy: cardnum }, activity)
-    } else if (this.admin.publicity) {
-      let { activity } = this.params
-      let { cardnum } = this.user
-      activity.admittedBy = cardnum
-      await db.activity.update({ aid: activity.aid }, activity)
     }
     throw 403
   },
@@ -60,7 +60,7 @@ exports.route = {
     if (this.admin.publisher || this.admin.publicity) {
       let { aid } = this.params
       let { cardnum } = this.user
-      if (this.admin.publisher) {
+      if (!this.admin.publicity) {
         await db.activity.remove({ aid, committedBy: cardnum })
       } else {
         await db.activity.remove({ aid })
