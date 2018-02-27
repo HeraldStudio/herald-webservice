@@ -1,7 +1,7 @@
 const db = require('sqlongo')('publicity')
 
 db.banner = {
-  bid:              'int primary key not null',
+  bid:              'integer primary key',
   title:            'text not null',    // 标题
   pic:              'text not null',    // 图片地址
   url:              'text not null',    // 链接地址
@@ -11,7 +11,7 @@ db.banner = {
 }
 
 db.notice = {
-  nid:              'int primary key not null',
+  nid:              'integer primary key',
   title:            'text not null',    // 标题
   content:          'text not null',    // 内容
   url:              'text not null',    // 链接地址
@@ -19,7 +19,7 @@ db.notice = {
 }
 
 db.activity = {
-  aid:              'int primary key not null',
+  aid:              'integer primary key',
   title:            'text not null',    // 标题
   content:          'text not null',    // 内容
   pic:              'text not null',    // 图片地址
