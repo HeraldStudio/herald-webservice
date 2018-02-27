@@ -11,9 +11,11 @@ exports.route = {
       .sort((a, b) => !a.admittedBy ? -1 : (!b.admittedBy ? 1 : b.startTime - a.startTime))
       .slice((page - 1) * pagesize, page * pagesize)
       .map(async k => {
-        k.committedByName = (await admindb.admin.find({ cardnum: k.committedBy }, 1)).name
+        let record = await admindb.admin.find({ cardnum: k.committedBy }, 1)
+        k.committedByName = record ? record.name : k.committedBy
         if (k.admittedBy) {
-          k.admittedByName = (await admindb.admin.find({ cardnum: k.admittedBy }, 1)).name
+          record = await admindb.admin.find({ cardnum: k.admittedBy }, 1)
+          k.admittedByName = record ? record.name : k.admittedBy
         }
         return k
       }))
