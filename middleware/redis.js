@@ -200,9 +200,7 @@ module.exports = async (ctx, next) => {
         cache.set(cacheKey, cached)
       }
 
-      detachedTaskCount++
       await next()
-      detachedTaskCount--
 
       // 若需要缓存，将中间件返回值存入 redis
       if (strategy.cacheTimeSeconds && ctx.body) {
@@ -225,7 +223,8 @@ module.exports = async (ctx, next) => {
 
     if (cacheNoAwait) {
       // 懒抓取模式且有缓存时，脱离等待链异步回源，忽略回源结果，然后直接继续到第三步取上次缓存值
-      task().catch(() => {})
+      detachedTaskCount++
+      task().catch(() => {}).then(() => detachedTaskCount--)
     } else {
       // 其余情况下，等待回源结束，若回源成功，返回回源结果，否则继续到第三步取上次缓存值
       if (await task()) return
