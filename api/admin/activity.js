@@ -8,7 +8,12 @@ exports.route = {
     if (this.admin.publisher) {
       let { cardnum } = this.user
       let { page = 1, pagesize = 10 } = this.params
-      return await Promise.all((await db.activity.find({ committedBy: cardnum }))
+      return (await db.activity.find({ committedBy: cardnum }))
+        .sort((a, b) => b.startTime - a.startTime)
+        .slice((page - 1) * pagesize, page * pagesize)
+    } else if (this.admin.publicity) {
+      let { page = 1, pagesize = 10 } = this.params
+      return await Promise.all((await db.activity.find())
         .sort((a, b) => b.startTime - a.startTime)
         .slice((page - 1) * pagesize, page * pagesize)
         .map(async k => {
@@ -18,11 +23,6 @@ exports.route = {
           }
           return k
         }))
-    } else if (this.admin.publicity) {
-      let { page = 1, pagesize = 10 } = this.params
-      return (await db.activity.find())
-        .sort((a, b) => b.startTime - a.startTime)
-        .slice((page - 1) * pagesize, page * pagesize)
     }
     throw 403
   },
