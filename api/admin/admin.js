@@ -10,6 +10,9 @@ exports.route = {
   async get () {
     let { domain } = this.params
     if (!domain) {
+      if (!this.admin.super && !this.user.isLogin) {
+        throw 401
+      }
       return this.admin
     } else {
       // 只允许当前域中的管理员和超级管理员查看当前域中的管理员
