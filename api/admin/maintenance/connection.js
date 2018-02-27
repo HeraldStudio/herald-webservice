@@ -9,8 +9,8 @@ exports.route = {
       throw 403
     }
     let requestCount = counter.connections - 1 // 去掉当前请求自身
-    let spiders = spider.spiders
     let detachedTaskCount = redis.detachedTaskCount
+    let spiders = spider.spiders
     return { requestCount, spiders, startTime, detachedTaskCount }
   },
   async post() {
