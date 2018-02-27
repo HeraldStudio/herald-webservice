@@ -8,19 +8,11 @@ exports.route = {
       let { cardnum } = this.user
       let { page = 1, pagesize = 10 } = this.params
       return (await db.activity.find({ committedBy: cardnum }))
-        .map(k => {
-          k.ongoing = now < k.endTime
-          return k
-        })
         .sort((a, b) => b.startTime - a.startTime)
         .slice((page - 1) * pagesize, page * pagesize)
     } else if (this.admin.publicity) {
       let { page = 1, pagesize = 10 } = this.params
       return (await db.activity.find())
-        .map(k => {
-          k.ongoing = now < k.endTime
-          return k
-        })
         .sort((a, b) => b.startTime - a.startTime)
         .slice((page - 1) * pagesize, page * pagesize)
     }
