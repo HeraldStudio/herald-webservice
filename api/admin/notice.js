@@ -5,7 +5,7 @@ exports.route = {
     if (!this.admin.maintenance) {
       throw 403
     }
-    return await db.notice.find()
+    return (await db.notice.find()).sort((a, b) => b.nid - a.nid)
   },
   async post () {
     if (!this.admin.maintenance) {
