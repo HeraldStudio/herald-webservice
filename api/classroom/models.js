@@ -7,8 +7,12 @@ const { db, ModelBase } = require("./orm")("classroom")
   name    text       校区名 
  */
 class Campus extends ModelBase {
-  constructor(init = {}) {
-    super({}, init)
+  static get schema() {
+    return {}
+  }
+
+  constructor(init) {
+    super(init)
   }
 
   // 根据建筑名字找到对应校区
@@ -39,29 +43,38 @@ class Campus extends ModelBase {
   campusId    integer    建筑所属校区Id
  */
 class Building extends ModelBase {
-  constructor(init = {}) {
-    super({
-      campusId: 0
-    }, init)
-    // 定义采用Lazy Load机制的Campus属性。若init.campus存在，则直接进行拷贝，下同
-    this.defineLazyProperty("campus", () => Campus.load(this.campusId), init.campus)
+  static get schema() {
+    return {
+      campusId: 0,
+      campus: { type: Campus }
+    }
+  }
+
+  constructor(init) {
+    super(init)
   }
 }
 
 /**
   ## Classroom 数据表结构
 
-  id            integer    教室Id
-  name          text       教室名 
-  buildingId    integer    教室所属建筑Id
+  id                   integer     教室Id
+  name                 text        教室名 
+  buildingId           integer     教室所属建筑Id
+  classroomTypeIdList  array       教室类型Id数组
  */
 class Classroom extends ModelBase {
-  constructor(init = {}) {
-    super({
+  static get schema() {
+    return {
       buildingId : 0,
-      classroomTypeIdList: []
-    }, init)
-    this.defineLazyProperty("building", () => Building.load(this.buildingId), init.building)
+      building: { type: Building },
+      classroomTypeIdList: [0],
+      classroomTypeList: [{ type: ClassroomType }]
+    }
+  }
+
+  constructor(init) {
+    super(init)
     this.defineLazyProperty(
       "classroomTypeList", 
       () => Promise.all(this.classroomTypeIdList.map(Id => ClassroomType.load(Id))),
@@ -77,6 +90,10 @@ class Classroom extends ModelBase {
   name  text       教室类型名，可能值有"空调"，"多媒体"，"录播"，"设计"，"电教"，"语音"，"活动"
  */
 class ClassroomType extends ModelBase {
+  static get schema() {
+    return {}
+  }
+
   constructor(init) {
     super(init)
   }
@@ -88,8 +105,8 @@ class ClassroomType extends ModelBase {
   数据表的一条记录代表某课程在某一天的开课信息
  */
 class ClassRecord extends ModelBase {
-  constructor(init) {
-    super({ // 属性全部写明并初始化，保证数据表的字段能正确创建
+  static get schema() {
+    return {
       courseId      : 0,    // 课程Id
       courseName    : "",   // 课程名
       startWeek     : 1,    // 开课周
@@ -98,14 +115,18 @@ class ClassRecord extends ModelBase {
       startSequence : 0,    // 课程起始节次
       endSequence   : 0,    // 课程结束节次
       teacher       : "",   // 教师名
-      year          : 0,    // 学生年级
+      year          : { type: Number, default: 0, nullable: true },    // 学生年级
       campusId      : 0,    // 上课校区Id
       buildingId    : 0,    // 上课楼宇Id
       classroomId   : 0,    // 上课教室Id
       termId        : ClassRecord.currentTermId(), // 开课学期Id
       capacity      : 0,    // 最大容纳人数
       size          : 0,    // 实际选课人数
-    }, init) // init一般不会有以上全部属性
+    }
+  }
+
+  constructor(init) {
+    super(init)
   }
 
   // 获取当前学期Id。注意！8、9月末调用可能会出错！
@@ -160,4 +181,4 @@ module.exports = {
   ClassOfDay
 }
 
-;[Campus, Building, Classroom, ClassroomType, ClassRecord].forEach(c => c.initDb())
+//;[Campus, Building, Classroom, ClassroomType, ClassRecord].forEach(c => c.initDb())
