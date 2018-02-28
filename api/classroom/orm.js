@@ -17,6 +17,67 @@ const ORM = function(dbName) {
   // sqlite3 db client
   const db = new Database(`./database/${dbName}.db`)
 
+  // 字段配置类
+  class Config {
+    constructor(config, key = config.type.name.toLowerCase()) {
+      switch (true) {
+        case config instanceof String:
+        case config instanceof Number:
+          // 非Object/Array的config值直接作为默认值，值类型作为类型
+          config = { type: config.constructor, default: config }
+          break
+        case config instanceof Array:
+          // 若为Array, 则首元素递归转换为Config
+          config[0] = new Config(key, config[0]) 
+          break
+        default:
+          // 若本身就是对象（Config），则不处理
+          break
+      }
+
+      // 用自定义配置覆写默认配置
+      Object.assign(this, {
+        /* 类型配置 */
+        type:     config.type,        
+      }, !this.isObject.call(config) || !this.isObject.call(config, {array: true}) ? {
+        /* 非对象字段约束（将被存入数据库） */ 
+        default:  config.type(), // 非对象默认值设为默认构造函数
+        nullable: false, // 字段是否为not null。
+        unique:   false, // 字段值是否唯一。
+        primary:  false, // 字段是否为主键。
+        autoInc:  false, // 主键键值是否自增。仅当default值为整数时有效。
+      } : {
+        /* 对象相关配置（对象不存入数据库） */
+        default:  null,         // 对象默认值设为空（代表未加载状态）。
+        foreignKey: key + "Id", // 对象对应外键名，默认为key + "Id"。
+        lazyLoad: function() { return config.type.findOne({id: this[config.foreignKey || key + "Id"]}) } // 这样写会不会让GC有问题啊……
+      }, config)
+
+      if (!this.lazyLoad) { // 配置默认的lazyLoad函数
+        if (this.isObject) {
+          const foreignKey = this.foreignKey
+          this.lazyLoad = function() { // 单个对象的Lazy Load
+            return config.type.findOne({id: this[foreignKey]}) 
+          }
+        } else if (this.isObject({array: true})) {
+          const foreignKey = this.foreignKey
+          this.lazyLoad = function() { // 对象数组的Lazy Load
+            return Promise.all(this[foreignKey].map(id => config.type.findOne({id})))
+          }
+        }
+      }
+    }
+
+    isObject(option = {}) {
+      switch (true) {
+        case option.array:
+          return this[0].type === Array && this.isObject().call(this[0])
+        default:
+          return this.type !== String && this.type !== Number && this.type !== Array
+      }
+    }
+  }
+
   // 面向Sqlite的ORM基类
   class ModelBase { 
 
@@ -44,31 +105,7 @@ const ORM = function(dbName) {
       // 沿基类到子类方向添加所有Schema字段
       for (const model of modelChain) {
         for (let [key, config] of Object.entries(model.schema)) {
-          // 非Object/Array的config值直接作为默认值，值类型作为类型
-          if (typeof config !== "object") {
-            config = {
-              type: config.constructor,
-              default: config
-            }
-          }
-          // 用自定义schema覆写默认schema键值
-          schema[key] = Object.assign({
-            /* 类型配置 */
-            type:     config.type, 
-          }, [String, Number, Array].includes(config.type) ? {
-            /* 非对象字段约束（将被存入数据库） */ 
-            default:  config.type(), // 非对象默认值设为默认构造函数
-            nullable: false, // 字段是否为not null。
-            unique:   false, // 字段值是否唯一。
-            primary:  false, // 字段是否为主键。
-            autoInc:  false, // 主键键值是否自增。仅当default值为整数时有效。   
-          } : {
-            /* 对象相关配置（对象不存入数据库） */
-            default:  null, // 对象默认值设为空（代表未加载状态）。
-            foreignKey: key + "Id", // 对象对应外键名，默认为key + "Id"。
-            // this为最终对象。若要关闭Lazy Load，该项传入null即可。（FIXME: 实现有困难）
-            lazyLoad: function() { return config.type.findOne({id: this[schema[key].foreignKey]}) } // 这样写会不会让GC有问题啊……
-          }, config)
+          schema[key] = new Config(config, key)
         }
       }
       return schema
@@ -87,16 +124,19 @@ const ORM = function(dbName) {
         // 确定字段的Sqlite类型与默认值
         switch (config.type) {
           case Array:  // Array将以逗号分隔的id字符串存储
+            if (config[0].isObject()) {
+              continue // 若数组存的是Object则忽略（只写了一层检测……数组不能嵌套数组）
+            }
           case String: // Sqlite不区分VARCHAR(N)中的N，统一以TEXT处理
             sql.push(`text default ${config.default.toString()}`)
-            break;
+            break
           case Number: // 类型为Number时，通过default值判断字段是整数还是实数。
             sql.push(`${Number.isInteger(config.default) ? "integer" : "real"} default ${config.default}`)
-            break;
+            break
           default: // Object不存入数据库中，因此将被忽略掉
-            break;
+            continue
         }
-
+        
         // 其他约束处理
         sql.concat([
           [!config.nullable, "not null"],
@@ -118,12 +158,12 @@ const ORM = function(dbName) {
 
     static async _find(descriptor, selector, executor) {
       const destFields = Object.entries(selector).filter(e => e[1] === true).map(e => e[0])
-      const condFields = Object.keys(descriptor).map(k => `${k} = ?`)
-      return await executor.call(db, `
+      const condFields = Object.keys(descriptor).map(k => `${k} = ifnull(?, ${k})`)
+      return new this(await executor.call(db, `
         select ${destFields.length? destFields.toString() : '*'} 
         from ${this.name} 
         ${condFields.length? "where " + condFields.toString() : ""}
-      `, Object.values(descriptor))
+      `, Object.values(descriptor)))
     }
 
     static async find(descriptor, selector = {}) {
@@ -148,9 +188,26 @@ const ORM = function(dbName) {
 
       // 将schema重整化为默认对象
       Object.keys(schema).forEach(key => defaults[key] = schema[key].default)
-      
+
       // 利用defaults初始化默认对象，再由外部传入的init对象来进行构造
       Object.assign(this, defaults, init)
+
+      // 方法复用，定义一个采用Lazy load机制读取的属性
+      function defineLazyProperty(key, config) {
+        // 由于涉及到数据库读取，若触发lazy load, getter会返回Promise
+        // 因此，使用getter时需加await保证返回正确的属性
+        Object.defineProperties(this, {
+          ['_' + key]: {
+            value: this[key], // 若不需Lazy load，可在init中为该属性先行绑定一个初值
+            writable: true,
+            enumerable: false // 隐藏属性，防止拷贝
+          },
+          [key]: {
+            get: () => this['_' + key] || config.lazyLoad.call(this).then(v => this['_' + key] = v),
+            set: v => this['_' + key] = v 
+          }
+        })
+      }
 
       // 根据schema进一步配置对象
       for (const [key, config] of Object.entries(schema)) {
@@ -158,67 +215,52 @@ const ORM = function(dbName) {
           case Array:
             if (typeof this[key] === "string") {
               // 若为字符串型数组，则将其还原
-              this[key] = this[key].split(',').map(JSON.parse)
+              this[key] = JSON.parse(this[key])
+            } else if (config[0].isObject()) { 
+              // 若存储的是对象，则配置其外键属性
+              this.defineLazyProperty(key, config)
             }
           case String:
           case Number:
-            break;
-          default:
-            // 若为对象，则配置其外键属性
-            if (config.lazyLoad) { // 配置Lazy Load属性
-              // 由于涉及到数据库读取，若触发lazy load, getter会返回Promise
-              // 因此，使用getter时需加await保证返回正确的属性
-              // 若不需Lazy load，可在init中为该属性先行绑定一个初值
-              Object.defineProperties(this, {
-                ['_' + key]: {
-                  value : this[key],
-                  writable : true,
-                  enumerable: false // 隐藏属性，防止拷贝
-                },
-                [key]: {
-                  get: () => this['_' + key] || config.lazyLoad.call(this).then(v => this['_' + key] = v),
-                  set: v => this['_' + key] = v 
-                }
-              })
-            } else {
-              // emmm...这个咋办，不能Lazy Load，又不能在ctor里异步……
-            }
+            break
+          default: // 对象属性
+            this.defineLazyProperty(key, config)
         }
       }
     }
 
-    // 通过名字找到对应记录的ID
-    static async findId(name) {
-      const row = await db.get(`select id from ${this.name} where name = ?`, [name])
-      return row && row.id
-    }
-
-    // 根据id从数据库加载对象
-    static async load(id) {
-      const row = await db.get(`select * from ${this.name} where id = ?`, [id])
-      return new this(row) // this指代见上
-    }
-
-    // 从数据库中加载所有对象
-    static async all() {
-      const rows = await db.all(`select * from ${this.name}`)
-      return rows.map(row => new this(row))
+    // 从数据库中加载所有Lazy Properties
+    async load() {
+      const schema = this.constructor.getFullSchema()
+      for (const [key, config] of schema) {
+        if (config.isObject() || config.isObject({array: true})) {
+          await this[key] // 加载lazy属性
+          await this[key].load() // 上一层级属性递归调用
+        }
+      }
+      return this
     }
 
     // 保存当前对象到数据库
     async save() {
       const schema = this.constructor.getFullSchema()
       let [keys, values] = [[], []]
-      for (const key in schema) {
-        // 若当前key为非数组对象，则会被忽略掉
-        if (typeof key.type === "object") {
-          if (key.type === Array) {
+
+      for (const [key, config] of Object.entries(schema)) {
+        let value = this[key]
+        switch (config.type) {
+          case Array:
+            if (config[0].isObject()) {
+              break // 不保存Object数组
+            }
+            value = JSON.stringify(value) // 数组采用JSON字符串保存
+          case String:
+          case Number:
+            values.push(value)
             keys.push(key)
-            values.push(this[key].map(JSON.stringify).toString()) //数组采用前缀+字符串保存
-          }
-        } else {
-          keys.push(key)
-          values.push(this[key])
+            break
+          default: // 若当前key为非数组对象，则会被忽略掉
+            break
         }
       }
 
@@ -231,35 +273,9 @@ const ORM = function(dbName) {
       )
     }
 
-    // 将类对象转化为正规形式，方便作为json返回
-    async formalize() {
-      let lazyKeys = Object.keys(this).filter(k => k[0] === '_')
-      for (k of lazyKeys) {
-        this[k.slice(1)] = await this[k.slice(1)] // 加载lazy属性
-        delete this[k] // 删除'_'开头的辅助属性
-        await this[k.slice(1)].formalize() // 上一层级属性递归调用
-      }
-      return this
-    }
-
-    // 定义一个采用Lazy load机制读取的属性
-    // 用于将当前对象的外键ID绑定到对应的对象上
-    defineLazyProperty(propName, loadFunc, initVal = undefined) {
-      // 若不需Lazy load，可为该属性先行绑定一个初值
-      Object.defineProperty(this, '_' + propName, {
-        value : initVal,
-        enumerable: false // 防止拷贝
-      })
-      Object.defineProperty(this, propName, {
-        // 由于涉及到数据库读取，若触发lazy load, getter会返回Promise
-        // 因此，使用getter时需加await保证返回正确的属性
-        get: () => this['_' + propName] || loadFunc().then(v => this['_' + propName] = v),
-        set: v => this['_' + propName] = v 
-      })
-    }
   }
 
-  return {db, ModelBase}
+  return {db, Config, ModelBase}
 }
 
 module.exports = ORM
