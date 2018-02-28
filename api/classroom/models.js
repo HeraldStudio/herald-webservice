@@ -61,7 +61,7 @@ class Classroom extends ModelBase {
       buildingId : 0,
       building: { type: Building },
       classroomTypeIdList: [0],
-      classroomTypeList: [{ type: ClassroomType, foreignKey: classroomTypeIdList }]
+      classroomTypeList: [{ type: ClassroomType, foreignKey: "classroomTypeIdList" }]
     }
   }
 
