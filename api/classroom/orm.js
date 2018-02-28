@@ -35,28 +35,39 @@ const ORM = function(dbName) {
     // 获取正式、完整的Schema对象
     static getFullSchema() {
       let schema = {}
-      // 沿原型链不断向上回溯，添加从子类到基类的所有Schema字段
+      let modelChain = []
+      // 沿原型链不断向上回溯，逆向构造所有包含schema属性的原型数组
       // 对于静态方法，this指向的就是constructor
-      for (let model = this; model; model = Object.getPrototypeOf(model)) {
+      for (let model = this; model.schema; model = Object.getPrototypeOf(model)) {
+        modelChain.unshift(model)
+      }
+      // 沿基类到子类方向添加所有Schema字段
+      for (const model of modelChain) {
         for (let [key, config] of Object.entries(model.schema)) {
+          // 非Object/Array的config值直接作为默认值，值类型作为类型
+          if (typeof config !== "object") {
+            config = {
+              type: config.constructor,
+              default: config
+            }
+          }
           // 用自定义schema覆写默认schema键值
           schema[key] = Object.assign({
             /* 类型配置 */
             type:     config.type, 
-          }, typeof config.type !== "object" || config.type instanceof Array ? {
+          }, [String, Number, Array].includes(config.type) ? {
             /* 非对象字段约束（将被存入数据库） */ 
-            default:  new config.type(), // 非对象默认值设为默认构造函数
+            default:  config.type(), // 非对象默认值设为默认构造函数
             nullable: false, // 字段是否为not null。
             unique:   false, // 字段值是否唯一。
             primary:  false, // 字段是否为主键。
             autoInc:  false, // 主键键值是否自增。仅当default值为整数时有效。   
           } : {
             /* 对象相关配置（对象不存入数据库） */
-            default:  null, // 对象默认值设为空（代表未加载状态）
-            foreignKey: key + "Id", // 对象对应外键名。默认为key + "Id"
-            // getter是为了用来取同一对象中的foreignKey属性
-            // 若要关闭Lazy Load，该项传入null即可（FIXME: 实现有困难）
-            get lazyLoad() { return () => this.type.find({id: this.foreignKey}) }
+            default:  null, // 对象默认值设为空（代表未加载状态）。
+            foreignKey: key + "Id", // 对象对应外键名，默认为key + "Id"。
+            // this为最终对象。若要关闭Lazy Load，该项传入null即可。（FIXME: 实现有困难）
+            lazyLoad: function() { return config.type.findOne({id: this[schema[key].foreignKey]}) } // 这样写会不会让GC有问题啊……
           }, config)
         }
       }
@@ -105,22 +116,22 @@ const ORM = function(dbName) {
       )
     }
 
-    static async  _find(descriptor, selector = {}, executor) {
+    static async _find(descriptor, selector, executor) {
       const destFields = Object.entries(selector).filter(e => e[1] === true).map(e => e[0])
       const condFields = Object.keys(descriptor).map(k => `${k} = ?`)
-      return await executor(`
+      return await executor.call(db, `
         select ${destFields.length? destFields.toString() : '*'} 
         from ${this.name} 
-        ${condFields.length? "where" + condFields.toString() : ""}
+        ${condFields.length? "where " + condFields.toString() : ""}
       `, Object.values(descriptor))
     }
 
     static async find(descriptor, selector = {}) {
-      return await this._find(...arguments, db.all)
+      return await this._find(descriptor, selector, db.all)
     }
 
     static async findOne(descriptor, selector = {}) {
-      return await this._find(...arguments, db.get)
+      return await this._find(descriptor, selector, db.get)
     }
 
     // 异步创建一个对象，按需被子类重写（如子类对象创建时需读取数据库）
@@ -143,11 +154,16 @@ const ORM = function(dbName) {
 
       // 根据schema进一步配置对象
       for (const [key, config] of Object.entries(schema)) {
-        if (typeof config.type === "object") {
-          if (config.type instanceof Array && typeof this[key] === "string") {
-            // 若为数组，则将其从字符串形式还原
-            this[key] = this[key].split(',').map(JSON.parse)
-          } else {
+        switch (config.type) {
+          case Array:
+            if (typeof this[key] === "string") {
+              // 若为字符串型数组，则将其还原
+              this[key] = this[key].split(',').map(JSON.parse)
+            }
+          case String:
+          case Number:
+            break;
+          default:
             // 若为对象，则配置其外键属性
             if (config.lazyLoad) { // 配置Lazy Load属性
               // 由于涉及到数据库读取，若触发lazy load, getter会返回Promise
@@ -156,17 +172,17 @@ const ORM = function(dbName) {
               Object.defineProperties(this, {
                 ['_' + key]: {
                   value : this[key],
+                  writable : true,
                   enumerable: false // 隐藏属性，防止拷贝
                 },
                 [key]: {
-                  get: () => this['_' + key] || config.lazyLoad().then(v => this['_' + key] = v),
+                  get: () => this['_' + key] || config.lazyLoad.call(this).then(v => this['_' + key] = v),
                   set: v => this['_' + key] = v 
                 }
               })
             } else {
               // emmm...这个咋办，不能Lazy Load，又不能在ctor里异步……
             }
-          }
         }
       }
     }
@@ -196,7 +212,7 @@ const ORM = function(dbName) {
       for (const key in schema) {
         // 若当前key为非数组对象，则会被忽略掉
         if (typeof key.type === "object") {
-          if (key.type instanceof Array) {
+          if (key.type === Array) {
             keys.push(key)
             values.push(this[key].map(JSON.stringify).toString()) //数组采用前缀+字符串保存
           }
