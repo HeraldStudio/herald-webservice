@@ -11,10 +11,6 @@ class Campus extends ModelBase {
     return {}
   }
 
-  constructor(init) {
-    super(init)
-  }
-
   // 根据建筑名字找到对应校区
   static findName(buildingName) {
     // 虽然这种写法有点诡异……但可读性不算差，就当作一个有趣的语法trick吧~
@@ -49,10 +45,6 @@ class Building extends ModelBase {
       campus: { type: Campus }
     }
   }
-
-  constructor(init) {
-    super(init)
-  }
 }
 
 /**
@@ -69,17 +61,15 @@ class Classroom extends ModelBase {
       buildingId : 0,
       building: { type: Building },
       classroomTypeIdList: [0],
-      classroomTypeList: [{ type: ClassroomType }]
+      classroomTypeList: [{ type: ClassroomType, foreignKey: classroomTypeIdList }]
     }
   }
 
   constructor(init) {
+    if (init.classroomTypeList) { // 削去学校接口给的乱七八糟的东西……
+      init.classroomTypeList = init.classroomTypeList.map(v => new ClassroomType(v))
+    }
     super(init)
-    this.defineLazyProperty(
-      "classroomTypeList", 
-      () => Promise.all(this.classroomTypeIdList.map(Id => ClassroomType.load(Id))),
-      init.classroomTypeList && init.classroomTypeList.map(v => new ClassroomType(v)) // node要是支持optional chaining就好了...
-    )
   }
 }
 
@@ -92,10 +82,6 @@ class Classroom extends ModelBase {
 class ClassroomType extends ModelBase {
   static get schema() {
     return {}
-  }
-
-  constructor(init) {
-    super(init)
   }
 }
 
@@ -123,10 +109,6 @@ class ClassRecord extends ModelBase {
       capacity      : 0,    // 最大容纳人数
       size          : 0,    // 实际选课人数
     }
-  }
-
-  constructor(init) {
-    super(init)
   }
 
   // 获取当前学期Id。注意！8、9月末调用可能会出错！
@@ -181,4 +163,4 @@ module.exports = {
   ClassOfDay
 }
 
-//;[Campus, Building, Classroom, ClassroomType, ClassRecord].forEach(c => c.initDb())
+;[Campus, Building, Classroom, ClassroomType, ClassRecord].forEach(c => c.initDb())
