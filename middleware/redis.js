@@ -11,7 +11,7 @@
   ctx.user.encrypt    from auth.js
   ctx.user.decrypt    from auth.js
  */
-const config = require('../config.json')
+const { config } = require('../app')
 let client
 
 if (process.env.NODE_ENV === 'development') {
@@ -99,10 +99,13 @@ class CacheStrategy {
   }
 }
 
+// 当前脱离等待链的回源任务计数
+let detachedTaskCount = 0
+
 module.exports = async (ctx, next) => {
 
 /**
-  从 config.json 的 cache 项中向下寻找最符合当前条件的缓存策略
+  从 config 的 cache 项中向下寻找最符合当前条件的缓存策略
 
   > 例如 GET /api/card/detail 时：
     首先检测 cache 是否为 object，若不是，将其字符串作为缓存策略；
@@ -115,7 +118,7 @@ module.exports = async (ctx, next) => {
 
   let jsonToParse = config.cache
   let path = (ctx.path.replace(/^\//, '') + '/' + ctx.method.toLowerCase()).split('/')
-  while (typeof jsonToParse === 'object' && path.length) {
+  while (jsonToParse && typeof jsonToParse === 'object' && path.length) {
     jsonToParse = jsonToParse[path.splice(0, 1)]
   }
   if (typeof jsonToParse !== 'string') {
@@ -147,9 +150,14 @@ module.exports = async (ctx, next) => {
   let cacheIsPrivate = !strategy.cacheIsPublic && ctx.user.isLogin
   let { cacheIsLazy } = strategy
 
-  // 懒抓取策略下，缓存时间至少1秒，防止缓存时间未设置导致始终不缓存
+  // 懒抓取策略下，缓存时间至少 5 秒，防止缓存时间未设置导致始终不缓存
   if (cacheIsLazy) {
-    strategy.cacheTimeSeconds = Math.max(strategy.cacheTimeSeconds, 1)
+    strategy.cacheTimeSeconds = Math.max(strategy.cacheTimeSeconds, 5)
+  }
+
+  // 对于超管，强制禁用任何缓存机制（否则由于超管不是用户，会被当做游客进行缓存，造成严重影响）
+  if (ctx.admin.super) {
+    strategy.cacheTimeSeconds = 0
   }
 
   let cacheKey = JSON.stringify({
@@ -185,24 +193,29 @@ module.exports = async (ctx, next) => {
 
     // 异步的回源任务（执行下游中间件、路由处理程序）
     let task = async () => {
-      try {
-        await next()
 
-        // 若需要缓存，将中间件返回值存入 redis
-        if (strategy.cacheTimeSeconds && ctx.body) {
-          cached = ctx.body
-          cached = JSON.stringify(cached)
+      // 回源前先将原有缓存重新设置一次，缓存内容保持不变，缓存时间改为现在
+      // 因此，若用户在回源完成前重复调用同一接口，将直接命中缓存，防止重复触发回源
+      if (strategy.cacheTimeSeconds) {
+        cache.set(cacheKey, cached)
+      }
 
-          // 同 [*]，这里利用 auth 的加解密函数，加密数据进行缓存
-          if (cacheIsPrivate) {
-            cached = ctx.user.encrypt(cached)
-          }
-          cache.set(cacheKey, cached)
+      await next()
 
-          // 执行到此说明回源成功
-          return true
+      // 若需要缓存，将中间件返回值存入 redis
+      if (strategy.cacheTimeSeconds && ctx.body) {
+        cached = ctx.body
+        cached = JSON.stringify(cached)
+
+        // 同 [*]，这里利用 auth 的加解密函数，加密数据进行缓存
+        if (cacheIsPrivate) {
+          cached = ctx.user.encrypt(cached)
         }
-      } catch (e) {}
+        cache.set(cacheKey, cached)
+
+        // 执行到此说明回源成功
+        return true
+      }
 
       // 回源失败
       return false
@@ -210,7 +223,8 @@ module.exports = async (ctx, next) => {
 
     if (cacheNoAwait) {
       // 懒抓取模式且有缓存时，脱离等待链异步回源，忽略回源结果，然后直接继续到第三步取上次缓存值
-      task()
+      detachedTaskCount++
+      task().catch(() => {}).then(() => detachedTaskCount--)
     } else {
       // 其余情况下，等待回源结束，若回源成功，返回回源结果，否则继续到第三步取上次缓存值
       if (await task()) return
@@ -223,3 +237,10 @@ module.exports = async (ctx, next) => {
     ctx.body = cached
   }
 }
+
+// 可导入本模块之后取 detachedTaskCount 获得当前脱离等待链任务数
+Object.defineProperty(module.exports, 'detachedTaskCount', {
+  get () {
+    return detachedTaskCount
+  }
+})

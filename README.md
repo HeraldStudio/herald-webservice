@@ -1,8 +1,10 @@
-# herald-webservice
+# WebService3
 
 小猴偷米 2018 WebService3 后端试验品，使用 Node.js + Koa 构建。
 
-## 进度
+<a href='https://heraldstudio.github.io/herald-webservice' class='hidden-in-docute'>文档页面</a>
+
+## 开发进度
 
 1. **中间件和支撑框架**
 
@@ -13,7 +15,10 @@
   - [x] 后台管理员权限系统 @rikumi
   - [x] CNN验证码识别平台 @狼剩子
   - [x] 分布式硬件爬虫系统 @狼剩子
+  - [x] slack集成中间件 @狼剩子
   - [x] 两种不同风格的 ORM @rikumi @Vigilans-Yea
+  - [x] 接口调用统计中间件 @rikumi
+  - [x] 接口互解释中间件 @rikumi
   - [ ] 第三方授权平台
 
 2. **继承自 WebService2**
@@ -23,7 +28,7 @@
   - [x] 跑操次数 @rikumi
   - [x] 空教室 @Vigilans-Yea
   - [ ] 跑操详情、跑操预告
-  - [ ] 物理实验 @tusooa WIP
+  - [x] 物理实验 @tusooa @rikumi
   - [x] 考试安排 @sleepyjoker
   - [x] 成绩 GPA @rikumi
   - [x] SRTP @imfinethanks
@@ -39,7 +44,7 @@
   - [x] 一卡通充值 @rikumi
   - [ ] 系统通知发布系统
   - [ ] 广告自助发布审核系统
-  - [ ] 完整的 Web 管理后台
+  - [ ] 完整的 Web 管理后台 @rikumi WIP
 
 4. **新功能提案**
 
@@ -104,7 +109,7 @@ curl -X GET http://localhost:3000/api/card -H token:xxxxxxxx
 由于后端数据库实行完全加密，密钥一旦发放给客户端即被丢弃，因此 WebService3 不可能像以前那样在用户多处登录时生成相同的密钥，这就难免导致数据库膨胀速度加快。因此，我们定义了更严格的过期机制，一定程度上限制了数据库规模的增长：
 
 1. 对于同一用户，不允许相同平台多处登录，一旦同平台发生多处登录，较早登录的将自动过期；
-2. 超过一定时间未调用接口的用户自动过期。该过期时间（天数）在 `config.json` 中可配置，推荐的时间是 2~3 个月。
+2. 超过一定时间未调用接口的用户自动过期。该过期时间（天数）在 `config.yml` 中可配置，推荐的时间是 2~3 个月。
 
 用户身份过期后，token 的行为将与未登录状态一致，即对于任何需要用户身份的路由均会返回 401。客户端应当随时检测 401 错误，并在出现 401 错误时立即要求用户重新登录。
 
@@ -190,9 +195,13 @@ exports.route = {
     let { encrypt, decrypt } = this.user
     console.log(decrypt(encrypt(cardnum)) === cardnum) // true
 
-    // 为了保证隐私安全，伪 token 不能用于解密数据，只用于区分用户
+    // 两个用于区分用户的 API，有一定差别：
+    // 这里的 token 是不具有隐私性的伪 token，不能用于解密数据，只用于区分用户
+    // 同一个实体用户在多处登录时，多个端的伪 token 互不相同，真正用于加解密的 token 也互不相同，因此伪 token 多用于与加解密相关的场合。
+    // 而 identity 是区分实体用户的标志，每个实体用户 identity 一定唯一，多用于用户行为分析等。
+    let { token, identity } = this.user
+
     // 原 cookie 由于过期太快已被改为 useAuthCookie() 方法，详见下文「自动 Cookie」
-    let { token } = this.user
 
     return `Hello, ${cardnum}!`
   }
@@ -275,9 +284,11 @@ async get() {
 
 ### 自动缓存
 
-只需在项目的 `config.json` 中进行相应设置，WebService3 就将利用 `redis` 自动为请求进行缓存。
+只需在项目的 `config.yml` 中进行相应设置，WebService3 就将利用 `redis` 自动为请求进行缓存。
 
-注意：在 HTTP 规范中，只有 `GET` 请求是幂等的，这意味着我们通常不应该对 `POST`/`PUT`/`DELETE` 请求进行缓存，也不应该对可能受到其他 `POST`/`PUT`/`DELETE` 请求影响的 `GET` 请求进行缓存。
+<p class="warning">
+  注意：在 HTTP 规范中，只有 <code>GET</code> 请求是幂等的，这意味着我们通常不应该对 <code>POST</code>/<code>PUT</code>/<code>DELETE</code> 请求进行缓存，也不应该对可能受到其他 <code>POST</code>/<code>PUT</code>/<code>DELETE</code> 请求影响的 <code>GET</code> 请求进行缓存。
+</p>
 
 ```javascript
 {
@@ -299,13 +310,19 @@ async get() {
 
 缓存中的 `public` 策略，表示该接口对所有用户返回值相同，所有用户可以共享同一个缓存。
 
-**千万不要** 对用户的私人信息接口开启该策略。尤其在本来设置了 `public` 的接口上添加新的方法时，请特别注意缓存策略的变化。
+<p class="danger">
+  <b>千万不要</b>对用户的私人信息接口开启该策略。尤其在本来设置了 <code>public</code> 的接口上添加新的方法时，请特别注意缓存策略的变化。
+</p>
 
 #### 缓存策略 `lazy`（懒抓取）
 
-`lazy` 策略表示，只要缓存存在且可以解析（无论是否过期），每个请求都立即返回上次缓存的值，然后开始在后台回源调用下游中间件。这样做的好处是保证每次请求在取出缓存后立即结束，无需等待下游中间件完成任务。
+`lazy` 策略表示，只要缓存存在且可以解析（无论是否过期），每个请求都立即返回上次缓存的值；然后如果缓存过期，在后台更新缓存，用户在一段时间后再次请求，将得到更新后的数据。
+
+为了方便理解，懒抓取策略与非懒抓取的区别仅在于缓存存在但过期的情况。在这种情况下，**非懒抓取策略将优先回源**，回源失败再取缓存，强调数据的时效性；**懒抓取策略将优先取缓存**，然后在后台更新缓存，强调响应速度。
 
 设置了 `lazy` 策略的路由中，上下文的生命周期将与具体的 HTTP 请求脱离，请务必注意由此导致的一些副作用。
+
+为了防止用户重复触发导致服务器压力，懒抓取的缓存时间被限制为至少 5 秒。
 
 ### 数据库
 
@@ -319,13 +336,75 @@ const db = require('sqlongo')('my_database')
 
 WebService3 后续将会集成更多不同风格的 ORM，欢迎持续关注和提出建议。
 
+### 接口互解释
+
+接口互解释是指，一部分路由处理程序不仅实现自身的功能，还充当向导的角色，介绍相关的其他接口。有了接口互解释的机制，开发者无需提供接口文档供调用者查阅，只需要通过不断调用接口，即可了解所有接口的使用方法。接口互解释在 [GitHub API](https://api.github.com) 中有广泛的应用。
+
+related 中间件提供了接口之间相互解释的 API，以便在不需要接口文档的情况下直接寻找到需要的接口。只要在需要充当向导的接口中尽早调用 `this.related(<相对路径>, { get: <说明文字>, post: <说明文字>, ... })`：
+
+```javascript
+//- /api/index.js
+this.related('card', {
+  get: '{ date?: yyyy-M-d, page? } 一卡通信息及消费流水，不带 date 为当日流水',
+  put: '{ password, amount: float, eacc?=1 } 一卡通在线充值'
+})
+```
+
+如果只有 GET 方法，也可以直接在第二个参数中写介绍。
+
+```javascript
+this.related('srtp', 'SRTP 学分及项目查询')
+```
+
+为了更加清晰明确，适合 WebService3 的特殊情形，我们所使用的接口互解释与 GitHub 的返回格式不同：
+
+```javascript
+GET /api => {
+  success: true,
+  code:    200,
+  result:  '',
+  related: [
+    {
+      url: '/api/card',
+      get: '{ date?: yyyy-M-d, page? } 一卡通信息及消费流水，不带 date 为当日流水',
+      put: '{ password, amount: float, eacc?=1 } 一卡通在线充值'
+    },
+    {
+      url: '/api/srtp',
+      get: 'SRTP 学分及项目查询'
+    }
+  ]
+}
+```
+
 ### 代码风格
 
 1. **使用二空格缩进；**
 2. 使用 WebStorm / Atom / Sublime Text 等专业工具进行开发；
 3. 用 Promise 封装事件机制和回调机制的 API；Promise 封装尽可能精炼；用 `async/await` 代替 `then`；
-4. 建议不要分号，以 `[` 或 `(` 开头的行前补分号；
-5. **善用解构赋值**、**善用流式编程**可以让代码更简练。
+4. 关于分号有两种选择：① 不要分号，以 `[` 或 `(` 开头的行前补分号；② 按照标准，语句全部加分号。请根据自己的习惯选择合适的方案，两种方案不要混用；
+5. **善用解构赋值**、**善用流式编程** 可以让代码更简练。
+
+### 命名规范
+
+下面列举了本系统可能用到的一些有多种译法的名词。不同译法可能各有好处，但一个系统内部需要有一致性，因此对于每个名词，随机规定其中一种译法作为标准。
+
+此规范适用于系统的 JSON 返回格式。在代码内部不必严格遵照这个规范。
+
+目前已规定的译法有：
+
+1. 课程（结构）用 course（不要 class/lesson）
+2. 课程（字符串）用 courseName（不要 course/className/lessonName）
+3. 教师（结构）用 teacher（不要 lecturer）
+4. 教师（字符串）用 teacherName（不要 teacher/lecturerName）
+5. 时间戳（表示年月日级别的）用 Date 结尾；
+6. 时间戳（表示年月日时分秒级别的）用 Time 结尾；
+7. 节次（课程的第几节）用 period；
+8. 开始/结束（时间戳）用 start/end，例如 startTime/endTime；
+9. 开始/结束（其他类型）用 begin/end，例如 beginWeek/endWeek；
+10. 地点用 location（不要 place）
+11. 学分用 credit，成绩用 score，绩点（通称）用 points；绩点（专名）用 GPA；
+12. 重修用 makeup，首修用 before makeup。
 
 ### 关于分布式爬虫
 
