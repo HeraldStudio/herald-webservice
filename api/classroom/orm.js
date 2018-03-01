@@ -198,7 +198,7 @@ const ORM = function(dbName) {
             },
             [key]: {
               get: () => this['_' + key] || lazyLoad().then(v => this['_' + key] = v),
-              set: v => this['_' + key] = v 
+              set: v => this['_' + key] = v
             }
           })
         } else if (config.type === Array && typeof this[key] === "string") {
@@ -211,10 +211,15 @@ const ORM = function(dbName) {
     // 从数据库中加载所有Lazy Properties
     async load() {
       const schema = this.constructor.getFullSchema()
-      for (const [key, config] of schema) {
+      for (const [key, config] of Object.entries(schema)) {
         if (config.isForeign()) {
           await this[key] // 加载lazy属性
-          await this[key].load() // 上一层级属性递归调用
+          // 上一层级属性递归调用
+          if (config.type !== Array) { 
+            await this["_" + key].load() // getter返回的不是引用，所以必须在原对象上调用load
+          } else {
+            await Promise.all(this["_" + key].map(v => v.load()))
+          }
         }
       }
       return this
@@ -250,6 +255,21 @@ const ORM = function(dbName) {
           ${values.map(v => '?').toString()}
         )`, values
       )
+    }
+
+    // 规范化转化为JSON的规则
+    toJSON() {
+      const schema = this.constructor.getFullSchema()
+      let jsonObj = {}
+      for (const key of Reflect.ownKeys(this)) {
+        // 处理getter属性：若已load，则添加进jsonObj中
+        if (key[0] !== '_') {
+          if (!schema[key].isForeign() || this['_' + key]) {
+            jsonObj[key] = this[key]
+          }
+        }
+      }
+      return jsonObj
     }
 
   }
