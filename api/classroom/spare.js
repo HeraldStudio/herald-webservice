@@ -20,7 +20,7 @@ exports.route = {
    *   对于其他建筑，学校接口暂未提供查询，因而从web service内置数据库中查询。
    **/
   async get() {
-    let results = null
+    let results = []
 
     if (this.params.campusID === 22) { // 九龙湖教一~教七
       // 转发请求至学校空教室接口
@@ -39,7 +39,7 @@ exports.route = {
         and   (startWeek <= ? and endWeek >= ?)
         and   (startSequence <= ? and endSequnce >= ?)
       `, [
-          this.params.termId,
+          this.params.termId || ClassRecord.currentTermId(),
           this.params.capmusId || null,
           this.params.buildingId || null,
           this.params.dayOfWeek || null,
@@ -66,7 +66,7 @@ exports.route = {
     }
 
     // 利用Classroom类剔除多余属性，统一返回的JSON格式
-    results.rows = await Promise.all(results.rows.map(c => new Classroom(c).formalize()))
+    results.rows = await Promise.all(results.rows.map(c => new Classroom(c).load()))
 
     return result
   }

@@ -1,16 +1,16 @@
 const { Database } = require("sqlite3")
 
-// 对 Database 异步函数进行 async 封装
-;['run', 'get', 'all'].map (k => {
-  [Database.prototype['_' + k], Database.prototype[k]]
-    = [Database.prototype[k], function(sql, param) {
-      return new Promise((resolve, reject) => {
-        this['_' + k](sql, param || [], (err, res) => {
-          err ? reject(err) : resolve(res)
-        })
-      })
-    }]
-})
+// 因为Sqlongo封装过了，这里再封装一次貌似会出无限递归Bug。。。
+// ;['run', 'get', 'all'].map (k => {
+//   [Database.prototype['_' + k], Database.prototype[k]]
+//     = [Database.prototype[k], function(sql, param) {
+//       return new Promise((resolve, reject) => {
+//         this['_' + k](sql, param || [], (err, res) => {
+//           err ? reject(err) : resolve(res)
+//         })
+//       })
+//     }]
+// })
 
 const ORM = function(dbName) {
 
@@ -19,27 +19,32 @@ const ORM = function(dbName) {
 
   // 字段配置类
   class Config {
-    constructor(config, key = config.type.name.toLowerCase()) {
-      switch (true) {
+    constructor(config, key = config.type.name.toLowerCase()) { // 注意参数顺序与后面相比是反的！
+      switch (true) { // 对config参数预处理，规范化为对象类型
+        case config instanceof Array:
+          // 若为Array, 则对config进行重整:
+          config[0] = new Config(config[0], key) // 首元素递归重整为Config
+          Object.assign(this, config[0], {
+            type: Array,
+            default: config[0].isForeign() ? null : [],
+            element: { type: config[0].type, default: config[0].default }
+          })
+          return // 直接返回
         case typeof config === "string" || config instanceof String:
         case typeof config === "number" || config instanceof Number:
           // 非Object/Array的config值直接作为默认值，值类型作为类型
           config = { type: config.constructor, default: config }
           break
-        case config instanceof Array:
-          // 若为Array, 则首元素递归转换为Config
-          config[0] = new Config(key, config[0]) 
-          break
         default:
-          // 若本身就是对象（Config），则不处理
+          // 若本身就是对象，则不处理
           break
       }
 
       // 用自定义配置覆写默认配置
       Object.assign(this, {
         /* 类型配置 */
-        type:     config.type,        
-      }, !this.isObject.call(config) && !this.isObject.call(config, {array: true}) ? {
+        type:     config.type,
+      }, !this.isForeign.call(config) ? {
         /* 非对象字段约束（将被存入数据库） */ 
         default:  config.type(), // 非对象默认值设为默认构造函数
         nullable: false, // 字段是否为not null。
@@ -50,40 +55,22 @@ const ORM = function(dbName) {
         /* 对象相关配置（对象不存入数据库） */
         default:  null,         // 对象默认值设为空（代表未加载状态）。
         foreignKey: key + "Id", // 对象对应外键名，默认为key + "Id"。
-        lazyLoad: function() { return config.type.findOne({id: this[config.foreignKey || key + "Id"]}) } // 这样写会不会让GC有问题啊……
       }, config)
-
-      if (!this.lazyLoad) { // 配置默认的lazyLoad函数
-        if (this.isObject()) {
-          const foreignKey = this.foreignKey
-          this.lazyLoad = function() { // 单个对象的Lazy Load
-            return config.type.findOne({id: this[foreignKey]}) 
-          }
-        } else if (this.isObject({array: true})) {
-          const foreignKey = this.foreignKey
-          this.lazyLoad = function() { // 对象数组的Lazy Load
-            return Promise.all(this[foreignKey].map(id => config.type.findOne({id})))
-          }
-        }
-      }
     }
 
-    isObject(option = {}) {
-      switch (true) {
-        case option.array:
-          return this.type === Array && this.isObject().call(this[0])
-        default:
-          return this.type !== String && this.type !== Number && this.type !== Array
-      }
+    // 判断是否为数据表外部对象。可以通过call/apply重用到非Config类对象上。
+    isForeign() {
+      function isObject() { return this.type !== String && this.type !== Number }
+      return isObject.call(this.type === Array? (this[0] || this.element) : this)
     }
   }
 
   // 面向Sqlite的ORM基类
   class ModelBase { 
 
-    // 用于定义数据表的静态对象，可以在这里设定数据类型、是否为空、默认值等等。
-    // 由于JS目前没有static property，因此暂用static getter代替
+    // 用以定义数据表的静态对象，需被子类复写。可以在此设定数据类型、是否为空、默认值等等。
     // 被子类复写后，基类中定义的Schema仍然保留，将按照原型链回溯的方式在getFullSchema()中获取。
+    // 由于JS目前没有static property，因此暂用static getter代替
     static get schema() {
       return {
         // id与name为所有子类都会有的属性（在classroom API的context下）
@@ -95,20 +82,23 @@ const ORM = function(dbName) {
 
     // 获取正式、完整的Schema对象
     static getFullSchema() {
-      let schema = {}
-      let modelChain = []
-      // 沿原型链不断向上回溯，逆向构造所有包含schema属性的原型数组
-      // 对于静态方法，this指向的就是constructor
-      for (let model = this; model.schema; model = Object.getPrototypeOf(model)) {
-        modelChain.unshift(model)
-      }
-      // 沿基类到子类方向添加所有Schema字段
-      for (const model of modelChain) {
-        for (let [key, config] of Object.entries(model.schema)) {
-          schema[key] = new Config(config, key)
+      if (!this.hasOwnProperty("_fullSchema")) {
+        let schema = {}
+        let modelChain = []
+        // 沿原型链不断向上回溯，逆向构造所有包含schema属性的原型数组
+        // 对于静态方法，this指向的就是constructor
+        for (let model = this; model.schema; model = Object.getPrototypeOf(model)) {
+          modelChain.unshift(model)
         }
+        // 沿基类到子类方向添加所有Schema字段
+        for (const model of modelChain) {
+          for (let [key, config] of Object.entries(model.schema)) {
+              schema[key] = new Config(config, key)
+          }
+        }
+        Object.defineProperty(this, "_fullSchema", { value: schema, enumerable: false })
       }
-      return schema
+      return this._fullSchema
     }
 
     // 初始化数据库表
@@ -118,25 +108,24 @@ const ORM = function(dbName) {
 
       // 由每一个key生成对应的字段SQL语句
       for (const [key, config] of Object.entries(schema)) {
+        // 作为外部数据的Object不存入数据库中，因此将被忽略掉
+        if (config.isForeign()) {
+          continue
+        }
         // 单行SQL语句先用数组表示，初始化为字段名
         let sql = [key]
-
         // 确定字段的Sqlite类型与默认值
         switch (config.type) {
           case Array:  // Array将以逗号分隔的id字符串存储
-            if (config[0].isObject()) {
-              continue // 若数组存的是Object则忽略（只写了一层检测……数组不能嵌套数组）
-            }
           case String: // Sqlite不区分VARCHAR(N)中的N，统一以TEXT处理
             sql.push(`text default '${config.default.toString()}'`)
             break
           case Number: // 类型为Number时，通过default值判断字段是整数还是实数。
             sql.push(`${Number.isInteger(config.default) ? "integer" : "real"} default ${config.default}`)
             break
-          default: // Object不存入数据库中，因此将被忽略掉
-            continue
-        }
-        
+          default:
+            throw (`invalid data field type ${config.type.name}`)
+        }       
         // 其他约束处理
         sql.concat([
           [!config.nullable, "not null"],
@@ -144,7 +133,6 @@ const ORM = function(dbName) {
           [config.primary,   "primary key"],
           [config.autoInc && Number.isInteger(config.default), "autoincrement"]
         ].filter(v => v[0]).map(v => v[1]))
-
         // 作为一行一句储存
         fieldSQLs.push(sql.join(' '))
       }
@@ -167,11 +155,11 @@ const ORM = function(dbName) {
     }
 
     static async find(descriptor, selector = {}) {
-      return (await this._find(descriptor, selector, db.all)).map(row => new this(row))
+      return (await this._find(descriptor, selector, db.all)).map(row => new this(row, {initDefault: false}))
     }
 
     static async findOne(descriptor, selector = {}) {
-      return new this(await this._find(descriptor, selector, db.get))
+      return new this(await this._find(descriptor, selector, db.get), {initDefault: false})
     }
 
     // 异步创建一个对象，按需被子类重写（如子类对象创建时需读取数据库）
@@ -180,47 +168,42 @@ const ORM = function(dbName) {
       return new this(init)
     }
 
-    // 构造Schema相关属性
-    // 非数据库字段的类字段/属性可在子类中定义。若不需要，子类可不写构造函数。
-    constructor(init = {}) {
+    // 构造Schema相关属性。非数据库字段的类字段/属性可在子类中定义。若不需要，子类可不写构造函数。
+    constructor(init = {}, option = { initDefault: true }) {
       const schema = this.constructor.getFullSchema()
 
-      // 利用schema的default值与init来构造对象
-      Object.keys(schema).forEach(key => this[key] = init[key] || schema[key].default)
-
-      // 方法复用，定义一个采用Lazy load机制读取的属性
-      function defineLazyProperty(key, config) {
-        // 由于涉及到数据库读取，若触发lazy load, getter会返回Promise
-        // 因此，使用getter时需加await保证返回正确的属性
-        Object.defineProperties(this, {
-          ['_' + key]: {
-            value: this[key], // 若不需Lazy load，可在init中为该属性先行绑定一个初值
-            writable: true,
-            enumerable: false // 隐藏属性，防止拷贝
-          },
-          [key]: {
-            get: () => this['_' + key] || config.lazyLoad.call(this).then(v => this['_' + key] = v),
-            set: v => this['_' + key] = v 
-          }
-        })
+      if (option.initDefault) {
+        // 利用schema的default值与init来构造对象
+        Object.keys(schema).forEach(key => this[key] = init[key] || schema[key].default)
+      } else {
+        Object.assign(this, init)
       }
 
       // 根据schema进一步配置对象
       for (const [key, config] of Object.entries(schema)) {
-        switch (config.type) {
-          case Array:
-            if (typeof this[key] === "string") {
-              // 若为字符串型数组，则将其还原
-              this[key] = JSON.parse(this[key])
-            } else if (config[0].isObject()) { 
-              // 若存储的是对象，则配置其外键属性
-              this.defineLazyProperty(key, config)
+        if (config.isForeign()) {
+          // 若存储的是对象，则定义一个采用Lazy load机制读取的属性
+          const lazyLoad = () => {
+            if (config.type !== Array) {
+              return config.type.findOne({id: this[config.foreignKey]})
+            } else {
+              return Promise.all(this[config.foreignKey].map(id => config.element.type.findOne({id})))
             }
-          case String:
-          case Number:
-            break
-          default: // 对象属性
-            this.defineLazyProperty(key, config)
+          }
+          Object.defineProperties(this, {
+            ['_' + key]: {
+              value: this[key], // 若不需Lazy load，可在init中为该属性先行绑定一个初值
+              writable: true,
+              enumerable: false // 隐藏属性，防止拷贝
+            },
+            [key]: {
+              get: () => this['_' + key] || lazyLoad().then(v => this['_' + key] = v),
+              set: v => this['_' + key] = v 
+            }
+          })
+        } else if (config.type === Array && typeof this[key] === "string") {
+          // 若为字符串型数组，则将其还原
+          this[key] = JSON.parse(this[key])          
         }
       }
     }
@@ -229,7 +212,7 @@ const ORM = function(dbName) {
     async load() {
       const schema = this.constructor.getFullSchema()
       for (const [key, config] of schema) {
-        if (config.isObject() || config.isObject({array: true})) {
+        if (config.isForeign()) {
           await this[key] // 加载lazy属性
           await this[key].load() // 上一层级属性递归调用
         }
@@ -243,19 +226,19 @@ const ORM = function(dbName) {
       let [keys, values] = [[], []]
 
       for (const [key, config] of Object.entries(schema)) {
+        if (config.isForeign()) { // 不保存Object
+          continue
+        }
         let value = this[key]
         switch (config.type) {
           case Array:
-            if (config[0].isObject()) {
-              break // 不保存Object数组
-            }
             value = JSON.stringify(value) // 数组采用JSON字符串保存
           case String:
           case Number:
             values.push(value)
             keys.push(key)
             break
-          default: // 若当前key为非数组对象，则会被忽略掉
+          default:
             break
         }
       }
