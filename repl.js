@@ -3,7 +3,7 @@ const qs = require('querystring')
 const repl = require('repl')
 const axios = require('axios')
 const chalk = require('chalk')
-const config = require('./config.json')
+const { config } = require('./app')
 const prettyjson = require('prettyjson')
 
 function isRecoverableError(error) {
@@ -27,7 +27,7 @@ exports.start = () => {
   console.log(`1. auth 请求提供了特殊省略形式：${chalk.blue('auth [一卡通号] [密码] [平台名]')}`)
   console.log(`   成功后 token 将保存，后续测试请求都会自动带上，输入 deauth 可清除；`)
   console.log(`   使用 ${chalk.blue('auth [token]')} 可直接切换 token；`)
-  console.log('2. 省略 get/post/put/delete 时，有参数默认为 post，否则为 get；')
+  console.log('2. 省略 get/post/put/delete 时，默认为 get；')
   console.log('3. 需要传复杂参数直接用 js 格式书写即可，支持 JSON 兼容的任何类型：')
   console.log(`${chalk.green('put')} api/card ${chalk.cyan('{ amount: 0.2, password: 123456 }')}`)
   console.log(`4. 连接远程 WS3 服务器：${chalk.green('server')} https://boss.myseu.cn/ws3/`)
@@ -51,7 +51,7 @@ exports.start = () => {
       }
 
       if (!method) {
-        method = params ? 'post' : 'get'
+        method = 'get'
       } else {
         method = method.toLowerCase()
       }
@@ -69,6 +69,7 @@ exports.start = () => {
           console.log(`\n基地址改为 ${params} 了！`)
           return callback(null)
         } else if (/^auth$/.test(path)) {
+          method = 'post'
           let [cardnum, password, platform] = params.split(/\s+/g)
           if (password) {
             composedParams = { cardnum, password, platform }
