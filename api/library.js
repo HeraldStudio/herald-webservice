@@ -3,13 +3,13 @@ const cheerio = require('cheerio')
 exports.route = {
 
   /**
-   * POST /api/library
+   * GET /api/library
    * @apiParam password
    * 图书馆信息查询
    **/
-  async post() {
+  async get() {
     let { cardnum } = this.user
-    let { password } = this.params
+    let password = this.params.password || this.user.password
 
     // 获取解析后的验证码与Cookie并登陆
     let res = (await this.get('https://boss.myseu.cn/libcaptcha/')).data
@@ -32,28 +32,28 @@ exports.route = {
     )
     let $ = cheerio.load(res.data)
     let bookList = $('#mylib_content tr').toArray().slice(1).map(tr => {
-      let [bookId, name, borrowDate, returnDate, times, place, addition]
+      let [bookId, name, borrowDate, returnDate, renewDate, location, addition]
       = $(tr).find('td').toArray().map(td => {
         return $(td).text().trim()
       })
 
       let borrowId = $(tr).find('input').attr('onclick').substr(20,8)
 
-      return { bookId, name, borrowDate, returnDate, times, place, addition, borrowId }
+      return { bookId, name, borrowDate, returnDate, renewDate, location, addition, borrowId }
     })
 
     return { cookies, bookList }
   },
 
   /**
-   * PUT /api/library
+   * POST /api/library
    * @apiParam cookies
    * @apiParam bookId
    * @apiParam borrowId
    * 图书续借
    **/
 
-   async put() {
+   async post() {
      let { cookies, bookId, borrowId } = this.params
      let time = new Date().getTime()
 

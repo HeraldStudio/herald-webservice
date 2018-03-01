@@ -1,0 +1,11 @@
+{
+  "name": "herald-webservice",
+  "version": "0.1.0",
+  "description": "小猴偷米「新」后端服务",
+  "title": "Herald-webservice",
+  "url": "https://boss.myseu.cn/ws3",
+  "header": {
+    "title": "请求与返回的格式约定",
+    "filename": "./apidoc/header.md"
+  }
+}
