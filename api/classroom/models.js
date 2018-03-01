@@ -65,7 +65,7 @@ class Classroom extends ModelBase {
     }
   }
 
-  constructor(init) {
+  constructor(init = {}) {
     if (init.classroomTypeList) { // 削去学校接口给的乱七八糟的东西……
       init.classroomTypeList = init.classroomTypeList.map(v => new ClassroomType(v))
     }
@@ -93,6 +93,7 @@ class ClassroomType extends ModelBase {
 class ClassRecord extends ModelBase {
   static get schema() {
     return {
+      //id            : { type: Number, default: null, primary: true, autoInc: true }, autoInc的实现有点问题
       courseId      : 0,    // 课程Id
       courseName    : "",   // 课程名
       startWeek     : 1,    // 开课周

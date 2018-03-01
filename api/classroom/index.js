@@ -1,4 +1,4 @@
-let { db, Campus, Building, Classroom, ClassRecord, DayOfWeek, ClassOfDay } = require("./models")
+let { Campus, Building, Classroom, ClassRecord, DayOfWeek, ClassOfDay } = require("./models")
 
 exports.route = {
 
@@ -14,13 +14,17 @@ exports.route = {
     // 参数检查
     if (typeof type !== "string") {
       throw (400)
-    }    
+    }
 
-    // 规范化type字符串的格式（首字母大写，其余保持小写）
-    type = type[0].toUpperCase() + type.slice(1).toLowerCase()    
+    // 转换字符串至对应的类型
+    type = Object.entries(require("./models")).find(e => e[0].toLowerCase() === type.toLowerCase())[1]
+
+    if (!type) {
+      throw (400)
+    }
 
     // 返回对应类型所有条目的id与name
-    return await db.all(`select id, name from ${type}`)
+    return await type.find({}, {id: true, name: true})
   },
 
   /**
@@ -70,7 +74,10 @@ exports.route = {
             delete record[curName + "Name"]
             return a[i] // 传递上层对象给下一层
           })
-  
+          
+          record.id = Math.max(...ClassRecord.all.map(o => o.id), 0) + 1 // FIXME：修正autoIncrement的问题
+          record = new ClassRecord(record)
+          ClassRecord.all.push(record)
           record.save() // await-free
         })
       }
@@ -87,7 +94,7 @@ exports.route = {
         )).data,
         /<td>(.+)<\/td><td>(.+)<\/td><td>([^\s]+)\s*<\/td><td>第(\d+)-(\d+)周;? (.*)<\/td><td>(.+)<\/td><td>([^\w]+)([0-9a-zA-Z]+)<\/td><td>(\d+)<\/td><td>(\d+)<\/td>/img,
         entry => entry && entry[6].split(' ').map(v => v.match(/(星期.)-(.+)/)).map( // 把一星期中上多天的一门课拆成若干个Record
-          time => new ClassRecord({
+          time => ({
             name          : entry[1],
             courseId      : entry[2],
             courseName    : entry[3],
@@ -133,12 +140,15 @@ exports.route = {
       values = Object.values(values)
     }
 
-    // 规范化type字符串的格式（首字母大写，其余保持小写）
-    type = type[0].toUpperCase() + type.slice(1).toLowerCase()
+    // 转换字符串至对应的类型
+    type = Object.entries(require("./models")).find(e => e[0].toLowerCase() === type.toLowerCase())[1]
+
+    if (!type) {
+      throw (400)
+    }
 
     // 先转换value为对应的类对象，再调用基类的save方法保存到数据库中
-    // 如果此时抛出了异常（如type不存在等），则自动返回400
-    values.map(v => new require("./models")[type](v)).forEach(v => v.save()) // await-free
+    values.map(v => new type(v)).forEach(v => v.save()) // await-free
 
     // 成功状态码为201 Created
     this.response.status = 201
