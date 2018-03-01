@@ -20,11 +20,11 @@ exports.route = {
    *   对于其他建筑，学校接口暂未提供查询，因而从web service内置数据库中查询。
    **/
   async get() {
-    let results = []
+    let result = {}
 
     if (this.params.campusID === 22) { // 九龙湖教一~教七
       // 转发请求至学校空教室接口
-      results = (await this.post(
+      result = (await this.post(
         "http://58.192.114.179/classroom/show/getemptyclassroomlist",
         this.querystring
       )).data
@@ -37,7 +37,7 @@ exports.route = {
         and   buildingId = ifnull(?, buildingId)
         and   dayOfWeek = ifnull(?, dayOfWeek)
         and   (startWeek <= ? and endWeek >= ?)
-        and   (startSequence <= ? and endSequnce >= ?)
+        and   (startSequence <= ? and endSequence >= ?)
       `, [
           this.params.termId || ClassRecord.currentTermId(),
           this.params.capmusId || null,
@@ -59,14 +59,14 @@ exports.route = {
       ])
 
       result = {
-        "pager.pageNo": params.pageNo,
+        "pager.pageNo": this.params.pageNo,
         "pager.totalRows": spareClassrooms.length,
-        "rows": spareClassrooms.slice(params.pageSize * (params.pageNo - 1), params.pageSize * params.pageNo)
+        "rows": spareClassrooms.slice(this.params.pageSize * (this.params.pageNo - 1), this.params.pageSize * this.params.pageNo)
       }
     }
 
     // 利用Classroom类剔除多余属性，统一返回的JSON格式
-    results.rows = await Promise.all(results.rows.map(c => new Classroom(c).load()))
+    result.rows = await Promise.all(result.rows.map(c => new Classroom(c).load()))
 
     return result
   }
