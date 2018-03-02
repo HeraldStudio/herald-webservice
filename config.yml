@@ -25,6 +25,7 @@ cache:
     notice:     # 系统公告有定向推送，不能使用 public 存储，因此为了节省空间也不设缓存
     pe:         1h,lazy
     phylab:     1d,lazy
+    schoolbus:  5s,public
     srtp:       1d,lazy
     user:       1d,lazy
     wlan:
