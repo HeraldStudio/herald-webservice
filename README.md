@@ -25,26 +25,26 @@
 
   - [x] 一卡通（状态 / 当日 / 历史） @rikumi
   - [x] 课表 @rikumi
-  - [x] 跑操次数 @rikumi
+  - [x] 跑操次数 @rikumi @tusooa
   - [x] 空教室 @Vigilans-Yea
   - [ ] 跑操详情、跑操预告
-  - [x] 物理实验 @tusooa @rikumi
+  - [x] 物理实验 @tusooa
   - [x] 考试安排 @sleepyjoker
-  - [x] 成绩 GPA @rikumi
+  - [x] 成绩 GPA @tusooa
   - [x] SRTP @imfinethanks
   - [x] 人文讲座 @sleepyjoker
   - [x] 图书馆 @sleepyjoker
   - [x] 教务通知 @tusooa @MediosZ
-  - [x] 场馆预约
-  - [ ] 实时班车
+  - [x] 场馆预约 @tusooa @Vigilans-Yea
+  - [x] 实时班车 @rikumi
 
 3. **继承自 AppService**
 
   - [x] 七牛上传 @rikumi
   - [x] 一卡通充值 @rikumi
-  - [ ] 系统通知发布系统
-  - [ ] 广告自助发布审核系统
-  - [ ] 完整的 Web 管理后台 @rikumi WIP
+  - [x] 系统通知发布系统 @rikumi
+  - [x] 广告自助发布审核系统 @rikumi
+  - [x] 完整的 Web 管理后台 @rikumi
 
 4. **新功能提案**
 
