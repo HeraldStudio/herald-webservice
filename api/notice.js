@@ -83,7 +83,7 @@ exports.route = {
     return ret.reduce((a, b) => a.concat(b), [])
       .sort((a, b) => b.time - a.time)
       // 按保留天数和条数过滤获取的信息
-      // .filter((k, i) => i < keepNum || now - k.time < keepTime)
+      .filter((k, i) => i < keepNum || now - k.time < keepTime)
   },
 
   /**
