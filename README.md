@@ -34,7 +34,7 @@
   - [x] SRTP @imfinethanks
   - [x] 人文讲座 @sleepyjoker
   - [x] 图书馆 @sleepyjoker
-  - [x] 教务通知 @tusooa @MediosZ
+  - [x] 学校通知 @tusooa @MediosZ @rikumi
   - [x] 场馆预约 @tusooa @Vigilans-Yea
   - [x] 实时班车 @rikumi
 
