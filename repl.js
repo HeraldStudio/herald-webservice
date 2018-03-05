@@ -35,7 +35,7 @@ exports.start = () => {
   console.log('测试终端开始了！')
 
   let replServer = repl.start({
-    prompt: '\n→ ',
+    prompt: '\n-> ',
     eval: (cmd, context, filename, callback) => {
       let parts = /^(?:(get|post|put|delete)\s+)?(\S+)(?:\s+([\s\S]+))?$/im.exec(cmd.trim())
       if (!parts) {
