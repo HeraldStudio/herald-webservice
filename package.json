@@ -17,7 +17,7 @@
     "iconv": "^2.3.0",
     "iconv-lite": "latest",
     "js-yaml": "^3.10.0",
-    "kf-router": "^1.2.3",
+    "kf-router": "^1.2.5",
     "koa": "^2.4.1",
     "koa-bodyparser": "^4.2.0",
     "nodemon": "^1.15.1",
