@@ -76,7 +76,7 @@ exports.route = {
         category: '系统通知',
         title: k.title,
         nid: k.nid,
-        time: k.time
+        time: k.publishTime
       }
     }))
 
