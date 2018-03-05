@@ -1,4 +1,10 @@
 const cheerio = require('cheerio')
+const europa = new (require('node-europa'))({
+  absolute: true,
+  baseUri: 'http://jwc.seu.edu.cn',
+  inline: true
+})
+
 const list = [
   ['#wp_news_w5', "教务信息"],
   ['#wp_news_w6', "学籍管理"],
@@ -32,7 +38,7 @@ exports.route = {
             category: ele[1],
             title: k.attr('title'),
             url: /^\//.test(href) ? 'http://jwc.seu.edu.cn' + href : href,
-            isAttachment: !/.+.html?$/.test(k.attr('href')),
+            isAttachment: !/.+.html?$/.test(href),
             isImportant: !!k.find('font').length,
           }
         })
@@ -43,5 +49,21 @@ exports.route = {
 
       // 5 天内的通知全部保留，超出 5 天则只保留十条
       .filter((k, i) => i < 10 || now - k.time < 1000 * 60 * 60 * 24 * 5)
+  },
+
+  /**
+   * POST /api/jwc
+   * 转换教务通知内容为 Markdown
+   * @apiParam url 需要转换为 Markdown 的地址
+   * @apiReturn <string> 转换结果
+   */
+  async post () {
+    let { url } = this.params
+    if (!/http:\/\/jwc\.seu\.edu\.cn\//.test(url)) {
+      throw 403
+    }
+    let { data } = await this.get(url)
+    let $ = cheerio.load(data)
+    return europa.convert($('[portletmode="simpleArticleContent"]').html())
   }
 }
