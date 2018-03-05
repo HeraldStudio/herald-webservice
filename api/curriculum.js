@@ -176,21 +176,33 @@ exports.route = {
             let teacherName = '', credit = ''
 
             // 若在侧栏中找到该课程信息，取其教师名和学分数，并标记该侧栏课程已经使用
-            key = sidebar.hasOwnProperty(key)
-              ? key
-              : (Object.getOwnPropertyNames(sidebar)
-                 // 考虑每个课程由不同的老师教授的情况
-                 // 这时侧栏上的周次并不和表格中的一致
-                 // TODO 是否需要合并成一个课程?
-                 .filter(k => k.startsWith(keyStart)))[0]
-            if (key) {
-              teacherName = sidebar[key].teacherName
-              credit = sidebar[key].credit
-              sidebar[key].used = true
-            }
+            let ret =
+                (sidebar.hasOwnProperty(key)
+                 ? [key]
+                 : (Object.getOwnPropertyNames(sidebar)
+                    // 考虑每个课程由不同的老师教授的情况
+                    // 这时侧栏上的周次并不和表格中的一致
+                    // TODO 是否需要合并成一个课程?
+                    .filter(k => k.startsWith(keyStart))))
+                .map(k => {
+                  sidebar[k].used = true
+                  return { courseName,
+                           teacherName: sidebar[k].teacherName,
+                           credit: sidebar[k].credit,
+                           location,
+                           // 时间表里是总的周数
+                           // 侧栏里是每个老师分别的上课周数
+                           // 这里取侧栏
+                           beginWeek: sidebar[k].beginWeek,
+                           endWeek: sidebar[k].endWeek,
+                           dayOfWeek,
+                           beginPeriod,
+                           endPeriod,
+                           flip }
+                })
 
             // 返回课程名，教师名，学分，上课地点，起止周次，起止节数，单双周，交给 concat 拼接给对应星期的课程列表
-            return { courseName, teacherName, credit, location, beginWeek, endWeek, dayOfWeek, beginPeriod, endPeriod, flip }
+            return ret
           })
         )
       }
