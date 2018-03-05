@@ -12,6 +12,7 @@ exports.route = {
       throw 403
     }
     let { notice } = this.params
+    notice.publishTime = new Date().getTime()
     await db.notice.insert(notice)
   },
   async put () {
