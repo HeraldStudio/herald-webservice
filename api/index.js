@@ -10,7 +10,10 @@ exports.route = {
     this.related('curriculum', '{ term? } 课表查询（返回格式可能随上游可用性变化）')
     this.related('exam', '考试查询')
     this.related('gpa', '成绩及绩点查询')
-    this.related('jwc', '教务通知')
+    this.related('jwc', {
+      get: '获取教务通知列表',
+      post: '{ url } 教务通知网页解析为 Markdown'
+    })
     this.related('lecture', '讲座打卡记录')
     this.related('library', {
       get: '{ password?: 图书馆密码 } 查询已借图书',
