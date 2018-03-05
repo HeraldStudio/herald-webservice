@@ -10,27 +10,27 @@ cache:
   # 数据因学校方面操作而变化的，若每天或每周更新，缓存时间设置为小时级，一般 1 小时；
   # 数据因学校方面操作而变化的，若每学期或每年更新，缓存时间设置为天级，一般 1 天。
   api:
-    admin:      # 请避免对管理员接口进行缓存操作，以防导致意外影响。
-    activity:   1m,public
-    banner:     # 轮播图有定向推送，不能使用 public 存储，因此为了节省空间也不设缓存
+    admin:        # 请避免对管理员接口进行缓存操作，以防导致意外影响。
+    activity:     1m,public
+    banner:       # 轮播图有定向推送，不能使用 public 存储，因此为了节省空间也不设缓存
     card:
-      get:      1m,lazy
-    curriculum: 1d,lazy
-    exam:       1d,lazy
-    gpa:        1h,lazy
-    jwc:        1h,lazy,public
-    lecture:    1h,lazy
+      get:        1m,lazy
+    curriculum:   1d,lazy
+    exam:         1d,lazy
+    gpa:          1h,lazy
+    notification: 1h,lazy,public
+    lecture:      1h,lazy
     library:
-      get:      1m,lazy
-    notice:     # 系统公告有定向推送，不能使用 public 存储，因此为了节省空间也不设缓存
-    pe:         1h,lazy
-    phylab:     1d,lazy
-    schoolbus:  5s,public
-    srtp:       1d,lazy
-    user:       1d,lazy
+      get:        1m,lazy
+    notice:       # 系统公告有定向推送，不能使用 public 存储，因此为了节省空间也不设缓存
+    pe:           1h,lazy
+    phylab:       1d,lazy
+    schoolbus:    5s,public
+    srtp:         1d,lazy
+    user:         1d,lazy
     wlan:
-      get:      lazy
+      get:        lazy
 spider:
-  enable:       true
-  port:         49034
-  heartCycle:   4000
+  enable:         true
+  port:           49034
+  heartCycle:     4000
