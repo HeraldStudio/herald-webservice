@@ -15,7 +15,8 @@ function isRecoverableError(error) {
 
 exports.start = () => {
   const testClient = axios.create({
-    baseURL: `http://localhost:${config.port}/`
+    baseURL: `http://localhost:${config.port}/`,
+    validateStatus: () => true
   })
 
   console.log('\n欢迎使用' + chalk.blue(' Herald WebService3 ') + '测试终端！')
@@ -50,12 +51,6 @@ exports.start = () => {
         return callback(null)
       }
 
-      if (!method) {
-        method = 'get'
-      } else {
-        method = method.toLowerCase()
-      }
-
       let composedParams = {}
 
       if (params) {
@@ -64,11 +59,11 @@ exports.start = () => {
             let [key, value] = param.split('=')
             composedParams[key] = value
           })
-        } else if (/^server$/.test(path)) {
+        } else if (/^server$/.test(path) && !method) {
           testClient.defaults.baseURL = params
           console.log(`\n基地址改为 ${params} 了！`)
           return callback(null)
-        } else if (/^auth$/.test(path)) {
+        } else if (/^auth$/.test(path) && !method) {
           method = 'post'
           let [cardnum, password, platform] = params.split(/\s+/g)
           if (password) {
@@ -90,6 +85,12 @@ exports.start = () => {
             }
           }
         }
+      }
+
+      if (!method) {
+        method = 'get'
+      } else {
+        method = method.toLowerCase()
       }
 
       if (Object.keys(composedParams).length && (method === 'get' || method === 'delete')) {
