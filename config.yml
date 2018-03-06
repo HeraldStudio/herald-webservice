@@ -18,7 +18,7 @@ cache:
     curriculum: 1d,lazy
     exam:       1d,lazy
     gpa:        1h,lazy
-    notice:     1h,lazy,public
+    notice:     1m,lazy,public
     lecture:    1h,lazy
     library:
       get:      1m,lazy
