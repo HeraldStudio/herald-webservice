@@ -203,7 +203,7 @@ exports.route = {
 
             // 返回课程名，教师名，学分，上课地点，起止周次，起止节数，单双周，交给 concat 拼接给对应星期的课程列表
             return ret
-          })
+          }).reduce((a, b) => a.concat(b), [])
         )
       }
 
