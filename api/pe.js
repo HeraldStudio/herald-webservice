@@ -1,4 +1,5 @@
 const cheerio = require('cheerio')
+const { config } = require('../app')
 
 exports.route = {
 
@@ -49,6 +50,22 @@ exports.route = {
       return {name, value, score, grade}
     })
 
-    return { count, detail, health }
+    // 计算剩余天数
+    let now = new Date().getTime()
+    let beginOfTerm = Object.keys(config.term)
+      .filter(k => /-[23]$/.test(k))                // 取两个长学期
+      .map(k => new Date(config.term[k]).getTime())  // 转为学期开始时间戳
+      // 去掉未开始和已结束的，留下一个学期，或者 undefined（没有符合条件的学期）
+      .filter(k => k <= now && k + 1000 * 60 * 60 * 24 * 7 * 16 > now)[0]
+
+    let remainDays = beginOfTerm ? (
+      Array(16 * 7).fill() // 生成当前学期每一天的下标数组
+        // 当前学期每一天的跑操结束时间戳
+        .map((_, i) => beginOfTerm + 1000 * 60 * ((i * 60 * 24) + (7 * 60 + 20)))
+        // 去掉已经过去的，转换成星期，去掉双休日，剩下的天数
+        .filter(k => now < k).map(k => new Date(k).getDay()).filter(k => k >= 1 && k <= 5).length
+    ) : 0
+
+    return { count, detail, health, remainDays }
   }
 }

@@ -20,7 +20,7 @@ exports.route = {
       post: '{ cookies, bookId, borrowId } 续借图书'
     })
     this.related('notice', '获取系统公告列表')
-    this.related('pe', '跑操次数查询')
+    this.related('pe', '跑操及体测成绩查询')
     this.related('phylab', '物理实验查询')
     this.related('qiniu', '前端执行七牛上传所需的 uptoken')
     this.related('reservation', '{ method, ... } 场馆预约，具体参见代码')
