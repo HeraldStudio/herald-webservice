@@ -73,10 +73,11 @@ exports.route = {
     // 小猴系统通知
     ret = ret.concat((await db.notice.find()).map(k => {
       return {
-        category: '系统通知',
+        category: '小猴通知',
         title: k.title,
         nid: k.nid,
-        time: k.publishTime
+        time: k.publishTime,
+        isImportant: true
       }
     }))
 
