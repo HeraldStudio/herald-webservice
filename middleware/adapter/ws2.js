@@ -316,12 +316,29 @@ module.exports = async (ctx, next) => {
       ctx.body = { content: 'refreshing', code: 201 }
 
     } else if (ctx.path === '/api/pe') {
-      // FIXME 跑操暂无法获取
-      ctx.body = { code: 400 }
+
+      await next()
+      ctx.body = {
+        content: ctx.body.count.toString(),
+        remain: ctx.body.remainDays,
+        rank: '0',
+        code: 200
+      }
 
     } else if (ctx.path === '/api/pedetail') {
-      // FIXME 跑操暂无法获取
-      ctx.body = { code: 400 }
+
+      await next()
+      ctx.body = {
+        content: ctx.body.detail.map(k => {
+          let date = new Date(k)
+          return {
+            sign_date: date.format('yyyy-MM-dd'),
+            sign_time: date.format('h.mm'),
+            sign_effect: '有效'
+          }
+        }),
+        code: 200
+      }
 
     } else if (ctx.path === '/api/phylab') {
 
