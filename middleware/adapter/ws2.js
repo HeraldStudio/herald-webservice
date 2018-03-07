@@ -311,7 +311,15 @@ module.exports = async (ctx, next) => {
 
       ctx.body = { content, code: 200 }
 
-    } else if (ctx.path === '/api/pc' || ctx.path === '/api/pe' || ctx.path === '/api/pedetail') {
+    } else if (ctx.path === '/api/pc') {
+      // 跑操预告不再提供
+      ctx.body = { content: 'refreshing', code: 201 }
+
+    } else if (ctx.path === '/api/pe') {
+      // FIXME 跑操暂无法获取
+      ctx.body = { code: 400 }
+
+    } else if (ctx.path === '/api/pedetail') {
       // FIXME 跑操暂无法获取
       ctx.body = { code: 400 }
 
@@ -443,4 +451,3 @@ module.exports = async (ctx, next) => {
     await next()
   }
 }
-
