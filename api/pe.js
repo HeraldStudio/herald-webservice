@@ -46,7 +46,7 @@ exports.route = {
     let health = $('tr[height="30"]').toArray().map(k => {
       let [name, value, score, grade] = $(k).children('td').toArray().map(k => $(k).text().trim())
       value = parseFloat(value)
-      score = parseFloat(value)
+      score = parseFloat(score)
       return {name, value, score, grade}
     })
 
