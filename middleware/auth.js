@@ -63,28 +63,41 @@ const decrypt = (key, value) => {
   return result
 }
 
+// 登录认证以及中间件 API useAuthCookie() 中使用的登录认证请求
 const auth = async (ctx, username, password) => {
-  
-  // 调用东大 APP 统一身份认证
-  // 若需要修改此请求，请保证该请求符合以下两个条件：
-  // 1. 能获取到正确的统一身份认证 Cookie（一卡通等调用了 useAuthCookie() 的接口能正常使用）；
-  // 2. 若用户名或密码错误，能抛出 401 异常。
-  let res = await ctx.post(
-    'http://mobile4.seu.edu.cn/_ids_mobile/login18_9',
-    { username, password }
-  )
+  try {
+    // 调用东大 APP 统一身份认证
+    // 若需要修改此请求，请保证该请求符合以下两个条件：
+    // 1. 能获取到正确的统一身份认证 Cookie（一卡通等调用了 useAuthCookie() 的接口能正常使用）；
+    // 2. 若用户名或密码错误，能抛出 401 异常。
+    let res = await ctx.post(
+      'http://mobile4.seu.edu.cn/_ids_mobile/login18_9',
+      { username, password }
+    )
 
-  // 抓取 Cookie
-  let cookie = res.headers['set-cookie']
-  if (Array.isArray(cookie)) {
-    cookie = cookie.filter(k => k.indexOf('JSESSIONID') + 1)[0]
+    // 抓取 Cookie
+    let cookie = res.headers['set-cookie']
+    if (Array.isArray(cookie)) {
+      cookie = cookie.filter(k => k.indexOf('JSESSIONID') + 1)[0]
+    }
+    cookie = /(JSESSIONID=[0-9A-F]+)\s*[;$]/.exec(cookie)[1]
+
+    let url = 'http://www.seu.edu.cn'
+    let { cookieName, cookieValue } = JSON.parse(res.headers.ssocookie)[0]
+    ctx.cookieJar.setCookieSync(`${cookieName}=${cookieValue}; Domain=.seu.edu.cn`, url, {})
+    ctx.cookieJar.setCookieSync(`${cookie}; Domain=.seu.edu.cn`, url, {})
+  } catch (e) {
+    // 当统一身份认证请求抛出 401 时，认为登陆过期，删除用户表项并将 401 抛给用户
+    if (e.response && e.response.status === 401) {
+      if (ctx.user.isLogin) {
+        let { token } = ctx.user
+        await db.auth.remove({ tokenHash: token })
+      }
+      throw 401
+    } else {
+      throw e
+    }
   }
-  cookie = /(JSESSIONID=[0-9A-F]+)\s*[;$]/.exec(cookie)[1]
-
-  let url = 'http://www.seu.edu.cn'
-  let { cookieName, cookieValue } = JSON.parse(res.headers.ssocookie)[0]
-  ctx.cookieJar.setCookieSync(`${cookieName}=${cookieValue}; Domain=.seu.edu.cn`, url, {})
-  ctx.cookieJar.setCookieSync(`${cookie}; Domain=.seu.edu.cn`, url, {})
 }
 
 // 加密和解密过程
