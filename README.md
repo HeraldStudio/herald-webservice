@@ -2,7 +2,11 @@
 
 小猴偷米 2018 WebService3 后端试验品，使用 Node.js + Koa 构建。
 
-<a href='https://heraldstudio.github.io/herald-webservice' class='hidden-in-docute'>文档页面</a>
+## 部署情况
+
+- 程序将部署在 api.myseu.cn；
+- Nginx 应配置为将 www.heraldstudio.com/ 转发到 api.myseu.cn/adapter-ws2/ 下；
+- Nginx 应配置为将 myseu.cn/（前端路径除外）转发到 api.myseu.cn/adapter-appserv/ 下；
 
 ## 开发进度
 
@@ -23,11 +27,11 @@
 
 2. **继承自 WebService2**
 
-  - [x] 一卡通（状态 / 当日 / 历史） @rikumi
+  - [x] 一卡通（状态 / 当日 / 历史）
   - [x] 课表 @rikumi
   - [x] 跑操次数 @rikumi @tusooa
   - [x] 空教室 @Vigilans-Yea
-  - [ ] 跑操详情、跑操预告
+  - [x] 跑操、体测 @rikumi
   - [x] 物理实验 @tusooa
   - [x] 考试安排 @sleepyjoker
   - [x] 成绩 GPA @tusooa
@@ -45,6 +49,7 @@
   - [x] 系统通知发布系统 @rikumi
   - [x] 广告自助发布审核系统 @rikumi
   - [x] 完整的 Web 管理后台 @rikumi
+  - [ ] 用户行为分析统计接口
 
 4. **新功能提案**
 
