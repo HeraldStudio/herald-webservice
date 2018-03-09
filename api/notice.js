@@ -110,7 +110,7 @@ exports.route = {
         absolute: true,
         baseUri: typeObj.baseUrl,
         inline: true
-      }).convert($(typeObj.contentSelector).html())
+      }).convert($(typeObj.contentSelector).html()).replace(/\*\*/g, ' ** ')
     } else {
       return (await db.notice.find({ nid }, 1)).content
     }

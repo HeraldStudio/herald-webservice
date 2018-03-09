@@ -51,6 +51,7 @@ app.use(require('./middleware/params'))
   为了兼容使用旧版 webserv2 接口的前端，引入以下兼容性中间件，实现老接口的部分子集
  */
 app.use(require('./middleware/adapter/ws2'))
+app.use(require('./middleware/adapter/appserv'))
 
 /**
   ## C. API 层

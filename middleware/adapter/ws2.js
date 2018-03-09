@@ -1,15 +1,8 @@
-const db = require('sqlongo')('adapter-ws2-auth')
+const db = require('../../database/adapter')
 const crypto = require('crypto')
+const { config } = require('../../app')
 const axios = require('axios')
 const cheerio = require('cheerio')
-
-db.auth = {
-  uuid: 'text primary key',   // ws2 uuid
-  cardnum: 'text not null',   // 一卡通号，用于识别用户是否已存在
-  token: 'text not null',     // 对应的 ws3 token
-  libPwd: 'text not null',    // 上次保存的图书馆密码
-  libCookie: 'text not null', // 上次使用的图书馆 Cookie
-}
 
 Date.prototype.format = function (format) {
   let o = {
@@ -260,7 +253,7 @@ module.exports = async (ctx, next) => {
       let { barcode } = ctx.params
       let { libCookie } = await db.auth.find({ uuid }, 1)
 
-      let res = await axios.get(
+      let res = await axios.create(config.axios).get(
         'http://www.libopac.seu.edu.cn:8080/reader/book_lst.php',
         {
           headers: {
