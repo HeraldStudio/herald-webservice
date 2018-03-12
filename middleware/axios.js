@@ -52,6 +52,9 @@ module.exports = async (ctx, next) => {
     withCredentials: true,
     jar: ctx.cookieJar,
 
+    // 覆盖默认的状态码判断，防止在禁用重定向时误判 302 为错误返回
+    validateStatus: s => s < 400,
+
     // 默认使用 URLEncoded 方式编码请求
     transformRequest(req) {
       if (typeof req === 'object') {

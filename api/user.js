@@ -1,7 +1,6 @@
 const cheerio = require('cheerio')
 
 // FIXME 目前仅供本科生用
-// FIXME 老信息门户疑似下线
 exports.route = {
   async get () {
     await this.useAuthCookie()
