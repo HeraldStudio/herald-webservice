@@ -95,6 +95,25 @@ module.exports = async (ctx, next) => {
       await next()
       ctx.method = originalMethod
       ctx.path = '/wxapp/tomd'
+    } else if (ctx.path === '/charge') {
+      let originalMethod = ctx.method
+      ctx.path = '/api/card'
+      ctx.method = ctx.request.method = 'PUT'
+      try {
+        await next()
+        ctx.body = {
+          retcode: 0,
+          errmsg: ctx.body
+        }
+      } catch (e) {
+        ctx.body = {
+          retcode: 400,
+          errmsg: e
+        }
+      } finally {
+        ctx.method = originalMethod
+        ctx.path = '/wxapp/charge'
+      }
     }
 
     ctx.path = originalPath

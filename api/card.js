@@ -135,8 +135,8 @@ exports.route = {
    * @apiParam eacc       为1时充值到电子钱包
    **/
   async put() {
-    let { password, amount, eacc } = this.params
-    let { cardnum } = this.user
+    let { cardnum, password, amount, eacc } = this.params
+    cardnum || ({ cardnum } = this.user)
 
     let res = await this.post('http://58.192.115.47:8088/wechat-web/login/dologin.html', {
       cardno: cardnum, pwd: password
