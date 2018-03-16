@@ -31,7 +31,7 @@ exports.start = () => {
   console.log('2. 省略 get/post/put/delete 时，默认为 get；')
   console.log('3. 需要传复杂参数直接用 js 格式书写即可，支持 JSON 兼容的任何类型：')
   console.log(`${chalk.green('put')} api/card ${chalk.cyan('{ amount: 0.2, password: 123456 }')}`)
-  console.log(`4. 连接远程 WS3 服务器：${chalk.green('server')} https://boss.myseu.cn/ws3/`)
+  console.log(`4. 连接远程 WS3 服务器：${chalk.green('server')} https://myseu.cn/ws3/`)
   console.log('')
   console.log('测试终端开始了！')
 
