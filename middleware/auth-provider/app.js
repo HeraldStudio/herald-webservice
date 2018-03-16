@@ -38,9 +38,9 @@ module.exports = async (ctx, username, password) => {
       schoolnum = schoolnum.replace(/&[0-9a-zA-Z]+;/g, '')
     }
 
-    // 截取学号（研究生 Only）
+    // 截取学号（研/博 Only）
     if (/^22/.test(username)) {
-      schoolnum = username.slice(1)
+      schoolnum = username.slice(3)
     }
 
     return { name, schoolnum }
