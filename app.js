@@ -2,6 +2,7 @@ const koa = require('koa')
 const app = new koa()
 const kf = require('kf-router')
 const fs = require('fs')
+const cors = require('kcors')
 
 // 解析 YAML 配置文件
 const config = require('js-yaml').load(fs.readFileSync('./config.yml'))
@@ -15,6 +16,7 @@ sqlongo.defaults.path = 'database'
 process.on('unhandledRejection', e => { throw e })
 process.on('uncaughtException', console.trace)
 
+app.use(cors)
 /**
   # WS3 框架中间件
   以下中间件共分为四层，每层内部、层与层之间都严格按照依赖关系排序。
