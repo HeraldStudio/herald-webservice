@@ -24,5 +24,7 @@ module.exports = async (ctx, next) => {
       ctx.params = ctx.request.body
     }
     await next()
+  }).catch(e => {
+    ctx.params = e.body
   })
 }
