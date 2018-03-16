@@ -2,7 +2,7 @@ exports.route = {
   async get() {
     const testConnection = async (url) => {
       let start = new Date().getTime()
-      try { await this.get(url, { timeout: 3000 }) } catch (e) { return -1 }
+      try { await this.get(url, { timeout: 1000 }) } catch (e) { return -1 }
       let end = new Date().getTime()
       return end - start
     }
@@ -29,7 +29,7 @@ exports.route = {
       let trials = [testConnection(tests[k]), testConnection(tests[k]), testConnection(tests[k])]
       trials = await Promise.all(trials)
       let timeout = trials.reduce((a, b) => b <= a || a == -1 ? b : a, -1)
-      let health = timeout <= 1000 && timeout >= 0
+      let health = timeout >= 0
       return { name, url, timeout, health }
     }))
   }
