@@ -4,9 +4,7 @@
 
 ## 部署情况
 
-- 程序将部署在 api.myseu.cn；
-- Nginx 应配置为将 www.heraldstudio.com/ 转发到 api.myseu.cn/adapter-ws2/ 下；
-- Nginx 应配置为将 myseu.cn/（前端路径除外）转发到 api.myseu.cn/adapter-appserv/ 下；
+- 程序部署在 myseu.cn；
 
 ## 开发进度
 
