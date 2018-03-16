@@ -16,7 +16,6 @@ sqlongo.defaults.path = 'database'
 process.on('unhandledRejection', e => { throw e })
 process.on('uncaughtException', console.trace)
 
-app.use(cors)
 /**
   # WS3 框架中间件
   以下中间件共分为四层，每层内部、层与层之间都严格按照依赖关系排序。
