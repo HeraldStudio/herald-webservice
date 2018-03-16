@@ -189,18 +189,23 @@ module.exports = async (ctx, next) => {
     } else if (ctx.path === '/api/jwc') {
 
       // 教务通知转换策略：不提供「最新动态」，其他分类视 ws3 筛选条件而定，只保留筛选后有通知的分类
+
+      ctx.path = '/api/notice'
       await next()
+      ctx.path = '/api/jwc'
 
       let content = {}
       ctx.body.map(k => {
-        if (!content[k.category]) {
-          content[k.category] = []
+        if (k.category !== '小猴通知') {
+          if (!content[k.category]) {
+            content[k.category] = []
+          }
+          content[k.category].push({
+            date: new Date(k.time).format('yyyy-MM-dd'),
+            href: k.url,
+            title: k.title
+          })
         }
-        content[k.category].push({
-          date: new Date(k.time).format('yyyy-MM-dd'),
-          href: k.url,
-          title: k.title
-        })
       })
       ctx.body = { content, code: 200 }
 
