@@ -17,13 +17,12 @@ module.exports = async (ctx, next) => {
       // 内容直接用 Markdown 代码
       // 地址直接用 Markdown 中找到的第一个链接地址
       let wxappMessages = notices.map(k => {
-        let firstLink = /(?!!)\[[^\]\n]*?\]\(([^\)\n]*?)\)/.exec(k.content)
-        firstLink = firstLink ? firstLink[1] : ''
+        let link = `https://myseu.cn/?nid=${k.nid}#/`
         return {
           image: '',
           title: k.title,
-          content: k.content,
-          url: firstLink
+          content: k.content.substring(0, 100) + '…\n\n查看完整公告 >',
+          url: link
         }
       })
 
@@ -31,21 +30,16 @@ module.exports = async (ctx, next) => {
       if (wxappMessages.length) {
         ctx.body.content.messages = wxappMessages
       }
+      ctx.body.content.matchers = []
 
-      // 用第一条通知作为所有学号的登录提示
+      // 小程序的登录提示不要了
       if (notices.length) {
-        ctx.body.content.matchers = [{
-          regex: '.*',
-          hint: notices[0].content
-        }]
-
-        let firstLink = /(?!!)\[[^\]\n]*?\]\(([^\)\n]*?)\)/.exec(notices[0].content)
-        firstLink = firstLink ? firstLink[1] : ''
+        let link = `https://myseu.cn/?nid=${notices[0].nid}#/`
 
         ctx.body.content.message = {
           image: '',
-          content: notices[0].title + '\n' + notices[0].content,
-          url: firstLink
+          content: notices[0].title,
+          url: link
         }
       }
 
