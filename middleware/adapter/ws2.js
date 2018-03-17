@@ -467,6 +467,32 @@ module.exports = async (ctx, next) => {
     // 还原原始 path 和 method 以便上游中间件处理
     ctx.path = originalPath
     ctx.method = originalMethod
+  } else if (ctx.path === '/adapter-ws2/herald/api/v1/huodong/get') {
+    let originalPath = ctx.path
+    let { page } = ctx.query
+    ctx.params = { page }
+    ctx.path = '/api/activity'
+    await next()
+    ctx.path = originalPath
+    ctx.body = {
+      content: ctx.body.map(k => ({
+        title: k.title,
+        introduction: k.content,
+        start_time: k.startTime.format('yyyy-M-d H:mm'),
+        end_time: k.endTime.format('yyyy-M-d H:mm'),
+        activity_time: k.startTime.format('yyyy-M-d H:mm') + '~' + k.endTime.format('yyyy-M-d H:mm'),
+        detail_url: k.url,
+        pic_url: k.pic,
+        association: '校园活动',
+        location: '查看详情'
+      })),
+      code: 200
+    }
+  } else if (ctx.path === '/adapter-ws2/wechat2/lecture') {
+    ctx.body = {
+      content: [],
+      code: 200
+    }
   } else {
     await next()
   }
