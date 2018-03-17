@@ -113,9 +113,7 @@ exports.route = {
       }).convert($(typeObj.contentSelector).html()).replace(/\*\*/g, ' ** ')
     } else if (nid) {
       let notice = await db.notice.find({ nid }, 1)
-      return `# ${notice.title}
-
-${notice.content}`
+      return `# ${notice.title}\n\n${notice.content}`
     } else {
       throw 400
     }
