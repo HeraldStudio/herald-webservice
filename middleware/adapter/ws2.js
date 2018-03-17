@@ -66,15 +66,17 @@ module.exports = async (ctx, next) => {
   } else if (ctx.path.indexOf('/adapter-ws2/api/') === 0) {
 
     let { uuid } = ctx.params
-    let existing = await db.auth.find({ uuid }, 1)
-    if (!existing) {
-      ctx.throw(401)
+    if (uuid && !/^0+$/.test(uuid)) {
+      let existing = await db.auth.find({ uuid }, 1)
+      if (!existing) {
+        ctx.throw(401)
+      }
+
+      let { token } = existing
+
+      // 重写请求 headers，插入 token，以便 ws3 下游识别
+      ctx.request.headers.token = token
     }
-
-    let { token } = existing
-
-    // 重写请求 headers，插入 token，以便 ws3 下游识别
-    ctx.request.headers.token = token
 
     // 将路由转换成 /api/...，且为默认 GET 请求
     let originalPath = ctx.path, originalMethod = ctx.method
@@ -111,7 +113,7 @@ module.exports = async (ctx, next) => {
         content: {
           cardLeft: info.balance.toString(),
           left: info.balance.toString(),
-          state: info.status.mainStatus,
+          state: info.status,
           detail, 'detial': detail
         }, code: 200
       }
@@ -139,12 +141,35 @@ module.exports = async (ctx, next) => {
         }
       })
 
-      // 当前学期开学日期硬编码一下
-      if (term.code === '17-18-3') {
-        content.startdate = { day: 26, month: 1 }
+      let startDate = new Date(term.startDate)
+      content.startdate = {
+        month: startDate.getMonth(), // 从0开始
+        day: startDate.getDate()
       }
 
       ctx.body = { content, term: term.code, code: 200, sidebar }
+
+    } else if (ctx.path === '/api/sidebar') {
+      ctx.path = '/api/curriculum'
+      await next()
+      let sidebar = []
+      let weekdays = 'Mon,Tue,Wed,Thu,Fri,Sat,Sun'.split(',')
+      let { term, curriculum } = ctx.body
+      curriculum.map(k => {
+        if (!sidebar.find(j =>
+            j.lecturer === k.teacherName
+            && j.course === k.courseName
+            && j.week === `${k.beginWeek}-${k.endWeek}`)) {
+          sidebar.push({
+            lecturer: k.teacherName,
+            course: k.courseName,
+            week: `${k.beginWeek}-${k.endWeek}`,
+            credit: k.credit.toString()
+          })
+        }
+      })
+
+      ctx.body = { content: sidebar, code: 200 }
 
     } else if (ctx.path === '/api/emptyroom') {
       // FIXME 空教室暂无法获取
@@ -189,18 +214,22 @@ module.exports = async (ctx, next) => {
     } else if (ctx.path === '/api/jwc') {
 
       // 教务通知转换策略：不提供「最新动态」，其他分类视 ws3 筛选条件而定，只保留筛选后有通知的分类
+
+      ctx.path = '/api/notice'
       await next()
 
       let content = {}
       ctx.body.map(k => {
-        if (!content[k.category]) {
-          content[k.category] = []
+        if (k.category !== '小猴通知') {
+          if (!content[k.category]) {
+            content[k.category] = []
+          }
+          content[k.category].push({
+            date: new Date(k.time).format('yyyy-MM-dd'),
+            href: k.url,
+            title: k.title
+          })
         }
-        content[k.category].push({
-          date: new Date(k.time).format('yyyy-MM-dd'),
-          href: k.url,
-          title: k.title
-        })
       })
       ctx.body = { content, code: 200 }
 
@@ -291,15 +320,16 @@ module.exports = async (ctx, next) => {
     } else if (ctx.path === '/api/nic') {
       ctx.path = '/api/wlan'
       await next()
-      ctx.path = '/api/nic'
       let content = {
-        state: {
-          active: `已开通，${ctx.body.connections.length} 个在线`,
-          locked: '超额锁定',
-          inactive: '未开通'
-        }[ctx.body.state.service],
-        left: ctx.body.balance.toString(),
-        used: ctx.body.usage.used
+        web: {
+          state: {
+            active: `已开通，${ctx.body.connections.length} 个在线`,
+            locked: '超额锁定',
+            inactive: '未开通'
+          }[ctx.body.state.service],
+          used: ctx.body.usage.used.replace(/^(\d+)/, '$1 ')
+        },
+        left: ctx.body.balance.toString()
       }
 
       ctx.body = { content, code: 200 }
@@ -312,7 +342,7 @@ module.exports = async (ctx, next) => {
 
       await next()
       ctx.body = {
-        content: ctx.body.count.toString(),
+        content: (ctx.body.count || 0).toString(),
         remain: ctx.body.remainDays,
         rank: '0',
         code: 200
@@ -320,7 +350,9 @@ module.exports = async (ctx, next) => {
 
     } else if (ctx.path === '/api/pedetail') {
 
+      ctx.path = '/api/pe'
       await next()
+
       ctx.body = {
         content: ctx.body.detail.map(k => {
           let date = new Date(k)
@@ -439,6 +471,11 @@ module.exports = async (ctx, next) => {
 
       ctx.body = { content, code: 200 }
 
+    } else if (ctx.path === '/api/term') {
+      await next()
+      let content = ctx.body.sort((a, b) => b.current - a.current).map(k => k.name)
+      ctx.body = { content, code: 200 }
+
     } else if (ctx.path === '/api/user') {
       await next()
       let content = {
@@ -450,13 +487,55 @@ module.exports = async (ctx, next) => {
       ctx.body = { content, code: 200 }
 
     } else if (ctx.path === '/api/yuyue') {
-      // FIXME 场馆预约暂无法获取
-      ctx.body = { code: 400 }
+      ctx.path = '/api/reservation'
+      await next()
+      ctx.body = {
+        content: ctx.body,
+        code: 200
+      }
+    } else if (ctx.path === '/api/library_hot') {
+      ctx.body = { content: [], code: 200 }
     }
 
     // 还原原始 path 和 method 以便上游中间件处理
     ctx.path = originalPath
     ctx.method = originalMethod
+  } else if (ctx.path === '/adapter-ws2/herald/api/v1/huodong/get') {
+    let originalPath = ctx.path
+    let { page, type } = ctx.query
+    if (type === 'hot') {
+      ctx.body = { content: [], code: 200 }
+    } else {
+      ctx.params = { page }
+      ctx.path = '/api/activity'
+      await next()
+      ctx.path = originalPath
+      ctx.body = {
+        content: ctx.body.map(k => {
+          let startTime = new Date(k.startTime).format('yyyy-M-d')
+          let endTime = new Date(k.endTime).format('yyyy-M-d')
+          return {
+            title: k.title,
+            introduction: k.content,
+            start_time: startTime,
+            end_time: endTime,
+            activity_time: startTime + '~' + endTime,
+            detail_url: k.url,
+            pic_url: k.pic,
+            association: '校园活动',
+            location: '查看详情'
+          }
+        }),
+        code: 200
+      }
+    }
+  } else if (ctx.path === '/adapter-ws2/wechat2/lecture') {
+    ctx.body = {
+      content: [],
+      code: 200
+    }
+  } else if (ctx.path === '/adapter-ws2/queryEmptyClassrooms/m') {
+    ctx.body = '学校已经关闭空闲教室查询网站，小猴空闲教室功能失去数据源，无法继续提供服务，请知悉。'
   } else {
     await next()
   }

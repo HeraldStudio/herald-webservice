@@ -113,8 +113,8 @@ module.exports = async (ctx, next) => {
     // 将新用户信息插入数据库
     let now = new Date().getTime()
 
-    // 同平台不允许多处登录
-    await db.auth.remove({ cardnum, platform })
+    // // 同平台不允许多处登录
+    // await db.auth.remove({ cardnum, platform })
 
     // 插入用户数据
     await db.auth.insert({

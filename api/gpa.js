@@ -9,7 +9,7 @@ exports.route = {
   async get() {
     await this.useAuthCookie()
     let { cardnum, password } = this.user
-    let res = (await this.get('https://boss.myseu.cn/jwccaptcha/')).data
+    let res = (await this.get('https://myseu.cn/jwccaptcha/')).data
 
     // 从验证码解析系统获取一次性 Cookie 和解析后的验证码
     let { cookies, captcha } = res

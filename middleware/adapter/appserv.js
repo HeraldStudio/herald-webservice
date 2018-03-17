@@ -17,13 +17,12 @@ module.exports = async (ctx, next) => {
       // 内容直接用 Markdown 代码
       // 地址直接用 Markdown 中找到的第一个链接地址
       let wxappMessages = notices.map(k => {
-        let firstLink = /(?!!)\[[^\]\n]*?\]\(([^\)\n]*?)\)/.exec(k.content)
-        firstLink = firstLink ? firstLink[1] : ''
+        let link = `https://myseu.cn/?nid=${k.nid}#/`
         return {
           image: '',
           title: k.title,
-          content: k.content,
-          url: firstLink
+          content: k.content.substring(0, 100) + '…\n\n查看完整公告 >',
+          url: link
         }
       })
 
@@ -31,21 +30,16 @@ module.exports = async (ctx, next) => {
       if (wxappMessages.length) {
         ctx.body.content.messages = wxappMessages
       }
+      ctx.body.content.matchers = []
 
-      // 用第一条通知作为所有学号的登录提示
+      // 小程序的登录提示不要了
       if (notices.length) {
-        ctx.body.content.matchers = [{
-          regex: '.*',
-          hint: notices[0].content
-        }]
-
-        let firstLink = /(?!!)\[[^\]\n]*?\]\(([^\)\n]*?)\)/.exec(notices[0].content)
-        firstLink = firstLink ? firstLink[1] : ''
+        let link = `https://myseu.cn/#/notice/${notices[0].nid}`
 
         ctx.body.content.message = {
           image: '',
-          content: notices[0].title + '\n' + notices[0].content,
-          url: firstLink
+          content: notices[0].title,
+          url: link
         }
       }
 
@@ -79,7 +73,7 @@ module.exports = async (ctx, next) => {
           'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
           'Accept-Encoding': 'gzip, deflate, sdch',
           'Accept-Language': 'zh-CN,zh;q=0.8',
-          'Host': /\/\/([^/]*)/.exec(url)[1],
+          'Host': /\/([^/]+)/.exec(url)[1],
           'Connection': 'keep-alive',
           'Upgrade-Insecure-Requests': '1'
         },
@@ -95,6 +89,25 @@ module.exports = async (ctx, next) => {
       await next()
       ctx.method = originalMethod
       ctx.path = '/wxapp/tomd'
+    } else if (ctx.path === '/charge') {
+      let originalMethod = ctx.method
+      ctx.path = '/api/card'
+      ctx.method = ctx.request.method = 'PUT'
+      try {
+        await next()
+        ctx.body = {
+          retcode: 0,
+          errmsg: ctx.body
+        }
+      } catch (e) {
+        ctx.body = {
+          retcode: 400,
+          errmsg: e
+        }
+      } finally {
+        ctx.method = originalMethod
+        ctx.path = '/wxapp/charge'
+      }
     }
 
     ctx.path = originalPath

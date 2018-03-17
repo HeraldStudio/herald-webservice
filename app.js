@@ -2,6 +2,7 @@ const koa = require('koa')
 const app = new koa()
 const kf = require('kf-router')
 const fs = require('fs')
+const cors = require('kcors')
 
 // 解析 YAML 配置文件
 const config = require('js-yaml').load(fs.readFileSync('./config.yml'))
@@ -74,7 +75,16 @@ app.use(require('./middleware/redis'))
   ## D. 路由层
   负责调用路由处理程序执行处理的中间件。
 */
-app.use(kf(module, { ignore: ['/middleware/**/*', '/app', '/repl', '/sdk/**/*', '/docs/**/*'] }))
+app.use(kf(module, {
+  ignore: [
+    '/middleware/**/*',
+    '/database/**/*',
+    '/docs/**/*',
+    '/sdk/**/*',
+    '/repl',
+    '/app',
+  ]
+}))
 app.listen(config.port)
 
 // 开发环境下，启动 REPL

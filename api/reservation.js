@@ -89,8 +89,7 @@ exports.route = {
                            .reduce((k, a) =>
                                    k + '&' + a[0] + '=' + a[1]
                                    , ''))))
-    // ws2 说结果是一个JSON
-    // 上游似乎坏了 没法验证
-    return JSON.parse(res.data)
+
+    return res.data
   }
 }

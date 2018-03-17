@@ -14,36 +14,29 @@ exports.route = {
     await this.post(
       'https://selfservice.seu.edu.cn/selfservice/campus_login.php',
       { username, password }
-    )
-
-    // 查询开通状态
-    let res = await this.get(
-      'https://selfservice.seu.edu.cn/selfservice/service_manage_index.php'
-    )
-
-    // 开通状态 active/inactive/locked
-    let $ = cheerio.load(res.data)
-    let state = $('table[width="560"] tr').eq(1).find('td').eq(4).text().trim()
-    if (/已开通/.test(state)) {
-      state = {
-        service: 'active',
-        due: new Date(/[\d\-]+/.exec(state)[0]).getTime()
-      }
-    } else if (/超额/.test(state)) {
-      state = { service: 'locked' }
-    } else {
-      state = { service: 'inactive' }
-    }
+    ).catch(console.error)
 
     // 查询使用状态
     res = await this.post(
       'https://selfservice.seu.edu.cn/selfservice/service_manage_index.php',
       { operation: 'status', item: 'web' }
-    )
+    ).catch(console.error)
 
-    // 分为用量/连接/设备三个表格
+    // 分为状态/用量/连接/设备三个表格
     $ = cheerio.load(res.data)
-    let [usage, connections, devices] = $('table[width="450"]').toArray().slice(1)
+    let [state, usage, connections, devices] = $('table[width="450"]').toArray()
+
+    state = $(state).find('td').eq(1).text().trim()
+    if (/已开通/.test(state)) {
+      state = {
+        service: 'active',
+        due: new Date(/[\d\-]+/.exec(state)[0]).getTime()
+      }
+    } else if (/超流量锁定/.test(state)) {
+      state = { service: 'locked' }
+    } else {
+      state = { service: 'inactive' }
+    }
 
     // 解析用量
     let [used, left] = $(usage).find('tr').toArray().map(k => {
@@ -67,7 +60,7 @@ exports.route = {
     // 查询余额
     let balance = await this.get(
       'https://selfservice.seu.edu.cn/selfservice/service_fee_index.php'
-    )
+    ).catch(console.error)
 
     // 解析余额
     $ = cheerio.load(balance.data)

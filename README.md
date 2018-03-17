@@ -4,9 +4,7 @@
 
 ## 部署情况
 
-- 程序将部署在 api.myseu.cn；
-- Nginx 应配置为将 www.heraldstudio.com/ 转发到 api.myseu.cn/adapter-ws2/ 下；
-- Nginx 应配置为将 myseu.cn/（前端路径除外）转发到 api.myseu.cn/adapter-appserv/ 下；
+- 程序部署在 myseu.cn；
 
 ## 开发进度
 
@@ -39,7 +37,7 @@
   - [x] 人文讲座 @sleepyjoker
   - [x] 图书馆 @sleepyjoker
   - [x] 学校通知 @tusooa @MediosZ @rikumi
-  - [x] 场馆预约 @tusooa @Vigilans-Yea
+  - [x] 场馆预约 @Higuoxing @tusooa
   - [x] 实时班车 @rikumi
 
 3. **继承自 AppService**

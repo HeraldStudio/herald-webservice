@@ -23,6 +23,8 @@ module.exports = async (ctx, next) => {
     } else {
       ctx.params = ctx.request.body
     }
-    await next()
+  }).catch(e => {
+    ctx.params = e.body
   })
+  await next()
 }

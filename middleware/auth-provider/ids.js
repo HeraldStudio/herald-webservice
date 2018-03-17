@@ -49,9 +49,9 @@ module.exports = async (ctx, username, password) => {
     }
   }
 
-  // 截取学号（研究生 Only）
+  // 截取学号（研/博 Only）
   if (/^22/.test(username)) {
-    schoolnum = username.slice(1)
+    schoolnum = username.slice(3)
   }
 
   return { name, schoolnum }
