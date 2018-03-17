@@ -34,7 +34,7 @@ module.exports = async (ctx, next) => {
 
       // 小程序的登录提示不要了
       if (notices.length) {
-        let link = `https://myseu.cn/?nid=${notices[0].nid}#/`
+        let link = `https://myseu.cn/#/notice/${notices[0].nid}`
 
         ctx.body.content.message = {
           image: '',
