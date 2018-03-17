@@ -41,6 +41,9 @@ exports.route = {
       return d.getTime()
     })
 
+    // 次数偶尔刷不出来，误显示为零，这种情况下暂时用详情的条数代替次数
+    count = Math.max(count, detail.length)
+
     // 计算体测成绩
     $ = cheerio.load(healthHtml)
     let health = $('tr[height="30"]').toArray().map(k => {

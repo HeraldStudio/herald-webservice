@@ -12,7 +12,7 @@ exports.route = {
     let password = this.params.password || this.user.password
 
     // 获取解析后的验证码与Cookie并登陆
-    let res = (await this.get('https://boss.myseu.cn/libcaptcha/')).data
+    let res = (await this.get('https://myseu.cn/libcaptcha/')).data
     let { cookies, captcha } = res
     this.cookieJar.setCookieSync(cookies, 'http://www.libopac.seu.edu.cn:8080/reader/redr_verify.php', {})
 
@@ -58,7 +58,7 @@ exports.route = {
      let time = new Date().getTime()
 
      // 获取解析后的验证码和Cookies
-     let res = (await this.get("https://boss.myseu.cn/libcaptcha/?cookie=" + cookies)).data
+     let res = (await this.get("https://myseu.cn/libcaptcha/?cookie=" + cookies)).data
      let { captcha } = res
      this.cookieJar.setCookieSync(cookies, 'http://www.libopac.seu.edu.cn:8080/reader/redr_verify.php', {})
 

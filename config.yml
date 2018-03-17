@@ -25,6 +25,7 @@ cache:
     curriculum: 1d,lazy
     exam:       1d,lazy
     gpa:        1h,lazy
+    health:     1m,public
     notice:     1m,lazy,public
     lecture:    1h,lazy
     library:
@@ -33,6 +34,7 @@ cache:
     phylab:     1d,lazy
     schoolbus:  5s,public
     srtp:       1d,lazy
+    term:       1d,public
     user:       1d,lazy
     wlan:
       get:      lazy
