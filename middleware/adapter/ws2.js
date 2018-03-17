@@ -194,7 +194,6 @@ module.exports = async (ctx, next) => {
 
       ctx.path = '/api/notice'
       await next()
-      ctx.path = '/api/jwc'
 
       let content = {}
       ctx.body.map(k => {
@@ -298,7 +297,6 @@ module.exports = async (ctx, next) => {
     } else if (ctx.path === '/api/nic') {
       ctx.path = '/api/wlan'
       await next()
-      ctx.path = '/api/nic'
       let content = {
         state: {
           active: `已开通，${ctx.body.connections.length} 个在线`,
@@ -329,7 +327,6 @@ module.exports = async (ctx, next) => {
 
       ctx.path = '/api/pe'
       await next()
-      ctx.path = '/api/pedetail'
 
       ctx.body = {
         content: ctx.body.detail.map(k => {
@@ -460,8 +457,14 @@ module.exports = async (ctx, next) => {
       ctx.body = { content, code: 200 }
 
     } else if (ctx.path === '/api/yuyue') {
-      // FIXME 场馆预约暂无法获取
-      ctx.body = { code: 400 }
+      ctx.path = '/api/reservation'
+      await next()
+      ctx.body = {
+        content: ctx.body,
+        code: 200
+      }
+    } else if (ctx.path === '/api/library_hot') {
+      ctx.body = { content: [], code: 200 }
     }
 
     // 还原原始 path 和 method 以便上游中间件处理
