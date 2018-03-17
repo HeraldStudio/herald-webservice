@@ -150,6 +150,7 @@ module.exports = async (ctx, next) => {
       ctx.body = { content, term: term.code, code: 200, sidebar }
 
     } else if (ctx.path === '/api/sidebar') {
+      ctx.path = '/api/curriculum'
       await next()
       let sidebar = []
       let weekdays = 'Mon,Tue,Wed,Thu,Fri,Sat,Sun'.split(',')
