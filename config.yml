@@ -34,6 +34,7 @@ cache:
     phylab:     1d,lazy
     schoolbus:  5s,public
     srtp:       1d,lazy
+    term:       1d,public
     user:       1d,lazy
     wlan:
       get:      lazy
