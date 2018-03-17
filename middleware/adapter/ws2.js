@@ -325,7 +325,10 @@ module.exports = async (ctx, next) => {
 
     } else if (ctx.path === '/api/pedetail') {
 
+      ctx.path = '/api/pe'
       await next()
+      ctx.path = '/api/pedetail'
+
       ctx.body = {
         content: ctx.body.detail.map(k => {
           let date = new Date(k)
