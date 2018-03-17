@@ -79,7 +79,7 @@ module.exports = async (ctx, next) => {
           'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
           'Accept-Encoding': 'gzip, deflate, sdch',
           'Accept-Language': 'zh-CN,zh;q=0.8',
-          'Host': /\/\/([^/]*)/.exec(url)[1],
+          'Host': /\/([^/]+)/.exec(url)[1],
           'Connection': 'keep-alive',
           'Upgrade-Insecure-Requests': '1'
         },
