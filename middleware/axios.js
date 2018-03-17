@@ -66,9 +66,12 @@ module.exports = async (ctx, next) => {
     // 自动检测返回内容编码
     responseType: 'arraybuffer',
     transformResponse(res) {
-      let encoding = chardet.detect(res)
-      if (encoding) { // 若 chardet 返回 null，表示不是一个已知编码的字符串，就当做二进制，不做处理
-        res = new iconv.Iconv(encoding, 'UTF-8//TRANSLIT//IGNORE').convert(res).toString()
+      let encoding = chardet.detect(res);
+      if (encoding === 'windows-1250' || encoding === 'windows-1252') {
+        // 验证码类型，不做处理
+        return res
+      } else { // 若 chardet 返回 null，表示不是一个已知编码的字符串，就当做二进制，不做处理
+        res = new iconv.Iconv(encoding, 'UTF-8//TRANSLIT//IGNORE').convert(res).toString();
         try { res = JSON.parse(res) } catch (e) {}
       }
       return res
@@ -85,15 +88,18 @@ module.exports = async (ctx, next) => {
             return qs.stringify(req)
           }
           return req
-        }
+        };
         let transformResponse = (res) => {
-          let encoding = chardet.detect(res)
-          if (encoding) { // 若 chardet 返回 null，表示不是一个已知编码的字符串，就当做二进制，不做处理
-            res = new iconv.Iconv(encoding, 'UTF-8//TRANSLIT//IGNORE').convert(res).toString()
+          let encoding = chardet.detect(res);
+          if (encoding === 'windows-1250' || encoding === 'windows-1252') {
+            // 验证码类型，不做处理
+            return res
+          } else { // 若 chardet 返回 null，表示不是一个已知编码的字符串，就当做二进制，不做处理
+            res = new iconv.Iconv(encoding, 'UTF-8//TRANSLIT//IGNORE').convert(res).toString();
             try { res = JSON.parse(res) } catch (e) {}
           }
           return res
-        }
+        };
         try {
           return await ctx.spiderServer.request(ctx, k, arguments, config.axios, transformRequest, transformResponse)
         } catch (e) {
@@ -103,7 +109,7 @@ module.exports = async (ctx, next) => {
         return await _axios[k].apply(undefined, arguments)
       }
     }
-  })
+  });
 
   await next()
 }
