@@ -472,28 +472,32 @@ module.exports = async (ctx, next) => {
     ctx.method = originalMethod
   } else if (ctx.path === '/adapter-ws2/herald/api/v1/huodong/get') {
     let originalPath = ctx.path
-    let { page } = ctx.query
-    ctx.params = { page }
-    ctx.path = '/api/activity'
-    await next()
-    ctx.path = originalPath
-    ctx.body = {
-      content: ctx.body.map(k => {
-        let startTime = new Date(k.startTime).format('yyyy-M-d')
-        let endTime = new Date(k.endTime).format('yyyy-M-d')
-        return {
-          title: k.title,
-          introduction: k.content,
-          start_time: startTime,
-          end_time: endTime,
-          activity_time: startTime + '~' + endTime,
-          detail_url: k.url,
-          pic_url: k.pic,
-          association: '校园活动',
-          location: '查看详情'
-        }
-      }),
-      code: 200
+    let { page, type } = ctx.query
+    if (type === 'hot') {
+      ctx.body = { content: [], code: 200 }
+    } else {
+      ctx.params = { page }
+      ctx.path = '/api/activity'
+      await next()
+      ctx.path = originalPath
+      ctx.body = {
+        content: ctx.body.map(k => {
+          let startTime = new Date(k.startTime).format('yyyy-M-d')
+          let endTime = new Date(k.endTime).format('yyyy-M-d')
+          return {
+            title: k.title,
+            introduction: k.content,
+            start_time: startTime,
+            end_time: endTime,
+            activity_time: startTime + '~' + endTime,
+            detail_url: k.url,
+            pic_url: k.pic,
+            association: '校园活动',
+            location: '查看详情'
+          }
+        }),
+        code: 200
+      }
     }
   } else if (ctx.path === '/adapter-ws2/wechat2/lecture') {
     ctx.body = {
