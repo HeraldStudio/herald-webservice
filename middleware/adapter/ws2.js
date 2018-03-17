@@ -113,7 +113,7 @@ module.exports = async (ctx, next) => {
         content: {
           cardLeft: info.balance.toString(),
           left: info.balance.toString(),
-          state: info.status.mainStatus,
+          state: info.status,
           detail, 'detial': detail
         }, code: 200
       }
