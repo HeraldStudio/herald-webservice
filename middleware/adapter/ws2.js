@@ -66,7 +66,7 @@ module.exports = async (ctx, next) => {
   } else if (ctx.path.indexOf('/adapter-ws2/api/') === 0) {
 
     let { uuid } = ctx.params
-    if (!/^0+$/.test(uuid)) {
+    if (uuid && !/^0+$/.test(uuid)) {
       let existing = await db.auth.find({ uuid }, 1)
       if (!existing) {
         ctx.throw(401)
@@ -444,6 +444,11 @@ module.exports = async (ctx, next) => {
         }
       }))
 
+      ctx.body = { content, code: 200 }
+
+    } else if (ctx.path === '/api/term') {
+      await next()
+      let content = ctx.body.sort((a, b) => b.current - a.current).map(k => k.name)
       ctx.body = { content, code: 200 }
 
     } else if (ctx.path === '/api/user') {
