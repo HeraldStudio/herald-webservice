@@ -14,12 +14,12 @@ exports.route = {
     await this.post(
       'https://selfservice.seu.edu.cn/selfservice/campus_login.php',
       { username, password }
-    )
+    ).catch(console.error)
 
     // 查询开通状态
     let res = await this.get(
       'https://selfservice.seu.edu.cn/selfservice/service_manage_index.php'
-    )
+    ).catch(console.error)
 
     // 开通状态 active/inactive/locked
     let $ = cheerio.load(res.data)
@@ -39,7 +39,7 @@ exports.route = {
     res = await this.post(
       'https://selfservice.seu.edu.cn/selfservice/service_manage_index.php',
       { operation: 'status', item: 'web' }
-    )
+    ).catch(console.error)
 
     // 分为用量/连接/设备三个表格
     $ = cheerio.load(res.data)
@@ -67,7 +67,7 @@ exports.route = {
     // 查询余额
     let balance = await this.get(
       'https://selfservice.seu.edu.cn/selfservice/service_fee_index.php'
-    )
+    ).catch(console.error)
 
     // 解析余额
     $ = cheerio.load(balance.data)

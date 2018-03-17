@@ -298,13 +298,15 @@ module.exports = async (ctx, next) => {
       ctx.path = '/api/wlan'
       await next()
       let content = {
-        state: {
-          active: `已开通，${ctx.body.connections.length} 个在线`,
-          locked: '超额锁定',
-          inactive: '未开通'
-        }[ctx.body.state.service],
-        left: ctx.body.balance.toString(),
-        used: ctx.body.usage.used
+        web: {
+          state: {
+            active: `已开通，${ctx.body.connections.length} 个在线`,
+            locked: '超额锁定',
+            inactive: '未开通'
+          }[ctx.body.state.service],
+          used: ctx.body.usage.used
+        },
+        left: ctx.body.balance.toString()
       }
 
       ctx.body = { content, code: 200 }
