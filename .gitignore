@@ -9,4 +9,4 @@ spider_test.js
 **/*.db
 sdk/sdk.json
 slack.json
-middleware/captcha/models/
+middleware/captcha_childprocess/models/
