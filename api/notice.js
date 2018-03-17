@@ -111,8 +111,10 @@ exports.route = {
         baseUri: typeObj.baseUrl,
         inline: true
       }).convert($(typeObj.contentSelector).html()).replace(/\*\*/g, ' ** ')
-    } else {
+    } else if (nid) {
       return (await db.notice.find({ nid }, 1)).content
+    } else {
+      throw 400
     }
   }
 }
