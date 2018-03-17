@@ -156,7 +156,10 @@ module.exports = async (ctx, next) => {
       let weekdays = 'Mon,Tue,Wed,Thu,Fri,Sat,Sun'.split(',')
       let { term, curriculum } = ctx.body
       curriculum.map(k => {
-        if (!sidebar.find(j => j.lecturer === k.teacherName && j.course === k.courseName)) {
+        if (!sidebar.find(j =>
+            j.lecturer === k.teacherName
+            && j.course === k.courseName
+            && j.week === `${k.beginWeek}-${k.endWeek}`)) {
           sidebar.push({
             lecturer: k.teacherName,
             course: k.courseName,
