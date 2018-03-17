@@ -317,7 +317,7 @@ module.exports = async (ctx, next) => {
 
       await next()
       ctx.body = {
-        content: ctx.body.count.toString(),
+        content: (ctx.body.count || 0).toString(),
         remain: ctx.body.remainDays,
         rank: '0',
         code: 200
