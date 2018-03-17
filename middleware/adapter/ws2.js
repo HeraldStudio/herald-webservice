@@ -71,12 +71,12 @@ module.exports = async (ctx, next) => {
       if (!existing) {
         ctx.throw(401)
       }
+
+      let { token } = existing
+
+      // 重写请求 headers，插入 token，以便 ws3 下游识别
+      ctx.request.headers.token = token
     }
-
-    let { token } = existing
-
-    // 重写请求 headers，插入 token，以便 ws3 下游识别
-    ctx.request.headers.token = token
 
     // 将路由转换成 /api/...，且为默认 GET 请求
     let originalPath = ctx.path, originalMethod = ctx.method
