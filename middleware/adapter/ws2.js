@@ -141,12 +141,31 @@ module.exports = async (ctx, next) => {
         }
       })
 
-      // 当前学期开学日期硬编码一下
-      if (term.code === '17-18-3') {
-        content.startdate = { day: 26, month: 1 }
+      let startDate = new Date(term.startDate)
+      content.startdate = {
+        month: startDate.getMonth(), // 从0开始
+        day: startDate.getDate()
       }
 
       ctx.body = { content, term: term.code, code: 200, sidebar }
+
+    } else if (ctx.path === '/api/sidebar') {
+      await next()
+      let sidebar = []
+      let weekdays = 'Mon,Tue,Wed,Thu,Fri,Sat,Sun'.split(',')
+      let { term, curriculum } = ctx.body
+      curriculum.map(k => {
+        if (!sidebar.find(j => j.lecturer === k.teacherName && j.course === k.courseName)) {
+          sidebar.push({
+            lecturer: k.teacherName,
+            course: k.courseName,
+            week: `${k.beginWeek}-${k.endWeek}`,
+            credit: k.credit.toString()
+          })
+        }
+      })
+
+      ctx.body = { content: sidebar, code: 200 }
 
     } else if (ctx.path === '/api/emptyroom') {
       // FIXME 空教室暂无法获取
