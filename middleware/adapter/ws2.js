@@ -479,8 +479,8 @@ module.exports = async (ctx, next) => {
     ctx.path = originalPath
     ctx.body = {
       content: ctx.body.map(k => {
-        let startTime = new Date(k.startTime).format('yyyy-M-d H:mm')
-        let endTime = new Date(k.endTime).format('yyyy-M-d H:mm')
+        let startTime = new Date(k.startTime).format('yyyy-M-d')
+        let endTime = new Date(k.endTime).format('yyyy-M-d')
         return {
           title: k.title,
           introduction: k.content,
