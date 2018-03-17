@@ -37,7 +37,7 @@
   - [x] 人文讲座 @sleepyjoker
   - [x] 图书馆 @sleepyjoker
   - [x] 学校通知 @tusooa @MediosZ @rikumi
-  - [x] 场馆预约 @tusooa @Vigilans-Yea
+  - [x] 场馆预约 @Higuoxing @tusooa
   - [x] 实时班车 @rikumi
 
 3. **继承自 AppService**

@@ -66,9 +66,11 @@ module.exports = async (ctx, next) => {
   } else if (ctx.path.indexOf('/adapter-ws2/api/') === 0) {
 
     let { uuid } = ctx.params
-    let existing = await db.auth.find({ uuid }, 1)
-    if (!existing) {
-      ctx.throw(401)
+    if (!/^0+$/.test(uuid)) {
+      let existing = await db.auth.find({ uuid }, 1)
+      if (!existing) {
+        ctx.throw(401)
+      }
     }
 
     let { token } = existing
