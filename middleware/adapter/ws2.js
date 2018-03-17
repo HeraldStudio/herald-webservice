@@ -304,7 +304,7 @@ module.exports = async (ctx, next) => {
             locked: '超额锁定',
             inactive: '未开通'
           }[ctx.body.state.service],
-          used: ctx.body.usage.used
+          used: ctx.body.usage.used.replace(/^(\d+)/, '$1 ')
         },
         left: ctx.body.balance.toString()
       }
