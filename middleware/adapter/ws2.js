@@ -99,7 +99,7 @@ module.exports = async (ctx, next) => {
       await next()
 
       let { info, detail } = ctx.body
-      detail = detail.map(k => {
+      detail = (detail || []).map(k => {
         return {
           date: new Date(k.time).format('yyyy/MM/dd HH:mm:ss'),
           price: k.amount.toString(),
