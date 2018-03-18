@@ -61,7 +61,7 @@ app.use(require('./middleware/adapter/appserv'))
 // 1. 接口之间相互介绍的 API
 app.use(require('./middleware/related'))
 // 2. 分布式硬件爬虫，为 axios 提供了底层依赖
-app.use(require('./middleware/spider_server'))
+app.use(require('./middleware/spider-server'))
 // 3. 网络请求，为身份认证和路由处理程序提供了网络请求 API
 app.use(require('./middleware/axios'))
 // 4. 身份认证，为下面 redis 缓存提供了加解密函数
@@ -70,6 +70,10 @@ app.use(require('./middleware/auth'))
 app.use(require('./middleware/admin'))
 // 6. redis 缓存，为路由处理程序提供自动缓存
 app.use(require('./middleware/redis'))
+// 7. 生产环境下验证码识别
+if (process.env.NODE_ENV === 'production') {
+  app.use(require('./middleware/captcha'))
+}
 
 /**
   ## D. 路由层
