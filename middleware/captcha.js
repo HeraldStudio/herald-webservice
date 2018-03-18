@@ -22,7 +22,7 @@ module.exports = ({ python }) => {
     let message = chunk.toString();
     message.trim().split('\n').map(message => {
       if (message === 'loaded') {
-        console.log('教务处验证码模型加载成功');
+        console.log('[python] 教务处验证码模型加载成功');
         jwcActive = true;
       } else {
         try {
@@ -40,7 +40,7 @@ module.exports = ({ python }) => {
     let message = chunk.toString();
     message.trim().split('\n').map(message => {
       if (message === 'loaded') {
-        console.log('图书馆验证码模型加载成功');
+        console.log('[python] 图书馆验证码模型加载成功');
         libraryActive = true;
       } else {
         try {
@@ -53,15 +53,16 @@ module.exports = ({ python }) => {
     })
   });
 
-  jwcProcess.stderr.on('data', (err) => {
-    "use strict";
-    console.log(err.toString());
-  });
+  const handleError = err => {
+    err.split('\n')
+      .map(k => k.trim())
+      .filter(k => k)
+      .filter(!/WARNING/.test(k))
+      .map(k => console.log('[python]', k))
+  }
 
-  libraryProcess.stderr.on('data', (err) => {
-    "use strict";
-    console.log(err.toString());
-  });
+  jwcProcess.stderr.on('data', handleError);
+  libraryProcess.stderr.on('data', handleError);
 
   const generateName = () => {
     return Math.random().toString(36).substr(2)
