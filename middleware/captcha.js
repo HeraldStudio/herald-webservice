@@ -19,7 +19,6 @@ module.exports = ({ python }) => {
 
   jwcProcess.stdout.on('data', (chunk) => {
     "use strict";
-    console.log(chunk);
     let message = chunk.toString();
     message.trim().split('\n').map(message => {
       if (message === 'loaded') {
@@ -38,7 +37,6 @@ module.exports = ({ python }) => {
 
   libraryProcess.stdout.on('data', (chunk) => {
     "use strict";
-    console.log(chunk);
     let message = chunk.toString();
     message.trim().split('\n').map(message => {
       if (message === 'loaded') {
@@ -72,7 +70,7 @@ module.exports = ({ python }) => {
   const jwcCaptcha = async ctx => {
     let pic = Buffer.from((await ctx.get('http://xk.urp.seu.edu.cn/studentService/getCheckCode')).data);
     return new Promise((resolve, reject) => {
-      let picName = `./captcha-temp-${generateName()}.jpg`;
+      let picName = `/tmp/ws3-captcha-${generateName()}.jpg`;
       fs.writeFile(picName, pic, err => {
         "use strict";
         if (err || !jwcActive) {
@@ -88,7 +86,7 @@ module.exports = ({ python }) => {
   const libraryCaptcha = async ctx => {
     let pic = Buffer.from((await ctx.get('http://www.libopac.seu.edu.cn:8080/reader/captcha.php')).data);
     return new Promise((resolve, reject) => {
-      let picName = `./captcha-temp-${generateName()}.png`;
+      let picName = `/tmp/ws3-captcha-${generateName()}.png`;
       fs.writeFile(picName, pic, err => {
         "use strict";
         if (err || !jwcActive) {
