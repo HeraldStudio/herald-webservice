@@ -9,7 +9,7 @@ from PIL import Image
 import json
 
 MODEL_NAME = 'gpa_captcha.tflearn'
-MODEL_PATH = './middleware/captcha_childprocess/models'
+MODEL_PATH = './middleware/captcha-childprocess/models'
 
 MAX_CAPTCHA = 4  # 验证码字符长度（4位验证码）（4）
 CHAR_SET_LEN = 10  # 验证码字符取值（0-9）（10）

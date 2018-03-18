@@ -11,7 +11,7 @@ import json
 
 
 MODEL_NAME = 'library_captcha.tflearn'
-MODEL_PATH = './middleware/captcha_childprocess/models'
+MODEL_PATH = './middleware/captcha-childprocess/models'
 
 IMAGE_WIDTH = 160
 IMAGE_HEIGHT = 40
