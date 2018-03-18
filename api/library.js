@@ -40,7 +40,7 @@ exports.route = {
       return { bookId, name, borrowDate, returnDate, renewDate, location, addition, borrowId }
     })
 
-    return { bookList }
+    return { bookList, cookies: this.cookieJar.cookieString() }
   },
 
   /**
@@ -50,25 +50,14 @@ exports.route = {
    * @apiParam borrowId
    * 图书续借
    **/
-
-   async post() {
-      let { bookId, borrowId } = this.params
-      let password = this.params.password || this.user.password
-      let { cardnum } = this.user
+    async post() {
+      let { cookies, bookId, borrowId } = this.params
       let time = new Date().getTime()
 
-      // 获取解析后的验证码与Cookie并登陆
+      // 获取解析后的验证码和Cookies
+      this.cookieJar.parse(cookies)
       let captcha = await this.libraryCaptcha()
-
-      await this.post(
-        'http://www.libopac.seu.edu.cn:8080/reader/redr_verify.php',
-        { number: cardnum, passwd: password, captcha: captcha, select: 'cert_no'}
-      )
-
-      // 判断是否登录成功
-      if (/密码错误/.test(log.data)) {
-        throw '密码错误，请重试'
-      }
+      let { captcha } = res
 
       res = await this.get(
         'http://www.libopac.seu.edu.cn:8080/reader/ajax_renew.php', {
@@ -84,5 +73,5 @@ exports.route = {
 
       // 返回续借状态
       return $.text()
-   }
+    }
 }
