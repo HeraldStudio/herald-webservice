@@ -10,3 +10,4 @@ spider_test.js
 sdk/sdk.json
 slack.json
 middleware/captcha_childprocess/models/
+*.swp
