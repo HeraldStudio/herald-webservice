@@ -57,7 +57,7 @@ module.exports = ({ python }) => {
     err.toString().split('\n')
       .map(k => k.trim())
       .filter(k => k)
-      .filter(!/WARNING/.test(k))
+      .filter(k => !/WARNING/.test(k))
       .map(k => console.log('[python]', k))
   }
 
