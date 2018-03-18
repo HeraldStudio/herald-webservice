@@ -71,9 +71,10 @@ app.use(require('./middleware/admin'))
 // 6. redis 缓存，为路由处理程序提供自动缓存
 app.use(require('./middleware/redis'))
 // 7. 生产环境下验证码识别
-if (process.env.NODE_ENV === 'production') {
-  app.use(require('./middleware/captcha'))
-}
+app.use(require('./middleware/captcha')({
+  python: process.env.NODE_ENV === 'production' ?
+    '/usr/local/bin/anaconda3/envs/captcha/bin/python' : 'python3'
+}))
 
 /**
   ## D. 路由层
