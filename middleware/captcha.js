@@ -14,8 +14,8 @@ const captchaJobPool = {};
 let library_active = false;
 let jwc_active = false;
 
-const library_process = spawn('python3', [process.cwd() + '/middleware/captcha_childprocess/libcaptcha.py']);
-const jwc_process = spawn('python3', [process.cwd() + '/middleware/captcha_childprocess/jwccaptcha.py']);
+const library_process = spawn('/usr/local/bin/anaconda3/envs/captcha/bin/python', [process.cwd() + '/middleware/captcha_childprocess/libcaptcha.py']);
+const jwc_process = spawn('/usr/local/bin/anaconda3/envs/captcha/bin/python', [process.cwd() + '/middleware/captcha_childprocess/jwccaptcha.py']);
 
 jwc_process.stdout.on('data', (chunk) => {
   "use strict";
