@@ -12,9 +12,7 @@ exports.route = {
     let password = this.params.password || this.user.password
 
     // 获取解析后的验证码与Cookie并登陆
-    let res = (await this.get('https://myseu.cn/libcaptcha/')).data
-    let { cookies, captcha } = res
-    this.cookieJar.setCookieSync(cookies, 'http://www.libopac.seu.edu.cn:8080/reader/redr_verify.php', {})
+    let captcha = await this.libraryCaptcha()
 
     let log = await this.post(
       'http://www.libopac.seu.edu.cn:8080/reader/redr_verify.php',
@@ -42,7 +40,7 @@ exports.route = {
       return { bookId, name, borrowDate, returnDate, renewDate, location, addition, borrowId }
     })
 
-    return { cookies, bookList }
+    return { bookList }
   },
 
   /**
@@ -54,27 +52,37 @@ exports.route = {
    **/
 
    async post() {
-     let { cookies, bookId, borrowId } = this.params
-     let time = new Date().getTime()
+      let { bookId, borrowId } = this.params
+      let password = this.params.password || this.user.password
+      let { cardnum } = this.user
+      let time = new Date().getTime()
 
-     // 获取解析后的验证码和Cookies
-     let res = (await this.get("https://myseu.cn/libcaptcha/?cookie=" + cookies)).data
-     let { captcha } = res
-     this.cookieJar.setCookieSync(cookies, 'http://www.libopac.seu.edu.cn:8080/reader/redr_verify.php', {})
+      // 获取解析后的验证码与Cookie并登陆
+      let captcha = await this.libraryCaptcha()
 
-     res = await this.get(
-       'http://www.libopac.seu.edu.cn:8080/reader/ajax_renew.php', {
-         params: {
-           bar_code:bookId,
-           check:borrowId,
-           captcha:captcha,
-           time:time
-         }
-       }
-     )
-     let $ = cheerio.load(res.data)
+      await this.post(
+        'http://www.libopac.seu.edu.cn:8080/reader/redr_verify.php',
+        { number: cardnum, passwd: password, captcha: captcha, select: 'cert_no'}
+      )
 
-     // 返回续借状态
-     return $.text()
+      // 判断是否登录成功
+      if (/密码错误/.test(log.data)) {
+        throw '密码错误，请重试'
+      }
+
+      res = await this.get(
+        'http://www.libopac.seu.edu.cn:8080/reader/ajax_renew.php', {
+          params: {
+            bar_code:bookId,
+            check:borrowId,
+            captcha:captcha,
+            time:time
+          }
+        }
+      )
+      let $ = cheerio.load(res.data)
+
+      // 返回续借状态
+      return $.text()
    }
 }
