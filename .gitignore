@@ -8,6 +8,5 @@ spider_test.js
 !.gitkeep
 **/*.db
 sdk/sdk.json
-slack.json
 middleware/captcha_childprocess/models/
 *.swp

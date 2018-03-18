@@ -5,8 +5,8 @@
 /**
  * 将slack interaction封装成promise
  * **/
-const axios = require('axios');
-const config = require('./slack.json');
+const axios = require('axios')
+const config = require('../sdk/sdk.json').slack
 
 const _axios = axios.create({
   headers: {
