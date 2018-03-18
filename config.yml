@@ -25,7 +25,7 @@ cache:
     curriculum: 1d,lazy
     exam:       1d,lazy
     gpa:        1h,lazy
-    health:     1m,public
+    health:     10s,public
     notice:     1m,lazy,public
     lecture:    1h,lazy
     library:
