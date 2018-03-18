@@ -12,3 +12,5 @@ middleware/captcha-childprocess/models/
 *.swp
 .repl_history
 captcha-temp-*
+yarn-error.log
+
