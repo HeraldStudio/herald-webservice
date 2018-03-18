@@ -97,5 +97,5 @@ if __name__ == '__main__':
               'result': engine.predict(image)
             })
             print(result)
-        except Exception as e:
-            traceback.print_exc(e)
+        except:
+            pass
