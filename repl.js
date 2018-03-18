@@ -113,4 +113,6 @@ exports.start = () => {
     console.log('退出服务器了！')
     process.exit()
   })
+
+  require('repl.history')(replServer, './.repl_history')
 }
