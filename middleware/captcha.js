@@ -54,7 +54,7 @@ module.exports = ({ python }) => {
   });
 
   const handleError = err => {
-    err.split('\n')
+    err.toString().split('\n')
       .map(k => k.trim())
       .filter(k => k)
       .filter(!/WARNING/.test(k))
