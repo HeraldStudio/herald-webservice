@@ -10,3 +10,4 @@ spider_test.js
 sdk/sdk.json
 middleware/captcha_childprocess/models/
 *.swp
+.repl_history
