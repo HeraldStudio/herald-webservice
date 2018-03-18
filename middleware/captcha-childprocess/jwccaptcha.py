@@ -7,6 +7,7 @@ from tflearn.layers.estimator import regression
 import numpy as np
 from PIL import Image
 import json
+import traceback
 
 MODEL_NAME = 'gpa_captcha.tflearn'
 MODEL_PATH = './middleware/captcha-childprocess/models'
@@ -87,11 +88,14 @@ if __name__ == '__main__':
     engine = JWCCaptchaCrack()
     print('loaded')
     while True:
-        imagePath = input()
-        print(imagePath)
-        image = Image.open(imagePath)
-        result = json.dumps({
-          'path': imagePath,
-          'result': engine.predict(image)
-        })
-        print(result)
+        try:
+            imagePath = input()
+            print(imagePath)
+            image = Image.open(imagePath)
+            result = json.dumps({
+              'path': imagePath,
+              'result': engine.predict(image)
+            })
+            print(result)
+        except Exception as e:
+            traceback.print_exc(e)
