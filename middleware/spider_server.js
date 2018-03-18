@@ -253,22 +253,27 @@ class SpiderServer {
     return this._request(ctx, request) // 传入ctx以满足cookieJar自动添加和实现
   }
 
-  pickSpider() {
+  getAvailableSpiders() {
     let timestamp = new Date()
     timestamp = timestamp.getTime()
-    let avaliableList = []
+    let availableList = []
     for (let name in this.connectionPool) {
       let heartCycle = timestamp - this.connectionPool[name].finalHeartBeat
       if (this.connectionPool[name].active && heartCycle <= config.spider.heartCycle) {
-        avaliableList.push(this.connectionPool[name])
+        availableList.push(this.connectionPool[name])
       }
     }
-    let length = avaliableList.length
+    return availableList
+  }
+
+  pickSpider() {
+    let availableList = this.getAvailableSpiders()
+    let length = availableList.length
     if (length === 0) {
       throw {errCode: NO_SPIDER_ERROR, message: '没有可用爬虫'}
     }
     let r = Math.floor(Math.random() * length)
-    return avaliableList[r]
+    return availableList[r]
   }
 
   handleResponse(data) {
@@ -365,10 +370,9 @@ Object.defineProperty(module.exports, 'spiders', {
   get () {
     let pool = spiderServer.connectionPool
     let connections = Object.keys(pool).map(k => [k, pool[k]])
-    let totalCount = connections.length
     let inactiveList = connections.filter(k => !k[1].active).map(k => k[0])
     let inactiveCount = inactiveList.length
-    let activeCount = totalCount - inactiveCount
+    let activeCount = spiderServer.getAvailableSpiders().length
     return {
       activeCount, inactiveCount, inactiveList
     }
