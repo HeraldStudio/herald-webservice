@@ -92,10 +92,13 @@ if __name__ == '__main__':
     engine = LibraryCaptchaCrack()
     print('loaded')
     while True:
-        imagePath = input()
-        image = Image.open(imagePath)
-        result = json.dumps({
-          'path': imagePath,
-          'result': engine.predict(image)
-        })
-        print(result)
+        try:
+            imagePath = input()
+            image = Image.open(imagePath)
+            result = json.dumps({
+              'path': imagePath,
+              'result': engine.predict(image)
+            })
+            print(result)
+        except Exception as e:
+            traceback.print_exc(e)
