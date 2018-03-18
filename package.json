@@ -27,6 +27,7 @@
     "prettyjson": "^1.2.1",
     "qiniu": "^7.1.2",
     "redis": "^2.8.0",
+    "repl.history": "^0.1.4",
     "sqlite3": "^3.1.13",
     "sqlongo": "^1.1.4",
     "tough-cookie": "^2.3.3",
