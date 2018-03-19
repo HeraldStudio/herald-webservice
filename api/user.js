@@ -4,20 +4,11 @@ exports.route = {
 
   /**
    * GET /api/user
-   * 用户基本信息查询（老门户版）
+   * 用户基本信息查询（静态版）
    **/
   async get () {
-    await this.useAuthCookie()
-    let res = await this.get('http://myold.seu.edu.cn/index.portal?.pn=p3447_p3449_p3450')
-    let $ = cheerio.load(res.data)
-    let [schoolnum, name, cardnum, gender]
-      = $('.pa-main-table .portlet-table-even').toArray().map(k => $(k).text().trim())
-
-    gender = gender.replace(/性$/, '')
-
-    return {
-      name, cardnum, schoolnum, gender
-    }
+    let { name, cardnum, schoolnum } = this.user
+    return { name, cardnum, schoolnum }
   }
 }
 
