@@ -8,7 +8,20 @@ exports.route = {
    **/
   async get () {
     let { name, cardnum, schoolnum } = this.user
-    return { name, cardnum, schoolnum }
+    let identity
+    if (/^1/.test(cardnum)) {
+      identity = '教师'
+    }
+    if (/^21/.test(cardnum)) {
+      identity = '本科生'
+    }
+    if (/^22/.test(cardnum)) {
+      identity = '硕士生'
+    }
+    if (/^23/.test(cardnum)) {
+      identity = '博士生'
+    }
+    return { name, cardnum, schoolnum, identity }
   }
 }
 
