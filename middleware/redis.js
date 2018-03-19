@@ -43,7 +43,7 @@ if (process.env.NODE_ENV === 'development') {
 const cache = {
   async set(key, value) {
     let time = Math.floor(new Date().getTime() / 1000)
-    client.set(JSON.stringify(key), JSON.stringify({ value, time }))
+    client.set(key, JSON.stringify({ value, time }))
   },
   async get(key, ttl) {
     if (key && ttl) {
