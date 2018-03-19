@@ -85,6 +85,7 @@ class SpiderServer {
       connection.finalHeartBeat = date.getTime()
       // 如果是心跳包则拦截
       if (data === '@herald—spider') {
+        connection.send('@herald-server'); // 双向心跳包
         return
       }
       if (connection.active) {
