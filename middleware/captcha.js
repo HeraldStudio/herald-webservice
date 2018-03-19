@@ -69,6 +69,7 @@ module.exports = ({ python }) => {
   };
 
   const jwcCaptcha = async ctx => {
+    
     let pic = Buffer.from((await ctx.get('http://xk.urp.seu.edu.cn/studentService/getCheckCode')).data);
     return new Promise((resolve, reject) => {
       let picName = `/tmp/ws3-captcha-${generateName()}.jpg`;
