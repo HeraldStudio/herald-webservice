@@ -14,9 +14,12 @@ module.exports = async (ctx, next) => {
     + ':' + ('0' + end.getMinutes()).split('').slice(-2).join('')
     + ':' + ('0' + end.getSeconds()).split('').slice(-2).join('')
 
+  // 考虑到某些情况（如重定向）时，返回中没有 JSON 格式的 body，只有 status
+  let status = ctx.body && ctx.body.code || ctx.status
+
   console.log(
     '  ' + time +
-    ' | ' + (ctx.body.success ? chalk.green(ctx.body.code) : chalk.red(ctx.body.code)) +
+    ' | ' + (status < 400 ? chalk.green(status) : chalk.red(status)) +
     ' ' + ctx.method +
     ' ' + chalk.blue(ctx.path) +
     ' ' + duration + 'ms'
