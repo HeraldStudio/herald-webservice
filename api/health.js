@@ -15,12 +15,12 @@ exports.route = {
       '网络': 'https://selfservice.seu.edu.cn/selfservice/campus_login.php',
       'SRTP': 'http://10.1.30.98:8080/srtp2/USerPages/SRTP/Report3.aspx',
       '教务处': 'http://jwc.seu.edu.cn',
-      '一卡通': 'http://allinonecard.seu.edu.cn/homeLogin.action',
       '图书馆': 'http://www.libopac.seu.edu.cn:8080/reader/login.php',
       '老门户': 'http://myold.seu.edu.cn',
       '新门户': 'http://my.seu.edu.cn',
       '场馆预约': 'http://yuyue.seu.edu.cn/eduplus/phoneOrder/initOrderIndexP.do',
       '成绩/考试': 'http://xk.urp.seu.edu.cn/studentService/system/showLogin.action',
+      '一卡通/讲座': 'http://allinonecard.seu.edu.cn/homeLogin.action',
     }
 
     // 上游测试结果
