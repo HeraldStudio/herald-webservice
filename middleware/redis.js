@@ -160,12 +160,12 @@ module.exports = async (ctx, next) => {
     strategy.cacheTimeSeconds = 0
   }
 
-  let cacheKey = JSON.stringify({
-    method: ctx.method,
-    path: ctx.path,
-    token: cacheIsPrivate ? ctx.user.token : '',
-    params: ctx.params
-  })
+  let cacheKey = [
+    cacheIsPrivate ? ctx.user.token : '',
+    ctx.method,
+    ctx.path,
+    JSON.stringify(ctx.params)
+  ].join(' ').trim()
 
   let [cached, expired] = await cache.get(cacheKey, strategy.cacheTimeSeconds)
 
