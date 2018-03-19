@@ -33,14 +33,14 @@ module.exports = async (ctx, next) => {
   if (ctx.status < 400) {
     json = {
       success: true,
-      code: ctx.status,
+      code: ctx.status || 200,
       result: ctx.body,
       related: ctx._related
     }
   } else {
     json = {
       success: false,
-      code: ctx.status,
+      code: ctx.status || 200,
       reason: ctx.body,
       related: ctx._related
     }
