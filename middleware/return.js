@@ -18,9 +18,9 @@ module.exports = async (ctx, next) => {
     } else if (typeof e === 'string') {
       ctx.status = 400
       ctx.body = e
-    } else if (/^Request failed with status code (\d+)$/.test(e.message)) { // 探测 Axios 异常
+    } else if (e.message && /^Request failed with status code (\d+)$/.test(e.message)) { // 探测 Axios 异常
       ctx.status = 503
-    } else if (/^timeout of \d+ms exceeded$/.test(e.message)) { // 探测 Axios 异常
+    } else if (e.message && /^timeout of \d+ms exceeded$/.test(e.message)) { // 探测 Axios 异常
       ctx.status = 408
     } else {
       console.error(e)
