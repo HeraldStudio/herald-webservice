@@ -20,7 +20,7 @@ const reservationAPI = {
   getOrder: {
     url: "http://yuyue.seu.edu.cn/eduplus/phoneOrder/phoneOrder/getOrderInfoP.do?sclId=1",
     info: "获取预约详情",
-    args: ['itemId', 'dayInfo']
+    args: ['itemId', 'dayInfo'] // dayInfo form: 2018-03-19
   },
   judgeOrder: {
     url: "http://yuyue.seu.edu.cn/eduplus/phoneOrder/judgeOrderP.do?sclId=1",
@@ -43,6 +43,13 @@ const reservationAPI = {
     url: "http://yuyue.seu.edu.cn/eduplus/phoneOrder/insertOredrP.do?sclId=1",
     info: "新的预约",
     args: ['orderVO.useMode','orderVO.useTime','orderVO.itemId','orderVO.phone','useUserIds','orderVO.remark']
+    // useMode: 2
+    // useTime: 2018-03-19+18:00-19:00
+    // itemId: 16
+    // phone
+    // useUserIds: xxx (get it from api/reservation/getFriendList)
+    // useUserIds: xxx
+    // remark: empty (must append this param...)
   },
 }
 
