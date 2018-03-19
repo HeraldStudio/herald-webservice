@@ -15,7 +15,7 @@
   - [x] 通用网络请求中间件 @rikumi
   - [x] 日志输出和测试终端 @rikumi
   - [x] 后台管理员权限系统 @rikumi
-  - [x] CNN验证码识别平台 @狼剩子
+  - [x] CNN验证码识别系统 @狼剩子
   - [x] 分布式硬件爬虫系统 @狼剩子
   - [x] slack集成中间件 @狼剩子
   - [x] 两种不同风格的 ORM @rikumi @Vigilans-Yea
