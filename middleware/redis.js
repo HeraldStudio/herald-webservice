@@ -47,7 +47,7 @@ const cache = {
   },
   async get(key, ttl) {
     if (key && ttl) {
-      let got = JSON.parse(await client.getAsync(JSON.stringify(key)))
+      let got = JSON.parse(await client.getAsync(key))
       if (got) {
         let expired = Math.floor(new Date().getTime() / 1000) - got.time >= ttl
         return [got.value, expired]
