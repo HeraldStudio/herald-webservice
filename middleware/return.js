@@ -30,7 +30,9 @@ module.exports = async (ctx, next) => {
 
   let json = {}
 
-  if (ctx.status < 400) {
+  if (ctx.status === 302) {
+    return
+  } else if (ctx.status < 400) {
     json = {
       success: true,
       code: ctx.status || 200,
