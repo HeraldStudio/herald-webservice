@@ -57,7 +57,6 @@ exports.route = {
       // 获取解析后的验证码和Cookies
       this.cookieJar.parse(cookies)
       let captcha = await this.libraryCaptcha()
-      let { captcha } = res
 
       res = await this.get(
         'http://www.libopac.seu.edu.cn:8080/reader/ajax_renew.php', {

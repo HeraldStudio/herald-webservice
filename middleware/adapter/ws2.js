@@ -66,16 +66,20 @@ module.exports = async (ctx, next) => {
   } else if (ctx.path.indexOf('/adapter-ws2/api/') === 0) {
 
     let { uuid } = ctx.params
-    if (uuid && !/^0+$/.test(uuid)) {
-      let existing = await db.auth.find({ uuid }, 1)
-      if (!existing) {
-        ctx.throw(401)
+    if (uuid) {
+      // 去除参数的 uuid，防止参数多变，污染 public redis 存储
+      delete ctx.params.uuid
+      if (!/^0+$/.test(uuid)) {
+        let existing = await db.auth.find({ uuid }, 1)
+        if (!existing) {
+          ctx.throw(401)
+        }
+
+        let { token } = existing
+
+        // 重写请求 headers，插入 token，以便 ws3 下游识别
+        ctx.request.headers.token = token
       }
-
-      let { token } = existing
-
-      // 重写请求 headers，插入 token，以便 ws3 下游识别
-      ctx.request.headers.token = token
     }
 
     // 将路由转换成 /api/...，且为默认 GET 请求

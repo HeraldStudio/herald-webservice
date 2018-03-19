@@ -4,6 +4,11 @@ const { config } = require('../../app')
 const axios = require('axios')
 
 module.exports = async (ctx, next) => {
+  if (ctx.params.uuid) {
+    // 去除参数的 uuid，防止参数多变，污染 public redis 存储
+    delete ctx.params.uuid
+  }
+
   if (ctx.path.indexOf('/adapter-appserv/') === 0) {
     let originalPath = ctx.path
     ctx.path = ctx.request.path = ctx.path.replace('/adapter-appserv', '')
