@@ -294,20 +294,15 @@ async get() {
   注意：在 HTTP 规范中，只有 <code>GET</code> 请求是幂等的，这意味着我们通常不应该对 <code>POST</code>/<code>PUT</code>/<code>DELETE</code> 请求进行缓存，也不应该对可能受到其他 <code>POST</code>/<code>PUT</code>/<code>DELETE</code> 请求影响的 <code>GET</code> 请求进行缓存。
 </p>
 
-```javascript
-{
-  ...,
-  "cache": {
-    "api": {
-      "hello": "1y",        // /api/hello 缓存1年(按360天计)
-      "foo": "10mo,lazy",   // /api/foo   缓存10个月(每月按30天计)，懒抓取（先返回上次缓存再后台更新）
-      "bar": "10d,public",  // /api/bar   缓存10天，所有用户共享一个缓存
-      "foobar": {
-        "get": "1h20m6s"    // /api/foobar GET 请求 缓存1小时20分6秒
-      }
-    }
-  }
-}
+```yaml
+cache
+  api:
+    hello: 1y        # /api/hello 缓存1年(按360天计)
+    foo: 10mo,lazy   # /api/foo   缓存10个月(每月按30天计)，懒抓取（先返回上次缓存再后台更新）
+    bar: 10d,public  # /api/bar   缓存10天，所有用户共享一个缓存
+    foobar:
+      get: 1h20m6s   # /api/foobar GET 请求 缓存1小时20分6秒
+    mew: 3m,manual   # /api/mew   手动缓存
 ```
 
 #### 缓存策略 `public`（公用缓存）
@@ -318,6 +313,8 @@ async get() {
   <b>千万不要</b>对用户的私人信息接口开启该策略。尤其在本来设置了 <code>public</code> 的接口上添加新的方法时，请特别注意缓存策略的变化。
 </p>
 
+相对应的，有 `private` 来取消 `public`。
+
 #### 缓存策略 `lazy`（懒抓取）
 
 `lazy` 策略表示，只要缓存存在且可以解析（无论是否过期），每个请求都立即返回上次缓存的值；然后如果缓存过期，在后台更新缓存，用户在一段时间后再次请求，将得到更新后的数据。
@@ -327,6 +324,56 @@ async get() {
 设置了 `lazy` 策略的路由中，上下文的生命周期将与具体的 HTTP 请求脱离，请务必注意由此导致的一些副作用。
 
 为了防止用户重复触发导致服务器压力，懒抓取的缓存时间被限制为至少 5 秒。
+
+相对应的，有 `eager` 取消 `lazy`。
+
+### 缓存策略 `manual`
+
+`manual` 策略表示 `redis.js` 中间件不会对 API 的返回内容进行缓存。若 API 内部需要缓存，可手动调用 `this.cache`。
+
+使用 `of()` 指定名称，`inNext()` 指定时间，`is()` 指定其它策略。
+
+```javascript
+exports.route = {
+  async get () {
+    console.log("get not cached")
+    let foo = await this.cache.of('foo').is('public').is('lazy').inNext('10s').using(
+      async () => {
+        console.log('get.foo not cached')
+        return 'foo'
+      }
+    )
+    let bar = await this.cache.of('bar').is('private').is('eager').inNext('1m').using(
+      () => {
+        console.log('get.bar not cached')
+        return 'bar'
+      }
+    )
+    let baz = await this.cache.of('baz').using( // 使用和 test(在 config.yml 中配置的) 一样的缓存策略
+      () => {
+        console.log('get.baz not cached')
+        return 'baz'
+      }
+    )
+    return { foo, bar, baz }
+  },
+
+  async post() {
+    let foo = await this.cache.using(
+      () => {
+        console.log('post not cached')
+        return 'foo'
+      }
+    )
+    return { foo }
+  }
+
+}
+```
+
+相对应的，有 `auto` 取消 `manual`。
+
+注意，`auto` 和 `manual` 仅在配置文件中生效。执行 `this.cache.is('auto')` 并没有效果。
 
 ### 数据库
 
