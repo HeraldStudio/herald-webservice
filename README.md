@@ -327,9 +327,9 @@ cache:
 
 相对应的，有 `eager` 取消 `lazy`。
 
-### 缓存策略 `manual`
+#### 缓存策略 `manual`
 
-`manual` 策略表示 `redis.js` 中间件不会对 API 的返回内容进行缓存。若 API 内部需要缓存，可手动调用 `this.cache`。
+`manual` 策略表示 `redis.js` 中间件**不会**对 API 的返回内容进行缓存。如果**配置文件中没有指定缓存时间**，`manual` 会被**自动设置**。若 API 内部需要缓存，可手动调用 `this.cache`。
 
 使用 `of()` 指定名称，`inNext()` 指定时间，`is()` 指定其它策略。
 
