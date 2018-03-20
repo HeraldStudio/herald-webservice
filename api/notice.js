@@ -25,7 +25,7 @@ const sites = {
     list: [['#wp_news_w3', '总务处公告']],
     contentSelector: '[portletmode="simpleArticleContent"]' // 两个平台的正文选择器是一样的
   },
-  ...require('./notice/depts.json')
+  ...require('./notice/depts.json') // FIXME 各个学院网站不能保证都能获取到通知，需要测试
 }
 
 const deptCodeFromSchoolNum = schoolnum => {
