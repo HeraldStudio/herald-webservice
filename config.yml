@@ -26,7 +26,7 @@ cache:
     exam:       1d,lazy
     gpa:        1h,lazy
     health:     10s,public
-    notice:     1m,lazy,public
+    notice:     1m,lazy,public,manual
     lecture:    1h,lazy
     library:
       get:      1m,lazy

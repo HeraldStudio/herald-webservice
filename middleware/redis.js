@@ -73,36 +73,218 @@ const cache = {
 const strategyTimeCache = {}
 
 class CacheStrategy {
-  constructor(str = '') {
-    this.cacheTimeSeconds = 0
-    this.cacheIsPublic = false
-    this.cacheIsLazy = false
+  constructor(str = '', parent) {
+    if (parent !== undefined) {
+      this.cacheTimeSeconds = parent.cacheTimeSeconds
+      this.cacheIsPublic = parent.cacheIsPublic
+      this.cacheIsLazy = parent.cacheIsLazy
+      this.cacheIsManual = parent.cacheIsManual
+    } else {
+      this.cacheTimeSeconds = 0
+      this.cacheIsPublic = false
+      this.cacheIsLazy = false
+      this.cacheIsManual = undefined
+    }
+    this.setStrategy(str)
+  }
+  setStrategy(str) {
     let properties = str.trim().split(/\s*,\s*/g)
-    properties.map(prop => {
+    properties.forEach(prop => {
       if (/^\d+/.test(prop)) {
+        if (this.cacheIsManual === undefined) { // 碰到缓存时间项，默认自动缓存
+          this.cacheIsManual = false
+        }
         if (strategyTimeCache.hasOwnProperty(prop)) {
           this.cacheTimeSeconds = strategyTimeCache[prop]
+          return
         }
         let units = { y: 0, mo: 0, d: 0, h: 0, m: 0, s: 0 }
         prop.match(/[\d\.]+[a-z]+/g).forEach(k => {
           let parts = /([\d\.]+)([a-z]+)/g.exec(k)
           units[parts[2]] = parseFloat(parts[1])
         })
-        this.cacheTimeSeconds = ((((units.y * 12 + units.mo) * 30 + units.d) * 24 + units.h) * 60 + units.m) * 60 + units.s
+        this.cacheTimeSeconds = ((((units.y * 12
+                                    + units.mo) * 30
+                                   + units.d) * 24
+                                  + units.h) * 60
+                                 + units.m) * 60 + units.s
         strategyTimeCache[prop] = this.cacheTimeSeconds
       } else if (prop === 'public') {
         this.cacheIsPublic = true
+      } else if (prop === 'private') {
+        this.cacheIsPublic = false
       } else if (prop === 'lazy') {
         this.cacheIsLazy = true
+      } else if (prop === 'eager') {
+        this.cacheIsLazy = false
+      } else if (prop === 'manual') {
+        this.cacheIsManual = true
+      } else if (prop === 'auto') {
+        this.cacheIsManual = false
       }
     })
+    if (this.cacheIsManual === undefined) { // 现在还没有指定缓存时间
+      this.cacheIsManual = true
+    }
   }
+}
+
+class CacheManager {
+  constructor(ctx, strategy, name = null, derived = false) {
+    this.ctx = ctx
+    this.strategy = strategy
+    this.derived = derived
+    this.name = name
+  }
+  of(name) {
+    if (this.derived) {
+      this.name = name
+      return this
+    } else {
+      return new CacheManager(this.ctx,
+                              new CacheStrategy('', this.strategy),
+                              name,
+                              /* derived = */ true)
+    }
+  }
+  inNext(time) {
+    if (this.derived) {
+      this.strategy.setStrategy(time)
+      return this
+    } else {
+      return new CacheManager(this.ctx,
+                              new CacheStrategy(time, this.strategy),
+                              this.name,
+                              /* derived = */ true)
+    }
+  }
+  is(attr) {
+    return this.inNext(attr)
+  }
+  async using(func) {
+    let { ctx, strategy } = this
+    /**
+       ## 缓存命中
+
+       将 method、地址 (路由 + querystring)、伪 token、请求体四个元素进行序列化，作为缓存命中判断的依据
+       伪 token 是上游 auth 暴露的属性，用于区分用户，详见 auth.js##伪token
+
+       下述「回源」均指调用下游中间件，取得最新数据的过程。
+
+       缓存命中策略对照表：
+
+       - 判断缓存状态：
+       - 缓存有效未过期 => 取缓存，不回源
+       - 缓存有效已过期 => 判断缓存策略：
+        - 普通策略 => 等待回源，判断回源结果：
+         - 回源成功：取回源结果，更新缓存 √
+         - 回源失败：取缓存 √
+        - 懒抓取策略 => 取缓存 √ 同时后台开始回源（脱离等待链），回源成功则更新缓存
+       - 缓存无效 => 等待回源，判断回源结果：
+        - 回源成功：取回源结果，更新缓存 √
+        - 回源失败：返回错误信息 √
+    */
+    let cacheIsPrivate = !strategy.cacheIsPublic && ctx.user.isLogin
+    let { cacheIsLazy } = strategy
+
+    // 懒抓取策略下，缓存时间至少 5 秒，防止缓存时间未设置导致始终不缓存
+    if (cacheIsLazy) {
+      strategy.cacheTimeSeconds = Math.max(strategy.cacheTimeSeconds, 5)
+    }
+
+    // 对于超管，强制禁用任何缓存机制（否则由于超管不是用户，会被当做游客进行缓存，造成严重影响）
+    if (ctx.admin.super) {
+      strategy.cacheTimeSeconds = 0
+    }
+
+    let cacheKey = [
+      cacheIsPrivate ? ctx.user.token : '',
+      ctx.method,
+      ctx.path,
+      JSON.stringify(ctx.params),
+      this.name
+    ].join(' ').trim()
+
+    let [cached, expired] = await cache.get(cacheKey, strategy.cacheTimeSeconds)
+
+    // 1. 无论是否过期，首先解析缓存，准确判断缓存是否可用，以便在缓存不可用时进行回源
+    // 此步骤结果保证：cached 成真 <=> 缓存可用，expired 成假 <=> 缓存未过期
+    if (cached) {
+      try {
+        // [*] 上游是 auth 中间件，若为已登录用户，auth 将完成解密并把加解密函数暴露出来
+        // 这里利用 auth 的加解密函数，解密缓存数据
+        if (cacheIsPrivate) {
+          cached = ctx.user.decrypt(cached)
+        }
+        cached = JSON.parse(cached)
+      } catch (e) {
+        cached = null
+      }
+    }
+
+    // 2. 若缓存不可用或已过期，先回源，准确判断回源是否成功，以便在回源不成功时回落到过期缓存
+    if (!cached || expired) {
+
+      // 判断是否执行脱离等待链策略
+      // 只有当设置了懒抓取模式且有缓存时，脱离等待链；否则不脱离等待链
+      let cacheNoAwait = cacheIsLazy && cached
+
+      // 异步的回源任务（执行下游中间件、路由处理程序）
+      let task = async () => {
+
+        // 回源前先将原有缓存重新设置一次，缓存内容保持不变，缓存时间改为现在
+        // 因此，若用户在回源完成前重复调用同一接口，将直接命中缓存，防止重复触发回源
+        if (strategy.cacheTimeSeconds) {
+          cache.set(cacheKey, cached)
+        }
+
+        let res = await func()
+        // 若需要缓存，将中间件返回值存入 redis
+        if (strategy.cacheTimeSeconds && res) {
+          cached = JSON.stringify(res)
+
+          // 同 [*]，这里利用 auth 的加解密函数，加密数据进行缓存
+          if (cacheIsPrivate) {
+            cached = ctx.user.encrypt(cached)
+          }
+          cache.set(cacheKey, cached)
+
+          // 执行到此说明回源成功
+          return [true, res]
+        }
+
+        // 回源失败
+        return [false]
+      }
+
+      if (cacheNoAwait) {
+        // 懒抓取模式且有过期缓存时，脱离等待链异步回源，忽略回源结果，然后直接继续到第三步取上次缓存值
+        detachedTaskCount++
+
+        // 异步回源首先 +1s 再进行，防止 ctx 对象在请求未处理完成前被回源线程修改
+        // 目前已知，不加这 1s 会导致懒抓取的 POST 请求在缓存过期触发回源时将会返回未包装的内容
+        setTimeout(() => {
+          task().catch(() => {}).then(() => detachedTaskCount--)
+        }, 1000)
+      } else {
+        let ret = await task()
+        if (ret[0]) { // 其余情况下，等待回源结束，若回源成功，返回回源结果
+          return ret[1]
+        }
+      }
+    }
+
+    // 3. 执行到此表示缓存未过期、正在异步回源或回源时出错
+    // 若缓存存在，返回缓存值；否则，必然有回源出错，此时不对结果进行覆盖[见下]，保留回源出错的信息
+    return cached // FIXME
+  }
+  // this.cache.of('jwc').is('public').inNext('1d').using(fetchNews)
 }
 
 // 当前脱离等待链的回源任务计数
 let detachedTaskCount = 0
 
-module.exports = async (ctx, next) => {
+module.exports = async (ctx, next) => { // next = kf-router
 
 /**
   从 config 的 cache 项中向下寻找最符合当前条件的缓存策略
@@ -125,120 +307,17 @@ module.exports = async (ctx, next) => {
     jsonToParse = ''
   }
   let strategy = new CacheStrategy(jsonToParse)
-
-/**
-  ## 缓存命中
-
-  将 method、地址 (路由 + querystring)、伪 token、请求体四个元素进行序列化，作为缓存命中判断的依据
-  伪 token 是上游 auth 暴露的属性，用于区分用户，详见 auth.js##伪token
-
-  下述「回源」均指调用下游中间件，取得最新数据的过程。
-
-  缓存命中策略对照表：
-
-  - 判断缓存状态：
-    - 缓存有效未过期 => 取缓存，不回源
-    - 缓存有效已过期 => 判断缓存策略：
-      - 普通策略 => 等待回源，判断回源结果：
-        - 回源成功：取回源结果，更新缓存 √
-        - 回源失败：取缓存 √
-      - 懒抓取策略 => 取缓存 √ 同时后台开始回源（脱离等待链），回源成功则更新缓存
-    - 缓存无效 => 等待回源，判断回源结果：
-      - 回源成功：取回源结果，更新缓存 √
-      - 回源失败：返回错误信息 √
- */
-  let cacheIsPrivate = !strategy.cacheIsPublic && ctx.user.isLogin
-  let { cacheIsLazy } = strategy
-
-  // 懒抓取策略下，缓存时间至少 5 秒，防止缓存时间未设置导致始终不缓存
-  if (cacheIsLazy) {
-    strategy.cacheTimeSeconds = Math.max(strategy.cacheTimeSeconds, 5)
-  }
-
-  // 对于超管，强制禁用任何缓存机制（否则由于超管不是用户，会被当做游客进行缓存，造成严重影响）
-  if (ctx.admin.super) {
-    strategy.cacheTimeSeconds = 0
-  }
-
-  let cacheKey = [
-    cacheIsPrivate ? ctx.user.token : '',
-    ctx.method,
-    ctx.path,
-    JSON.stringify(ctx.params)
-  ].join(' ').trim()
-
-  let [cached, expired] = await cache.get(cacheKey, strategy.cacheTimeSeconds)
-
-  // 1. 无论是否过期，首先解析缓存，准确判断缓存是否可用，以便在缓存不可用时进行回源
-  // 此步骤结果保证：cached 成真 <=> 缓存可用，expired 成假 <=> 缓存未过期
-  if (cached) {
-    try {
-      // [*] 上游是 auth 中间件，若为已登录用户，auth 将完成解密并把加解密函数暴露出来
-      // 这里利用 auth 的加解密函数，解密缓存数据
-      if (cacheIsPrivate) {
-        cached = ctx.user.decrypt(cached)
-      }
-      cached = JSON.parse(cached)
-    } catch (e) {
-      cached = null
-    }
-  }
-
-  // 2. 若缓存不可用或已过期，先回源，准确判断回源是否成功，以便在回源不成功时回落到过期缓存
-  if (!cached || expired) {
-
-    // 判断是否执行脱离等待链策略
-    // 只有当设置了懒抓取模式且有缓存时，脱离等待链；否则不脱离等待链
-    let cacheNoAwait = cacheIsLazy && cached
-
-    // 异步的回源任务（执行下游中间件、路由处理程序）
-    let task = async () => {
-
-      // 回源前先将原有缓存重新设置一次，缓存内容保持不变，缓存时间改为现在
-      // 因此，若用户在回源完成前重复调用同一接口，将直接命中缓存，防止重复触发回源
-      if (strategy.cacheTimeSeconds) {
-        cache.set(cacheKey, cached)
-      }
-
+  ctx.cache = new CacheManager(ctx, strategy)
+  if (strategy.cacheIsManual) {
+    await next()
+  } else {
+    let res = await ctx.cache.using(async () => {
       await next()
-
-      // 若需要缓存，将中间件返回值存入 redis
-      if (strategy.cacheTimeSeconds && ctx.body) {
-        cached = ctx.body
-        cached = JSON.stringify(cached)
-
-        // 同 [*]，这里利用 auth 的加解密函数，加密数据进行缓存
-        if (cacheIsPrivate) {
-          cached = ctx.user.encrypt(cached)
-        }
-        cache.set(cacheKey, cached)
-
-        // 执行到此说明回源成功
-        return true
-      }
-
-      // 回源失败
-      return false
+      return ctx.body
+    })
+    if (res) { // 回源出错时便不覆盖 ctx.body，防止 status 因为 body 为空而变成204
+      ctx.body = res
     }
-
-    if (cacheNoAwait) {
-      // 懒抓取模式且有过期缓存时，脱离等待链异步回源，忽略回源结果，然后直接继续到第三步取上次缓存值
-      detachedTaskCount++
-
-      // 异步回源首先 +1s 再进行，防止 ctx 对象在请求未处理完成前被回源线程修改
-      // 目前已知，不加这 1s 会导致懒抓取的 POST 请求在缓存过期触发回源时将会返回未包装的内容
-      setTimeout(() => {
-        task().catch(() => {}).then(() => detachedTaskCount--)
-      }, 1000)
-    } else if (await task()) { // 其余情况下，等待回源结束，若回源成功，返回回源结果
-      return
-    }
-  }
-
-  // 3. 执行到此表示缓存未过期、正在异步回源或回源时出错
-  // 若缓存存在，返回缓存值；否则，必然有回源出错，此时不对结果进行覆盖，保留回源出错的信息
-  if (cached) {
-    ctx.body = cached
   }
 }
 
