@@ -295,7 +295,7 @@ async get() {
 </p>
 
 ```yaml
-cache
+cache:
   api:
     hello: 1y        # /api/hello 缓存1年(按360天计)
     foo: 10mo,lazy   # /api/foo   缓存10个月(每月按30天计)，懒抓取（先返回上次缓存再后台更新）
