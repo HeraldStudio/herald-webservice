@@ -20,7 +20,7 @@ const reservationAPI = {
   getOrder: {
     url: "http://yuyue.seu.edu.cn/eduplus/phoneOrder/phoneOrder/getOrderInfoP.do?sclId=1",
     info: "获取预约详情",
-    args: ['itemId', 'dayInfo']
+    args: ['itemId', 'dayInfo'] // dayInfo form: 2018-03-19
   },
   judgeOrder: {
     url: "http://yuyue.seu.edu.cn/eduplus/phoneOrder/judgeOrderP.do?sclId=1",
@@ -36,12 +36,20 @@ const reservationAPI = {
     method: 'post',
     args: ['cardNo']
     // FIXME 这里是不是可以由this.user得到？还是允许查别人的？
+    // 是根据一卡通可以获得一个同学的信息，然后返回他的userId之类的东西
     // args: [['cardNo', function (k) { return k.user }]]
   },
   newReservation: {
     url: "http://yuyue.seu.edu.cn/eduplus/phoneOrder/insertOredrP.do?sclId=1",
     info: "新的预约",
     args: ['orderVO.useMode','orderVO.useTime','orderVO.itemId','orderVO.phone','useUserIds','orderVO.remark']
+    // useMode: 2
+    // useTime: 2018-03-19+18:00-19:00
+    // itemId: 16
+    // phone
+    // useUserIds: xxx (get it from api/reservation/getFriendList)
+    // useUserIds: xxx
+    // remark: empty (must append this param...)
   },
 }
 
@@ -89,8 +97,7 @@ exports.route = {
                            .reduce((k, a) =>
                                    k + '&' + a[0] + '=' + a[1]
                                    , ''))))
-    // ws2 说结果是一个JSON
-    // 上游似乎坏了 没法验证
-    return JSON.parse(res.data)
+
+    return res.data
   }
 }

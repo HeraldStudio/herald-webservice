@@ -1,4 +1,5 @@
 const cheerio = require('cheerio')
+const { config } = require('../app')
 
 exports.route = {
 
@@ -73,24 +74,10 @@ exports.route = {
         term = /<font class="Context_title">[\s\S]*?(\d{2}-\d{2}-\d)[\s\S]*?<\/font>/im.exec(res.data)[1]
       } catch (e) { throw 401 }
 
-      // 抓取学期详情列表
-      try {
-        let termRes = await this.get('http://58.192.114.179/classroom/common/gettermlistex', {
-          timeout: 1000
-        })
-
-        // 学期详情中的格式为 2017-2018-2 的形式，取年份后两位进行匹配，匹配到的学期详情留下
-        term = termRes.data.find(k => {
-          let found = /^..(..-)..(..-.*)$/.exec(k.code)
-          return found && found.slice(1).join('') === term
-        })
-
-        term = {
-          code: term.code,
-          startDate: term.startDate.time
-        }
-      } catch (e) {
-        term = { code: term }
+      // 获取开学日期
+      term = {
+        code: term,
+        startDate: config.term[term] ? new Date(config.term[term]).getTime() : null
       }
 
       // 从课表页面抓取身份信息
@@ -229,9 +216,8 @@ exports.route = {
       // 确定最大周数
       term.maxWeek = curriculum.map(k => k.endWeek).reduce((a, b) => a > b ? a : b, 0)
 
-      // 为了兼容丁家桥表示法，碰到含 19、20 周的课表，将开学日期前推四周
-      // 保险起见，这里不用大于 16 而是用 18 作为判据
-      if (term.maxWeek > 18) {
+      // 为了兼容丁家桥表示法，本科生和教师碰到秋季学期超过 16 周的课表，将开学日期前推四周
+      if (term.maxWeek > 16 && !/^22/.test(cardnum) && /-2$/.test(term.code)) {
         term.startDate -= 28 * 24 * 60 * 60 * 1000
       }
 

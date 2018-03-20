@@ -1,9 +1,16 @@
 axios:
-  timeout:      15000
+  timeout:      7000
 port:           3000
 auth:
   expireDays:   90
   cipher:       aes-256-cfb
+term:
+  # 每年的三个学期名和开学日期
+  # 开学日期必须是周一
+  # 必须在每年暑假期间进行更新，不得早于春学期第18周结束，不得晚于短学期开学。
+  17-18-1:      2017-8-28
+  17-18-2:      2017-9-25
+  17-18-3:      2018-2-26
 cache:
   # 数据因用户线上操作而变化的，缓存时间设置为秒级，可使用 lazy 默认 5 秒；
   # 数据因用户线下操作而变化的，缓存时间设置为分钟级，一般 1 分钟；
@@ -18,7 +25,8 @@ cache:
     curriculum: 1d,lazy
     exam:       1d,lazy
     gpa:        1h,lazy
-    notice:     1h,lazy,public
+    health:     10s,public
+    notice:     1m,lazy,public
     lecture:    1h,lazy
     library:
       get:      1m,lazy
@@ -26,6 +34,7 @@ cache:
     phylab:     1d,lazy
     schoolbus:  5s,public
     srtp:       1d,lazy
+    term:       1d,public
     user:       1d,lazy
     wlan:
       get:      lazy

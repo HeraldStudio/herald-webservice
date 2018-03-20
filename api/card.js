@@ -1,6 +1,4 @@
 const cheerio = require('cheerio')
-const iconv = require('iconv-lite')
-const qs = require('querystring')
 
 exports.route = {
 
@@ -39,18 +37,8 @@ exports.route = {
 
     // 返回数据的模板，键值要跟网页中找到的栏目名一致，比如「帐号」不能写成「账号」
     let info = {
-      name: '姓名',
       account: '帐号',
-      gender: '性别',
-      cardnum: '学工号',
-      identity: '身份类型',
-      id: '证件号码',
-      college: '所属部门',
-      status: {
-        mainStatus: '卡状态',
-        freezeStatus: '冻结状态',
-        checkStatus: '检查状态'
-      },
+      status: '卡状态',
       balance: '余额',
     }
 
@@ -147,8 +135,8 @@ exports.route = {
    * @apiParam eacc       为1时充值到电子钱包
    **/
   async put() {
-    let { password, amount, eacc } = this.params
-    let { cardnum } = this.user
+    let { cardnum, password, amount, eacc } = this.params
+    cardnum || ({ cardnum } = this.user)
 
     let res = await this.post('http://58.192.115.47:8088/wechat-web/login/dologin.html', {
       cardno: cardnum, pwd: password

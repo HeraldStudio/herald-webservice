@@ -5,7 +5,7 @@ module.exports = async (ctx, next) => {
       ctx.body = ''
       ctx.throw(ctx.body.code)
     } else {
-      ctx.body = ctx.body.result
+      ctx.body = ctx.body.result || 'OK'
     }
   }
 }

@@ -2,7 +2,72 @@ const cheerio = require('cheerio')
 const Europa = require('node-europa')
 const db = require('../database/publicity')
 
-const { sites, fetchNews } = require('./notice/func.js')
+const sites = {
+  jwc: {
+    name: '教务处',
+    baseUrl: 'http://jwc.seu.edu.cn',
+    infoUrl: 'http://jwc.seu.edu.cn',
+    list: [
+      ['#wp_news_w5', "教务信息"],
+      ['#wp_news_w6', "学籍管理"],
+      ['#wp_news_w7', "实践教学"],
+      ['#wp_news_w8', "国际交流"],
+      ['#wp_news_w9', "教学研究"]
+    ],
+    contentSelector: '[portletmode="simpleArticleContent"]'
+  },
+  zwc: {
+    name: '总务处',
+    baseUrl: 'http://zwc.seu.edu.cn',
+    infoUrl: 'http://zwc.seu.edu.cn/4297/list.htm',
+    list: [['#wp_news_w3', '总务处公告']],
+    contentSelector: '[portletmode="simpleArticleContent"]' // 两个平台的正文选择器是一样的
+  },
+  ...require('./depts.json')
+}
+
+const fetchNews = async (keys) => {
+  let ret = await Promise.all( // TODO 分块缓存
+    keys.map(async site => {
+      if (! sites[site]) {
+        continue
+      }
+      let res = await this.get(sites[site].infoUrl)
+      let $ = cheerio.load(res.data)
+      let list = sites[site].list
+
+      let timeList = list.map
+      (ele =>
+       $(ele[0]).find('div').toArray()
+       .filter(arr => /\d+-\d+-\d+/.test($(arr).text()))
+       .map(item => new Date($(item).text()).getTime())
+      ).reduce((a, b) => a.concat(b), [])
+
+      return list.map(
+        ele =>
+          $(ele[0]).find('a').toArray()
+          .map(k => $(k)).map(k => {
+            let href = k.attr('href')
+            return {
+              category: ele[1],
+              department: sites[site].name,
+              title: k.attr('title'),
+              url: /^\//.test(href)
+                ? sites[site].baseUrl + href
+                : href,
+              isAttachment: !/.+.html?$/.test(k.attr('href')),
+              isImportant: !!k.find('font').length,
+            }
+          })
+      )
+    }))
+  ret = ret.reduce((a, b) => a.concat(b), []).map((k, i) => {
+    k.time = timeList[i]
+    return k
+  })
+  return ret
+}
+
 const commonSites = ['jwc', 'zwc']
 // 5 天之内的信息，全部留下
 const keepTime = 1000 * 60 * 60 * 24 * 5
@@ -17,15 +82,16 @@ exports.route = {
    */
   async get () {
     let now = new Date().getTime()
-    let ret = fetchNews(commonSites)
+    let ret = await fetchNews(commonSites)
     // 小猴系统通知
     ret = ret.concat((await db.notice.find()).map(k => {
       return {
-        category: '系统通知',
+        category: '小猴通知',
         department: '小猴偷米',
         title: k.title,
         nid: k.nid,
-        time: k.publishTime
+        time: k.publishTime,
+        isImportant: true
       }
     }))
 
@@ -58,9 +124,12 @@ exports.route = {
         absolute: true,
         baseUri: typeObj.baseUrl,
         inline: true
-      }).convert($(typeObj.contentSelector).html())
+      }).convert($(typeObj.contentSelector).html()).replace(/\*\*/g, ' ** ')
+    } else if (nid) {
+      let notice = await db.notice.find({ nid }, 1)
+      return `# ${notice.title}\n\n${notice.content}`
     } else {
-      return (await db.notice.find({ nid }, 1)).content
+      throw 400
     }
   }
 }

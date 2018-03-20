@@ -2,8 +2,6 @@
 
 小猴偷米 2018 WebService3 后端试验品，使用 Node.js + Koa 构建。
 
-<a href='https://heraldstudio.github.io/herald-webservice' class='hidden-in-docute'>文档页面</a>
-
 ## 开发进度
 
 1. **中间件和支撑框架**
@@ -13,7 +11,7 @@
   - [x] 通用网络请求中间件 @rikumi
   - [x] 日志输出和测试终端 @rikumi
   - [x] 后台管理员权限系统 @rikumi
-  - [x] CNN验证码识别平台 @狼剩子
+  - [x] CNN验证码识别系统 @狼剩子
   - [x] 分布式硬件爬虫系统 @狼剩子
   - [x] slack集成中间件 @狼剩子
   - [x] 两种不同风格的 ORM @rikumi @Vigilans-Yea
@@ -23,11 +21,11 @@
 
 2. **继承自 WebService2**
 
-  - [x] 一卡通（状态 / 当日 / 历史） @rikumi
+  - [x] 一卡通（状态 / 当日 / 历史）
   - [x] 课表 @rikumi
   - [x] 跑操次数 @rikumi @tusooa
   - [x] 空教室 @Vigilans-Yea
-  - [ ] 跑操详情、跑操预告
+  - [x] 跑操、体测 @rikumi
   - [x] 物理实验 @tusooa
   - [x] 考试安排 @sleepyjoker
   - [x] 成绩 GPA @tusooa
@@ -35,7 +33,7 @@
   - [x] 人文讲座 @sleepyjoker
   - [x] 图书馆 @sleepyjoker
   - [x] 学校通知 @tusooa @MediosZ @rikumi
-  - [x] 场馆预约 @tusooa @Vigilans-Yea
+  - [x] 场馆预约 @Higuoxing @tusooa
   - [x] 实时班车 @rikumi
 
 3. **继承自 AppService**
@@ -45,6 +43,7 @@
   - [x] 系统通知发布系统 @rikumi
   - [x] 广告自助发布审核系统 @rikumi
   - [x] 完整的 Web 管理后台 @rikumi
+  - [ ] 用户行为分析统计接口
 
 4. **新功能提案**
 
@@ -56,15 +55,23 @@
 
 ## 使用说明
 
-### 生产环境
+### 部署说明
 
-生产环境下请使用 `npm run start` 代替 `npm run dev`，以禁用 `REPL`，并且启用 `redis` 缓存。
+生产环境下请使用 `npm run start` 代替 `npm run dev`，前者将禁用 `REPL`，启用 `redis` 缓存，并开启 CNN 验证码识别中间件。
+
+生产环境部署前，建议对 redis 进行配置，以满足 WebService3 自动缓存的需求：
+
+```
+$ redis-cli
+127.0.0.1:6379> config set maxmemory 1GB
+127.0.0.1:6379> config set maxmemory-policy allkeys-lru
+```
 
 ### 返回格式
 
 按照 ReSTful 接口设计的原则，只要请求经由 WebService3 处理，无论请求成功与否，都将遵循下面的返回格式：
 
-1. 返回 HTTP Code 一定为 200（这是为了把 HTTP Code 让给传输过程中的网络错误）；
+1. 除少数接口发生重定向外，返回 HTTP Code 一定为 200（这是为了把 HTTP Code 让给传输过程中的网络错误）；
 2. 所有成功返回格式均为：
 
     ```javascript
@@ -92,7 +99,7 @@
 curl -X POST http://localhost:3000/auth -d cardnum=一卡通号 -d password=统一身份认证密码 platform=平台标识符
 ```
 
-其中，**平台标识符** 为一个字符串，推荐格式为小写字母和短横线的组合，例如 `android`/`ios`/`web` 等。相同平台下不允许多处登录。
+其中，**平台标识符** 为一个字符串，推荐格式为小写字母和短横线的组合，例如 `android`/`ios`/`web` 等。
 
 后端收到登录请求，经过验证后，将返回一个64字节的字符串（`token`），作为当前用户的登录凭证。为了隐私安全，此登录凭证一旦发出将被后端丢弃。前端需要保存此凭证，并使用此凭证作为 HTTP Header 进行后续请求：
 
@@ -106,10 +113,7 @@ curl -X GET http://localhost:3000/api/card -H token:xxxxxxxx
 
 ### 过期机制
 
-由于后端数据库实行完全加密，密钥一旦发放给客户端即被丢弃，因此 WebService3 不可能像以前那样在用户多处登录时生成相同的密钥，这就难免导致数据库膨胀速度加快。因此，我们定义了更严格的过期机制，一定程度上限制了数据库规模的增长：
-
-1. 对于同一用户，不允许相同平台多处登录，一旦同平台发生多处登录，较早登录的将自动过期；
-2. 超过一定时间未调用接口的用户自动过期。该过期时间（天数）在 `config.yml` 中可配置，推荐的时间是 2~3 个月。
+由于后端数据库实行完全加密，密钥一旦发放给客户端即被丢弃，因此 WebService3 不可能像以前那样在用户多处登录时生成相同的密钥，这就难免导致数据库膨胀速度加快。因此，我们定义了更严格的过期机制，超过一定时间未调用接口的用户自动过期。该过期时间（天数）在 `config.yml` 中可配置，推荐的时间是 2~3 个月。
 
 用户身份过期后，token 的行为将与未登录状态一致，即对于任何需要用户身份的路由均会返回 401。客户端应当随时检测 401 错误，并在出现 401 错误时立即要求用户重新登录。
 
@@ -411,7 +415,7 @@ GET /api => {
 **目前状态**
 
 1. 借助WebSocket实现，类似于分布代理，用于内网穿透和分流
-2. 中间件 `spider_server` 为其服务器部分，已实现功能包含：爬虫身份鉴权、请求打包、响应Promise化、CookieJar打包
+2. 中间件 `spider-server` 为其服务器部分，已实现功能包含：爬虫身份鉴权、请求打包、响应Promise化、CookieJar打包
 3. 与网络请求中间件 `axios` 进行了融合，在使用时透明化，不需要关注请求究竟在本地实现或是在分布爬虫实现
 4. 当分布爬虫访问出错时会自动从本地发起请求
 5. 可以通过 `config` 中 `spider.enable` 控制是否启用分布式功能

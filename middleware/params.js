@@ -12,7 +12,9 @@
 
   ctx.params          object
  */
-const bodyparser = require('koa-bodyparser')()
+const bodyparser = require('koa-bodyparser')({
+  enableTypes: ['json', 'form', 'text']
+})
 
 module.exports = async (ctx, next) => {
   await bodyparser(ctx, async () => {
@@ -21,9 +23,8 @@ module.exports = async (ctx, next) => {
     } else {
       ctx.params = ctx.request.body
     }
-
-    // 过河拆桥
-    delete ctx.request.body
-    await next()
+  }).catch(e => {
+    ctx.params = e.body
   })
+  await next()
 }

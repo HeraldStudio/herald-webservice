@@ -8,4 +8,9 @@ spider_test.js
 !.gitkeep
 **/*.db
 sdk/sdk.json
-slack.json
+middleware/captcha-childprocess/models/
+*.swp
+.repl_history
+captcha-temp-*
+yarn-error.log
+

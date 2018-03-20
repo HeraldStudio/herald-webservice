@@ -2,6 +2,7 @@ const koa = require('koa')
 const app = new koa()
 const kf = require('kf-router')
 const fs = require('fs')
+const cors = require('kcors')
 
 // 解析 YAML 配置文件
 const config = require('js-yaml').load(fs.readFileSync('./config.yml'))
@@ -51,6 +52,7 @@ app.use(require('./middleware/params'))
   为了兼容使用旧版 webserv2 接口的前端，引入以下兼容性中间件，实现老接口的部分子集
  */
 app.use(require('./middleware/adapter/ws2'))
+app.use(require('./middleware/adapter/appserv'))
 
 /**
   ## C. API 层
@@ -59,7 +61,7 @@ app.use(require('./middleware/adapter/ws2'))
 // 1. 接口之间相互介绍的 API
 app.use(require('./middleware/related'))
 // 2. 分布式硬件爬虫，为 axios 提供了底层依赖
-app.use(require('./middleware/spider_server'))
+app.use(require('./middleware/spider-server'))
 // 3. 网络请求，为身份认证和路由处理程序提供了网络请求 API
 app.use(require('./middleware/axios'))
 // 4. 身份认证，为下面 redis 缓存提供了加解密函数
@@ -68,12 +70,27 @@ app.use(require('./middleware/auth'))
 app.use(require('./middleware/admin'))
 // 6. redis 缓存，为路由处理程序提供自动缓存
 app.use(require('./middleware/redis'))
+// 7. 生产环境下验证码识别
+if (process.env.NODE_ENV === 'production') {
+  app.use(require('./middleware/captcha')({
+    python: '/usr/local/bin/anaconda3/envs/captcha/bin/python'
+  }))
+}
 
 /**
   ## D. 路由层
   负责调用路由处理程序执行处理的中间件。
 */
-app.use(kf(module, { ignore: ['/middleware/**/*', '/app', '/repl', '/sdk/**/*', '/docs/**/*'] }))
+app.use(kf(module, {
+  ignore: [
+    '/middleware/**/*',
+    '/database/**/*',
+    '/docs/**/*',
+    '/sdk/**/*',
+    '/repl',
+    '/app',
+  ]
+}))
 app.listen(config.port)
 
 // 开发环境下，启动 REPL
