@@ -5,6 +5,7 @@ const db = require('../database/publicity')
 const sites = {
   jwc: {
     name: '教务处',
+    codes: ['00'],
     baseUrl: 'http://jwc.seu.edu.cn',
     infoUrl: 'http://jwc.seu.edu.cn',
     list: [
@@ -18,54 +19,18 @@ const sites = {
   },
   zwc: {
     name: '总务处',
+    codes: ['96'],
     baseUrl: 'http://zwc.seu.edu.cn',
     infoUrl: 'http://zwc.seu.edu.cn/4297/list.htm',
     list: [['#wp_news_w3', '总务处公告']],
     contentSelector: '[portletmode="simpleArticleContent"]' // 两个平台的正文选择器是一样的
   },
-  ...require('./depts.json')
+  ...require('./notice/depts.json')
 }
 
-const fetchNews = async (keys) => {
-  let ret = await Promise.all( // TODO 分块缓存
-    keys.map(async site => {
-      if (! sites[site]) {
-        continue
-      }
-      let res = await this.get(sites[site].infoUrl)
-      let $ = cheerio.load(res.data)
-      let list = sites[site].list
-
-      let timeList = list.map
-      (ele =>
-       $(ele[0]).find('div').toArray()
-       .filter(arr => /\d+-\d+-\d+/.test($(arr).text()))
-       .map(item => new Date($(item).text()).getTime())
-      ).reduce((a, b) => a.concat(b), [])
-
-      return list.map(
-        ele =>
-          $(ele[0]).find('a').toArray()
-          .map(k => $(k)).map(k => {
-            let href = k.attr('href')
-            return {
-              category: ele[1],
-              department: sites[site].name,
-              title: k.attr('title'),
-              url: /^\//.test(href)
-                ? sites[site].baseUrl + href
-                : href,
-              isAttachment: !/.+.html?$/.test(k.attr('href')),
-              isImportant: !!k.find('font').length,
-            }
-          })
-      )
-    }))
-  ret = ret.reduce((a, b) => a.concat(b), []).map((k, i) => {
-    k.time = timeList[i]
-    return k
-  })
-  return ret
+const deptCodeFromSchoolNum = schoolnum => {
+  let deptNum = schoolnum.substr(0, 2)
+  return Object.keys(sites).filter(k => sites[k].codes.includes(deptNum))
 }
 
 const commonSites = ['jwc', 'zwc']
@@ -82,7 +47,47 @@ exports.route = {
    */
   async get () {
     let now = new Date().getTime()
-    let ret = await fetchNews(commonSites)
+    let keys = commonSites
+    // FIXME 需要分块缓存 才能高效地对不同学院获取信息
+    // if (this.user.isLogin) { keys = keys.concat(deptCodeFromSchoolNum(this.user.schoolnum)) }
+    let ret = await Promise.all( // TODO 分块缓存
+      keys.map(async (site) => {
+        if (! sites[site]) {
+          throw `没有相应于 ${site} 的学校网站`
+        }
+
+        let res = await this.get(sites[site].infoUrl)
+        let $ = cheerio.load(res.data)
+        let list = sites[site].list
+
+        let timeList = list.map(
+          ele =>
+            $(ele[0]).find('div').toArray()
+            .filter(arr => /\d+-\d+-\d+/.test($(arr).text()))
+            .map(item => new Date($(item).text()).getTime())
+        ).reduce((a, b) => a.concat(b), [])
+
+        return list.map(
+          ele =>
+            $(ele[0]).find('a').toArray()
+            .map(k => $(k)).map(k => {
+              let href = k.attr('href')
+              return {
+                category: ele[1],
+                department: sites[site].name,
+                title: k.attr('title'),
+                url: /^\//.test(href)
+                  ? sites[site].baseUrl + href
+                  : href,
+                isAttachment: !/.+.html?$/.test(k.attr('href')),
+                isImportant: !!k.find('font').length,
+              }
+            })).reduce((a, b) => a.concat(b), []).map((k, i) => {
+              k.time = timeList[i] // FIXME 有些学院网站上没有发布日期
+              return k
+            })
+      }))
+
     // 小猴系统通知
     ret = ret.concat((await db.notice.find()).map(k => {
       return {
@@ -96,7 +101,7 @@ exports.route = {
     }))
 
     return ret.reduce((a, b) => a.concat(b), [])
-      .sort((a, b) => b.time - a.time)
+      .sort((a, b) => b.time - a.time) // FIXME 改进排序，使得没有日期的项目保持稳定顺序
       // 按保留天数和条数过滤获取的信息
       .filter((k, i) => i < keepNum || now - k.time < keepTime)
   },
