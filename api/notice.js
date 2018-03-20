@@ -83,7 +83,15 @@ exports.route = {
                 isImportant: !!k.find('font').length,
               }
             })).reduce((a, b) => a.concat(b), []).map((k, i) => {
-              k.time = timeList[i] // FIXME 有些学院网站上没有发布日期
+              k.time = timeList[i]
+              if (! k.time) {
+                // 有些学院网站上没有发布日期，于是使用url中的日期代替
+                // url 中的日期未必准确
+                let match = /\/(\d{4})\/(\d{2})(\d{2})\//.exec(k.url)
+                if (match !== null) {
+                  k.time = new Date(match[1] + '-' + match[2] + '-' + match[3])
+                }
+              }
               return k
             })
       }))
