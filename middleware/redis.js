@@ -43,11 +43,11 @@ if (process.env.NODE_ENV === 'development') {
 const cache = {
   async set(key, value) {
     let time = Math.floor(new Date().getTime() / 1000)
-    client.set(JSON.stringify(key), JSON.stringify({ value, time }))
+    client.set(key, JSON.stringify({ value, time }))
   },
   async get(key, ttl) {
     if (key && ttl) {
-      let got = JSON.parse(await client.getAsync(JSON.stringify(key)))
+      let got = JSON.parse(await client.getAsync(key))
       if (got) {
         let expired = Math.floor(new Date().getTime() / 1000) - got.time >= ttl
         return [got.value, expired]
@@ -160,12 +160,12 @@ module.exports = async (ctx, next) => {
     strategy.cacheTimeSeconds = 0
   }
 
-  let cacheKey = JSON.stringify({
-    method: ctx.method,
-    path: ctx.path,
-    token: cacheIsPrivate ? ctx.user.token : '',
-    params: ctx.params
-  })
+  let cacheKey = [
+    cacheIsPrivate ? ctx.user.token : '',
+    ctx.method,
+    ctx.path,
+    JSON.stringify(ctx.params)
+  ].join(' ').trim()
 
   let [cached, expired] = await cache.get(cacheKey, strategy.cacheTimeSeconds)
 
@@ -222,16 +222,20 @@ module.exports = async (ctx, next) => {
     }
 
     if (cacheNoAwait) {
-      // 懒抓取模式且有缓存时，脱离等待链异步回源，忽略回源结果，然后直接继续到第三步取上次缓存值
+      // 懒抓取模式且有过期缓存时，脱离等待链异步回源，忽略回源结果，然后直接继续到第三步取上次缓存值
       detachedTaskCount++
-      task().catch(() => {}).then(() => detachedTaskCount--)
-    } else {
-      // 其余情况下，等待回源结束，若回源成功，返回回源结果，否则继续到第三步取上次缓存值
-      if (await task()) return
+
+      // 异步回源首先 +1s 再进行，防止 ctx 对象在请求未处理完成前被回源线程修改
+      // 目前已知，不加这 1s 会导致懒抓取的 POST 请求在缓存过期触发回源时将会返回未包装的内容
+      setTimeout(() => {
+        task().catch(() => {}).then(() => detachedTaskCount--)
+      }, 1000)
+    } else if (await task()) { // 其余情况下，等待回源结束，若回源成功，返回回源结果
+      return
     }
   }
 
-  // 3. 执行到此表示缓存未过期或回源时出错
+  // 3. 执行到此表示缓存未过期、正在异步回源或回源时出错
   // 若缓存存在，返回缓存值；否则，必然有回源出错，此时不对结果进行覆盖，保留回源出错的信息
   if (cached) {
     ctx.body = cached

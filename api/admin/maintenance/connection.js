@@ -1,5 +1,5 @@
 const counter = require('../../../middleware/counter')
-const spider = require('../../../middleware/spider_server')
+const spider = require('../../../middleware/spider-server')
 const redis = require('../../../middleware/redis')
 const startTime = new Date().getTime()
 

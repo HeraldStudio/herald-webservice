@@ -15,7 +15,8 @@ function isRecoverableError(error) {
 
 exports.start = () => {
   const testClient = axios.create({
-    baseURL: `http://localhost:${config.port}/`
+    baseURL: `http://localhost:${config.port}/`,
+    validateStatus: () => true
   })
 
   console.log('\n欢迎使用' + chalk.blue(' Herald WebService3 ') + '测试终端！')
@@ -30,7 +31,7 @@ exports.start = () => {
   console.log('2. 省略 get/post/put/delete 时，默认为 get；')
   console.log('3. 需要传复杂参数直接用 js 格式书写即可，支持 JSON 兼容的任何类型：')
   console.log(`${chalk.green('put')} api/card ${chalk.cyan('{ amount: 0.2, password: 123456 }')}`)
-  console.log(`4. 连接远程 WS3 服务器：${chalk.green('server')} https://boss.myseu.cn/ws3/`)
+  console.log(`4. 连接远程 WS3 服务器：${chalk.green('server')} https://myseu.cn/ws3/`)
   console.log('')
   console.log('测试终端开始了！')
 
@@ -50,12 +51,6 @@ exports.start = () => {
         return callback(null)
       }
 
-      if (!method) {
-        method = 'get'
-      } else {
-        method = method.toLowerCase()
-      }
-
       let composedParams = {}
 
       if (params) {
@@ -64,11 +59,11 @@ exports.start = () => {
             let [key, value] = param.split('=')
             composedParams[key] = value
           })
-        } else if (/^server$/.test(path)) {
+        } else if (/^server$/.test(path) && !method) {
           testClient.defaults.baseURL = params
           console.log(`\n基地址改为 ${params} 了！`)
           return callback(null)
-        } else if (/^auth$/.test(path)) {
+        } else if (/^auth$/.test(path) && !method) {
           method = 'post'
           let [cardnum, password, platform] = params.split(/\s+/g)
           if (password) {
@@ -92,6 +87,12 @@ exports.start = () => {
         }
       }
 
+      if (!method) {
+        method = 'get'
+      } else {
+        method = method.toLowerCase()
+      }
+
       if (Object.keys(composedParams).length && (method === 'get' || method === 'delete')) {
         path += '?' + qs.stringify(composedParams)
         composedParams = {}
@@ -112,4 +113,6 @@ exports.start = () => {
     console.log('退出服务器了！')
     process.exit()
   })
+
+  require('repl.history')(replServer, './.repl_history')
 }
