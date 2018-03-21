@@ -15,13 +15,26 @@ const { config } = require('../app')
 let client
 
 if (process.env.NODE_ENV === 'development') {
+  const chalk = require('chalk')
   const pool = {}
+
+  const summarize = (obj, length) => {
+    let str = String(obj)
+    if (str.length > length) {
+      str = str.substring(0, length) + '...'
+    }
+    return str
+  }
+
   client = {
     set (key, value) {
       pool[key] = value
+      console.log('dev-fake-redis [set]', chalk.cyan(key), summarize(value, 32))
     },
     async getAsync (key) {
-      return pool[key] || 'null'
+      let value = pool[key] || 'null'
+      console.log('dev-fake-redis [get]', chalk.cyan(key), summarize(value, 32))
+      return value
     }
   }
 } else {
