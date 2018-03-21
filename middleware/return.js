@@ -16,8 +16,8 @@ module.exports = async (ctx, next) => {
     if (typeof e === 'number') {
       ctx.status = e
     } else if (typeof e === 'string') {
-      ctx.status = 400
       ctx.body = e
+      ctx.status = 400
     } else if (e && e.message
       && /^Request failed with status code (\d+)$/.test(e.message)) { // 探测 Axios 异常
       ctx.status = 503

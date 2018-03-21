@@ -248,35 +248,26 @@ class CacheManager {
             cached = ctx.user.encrypt(cached)
           }
           cache.set(cacheKey, cached)
-
-          // 执行到此说明回源成功
-          return [true, res]
         }
 
-        // 回源失败
-        return [false]
+        // 无论成功失败，都原样返回，留给后面判定
+        return res
       }
 
       if (cacheNoAwait) {
         // 懒抓取模式且有过期缓存时，脱离等待链异步回源，忽略回源结果，然后直接继续到第三步取上次缓存值
         detachedTaskCount++
 
-        // 异步回源首先 +1s 再进行，防止 ctx 对象在请求未处理完成前被回源线程修改
-        // 目前已知，不加这 1s 会导致懒抓取的 POST 请求在缓存过期触发回源时将会返回未包装的内容
-        setTimeout(() => {
-          task().catch(() => {}).then(() => detachedTaskCount--)
-        }, 1000)
+        task().catch(() => {}).then(() => detachedTaskCount--)
       } else {
-        let ret = await task()
-        if (ret[0]) { // 其余情况下，等待回源结束，若回源成功，返回回源结果
-          return ret[1]
-        }
+        return await task()
+        // 其余情况下，等待回源结束，若回源成功，返回回源结果
       }
     }
 
     // 3. 执行到此表示缓存未过期、正在异步回源或回源时出错
     // 若缓存存在，返回缓存值；否则，必然有回源出错，此时不对结果进行覆盖[见下]，保留回源出错的信息
-    return cached // FIXME
+    return cached
   }
   // this.cache.of('jwc').is('public').inNext('1d').using(fetchNews)
 }
@@ -308,16 +299,12 @@ module.exports = async (ctx, next) => { // next = kf-router
   }
   let strategy = new CacheStrategy(jsonToParse)
   ctx.cache = new CacheManager(ctx, strategy)
-  if (strategy.cacheIsManual) {
-    await next()
-  } else {
-    let res = await ctx.cache.using(async () => {
-      await next()
-      return ctx.body
-    })
-    if (res) { // 回源出错时便不覆盖 ctx.body，防止 status 因为 body 为空而变成204
-      ctx.body = res
-    }
+  let res = await (
+    strategy.cacheIsManual
+      ? next()
+      : ctx.cache.using(next))
+  if (res) { // 回源出错时便不覆盖 ctx.body，防止 status 因为 body 为空而变成204
+    ctx.body = res
   }
 }
 
