@@ -13,4 +13,5 @@ middleware/captcha-childprocess/models/
 .repl_history
 captcha-temp-*
 yarn-error.log
-
+slack.json
+spider-secret.json
