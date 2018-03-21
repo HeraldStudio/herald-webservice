@@ -278,6 +278,7 @@ class CacheManager {
       } else {
         // 其余情况下，等待回源结束，返回回源结果
         return await task()
+        // 此处如果回源出错，控制流程将直接流向 return.js
       }
     }
 
