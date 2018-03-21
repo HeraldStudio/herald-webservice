@@ -28,6 +28,7 @@ module.exports = ({ python }) => {
         try {
           message = JSON.parse(message);
           let job = captchaJobPool[message.path];
+          delete capthaJobPool[message.path];
           let result = message.result;
           job.resolve(result)
         } catch (e) {}
@@ -46,6 +47,7 @@ module.exports = ({ python }) => {
         try {
           message = JSON.parse(message);
           let job = captchaJobPool[message.path];
+          delete capthaJobPool[message.path];
           let result = message.result;
           job.resolve(result)
         } catch (e) {}
@@ -69,7 +71,7 @@ module.exports = ({ python }) => {
   };
 
   const jwcCaptcha = async ctx => {
-    
+
     let pic = Buffer.from((await ctx.get('http://xk.urp.seu.edu.cn/studentService/getCheckCode')).data);
     return new Promise((resolve, reject) => {
       let picName = `/tmp/ws3-captcha-${generateName()}.jpg`;
@@ -91,7 +93,7 @@ module.exports = ({ python }) => {
       let picName = `/tmp/ws3-captcha-${generateName()}.png`;
       fs.writeFile(picName, pic, err => {
         "use strict";
-        if (err || !jwcActive) {
+        if (err || !libraryActive) {
           reject(err || Error('Failed to get captcha'))
         } else {
           libraryProcess.stdin.write(picName + '\n');
