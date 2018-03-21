@@ -136,6 +136,9 @@ class CacheManager {
     this.derived = derived
     this.name = name
   }
+  setStrategy(s) {
+    this.strategy.setStrategy(s)
+  }
   of(name) {
     if (this.derived) {
       this.name = name
