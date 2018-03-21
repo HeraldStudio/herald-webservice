@@ -248,9 +248,9 @@ class CacheManager {
       // 异步的回源任务（执行下游中间件、路由处理程序）
       let task = async () => {
 
-        // 回源前先将原有缓存重新设置一次，缓存内容保持不变，缓存时间改为现在
+        // 若有缓存，则回源前先将原有缓存重新设置一次，缓存内容保持不变，缓存时间改为现在
         // 因此，若用户在回源完成前重复调用同一接口，将直接命中缓存，防止重复触发回源
-        if (strategy.cacheTimeSeconds) {
+        if (cached && strategy.cacheTimeSeconds) {
           cache.set(cacheKey, cached)
         }
 
@@ -276,13 +276,12 @@ class CacheManager {
 
         task().catch(() => {}).then(() => detachedTaskCount--)
       } else {
+        // 其余情况下，等待回源结束，返回回源结果
         return await task()
-        // 其余情况下，等待回源结束，若回源成功，返回回源结果
       }
     }
 
-    // 3. 执行到此表示缓存未过期、正在异步回源或回源时出错
-    // 若缓存存在，返回缓存值；否则，必然有回源出错，此时不对结果进行覆盖[见下]，保留回源出错的信息
+    // 3. 执行到此表示缓存未过期或(缓存存在但过期时)正在异步回源
     return cached
   }
   // this.cache.of('jwc').is('public').inNext('1d').using(fetchNews)
