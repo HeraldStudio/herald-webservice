@@ -13,6 +13,8 @@
  */
 const { config } = require('../app')
 let client
+// job pool，用于异步获取
+const jobPool = {}
 
 if (process.env.NODE_ENV === 'development') {
   const chalk = require('chalk')
@@ -127,6 +129,9 @@ class CacheStrategy {
       } else if (prop === 'private') {
         this.cacheIsPublic = false
       } else if (prop === 'lazy') {
+        if (!this.cacheTimeSeconds) {
+          this.cacheTimeSeconds = 5 // lazy 默认 5 秒
+        }
         this.cacheIsLazy = true
       } else if (prop === 'eager') {
         this.cacheIsLazy = false
@@ -250,9 +255,9 @@ class CacheManager {
 
         // 若有缓存，则回源前先将原有缓存重新设置一次，缓存内容保持不变，缓存时间改为现在
         // 因此，若用户在回源完成前重复调用同一接口，将直接命中缓存，防止重复触发回源
-        if (cached && strategy.cacheTimeSeconds) {
-          cache.set(cacheKey, cached)
-        }
+        //if (cached && strategy.cacheTimeSeconds) {
+        //  cache.set(cacheKey, cached)
+        //}
 
         let res = await func()
         // 若需要缓存，将中间件返回值存入 redis
@@ -270,14 +275,30 @@ class CacheManager {
         return res
       }
 
-      if (cacheNoAwait) {
-        // 懒抓取模式且有过期缓存时，脱离等待链异步回源，忽略回源结果，然后直接继续到第三步取上次缓存值
+      // 无论是否需要 await，都检查任务是否存在
+      // 如果不存在，创建一个
+      if (jobPool[cacheKey] === undefined) {
         detachedTaskCount++
-
-        task().catch(() => {}).then(() => detachedTaskCount--)
-      } else {
-        // 其余情况下，等待回源结束，返回回源结果
-        return await task()
+        jobPool[cacheKey] =
+          task().then((value) => {
+            detachedTaskCount--
+            // 1 秒钟后删除
+            // 一方面缓存至少 5 秒，成功后 1 秒以内再次请求肯定没有过期
+            // 另一方面防止出现不 thread-safe 的情况
+            setTimeout( () => { delete jobPool[cacheKey] }, 1000)
+            return value
+          })
+        if (cacheNoAwait) {
+          // 懒抓取模式且有过期缓存时，脱离等待链异步回源，忽略回源结果，然后直接继续到第三步取上次缓存值
+          // lazy 忽略错误
+          jobPool[cacheKey].catch(() => {})
+        }
+      } // 否则，之前已经在异步回源了，不管它
+      if (! cacheNoAwait) {
+        // 非 lazy 情况下，等待回源结束，返回回源结果
+        // 这个任务可能是刚创建的，也可能是由别处调用创建的
+        // (但是总计只会获取一次)
+        return await jobPool[cacheKey]
         // 此处如果回源出错，控制流程将直接流向 return.js
       }
     }
