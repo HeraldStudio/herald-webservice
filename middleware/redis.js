@@ -299,8 +299,15 @@ class CacheManager {
         // 非 lazy 情况下，等待回源结束，返回回源结果
         // 这个任务可能是刚创建的，也可能是由别处调用创建的
         // (但是总计只会获取一次)
-        return await jobPool[cacheKey]
-        // 此处如果回源出错，控制流程将直接流向 return.js
+        try {
+          return await jobPool[cacheKey]
+        } catch (error) { // 回源出错
+          if (cached) { // 如果(过期)缓存存在，返回它
+            return cached
+          } else { // 缓存不存在，继续扔出错误，控制流程将直接流向 return.js
+            throw error
+          }
+        }
       }
     }
 
