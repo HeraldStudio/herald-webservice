@@ -282,6 +282,12 @@ class CacheManager {
             // 另一方面防止出现不 thread-safe 的情况
             setTimeout( () => { delete jobPool[cacheKey] }, 1000)
             return value
+          }).catch((error) => {
+            detachedTaskCount--
+            // 出现错误，立刻删除这个任务
+            delete jobPool[cacheKey]
+            // 然后原样把异常扔出去
+            throw error
           })
         if (cacheNoAwait) {
           // 懒抓取模式且有过期缓存时，脱离等待链异步回源，忽略回源结果，然后直接继续到第三步取上次缓存值
