@@ -64,7 +64,7 @@ const decrypt = (key, value) => {
 }
 
 // 在这里选择认证接口提供者
-const authProvider = require('./auth-provider/app')
+const authProvider = require('./auth-provider/myold')
 
 // 认证接口提供者带错误处理的封装
 const auth = async (ctx, ...args) => {
