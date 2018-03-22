@@ -129,9 +129,6 @@ class CacheStrategy {
       } else if (prop === 'private') {
         this.cacheIsPublic = false
       } else if (prop === 'lazy') {
-        if (!this.cacheTimeSeconds) {
-          this.cacheTimeSeconds = 5 // lazy 默认 5 秒
-        }
         this.cacheIsLazy = true
       } else if (prop === 'eager') {
         this.cacheIsLazy = false
@@ -144,6 +141,12 @@ class CacheStrategy {
     if (this.cacheIsManual === undefined) { // 现在还没有指定缓存时间
       this.cacheIsManual = true
     }
+    // 懒抓取策略下，缓存时间至少 5 秒，防止缓存时间未设置导致始终不缓存
+    // 如果设置了缓存时间，也至少 5 秒
+    if (this.cacheTimeSeconds || this.cacheIsLazy) {
+      this.cacheTimeSeconds = Math.max(this.cacheTimeSeconds, 5)
+    }
+
   }
 }
 
@@ -206,16 +209,11 @@ class CacheManager {
         - 回源失败：返回错误信息 √
     */
     let cacheIsPrivate = !strategy.cacheIsPublic && ctx.user.isLogin
-    let { cacheIsLazy } = strategy
-
-    // 懒抓取策略下，缓存时间至少 5 秒，防止缓存时间未设置导致始终不缓存
-    if (cacheIsLazy) {
-      strategy.cacheTimeSeconds = Math.max(strategy.cacheTimeSeconds, 5)
-    }
+    let { cacheIsLazy, cacheTimeSeconds } = strategy
 
     // 对于超管，强制禁用任何缓存机制（否则由于超管不是用户，会被当做游客进行缓存，造成严重影响）
     if (ctx.admin.super) {
-      strategy.cacheTimeSeconds = 0
+      cacheTimeSeconds = 0
     }
 
     let cacheKey = [
@@ -226,7 +224,7 @@ class CacheManager {
       this.name
     ].join(' ').trim()
 
-    let [cached, expired] = await cache.get(cacheKey, strategy.cacheTimeSeconds)
+    let [cached, expired] = await cache.get(cacheKey, cacheTimeSeconds)
 
     // 1. 无论是否过期，首先解析缓存，准确判断缓存是否可用，以便在缓存不可用时进行回源
     // 此步骤结果保证：cached 成真 <=> 缓存可用，expired 成假 <=> 缓存未过期
@@ -253,15 +251,12 @@ class CacheManager {
       // 异步的回源任务（执行下游中间件、路由处理程序）
       let task = async () => {
 
-        // 若有缓存，则回源前先将原有缓存重新设置一次，缓存内容保持不变，缓存时间改为现在
-        // 因此，若用户在回源完成前重复调用同一接口，将直接命中缓存，防止重复触发回源
-        //if (cached && strategy.cacheTimeSeconds) {
-        //  cache.set(cacheKey, cached)
-        //}
+        // 现在并不需要重新设置缓存了
+        // 因为如果重复调用，并不会新建任务
 
         let res = await func()
         // 若需要缓存，将中间件返回值存入 redis
-        if (strategy.cacheTimeSeconds && res) {
+        if (cacheTimeSeconds && res) {
           cached = JSON.stringify(res)
 
           // 同 [*]，这里利用 auth 的加解密函数，加密数据进行缓存
