@@ -92,7 +92,7 @@ class SpiderServer {
         this.handleResponse(data)
       } else {
         //使用控制台token认证的部分
-        let token = JSON.parse(data).token
+        let secret = JSON.parse(data).secret;
         if (token === connection.token) {
           this.acceptSpider(connection)
         } else {
