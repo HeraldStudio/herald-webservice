@@ -1,14 +1,14 @@
 const cheerio = require('cheerio')
 
 // 通过新信息门户认证，缺陷是请求较慢，而且验证码会有 IP 限额
-module.exports = async (ctx, username, password) => {
+module.exports = async (ctx, cardnum, password) => {
   // IDS Server 认证地址
   const url = 'https://newids.seu.edu.cn/authserver/login?goto=http://my.seu.edu.cn/index.portal'
 
   // Step 1：获取登录页面表单，解析隐藏值
   let res = await ctx.get(url)
   let $ = cheerio.load(res.data)
-  let form = { username, password }
+  let form = { username: cardnum, password }
   $('[tabid="01"] input[type="hidden"]').toArray().map(k => form[$(k).attr('name')] = $(k).attr('value'))
 
   // Step 2：隐藏值与用户名密码一同 POST
@@ -29,7 +29,6 @@ module.exports = async (ctx, username, password) => {
   // 但对于所有角色，无论是否重定向，右上角用户姓名都可抓取；又因为只有本科生需要通过查询的方式获取学号，
   // 研究生可直接通过一卡通号截取学号，教师则无学号，所以此页面可以满足所有角色信息抓取的要求。
   res = await ctx.get('http://my.seu.edu.cn/index.portal?.pn=p1681')
-  console.log(res.data)
 
   // 解析姓名
   let name = /欢迎您：([^<]*)/.exec(res.data) || []
@@ -39,7 +38,7 @@ module.exports = async (ctx, username, password) => {
   let schoolnum = ''
 
   // 解析学号（本科生 Only）
-  if (/^21/.test(username)) {
+  if (/^21/.test(cardnum)) {
     let infoUrl = /(pnull\.portal\?[^"]*)/.exec(res.data) || []
     infoUrl = infoUrl[1] || ''
     if (infoUrl) {
@@ -50,8 +49,8 @@ module.exports = async (ctx, username, password) => {
   }
 
   // 截取学号（研/博 Only）
-  if (/^22/.test(username)) {
-    schoolnum = username.slice(3)
+  if (/^22/.test(cardnum)) {
+    schoolnum = cardnum.slice(3)
   }
 
   return { name, schoolnum }

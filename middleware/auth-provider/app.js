@@ -1,9 +1,9 @@
-// 通过东大 App 认证，缺陷是得到的 Cookie 不能用于新信息门户
-module.exports = async (ctx, username, password) => {
+// 通过东大 App 认证，缺陷是得到的 Cookie 不能用于新信息门户，且不适用于外籍学生
+module.exports = async (ctx, cardnum, password) => {
   try {
     let res = await ctx.post(
       'http://mobile4.seu.edu.cn/_ids_mobile/login18_9',
-      { username, password }
+      { username: cardnum, password }
     )
     let cookie = res.headers['set-cookie']
     if (Array.isArray(cookie)) {
@@ -31,7 +31,7 @@ module.exports = async (ctx, username, password) => {
     let schoolnum = ''
 
     // 解析学号（本科生 Only）
-    if (/^21/.test(username)) {
+    if (/^21/.test(cardnum)) {
       schoolnum = /class="portlet-table-even">(.*)<\//im
         .exec(res.data) || []
       schoolnum = schoolnum[1] || ''
@@ -39,8 +39,8 @@ module.exports = async (ctx, username, password) => {
     }
 
     // 截取学号（研/博 Only）
-    if (/^22/.test(username)) {
-      schoolnum = username.slice(3)
+    if (/^22/.test(cardnum)) {
+      schoolnum = cardnum.slice(3)
     }
 
     return { name, schoolnum }

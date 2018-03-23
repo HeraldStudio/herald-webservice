@@ -2,6 +2,7 @@ node_modules/
 package-lock.json
 yarn.lock
 .idea/
+.vscode/
 .DS_Store
 spider_test.js
 *~
@@ -13,4 +14,5 @@ middleware/captcha-childprocess/models/
 .repl_history
 captcha-temp-*
 yarn-error.log
-
+slack.json
+spider-secret.json
