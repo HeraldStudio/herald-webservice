@@ -4,9 +4,9 @@ const { config } = require('../../app')
 exports.route = {
 
   /**
-   * GET /api/pe
-   * 跑操查询
-   **/
+  * GET /api/pe
+  * 跑操查询
+  **/
   async get() {
     return await this.userCache('1h+', async () => {
       // 取统一身份认证 Cookie，登录早操查询网站，拿到网站 Session Cookie

@@ -3,11 +3,11 @@ const cheerio = require('cheerio')
 exports.route = {
 
   /**
-   * GET /api/card
-   * 一卡通信息及流水查询
-   * @apiParam date     查询日期，格式 yyyy-M-d，不填为当日流水（带日期不能查当日流水）
-   * @apiParam page     页码，不填为首页
-   **/
+  * GET /api/card
+  * 一卡通信息及流水查询
+  * @apiParam date     查询日期，格式 yyyy-M-d，不填为当日流水（带日期不能查当日流水）
+  * @apiParam page     页码，不填为首页
+  **/
   async get() {
     // 懒缓存 1 分钟
     return await this.userCache('1m+', async () => {
@@ -130,12 +130,12 @@ exports.route = {
   },
 
   /**
-   * PUT /api/card
-   * 一卡通在线预充值
-   * @apiParam password   一卡通查询密码
-   * @apiParam amount     充值金额，浮点数兼容
-   * @apiParam eacc       为1时充值到电子钱包
-   **/
+  * PUT /api/card
+  * 一卡通在线预充值
+  * @apiParam password   一卡通查询密码
+  * @apiParam amount     充值金额，浮点数兼容
+  * @apiParam eacc       为1时充值到电子钱包
+  **/
   async put() {
     let { cardnum, password, amount, eacc } = this.params
     cardnum || ({ cardnum } = this.user)

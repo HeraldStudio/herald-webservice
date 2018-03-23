@@ -3,9 +3,9 @@ const cheerio = require('cheerio')
 exports.route = {
 
   /**
-   * GET /api/wlan
-   * seu-wlan 状态查询
-   **/
+  * GET /api/wlan
+  * seu-wlan 状态查询
+  **/
   async get() {
     return await this.userCache('1m+', async () => {
       let { cardnum, password } = this.user
@@ -72,10 +72,10 @@ exports.route = {
   },
 
   /**
-   * POST /api/wlan
-   * seu-wlan 开通/续期/解锁三合一
-   * @apiParam months 要开通/续期的月数
-   **/
+  * POST /api/wlan
+  * seu-wlan 开通/续期/解锁三合一
+  * @apiParam months 要开通/续期的月数
+  **/
   async post() {
     let { cardnum, password } = this.user
     let { months } = this.params || ''
@@ -122,19 +122,19 @@ exports.route = {
   },
 
   /**
-   * PUT /api/wlan
-   * seu-wlan 充值
-   **/
+  * PUT /api/wlan
+  * seu-wlan 充值
+  **/
   async put () {
     // TODO 验证码识别
   },
 
   /**
-   * DELETE /api/wlan
-   * seu-wlan IP下线/免认证设备删除
-   * @apiParam ip   要下线的IP地址
-   * @apiParam mac  要删除的设备MAC地址
-   **/
+  * DELETE /api/wlan
+  * seu-wlan IP下线/免认证设备删除
+  * @apiParam ip   要下线的IP地址
+  * @apiParam mac  要删除的设备MAC地址
+  **/
   async delete () {
     let { ip, mac } = this.params
     let operation = ip ? 'offline' : 'deletemacbind'

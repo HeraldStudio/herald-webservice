@@ -56,13 +56,13 @@ const reservationAPI = {
 exports.route = {
 
   /**
-   * GET /api/reservation
-   * method=(reservationAPI里的一个key)
-   * 其它的param视乎reservationAPI[method].args决定。
-   * method=getOrder 时有 itemId 和 dayInfo
-   * method=getFriendList 时有 cardNo
-   * 场馆预约
-   **/
+  * GET /api/reservation
+  * method=(reservationAPI里的一个key)
+  * 其它的param视乎reservationAPI[method].args决定。
+  * method=getOrder 时有 itemId 和 dayInfo
+  * method=getFriendList 时有 cardNo
+  * 场馆预约
+  **/
 
   async get() {
     let params = this.params
@@ -86,17 +86,17 @@ exports.route = {
 
     let res =
         await (curMethod.method === 'post'
-               ? (this.post
+              ? (this.post
                   (curMethod.url,
-                   // 转化成 Object
-                   args.reduce((k, a) =>
-                               { k[a[0]] = a[1]; return k }, {})))
-               : (this.get(curMethod.url
-                           // 转化成 &foo=bar 的形式
-                           + args
-                           .reduce((k, a) =>
-                                   k + '&' + a[0] + '=' + a[1]
-                                   , ''))))
+                  // 转化成 Object
+                  args.reduce((k, a) =>
+                              { k[a[0]] = a[1]; return k }, {})))
+              : (this.get(curMethod.url
+                          // 转化成 &foo=bar 的形式
+                          + args
+                          .reduce((k, a) =>
+                                  k + '&' + a[0] + '=' + a[1]
+                                  , ''))))
 
     return res.data
   }

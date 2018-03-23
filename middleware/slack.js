@@ -36,8 +36,8 @@ const slackMessagePool = {}
               text: "Wouldn't you prefer a good game of chess?",
               ok_text: "Yes",
               dismiss_text: "No"
-           },
-           ...
+          },
+          ...
       ]
  * - （可选）actionConfig 操作的相关设置
  *         {

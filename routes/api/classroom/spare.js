@@ -3,22 +3,22 @@ const { db, Classroom, ClassRecord } = require("./models")
 exports.route = {
 
   /**
-   * GET /api/classroom/spare
-   * @apiParam pageNo        要查看的查询记录的页数
-   * @apiParam pageSize      一页包含的查询记录数目
-   * @apiParam campusId?     校区ID，留空则查询所有校区
-   * @apiParam buildingId?   教学楼宇ID，留空则查询所有楼宇
-   * @apiParam startWeek     一学期中起始周次
-   * @apiParam endWeek       一学期中结束周次
-   * @apiParam dayOfWeek     查询一星期中的哪一天
-   * @apiParam startSequence 一天中起始节次
-   * @apiParam endSequence   一天中结束周次
-   * @apiParam termId?       查询的学期，留空则查询当前学期
-   * @remarks 查询空教室
-   * @note 
-   *   若查询教一~教七则调用学校接口；
-   *   对于其他建筑，学校接口暂未提供查询，因而从web service内置数据库中查询。
-   **/
+  * GET /api/classroom/spare
+  * @apiParam pageNo        要查看的查询记录的页数
+  * @apiParam pageSize      一页包含的查询记录数目
+  * @apiParam campusId?     校区ID，留空则查询所有校区
+  * @apiParam buildingId?   教学楼宇ID，留空则查询所有楼宇
+  * @apiParam startWeek     一学期中起始周次
+  * @apiParam endWeek       一学期中结束周次
+  * @apiParam dayOfWeek     查询一星期中的哪一天
+  * @apiParam startSequence 一天中起始节次
+  * @apiParam endSequence   一天中结束周次
+  * @apiParam termId?       查询的学期，留空则查询当前学期
+  * @remarks 查询空教室
+  * @note 
+  *   若查询教一~教七则调用学校接口；
+  *   对于其他建筑，学校接口暂未提供查询，因而从web service内置数据库中查询。
+  **/
   async get() {
     let result = {}
 

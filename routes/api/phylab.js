@@ -54,22 +54,22 @@ const generateQueryForm = ($, typeId) => {
 exports.route = {
 
   /**
-   * GET /api/phylab
-   * 物理实验查询
-   *
-   * 返回格式举例：
-   * [
-   *   {
-   *     type,        // 类别，例如「基础性实验（上）」
-   *     labName,     // 实验名
-   *     teacherName, // 教师名
-   *     startTime,   // 开始时间戳
-   *     endTime,     // 结束时间戳（开始3小时后）
-   *     location,    // 地点
-   *     score        // 成绩，空串表示暂无成绩
-   *   }
-   * ]
-   **/
+  * GET /api/phylab
+  * 物理实验查询
+  *
+  * 返回格式举例：
+  * [
+  *   {
+  *     type,        // 类别，例如「基础性实验（上）」
+  *     labName,     // 实验名
+  *     teacherName, // 教师名
+  *     startTime,   // 开始时间戳
+  *     endTime,     // 结束时间戳（开始3小时后）
+  *     location,    // 地点
+  *     score        // 成绩，空串表示暂无成绩
+  *   }
+  * ]
+  **/
   async get() {
     return await this.userCache('1d+', async () => {
       let { cardnum, password } = this.user
