@@ -49,55 +49,49 @@ exports.route = {
     let now = new Date().getTime()
     let keys = commonSites
     if (this.user.isLogin) { keys = keys.concat(deptCodeFromSchoolNum(this.user.schoolnum)) }
-    let ret = await Promise.all(
-      keys.map
-      (async (site) =>
-       await this.cache.of(site).using(async () => {
-         if (! sites[site]) {
-           throw `没有相应于 ${site} 的学校网站`
-         }
+    let ret = await Promise.all(keys.map(async (site) =>
+      await this.publicCache(site, '1m+', async () => {
+        if (!sites[site]) {
+          throw `没有相应于 ${site} 的学校网站`
+        }
 
-         let res = await this.get(sites[site].infoUrl)
-         let $ = cheerio.load(res.data)
-         let list = sites[site].list
+        let res = await this.get(sites[site].infoUrl)
+        let $ = cheerio.load(res.data)
+        let list = sites[site].list
 
-         let timeList = list.map(
-           ele =>
-             $(ele[0]).find('div').toArray()
-             .filter(arr => /\d+-\d+-\d+/.test($(arr).text()))
-             .map(item => new Date($(item).text()).getTime())
-         ).reduce((a, b) => a.concat(b), [])
+        let timeList = list.map(
+          ele =>
+            $(ele[0]).find('div').toArray()
+            .filter(arr => /\d+-\d+-\d+/.test($(arr).text()))
+            .map(item => new Date($(item).text()).getTime())
+        ).reduce((a, b) => a.concat(b), [])
 
-         return list.map(
-           ele =>
-             $(ele[0]).find('a').toArray()
-             .map(k => $(k)).map(k => {
-               let href = k.attr('href')
-               return {
-                 category: ele[1],
-                 department: sites[site].name,
-                 title: k.attr('title'),
-                 url: /^\//.test(href)
-                   ? sites[site].baseUrl + href
-                   : href,
-                 isAttachment: !/.+.html?$/.test(k.attr('href')),
-                 isImportant: !!k.find('font').length,
-               }
-             })).reduce((a, b) => a.concat(b), []).map((k, i) => {
-               k.time = timeList[i]
-               if (! k.time) {
-                 // 有些学院网站上没有发布日期，于是使用url中的日期代替
-                 // url 中的日期未必准确
-                 let match = /\/(\d{4})\/(\d{2})(\d{2})\//.exec(k.url)
-                 if (match !== null) {
-                   k.time = new Date(match[1] + '-' + match[2] + '-' + match[3]).getTime()
-                 }
-               }
-               return k
-             })
+        return list.map(ele => $(ele[0]).find('a').toArray().map(k => $(k)).map(k => {
+          let href = k.attr('href')
+            return {
+              category: ele[1],
+              department: sites[site].name,
+              title: k.attr('title'),
+              url: /^\//.test(href)
+                ? sites[site].baseUrl + href
+                : href,
+              isAttachment: !/.+.html?$/.test(k.attr('href')),
+              isImportant: !!k.find('font').length,
+            }
+          })).reduce((a, b) => a.concat(b), []).map((k, i) => {
+            k.time = timeList[i]
+            if (! k.time) {
+              // 有些学院网站上没有发布日期，于是使用url中的日期代替
+              // url 中的日期未必准确
+              let match = /\/(\d{4})\/(\d{2})(\d{2})\//.exec(k.url)
+              if (match !== null) {
+                k.time = new Date(match[1] + '-' + match[2] + '-' + match[3]).getTime()
+              }
+            }
+            return k
+          })
        }) // using
-      ) // map
-    ) // Promise.all
+    )) // Promise.all
 
     // 小猴系统通知
     ret = ret.concat((await db.notice.find()).map(k => {

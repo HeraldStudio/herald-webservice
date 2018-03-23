@@ -71,44 +71,46 @@ exports.route = {
    * ]
    **/
   async get() {
-    let { cardnum, password } = this.user
+    return await this.userCache('1d+', async () => {
+      let { cardnum, password } = this.user
 
-    // 先抓一下页面，得到 Cookie 和隐藏值，否则无法登陆
-    let res = await this.get(loginUrl, { headers })
-    let $ = cheerio.load(res.data)
-    let loginForm = generateLoginForm($, cardnum, password)
+      // 先抓一下页面，得到 Cookie 和隐藏值，否则无法登陆
+      let res = await this.get(loginUrl, { headers })
+      let $ = cheerio.load(res.data)
+      let loginForm = generateLoginForm($, cardnum, password)
 
-    res = await this.post(loginUrl, loginForm, { headers })
-    res = await this.get(courseUrl, { headers })
-    $ = cheerio.load(res.data)
+      res = await this.post(loginUrl, loginForm, { headers })
+      res = await this.get(courseUrl, { headers })
+      $ = cheerio.load(res.data)
 
-    // 课程组。键是序号，值是名称。
-    let types = {}
-    $('select[name="ctl00$cphSltMain$ShowAStudentScore1$ucDdlCourseGroup$ddlCgp"] option')
-      .toArray().map(k => $(k)).map(k => types[k.attr('value')] = k.text())
+      // 课程组。键是序号，值是名称。
+      let types = {}
+      $('select[name="ctl00$cphSltMain$ShowAStudentScore1$ucDdlCourseGroup$ddlCgp"] option')
+        .toArray().map(k => $(k)).map(k => types[k.attr('value')] = k.text())
 
-    let result = await Promise.all(Object.keys(types).map(async k => {
-      let type = types[k]
-      let form = generateQueryForm($, k)
-      let res = await this.post(courseUrl, form, { headers })
-      {
-        let $ = cheerio.load(res.data)
-        let table = $('table#ctl00_cphSltMain_ShowAStudentScore1_gvStudentCourse')
-        let data = $('table#ctl00_cphSltMain_ShowAStudentScore1_gvStudentCourse span')
-          .toArray().map(i => $(i).text())
-        let labs = []
-        while (data.length) {
-          let [labName, teacherName, date, time, location, score] = data.splice(0, 6)
-          let [y, M, d] = date.split(/[年月日（ (]/g)
-          let [h, m] = { '上午': [9, 45], '下午': [13, 45], '晚上': [18, 15] }[time]
-          let startTime = new Date(y, M - 1, d, h, m).getTime()
-          let endTime = startTime + 1000 * 60 * 60 * 3
-          labs.push({type, labName, teacherName, startTime, endTime, location, score})
+      let result = await Promise.all(Object.keys(types).map(async k => {
+        let type = types[k]
+        let form = generateQueryForm($, k)
+        let res = await this.post(courseUrl, form, { headers })
+        {
+          let $ = cheerio.load(res.data)
+          let table = $('table#ctl00_cphSltMain_ShowAStudentScore1_gvStudentCourse')
+          let data = $('table#ctl00_cphSltMain_ShowAStudentScore1_gvStudentCourse span')
+            .toArray().map(i => $(i).text())
+          let labs = []
+          while (data.length) {
+            let [labName, teacherName, date, time, location, score] = data.splice(0, 6)
+            let [y, M, d] = date.split(/[年月日（ (]/g)
+            let [h, m] = { '上午': [9, 45], '下午': [13, 45], '晚上': [18, 15] }[time]
+            let startTime = new Date(y, M - 1, d, h, m).getTime()
+            let endTime = startTime + 1000 * 60 * 60 * 3
+            labs.push({type, labName, teacherName, startTime, endTime, location, score})
+          }
+          return labs
         }
-        return labs
-      }
-    }))
+      }))
 
-    return result.reduce((a, b) => a.concat(b), [])
+      return result.reduce((a, b) => a.concat(b), [])
+    })
   }
 }
