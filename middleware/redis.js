@@ -205,9 +205,10 @@ async function internalCached (isPublic, ...args) {
 
     // 无论是否需要 await，都检查任务是否存在
     // 如果不存在，创建一个
-    if (jobPool[cacheKey] === undefined) {
+    let curJob = jobPool[cacheKey]
+    if (curJob === undefined) {
       detachedTaskCount++
-      jobPool[cacheKey] =
+      curJob = jobPool[cacheKey] =
         task().then(value => {
           detachedTaskCount--
           // 1 秒钟后删除
@@ -225,7 +226,7 @@ async function internalCached (isPublic, ...args) {
       if (noAwait) {
         // 懒抓取模式且有过期缓存时，脱离等待链异步回源，忽略回源结果，然后直接继续到第三步取上次缓存值
         // lazy 忽略错误
-        jobPool[cacheKey].catch(() => {})
+        curJob.catch(() => {})
       }
     } // 否则，之前已经在异步回源了，不管它
 
@@ -234,7 +235,7 @@ async function internalCached (isPublic, ...args) {
       // 这个任务可能是刚创建的，也可能是由别处调用创建的
       // (但是总计只会获取一次)
       try {
-        return await jobPool[cacheKey]
+        return await curJob
       } catch (error) { // 回源出错
         if (cached) { // 如果(过期)缓存存在，返回它
           return cached
