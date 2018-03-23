@@ -4,8 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "yarn; NODE_ENV=development nodemon app.js",
-    "start": "yarn; NODE_ENV=production nodemon app.js",
-    "doc": "apidoc -i . -e ./node_modules -o ./webservice-doc"
+    "start": "yarn; NODE_ENV=production nodemon app.js"
   },
   "dependencies": {
     "axios": "^0.17.1",
@@ -18,7 +17,7 @@
     "iconv-lite": "latest",
     "js-yaml": "^3.10.0",
     "kcors": "^2.2.1",
-    "kf-router": "1.2.5",
+    "kf-router": "^2.0.2",
     "koa": "^2.4.1",
     "koa-bodyparser": "^4.2.0",
     "node-europa": "^4.0.0",
@@ -29,7 +28,7 @@
     "redis": "^2.8.0",
     "repl.history": "^0.1.4",
     "sqlite3": "^3.1.13",
-    "sqlongo": "^1.1.4",
+    "sqlongo": "^1.1.7",
     "tough-cookie": "^2.3.3",
     "ws": "^4.0.0"
   }

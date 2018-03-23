@@ -359,13 +359,11 @@ async get() {
 
 WebService3 本身不强制要求模块自身使用任何数据库，对于用户自身的基本信息，最好提议我们写在 **auth 数据库** 中。如果模块确实需要使用数据库，可以根据自己的习惯选择合适的 Sqlite3 ORM 进行开发。
 
-目前 WebService3 集成了 1 种 ORM [sqlongo](https://github.com/HeraldStudio/sqlongo)，可以通过如下方式创建其实例：
+目前 WebService3 集成了 [sqlongo](https://github.com/HeraldStudio/sqlongo)，可以通过如下方式创建其实例：
 
 ```javascript
 const db = require('sqlongo')('my_database')
 ```
-
-WebService3 后续将会集成更多不同风格的 ORM，欢迎持续关注和提出建议。
 
 ### 接口互解释
 

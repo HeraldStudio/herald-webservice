@@ -81,16 +81,7 @@ if (process.env.NODE_ENV === 'production') {
   ## D. 路由层
   负责调用路由处理程序执行处理的中间件。
 */
-app.use(kf(module, {
-  ignore: [
-    '/middleware/**/*',
-    '/database/**/*',
-    '/docs/**/*',
-    '/sdk/**/*',
-    '/repl',
-    '/app',
-  ]
-}))
+app.use(kf())
 app.listen(config.port)
 
 // 开发环境下，启动 REPL
