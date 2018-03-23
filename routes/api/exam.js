@@ -3,9 +3,9 @@ const cheerio = require('cheerio')
 exports.route = {
 
   /**
-   * GET /api/exam
-   * 个人考试信息查询
-   **/
+  * GET /api/exam
+  * 个人考试信息查询
+  **/
 
   async get() {
     return await this.userCache('1d+', async () => {

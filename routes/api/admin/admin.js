@@ -3,10 +3,10 @@ let db = require('../../../database/admin')
 exports.route = {
 
   /**
-   * api {GET} /api/admin/admin
-   * 查询管理员二合一接口
-   * 带 domain 参数表示查询指定域下的管理员；不带 domain 参数表示查询自己的管理员身份
-   */
+  * api {GET} /api/admin/admin
+  * 查询管理员二合一接口
+  * 带 domain 参数表示查询指定域下的管理员；不带 domain 参数表示查询自己的管理员身份
+  */
   async get () {
     let { domain } = this.params
     if (!domain) {
@@ -28,10 +28,10 @@ exports.route = {
   },
 
   /**
-   * api {POST} /api/admin/admin
-   * 任命管理员
-   * apiParam { domain, admin: { name, cardnum, phone } }
-   */
+  * api {POST} /api/admin/admin
+  * 任命管理员
+  * apiParam { domain, admin: { name, cardnum, phone } }
+  */
   async post() {
     let { domain, admin } = this.params
     let { name, cardnum, phone } = admin
@@ -57,10 +57,10 @@ exports.route = {
   },
 
   /**
-   * api {PUT} /api/admin/admin
-   * 修改管理员信息
-   * apiParam { domain, admin }
-   */
+  * api {PUT} /api/admin/admin
+  * 修改管理员信息
+  * apiParam { domain, admin }
+  */
   async put() {
     let { domain, admin } = this.params
 
@@ -81,10 +81,10 @@ exports.route = {
   },
 
   /**
-   * api {DELETE} /api/admin/admin
-   * 删除管理员
-   * apiParam { domain, cardnum }
-   */
+  * api {DELETE} /api/admin/admin
+  * 删除管理员
+  * apiParam { domain, cardnum }
+  */
   async delete() {
     let { domain, cardnum } = this.params
 

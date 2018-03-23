@@ -42,9 +42,9 @@ const keepNum = 10
 exports.route = {
 
   /**
-   * GET /api/notice
-   * @apiReturn [{ category, department, title, url, time, isAttachment, isImportant }]
-   */
+  * GET /api/notice
+  * @apiReturn [{ category, department, title, url, time, isAttachment, isImportant }]
+  */
   async get () {
     let now = new Date().getTime()
     let keys = commonSites
@@ -90,7 +90,7 @@ exports.route = {
             }
             return k
           })
-       }) // using
+      }) // using
     )) // Promise.all
 
     // 小猴系统通知
@@ -112,12 +112,12 @@ exports.route = {
   },
 
   /**
-   * POST /api/notice
-   * 转换学校通知为 Markdown，或获取系统通知 Markdown
-   * @apiParam url? 需要转换为 Markdown 的地址
-   * @apiParam nid? 需要查看 Markdown 的通知 nid
-   * @apiReturn <string> 转换结果
-   */
+  * POST /api/notice
+  * 转换学校通知为 Markdown，或获取系统通知 Markdown
+  * @apiParam url? 需要转换为 Markdown 的地址
+  * @apiParam nid? 需要查看 Markdown 的通知 nid
+  * @apiReturn <string> 转换结果
+  */
   async post () {
     let { url, nid } = this.params
     if (url) {

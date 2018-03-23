@@ -4,44 +4,44 @@ const { config } = require('../../app')
 exports.route = {
 
   /**
-   * GET /api/curriculum
-   * 课表查询
-   * @apiParam term 学期号（不填则为教务处设定的当前学期）
-   *
-   * ## 返回格式举例：
-   * {
-   *   term: { code, maxWeek, startDate? } // 查不到开学日期时只有前两个
-   *   user: { cardnum, schoolnum, name, collegeId, collegeName, majorId, majorName }
-   *   curriculum: [
-   *     { // 浮动课程只有前五个属性
-   *       courseName, teacherName, credit,
-   *       beginWeek, endWeek,       // 1 ~ 16
-   *       // 非浮动课程兼有后面这些属性
-   *       dayOfWeek?,               // 为了数据直观以及前端绘图方便，1-7 分别表示周一到周日
-   *       flip?,                    // even 双周, odd 单周, none 全周
-   *       location?,
-   *       beginPeriod?, endPeriod?  // 1 ~ 13
-   *     }
-   *   ]
-   * }
-   *
-   * ## 关于丁家桥课表的周次问题：
-   * 在之前 webserv2 的使用中，我们发现部分院系课表的周次与常理相悖，这种现象尤以丁家桥校区为甚。
-   * 经过调查，该现象是因为丁家桥校区多数院系不设短学期，短学期和秋季学期合并为一个大学期，
-   * 而教务处系统不支持这种设定，致使排课老师对此进行主观处理导致的。
-   * 由于不同院系排课老师理解的区别，所做的主观处理也不尽相同，具体表现有以下三种：
-   *
-   * 1. 短学期课表有 1-4 周，长学期课表有 1-16 周
-   * 这种课表属于正常课表，不需要做任何处理即可兼容；
-   *
-   * 2. 短学期课表为空，长学期课表有 1-20 周
-   * 这类课表出现时，老师通常让学生直接查询长学期课表，将短学期的开学日期当做长学期的开学日期。
-   * 对于这类课表，我们需要在系统中将长学期开学日期向前推4周，而且短学期为空时应当主动转化为长学期查询；
-   *
-   * 3. 短学期课表有 1-4 周，长学期课表有 5-20 周
-   * 这类课表出现时，老师通常让学生查询短学期课表作为前四周，长学期课表作为后 16 周。
-   * 对于这类课表，我们需要在系统中将长学期开学日期向前推4周。
-   **/
+  * GET /api/curriculum
+  * 课表查询
+  * @apiParam term 学期号（不填则为教务处设定的当前学期）
+  *
+  * ## 返回格式举例：
+  * {
+  *   term: { code, maxWeek, startDate? } // 查不到开学日期时只有前两个
+  *   user: { cardnum, schoolnum, name, collegeId, collegeName, majorId, majorName }
+  *   curriculum: [
+  *     { // 浮动课程只有前五个属性
+  *       courseName, teacherName, credit,
+  *       beginWeek, endWeek,       // 1 ~ 16
+  *       // 非浮动课程兼有后面这些属性
+  *       dayOfWeek?,               // 为了数据直观以及前端绘图方便，1-7 分别表示周一到周日
+  *       flip?,                    // even 双周, odd 单周, none 全周
+  *       location?,
+  *       beginPeriod?, endPeriod?  // 1 ~ 13
+  *     }
+  *   ]
+  * }
+  *
+  * ## 关于丁家桥课表的周次问题：
+  * 在之前 webserv2 的使用中，我们发现部分院系课表的周次与常理相悖，这种现象尤以丁家桥校区为甚。
+  * 经过调查，该现象是因为丁家桥校区多数院系不设短学期，短学期和秋季学期合并为一个大学期，
+  * 而教务处系统不支持这种设定，致使排课老师对此进行主观处理导致的。
+  * 由于不同院系排课老师理解的区别，所做的主观处理也不尽相同，具体表现有以下三种：
+  *
+  * 1. 短学期课表有 1-4 周，长学期课表有 1-16 周
+  * 这种课表属于正常课表，不需要做任何处理即可兼容；
+  *
+  * 2. 短学期课表为空，长学期课表有 1-20 周
+  * 这类课表出现时，老师通常让学生直接查询长学期课表，将短学期的开学日期当做长学期的开学日期。
+  * 对于这类课表，我们需要在系统中将长学期开学日期向前推4周，而且短学期为空时应当主动转化为长学期查询；
+  *
+  * 3. 短学期课表有 1-4 周，长学期课表有 5-20 周
+  * 这类课表出现时，老师通常让学生查询短学期课表作为前四周，长学期课表作为后 16 周。
+  * 对于这类课表，我们需要在系统中将长学期开学日期向前推4周。
+  **/
   async get() {
     return await this.userCache('1d+', async () => {
       let { term } = this.params
@@ -166,8 +166,8 @@ exports.route = {
               // 若在侧栏中找到该课程信息，取其教师名和学分数，并标记该侧栏课程已经使用
               let ret =
                   (sidebar.hasOwnProperty(key)
-                   ? [key]
-                   : (Object.getOwnPropertyNames(sidebar)
+                  ? [key]
+                  : (Object.getOwnPropertyNames(sidebar)
                       // 考虑每个课程由不同的老师教授的情况
                       // 这时侧栏上的周次并不和表格中的一致
                       // TODO 是否需要合并成一个课程?
@@ -175,18 +175,18 @@ exports.route = {
                   .map(k => {
                     sidebar[k].used = true
                     return { courseName,
-                             teacherName: sidebar[k].teacherName,
-                             credit: sidebar[k].credit,
-                             location,
-                             // 时间表里是总的周数
-                             // 侧栏里是每个老师分别的上课周数
-                             // 这里取侧栏
-                             beginWeek: sidebar[k].beginWeek,
-                             endWeek: sidebar[k].endWeek,
-                             dayOfWeek,
-                             beginPeriod,
-                             endPeriod,
-                             flip }
+                            teacherName: sidebar[k].teacherName,
+                            credit: sidebar[k].credit,
+                            location,
+                            // 时间表里是总的周数
+                            // 侧栏里是每个老师分别的上课周数
+                            // 这里取侧栏
+                            beginWeek: sidebar[k].beginWeek,
+                            endWeek: sidebar[k].endWeek,
+                            dayOfWeek,
+                            beginPeriod,
+                            endPeriod,
+                            flip }
                   })
 
               // 返回课程名，教师名，学分，上课地点，起止周次，起止节数，单双周，交给 concat 拼接给对应星期的课程列表

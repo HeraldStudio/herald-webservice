@@ -3,11 +3,11 @@ let { Campus, Building, Classroom, ClassRecord, DayOfWeek, ClassOfDay } = requir
 exports.route = {
 
   /**
-   * GET /api/classroom
-   * @apiParam type 要查询的数据类型，不区分大小写
-   * @remark 获取某一数据表的所有条目的id与name
-   * @note 前端可利用该API准备查询时的下拉框
-   **/
+  * GET /api/classroom
+  * @apiParam type 要查询的数据类型，不区分大小写
+  * @remark 获取某一数据表的所有条目的id与name
+  * @note 前端可利用该API准备查询时的下拉框
+  **/
   async get() {
     let type = this.params.type
 
@@ -28,9 +28,9 @@ exports.route = {
   },
 
   /**
-   * POST /api/classroom
-   * @remark 爬取学校网站，完整更新一次数据库（校区/建筑/教室/课程数据）
-   **/
+  * POST /api/classroom
+  * @remark 爬取学校网站，完整更新一次数据库（校区/建筑/教室/课程数据）
+  **/
   async post() {
     // 此API会对数据库进行一次大更新。
     // 为方便处理，加载所有数据到内存中，并将相关方法改为内存版本实现
@@ -121,11 +121,11 @@ exports.route = {
   },
 
   /**
-   * PUT /api/classroom
-   * @apiParam type       数据的类型("Campus", "Building"等)，不区分大小写，单词需要对应
-   * @apiParam values     更新数据数组
-   * @remark 通过body json数据来更新数据库
-   **/
+  * PUT /api/classroom
+  * @apiParam type       数据的类型("Campus", "Building"等)，不区分大小写，单词需要对应
+  * @apiParam values     更新数据数组
+  * @remark 通过body json数据来更新数据库
+  **/
   async put() {
     let { type, values } = this.params
 

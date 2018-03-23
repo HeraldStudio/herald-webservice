@@ -3,10 +3,10 @@ const cheerio = require('cheerio')
 exports.route = {
 
   /**
-   * GET /api/library
-   * @apiParam password
-   * 图书馆信息查询
-   **/
+  * GET /api/library
+  * @apiParam password
+  * 图书馆信息查询
+  **/
   async get() {
     return await this.userCache('1m+', async () => {
       let { cardnum } = this.user
@@ -46,12 +46,12 @@ exports.route = {
   },
 
   /**
-   * POST /api/library
-   * @apiParam cookies
-   * @apiParam bookId
-   * @apiParam borrowId
-   * 图书续借
-   **/
+  * POST /api/library
+  * @apiParam cookies
+  * @apiParam bookId
+  * @apiParam borrowId
+  * 图书续借
+  **/
     async post() {
       let { cookies, bookId, borrowId } = this.params
       let time = new Date().getTime()

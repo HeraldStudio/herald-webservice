@@ -3,9 +3,9 @@ const cheerio = require('cheerio')
 exports.route = {
 
   /**
-   * GET /api/lecture
-   * 人文讲座信息查询
-   **/
+  * GET /api/lecture
+  * 人文讲座信息查询
+  **/
   async get() {
     return await this.userCache('1h+', async () => {
       await this.useAuthCookie()
