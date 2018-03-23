@@ -25,21 +25,23 @@ const transformPosition = (obj) => {
 
 exports.route = {
   async get () {
-    let buses = (await this.get('http://121.248.63.119/busservice/lines')).data.data.lines
-    let instant = await Promise.all(buses.map(async k => {
-      k.startTime = new Date(k.startTime).getTime()
-      k.endTime = new Date(k.endTime).getTime()
-      k.detail = (await this.get('http://121.248.63.119/busservice/lineDetail?lineId=' + k.id)).data.data.line
-      k.detail.linePoints.map(k => {
-        transformPosition(k.station)
-        delete k.longitude
-        delete k.latitude
-      })
-      k.buses = (await this.get('http://121.248.63.119/busservice/queryBus?lineId=' + k.id)).data.data.buses
-      k.buses.map(k => transformPosition(k.location))
-      return k
-    }))
+    return await this.publicCache('5s', async () => {
+      let buses = (await this.get('http://121.248.63.119/busservice/lines')).data.data.lines
+      let instant = await Promise.all(buses.map(async k => {
+        k.startTime = new Date(k.startTime).getTime()
+        k.endTime = new Date(k.endTime).getTime()
+        k.detail = (await this.get('http://121.248.63.119/busservice/lineDetail?lineId=' + k.id)).data.data.line
+        k.detail.linePoints.map(k => {
+          transformPosition(k.station)
+          delete k.longitude
+          delete k.latitude
+        })
+        k.buses = (await this.get('http://121.248.63.119/busservice/queryBus?lineId=' + k.id)).data.data.buses
+        k.buses.map(k => transformPosition(k.location))
+        return k
+      }))
 
-    return { timetable, instant }
+      return { timetable, instant }
+    })
   }
 }
