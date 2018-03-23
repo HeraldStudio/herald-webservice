@@ -68,7 +68,7 @@ app.use(require('./middleware/axios'))
 app.use(require('./middleware/auth'))
 // 5. 管理员权限，需要依赖身份认证
 app.use(require('./middleware/admin'))
-// 6. redis 缓存，为路由处理程序提供自动缓存
+// 6. redis 缓存，为路由处理程序提供手动缓存
 app.use(require('./middleware/redis'))
 // 7. 生产环境下验证码识别
 if (process.env.NODE_ENV === 'production') {

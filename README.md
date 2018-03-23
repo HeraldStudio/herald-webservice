@@ -286,47 +286,74 @@ async get() {
 2. `throw <错误码>`：失败返回，会自动将错误码解析为用户可读错误信息的错误码，详见 `middleware/return.js`；
 3. `throw <错误信息>`：失败返回，自定义错误信息，状态码为 `400`。
 
-### 自动缓存
+### 缓存 API
 
-只需在项目的 `config.yml` 中进行相应设置，WebService3 就将利用 `redis` 自动为请求进行缓存。
-
-<p class="warning">
-  注意：在 HTTP 规范中，只有 <code>GET</code> 请求是幂等的，这意味着我们通常不应该对 <code>POST</code>/<code>PUT</code>/<code>DELETE</code> 请求进行缓存，也不应该对可能受到其他 <code>POST</code>/<code>PUT</code>/<code>DELETE</code> 请求影响的 <code>GET</code> 请求进行缓存。
-</p>
+通过 `this.userCache()` 和 `this.publicCache()` API，可以对需要缓存的部分进行缓存。
 
 ```javascript
-{
-  ...,
-  "cache": {
-    "api": {
-      "hello": "1y",        // /api/hello 缓存1年(按360天计)
-      "foo": "10mo,lazy",   // /api/foo   缓存10个月(每月按30天计)，懒抓取（先返回上次缓存再后台更新）
-      "bar": "10d,public",  // /api/bar   缓存10天，所有用户共享一个缓存
-      "foobar": {
-        "get": "1h20m6s"    // /api/foobar GET 请求 缓存1小时20分6秒
-      }
-    }
-  }
+async get() {
+  // 第一次被调用后，数据将缓存 1 小时 10 分钟
+  // 在接下来这段时间内，重复调用将会直接返回缓存的结果，不再重复执行闭包
+  return await this.userCache('1h10m', async () => {
+    await someTimeConsumingTask()
+    return 'Finished'
+  })
 }
 ```
 
-#### 缓存策略 `public`（公用缓存）
+注意：在 HTTP 规范中，只有 `GET` 请求是幂等的，这意味着我们通常不应该对 `POST`/`PUT`/`DELETE` 请求进行缓存，也不应该对可能受到其他 `POST`/`PUT`/`DELETE` 请求影响的 `GET` 请求进行缓存。
 
-缓存中的 `public` 策略，表示该接口对所有用户返回值相同，所有用户可以共享同一个缓存。
+#### 缓存的 key
 
-<p class="danger">
-  <b>千万不要</b>对用户的私人信息接口开启该策略。尤其在本来设置了 <code>public</code> 的接口上添加新的方法时，请特别注意缓存策略的变化。
-</p>
+缓存的内容默认将按照 `路由+方法+用户身份+参数` 作为 key 进行存储，不同路由、不同方法、不同参数的请求都始终不会共享缓存空间。也可以在此基础上添加新的 key，尤其是当同一路由、同一方法中存在多组需要缓存的数据时，自己添加 key 通常是必须的，否则这些缓存数据将相互混淆。
 
-#### 缓存策略 `lazy`（懒抓取）
+```javascript
+async get() {
 
-`lazy` 策略表示，只要缓存存在且可以解析（无论是否过期），每个请求都立即返回上次缓存的值；然后如果缓存过期，在后台更新缓存，用户在一段时间后再次请求，将得到更新后的数据。
+  // 通过附加 key 'world' 进行存储，避免本路由中的两个缓存部分相互混淆
+  return await this.userCache('world', '1mo', () => { // 缓存 1 个月
+    return 'Hello, World!'
+  })
+
+  // 附加 key 可以指定多个
+  return await this.userCache('ws3', 'another-key', 'yet-another-key', '1d', () => { // 缓存 1 天
+    return 'Hello, WebService3!'
+  })
+}
+```
+
+#### 缓存的公有和私有
+
+使用 `this.publicCache()` 进行缓存，表示默认该接口对所有用户返回相同的内容，所有用户可以共享同一个缓存空间，且缓存内容明文存储（对应地，`this.userCache()` 将使用用户 token 加密存储）。所以 **千万不要** 对用户的私人信息使用该 API。
+
+```javascript
+async get() {
+  return await this.publicCache('1h', () => {
+    return 'Cached for everyone!'
+  })
+}
+```
+
+#### 缓存懒抓取模式
+
+通过在时间策略串末尾加上加号 `+`，可设置缓存策略为懒抓取模式，使得缓存在过期后仍能返回给用户，但同时也会触发异步的缓存更新，使用户在足够长时间后的下一次刷新时能获取到最新数据。
+
+```javascript
+async get() {
+  //  无缓存 => 执行闭包 -> 返回执行结果 -> (若执行成功) 存入缓存
+  //  有缓存 && 未过期 => 返回缓存
+  //* 有缓存 && 已过期 => 返回缓存 -> 执行闭包 -> (若执行成功) 更新缓存
+  return await this.userCache('10s+', () => {
+    return 'Caches live longer!'
+  })
+}
+```
 
 为了方便理解，懒抓取策略与非懒抓取的区别仅在于缓存存在但过期的情况。在这种情况下，**非懒抓取策略将优先回源**，回源失败再取缓存，强调数据的时效性；**懒抓取策略将优先取缓存**，然后在后台更新缓存，强调响应速度。
 
-设置了 `lazy` 策略的路由中，上下文的生命周期将与具体的 HTTP 请求脱离，请务必注意由此导致的一些副作用。
+设置了懒抓取模式的闭包中，上下文 `this` 的生命周期将与具体的 HTTP 请求脱离，请务必注意可能导致的副作用。
 
-为了防止用户重复触发导致服务器压力，懒抓取的缓存时间被限制为至少 5 秒。
+为了防止用户重复触发导致服务器压力，懒抓取的缓存时间被限制为至少 5 秒，因此时间串 `+` 将代表 `5s+`。
 
 ### 数据库
 

@@ -25,7 +25,7 @@ const sites = {
     list: [['#wp_news_w3', '总务处公告']],
     contentSelector: '[portletmode="simpleArticleContent"]' // 两个平台的正文选择器是一样的
   },
-  ...require('./notice/depts.json')
+  ...require('./notice/depts.json') // FIXME 各个学院网站不能保证都能获取到通知，需要测试
 }
 
 const deptCodeFromSchoolNum = schoolnum => {
@@ -48,11 +48,10 @@ exports.route = {
   async get () {
     let now = new Date().getTime()
     let keys = commonSites
-    // FIXME 需要分块缓存 才能高效地对不同学院获取信息
-    // if (this.user.isLogin) { keys = keys.concat(deptCodeFromSchoolNum(this.user.schoolnum)) }
-    let ret = await Promise.all( // TODO 分块缓存
-      keys.map(async (site) => {
-        if (! sites[site]) {
+    if (this.user.isLogin) { keys = keys.concat(deptCodeFromSchoolNum(this.user.schoolnum)) }
+    let ret = await Promise.all(keys.map(async (site) =>
+      await this.publicCache(site, '1m+', async () => {
+        if (!sites[site]) {
           throw `没有相应于 ${site} 的学校网站`
         }
 
@@ -67,34 +66,32 @@ exports.route = {
             .map(item => new Date($(item).text()).getTime())
         ).reduce((a, b) => a.concat(b), [])
 
-        return list.map(
-          ele =>
-            $(ele[0]).find('a').toArray()
-            .map(k => $(k)).map(k => {
-              let href = k.attr('href')
-              return {
-                category: ele[1],
-                department: sites[site].name,
-                title: k.attr('title'),
-                url: /^\//.test(href)
-                  ? sites[site].baseUrl + href
-                  : href,
-                isAttachment: !/.+.html?$/.test(k.attr('href')),
-                isImportant: !!k.find('font').length,
+        return list.map(ele => $(ele[0]).find('a').toArray().map(k => $(k)).map(k => {
+          let href = k.attr('href')
+            return {
+              category: ele[1],
+              department: sites[site].name,
+              title: k.attr('title'),
+              url: /^\//.test(href)
+                ? sites[site].baseUrl + href
+                : href,
+              isAttachment: !/.+.html?$/.test(k.attr('href')),
+              isImportant: !!k.find('font').length,
+            }
+          })).reduce((a, b) => a.concat(b), []).map((k, i) => {
+            k.time = timeList[i]
+            if (! k.time) {
+              // 有些学院网站上没有发布日期，于是使用url中的日期代替
+              // url 中的日期未必准确
+              let match = /\/(\d{4})\/(\d{2})(\d{2})\//.exec(k.url)
+              if (match !== null) {
+                k.time = new Date(match[1] + '-' + match[2] + '-' + match[3]).getTime()
               }
-            })).reduce((a, b) => a.concat(b), []).map((k, i) => {
-              k.time = timeList[i]
-              if (! k.time) {
-                // 有些学院网站上没有发布日期，于是使用url中的日期代替
-                // url 中的日期未必准确
-                let match = /\/(\d{4})\/(\d{2})(\d{2})\//.exec(k.url)
-                if (match !== null) {
-                  k.time = new Date(match[1] + '-' + match[2] + '-' + match[3]).getTime()
-                }
-              }
-              return k
-            })
-      }))
+            }
+            return k
+          })
+       }) // using
+    )) // Promise.all
 
     // 小猴系统通知
     ret = ret.concat((await db.notice.find()).map(k => {
