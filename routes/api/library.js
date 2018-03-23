@@ -41,7 +41,10 @@ exports.route = {
         return { bookId, name, borrowDate, returnDate, renewCount, location, addition, borrowId }
       })
 
-      return { bookList, cookies: this.cookieJar.cookieString() }
+      return {
+        bookList,
+        cookies: this.cookieJar.getCookieStringSync('http://www.libopac.seu.edu.cn')
+      }
     })
   },
 

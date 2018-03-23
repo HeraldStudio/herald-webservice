@@ -28,7 +28,7 @@ module.exports = ({ python }) => {
         try {
           message = JSON.parse(message);
           let job = captchaJobPool[message.path];
-          delete capthaJobPool[message.path];
+          delete captchaJobPool[message.path];
           let result = message.result;
           job.resolve(result)
         } catch (e) {}
@@ -47,7 +47,7 @@ module.exports = ({ python }) => {
         try {
           message = JSON.parse(message);
           let job = captchaJobPool[message.path];
-          delete capthaJobPool[message.path];
+          delete captchaJobPool[message.path];
           let result = message.result;
           job.resolve(result)
         } catch (e) {}
