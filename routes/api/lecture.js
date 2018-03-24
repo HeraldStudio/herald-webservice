@@ -1,4 +1,8 @@
 const cheerio = require('cheerio')
+const locations = {
+  37: '教一-111',
+  62: '教三-105'
+}
 
 exports.route = {
 
@@ -34,13 +38,13 @@ exports.route = {
         $ = cheerio.load(res.data)
         return $('.dangrichaxun tr').toArray().slice(1,-1).map(tr => {
           let td = $(tr).find('td')
-          let location = td.eq(-1).text()
+          let machineId = parseInt(td.eq(2).text().trim())
           let time = new Date(td.eq(0).text()).getTime()
-          return { time, location }
+          return { time, machineId }
         })
-      }))).reduce((a, b) => a.concat(b), []).filter(k =>
-        !/^(九龙湖|手持考|行政楼|网络中|机电大|校医院|研究生)/.test(k.location)
-      )
+      }))).reduce((a, b) => a.concat(b), [])
+        .filter(k => k.machineId in locations)
+        .map(k => ({ time: k.time, location: locations[k.machineId] }))
     })
   }
 }
