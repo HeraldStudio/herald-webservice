@@ -39,7 +39,7 @@ exports.route = {
           return { time, location }
         })
       }))).reduce((a, b) => a.concat(b), []).filter(k =>
-        !/^(九龙湖|手持考|行政楼|网络中|机电大|校医院|研究生)/.test(k.location)
+        !/^(九龙湖|手持考|行政楼|网络中|机电大|校医院|研究生|物理系)/.test(k.location)
       )
     })
   }
