@@ -43,7 +43,14 @@ exports.route = {
           return { time, machineId }
         })
       }))).reduce((a, b) => a.concat(b), [])
+        // 只保留讲座打卡记录
         .filter(k => k.machineId in locations)
+        // 按时间倒序，然后去除相距1分钟以内的同一卡机重复打卡记录
+        .sort((a, b) => b.time - a.time)
+        .filter((k, i, arr) => i === 0
+          || arr[i - 1].machineId !== k.machineId
+          || Math.abs(arr[i - 1].time - k.time) > 60 * 1000)
+        // 转换为时间和地点名称
         .map(k => ({ time: k.time, location: locations[k.machineId] }))
     })
   }
