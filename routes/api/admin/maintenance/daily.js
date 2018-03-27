@@ -51,7 +51,27 @@ exports.route = {
     return [].slice.call([].fill.call({ length: 24 * 2 }, 0)).map((_, i) => {
 
       // 对于 [0, 48) 的每一个整数，在日志中查找该时间范围内的请求
-      let operations = dailyStat.filter(k => k.period === i)
+      let operations = dailyStat.filter(k => k.period === i).groupBy('operation', 'results').map(group => {
+
+        // 经过 groupBy 分组操作后，每一组都包含 operation 字符串和对应的 results 数组
+        // 这里每一个 group 代表同一个时间段内的每一种不同操作
+        // 对于每个操作，这里需要转化为概括该操作所有不同结果的一个对象
+        return {
+
+          // 操作名称保留不变
+          operation: group.operation,
+
+          // 操作结果再按 status 状态码分组
+          results: group.results.map(k => ({
+            status: k.status,
+            count: k.count,
+            averageDuration: k.averageDuration
+          })),
+
+          // 执行该操作的请求的总次数
+          count: group.results.map(k => k.count).reduce((a, b) => a + b, 0)
+        }
+      })
 
       // 返回能够概括该时间范围内所有类型请求情况的一个对象
       return {
@@ -61,30 +81,10 @@ exports.route = {
         endTime: (i + 1) * (1000 * 60 * 30) + yesterday,
 
         // 该时间范围内的所有请求的数组，按不同操作进行分组
-        operations: operations.groupBy('operation', 'results').map(group => {
-
-          // 经过 groupBy 分组操作后，每一组都包含 operation 字符串和对应的 results 数组
-          // 这里每一个 group 代表同一个时间段内的每一种不同操作
-          // 对于每个操作，这里需要转化为概括该操作所有不同结果的一个对象
-          return {
-
-            // 操作名称保留不变
-            operation: group.operation,
-
-            // 操作结果再按 status 状态码分组
-            results: group.results.map(k => ({
-              status: k.status,
-              count: k.count,
-              averageDuration: k.averageDuration
-            })),
-
-            // 执行该操作的请求的总次数
-            count: group.results.length
-          }
-        }),
+        operations,
 
         // 该时间范围内的请求的总次数
-        count: operations.length
+        count: operations.map(k => k.count).reduce((a, b) => a + b, 0)
       }
     })
   }
