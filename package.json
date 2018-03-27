@@ -28,7 +28,7 @@
     "redis": "^2.8.0",
     "repl.history": "^0.1.4",
     "sqlite3": "^3.1.13",
-    "sqlongo": "^1.1.7",
+    "sqlongo": "^1.2.0",
     "tough-cookie": "^2.3.3",
     "ws": "^4.0.0"
   }
