@@ -539,7 +539,7 @@ module.exports = async (ctx, next) => {
       code: 200
     }
   } else if (ctx.path === '/adapter-ws2/queryEmptyClassrooms/m') {
-    ctx.body = '学校已经关闭空闲教室查询网站，小猴空闲教室功能失去数据源，无法继续提供服务，请知悉。'
+    ctx.redirect('http://map.seu.edu.cn/#/freeClassroom')
   } else {
     await next()
   }
