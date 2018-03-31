@@ -3,6 +3,7 @@ const axios = require('axios');
 const chardet = require('chardet');
 const iconv = require('iconv');
 const fs = require('fs');
+const onDeath = require('death');
 
 module.exports = ({ python }) => {
   const captchaJobPool = {};
@@ -16,6 +17,11 @@ module.exports = ({ python }) => {
   const jwcProcess = spawn(python, [
     process.cwd() + '/middleware/captcha-childprocess/jwccaptcha.py'
   ]);
+
+  onDeath(() => {
+    libraryProcess.kill()
+    jwcProcess.kill()
+  })
 
   jwcProcess.stdout.on('data', (chunk) => {
     "use strict";
