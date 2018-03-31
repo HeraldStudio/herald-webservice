@@ -11,10 +11,8 @@ module.exports = async (ctx, next) => {
   let { origin } = ctx.request.headers
   if (origin) {
     // 不考虑端口和协议
-    origin = /[^/]*$/.exec(origin)[0]
-    origin = /^[^:]*/.exec(origin)[0]
-
-    if (origin && ~allowDomains.indexOf(origin)) {
+    let domain = (origin.split('/').slice(-1)[0] || '').split(':')[0] || ''
+    if (domain && ~allowDomains.indexOf(domain)) {
       ctx.set('Access-Control-Allow-Origin', origin)
       ctx.set('Access-Control-Allow-Methods', 'GET,HEAD,PUT,POST,DELETE,PATCH')
       ctx.set('Access-Control-Allow-Headers', 'Origin,X-Requested-With,Content-Type,Accept,token')
