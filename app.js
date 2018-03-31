@@ -32,11 +32,9 @@ app.use(require('./middleware/adapter/unpacker'))
  */
 // 1. 如果是生产环境，显示请求计数器；此中间件在 module load 时，会对 console 的方法做修改
 app.use(require('./middleware/counter'))
-// 2. Slack API
-app.use(require('./middleware/slack').middleware)
-// 3. 日志输出，需要依赖返回格式中间件中返回出来的 JSON 格式
+// 2. 日志输出，需要依赖返回格式中间件中返回出来的 JSON 格式
 app.use(require('./middleware/logger'))
-// 4. 日志统计，用于匿名统计用户行为、接口调用成功率等
+// 3. 日志统计，用于匿名统计用户行为、接口调用成功率等
 app.use(require('./middleware/statistics'))
 
 /**
@@ -46,6 +44,8 @@ app.use(require('./middleware/statistics'))
 // 1. 返回格式化和参数格式化，属于同一层，互不依赖
 app.use(require('./middleware/return'))
 app.use(require('./middleware/params'))
+// 2. 跨域中间件，定义允许访问本服务的第三方前端页面
+app.use(require('./middleware/cors'))
 
 /**
   ## B1. 兼容性临时层
@@ -70,7 +70,9 @@ app.use(require('./middleware/auth'))
 app.use(require('./middleware/admin'))
 // 6. redis 缓存，为路由处理程序提供手动缓存
 app.use(require('./middleware/redis'))
-// 7. 生产环境下验证码识别
+// 7. Slack API
+app.use(require('./middleware/slack').middleware)
+// 8. 生产环境下验证码识别
 if (process.env.NODE_ENV === 'production') {
   app.use(require('./middleware/captcha')({
     python: '/usr/local/bin/anaconda3/envs/captcha/bin/python'
