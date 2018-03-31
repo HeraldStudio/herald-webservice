@@ -112,11 +112,11 @@ module.exports = ({ python }) => {
   return async (ctx, next) => {
     ctx.jwcCaptcha = () => Promise.race([
       jwcCaptcha(ctx),
-      new Promise((_, reject) => setTimeout(reject, 3000))
+      new Promise((_, reject) => setTimeout(() => reject('验证码解析失败'), 3000))
     ])
     ctx.libraryCaptcha = () => Promise.race([
       libraryCaptcha(ctx),
-      new Promise((_, reject) => setTimeout(reject, 3000))
+      new Promise((_, reject) => setTimeout(() => reject('验证码解析失败'), 3000))
     ])
     await next()
   };
