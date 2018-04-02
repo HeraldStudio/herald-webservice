@@ -13,6 +13,7 @@ exports.route = {
     }
     let { banner } = this.params
     await db.banner.insert(banner)
+    return 'OK'
   },
   async put () {
     if (!this.admin.publicity) {
@@ -20,6 +21,7 @@ exports.route = {
     }
     let { banner } = this.params
     await db.banner.update({ bid: banner.bid }, banner)
+    return 'OK'
   },
   async delete () {
     if (!this.admin.publicity) {
@@ -27,5 +29,6 @@ exports.route = {
     }
     let { bid } = this.params
     await db.banner.remove({ bid })
+    return 'OK'
   }
 }

@@ -14,6 +14,7 @@ exports.route = {
     let { notice } = this.params
     notice.publishTime = new Date().getTime()
     await db.notice.insert(notice)
+    return 'OK'
   },
   async put () {
     if (!this.admin.maintenance) {
@@ -21,6 +22,7 @@ exports.route = {
     }
     let { notice } = this.params
     await db.notice.update({ nid: notice.nid }, notice)
+    return 'OK'
   },
   async delete () {
     if (!this.admin.maintenance) {
@@ -28,5 +30,6 @@ exports.route = {
     }
     let { nid } = this.params
     await db.notice.remove({ nid })
+    return 'OK'
   }
 }
