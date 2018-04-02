@@ -29,7 +29,7 @@ exports.route = {
     activity.committedBy = cardnum
     activity.admittedBy = ''
     await db.activity.insert(activity)
-    return
+    return 'OK'
   },
   async put () {
     if (!this.admin.publicity) {
@@ -39,6 +39,7 @@ exports.route = {
     let { cardnum } = this.user
     activity.admittedBy = cardnum
     await db.activity.update({ aid: activity.aid }, activity)
+    return 'OK'
   },
   async delete () {
     if (!this.admin.publicity) {
@@ -47,5 +48,6 @@ exports.route = {
     let { aid } = this.params
     let { cardnum } = this.user
     await db.activity.remove({ aid })
+    return 'OK'
   }
 }
