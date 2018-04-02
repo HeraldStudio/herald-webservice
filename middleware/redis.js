@@ -100,10 +100,9 @@ const parseDurationStr = (duration) => {
     parseDurationStr.cache[duration] = seconds
   }
 
-  // 懒抓取策略下，缓存时间至少 5 秒，防止缓存时间未设置导致始终不缓存
-  // 如果设置了缓存时间，也至少 5 秒
+  // 懒抓取策略下，缓存时间至少 1 秒，防止缓存时间未设置导致始终不缓存
   if (seconds || isLazy) {
-    seconds = Math.max(seconds, 5)
+    seconds = Math.max(seconds, 1)
   }
   return { isLazy, seconds }
 }
@@ -127,20 +126,26 @@ async function internalCached (isPublic, ...args) {
     将 method、地址 (路由 + querystring)、伪 token、请求体四个元素进行序列化，作为缓存命中判断的依据
     伪 token 是上游 auth 暴露的属性，用于区分用户，详见 auth.js##伪token
 
+    注：看上去似乎把伪 token 改为 identity 可以让同一用户多端登录时共享缓存，但因为不同 token 是不同的
+    解密密钥，不同 token 的数据无法被解密，相当于乱码，所以事实上是不可能实现的，理论上也是不应该实现的。
+
     下述「回源」均指调用传入的 func，取得最新数据的过程。
 
     缓存命中策略对照表：
 
     - 判断缓存状态：
-    - 缓存有效未过期 => 取缓存，不回源
-    - 缓存有效已过期 => 判断缓存策略：
-      - 普通策略 => 等待回源，判断回源结果：
-      - 回源成功：取回源结果，更新缓存 √
-      - 回源失败：取缓存 √
-      - 懒抓取策略 => 取缓存 √ 同时后台开始回源（脱离等待链），回源成功则更新缓存
-    - 缓存无效 => 等待回源，判断回源结果：
-      - 回源成功：取回源结果，更新缓存 √
-      - 回源失败：返回错误信息 √
+      - 有缓存未过期 => 取缓存，不回源
+      - 有缓存已过期 => 判断缓存策略：
+        - 普通策略 => 等待回源，判断回源结果：
+          - 回源成功：取回源结果，更新缓存 ✅
+          - 回源失败：返回错误信息 ❌
+        - 懒抓取策略 => 等待回源，同时等待超时三秒：
+          - 回源成功：取回源结果，更新缓存 ✅
+          - 回源失败：取缓存 ⚠️
+          - 回源超时：取缓存 ⚠️
+      - 无缓存 => 等待回源，判断回源结果：
+        - 回源成功：取回源结果，更新缓存 ✅
+        - 回源失败：返回错误信息 ❌
   */
   let isPrivate = !isPublic && this.user.isLogin
 
@@ -177,73 +182,44 @@ async function internalCached (isPublic, ...args) {
   // 2. 若缓存不可用或已过期，先回源，准确判断回源是否成功，以便在回源不成功时回落到过期缓存
   if (!cached || expired) {
 
-    // 判断是否执行脱离等待链策略
-    // 只有当设置了懒抓取模式且有缓存时，脱离等待链；否则不脱离等待链
-    let noAwait = isLazy && cached
-
-    // 异步的回源任务（执行下游中间件、路由处理程序）
-    let task = async () => {
-
-      // 现在并不需要重新设置缓存了
-      // 因为如果重复调用，并不会新建任务
-
-      let res = await func()
-      // 若需要缓存，将中间件返回值存入 redis
-      if (seconds && res) {
-        cached = JSON.stringify(res)
-
-        // 同 [*]，这里利用 auth 的加解密函数，加密数据进行缓存
-        if (isPrivate) {
-          cached = this.user.encrypt(cached)
-        }
-        cache.set(cacheKey, cached)
-      }
-
-      // 无论成功失败，都原样返回，留给后面判定
-      return res
-    }
+    // 判断是否允许过期缓存
+    let allowObsolete = isLazy && cached
 
     // 无论是否需要 await，都检查任务是否存在
     // 如果不存在，创建一个
     let curJob = jobPool[cacheKey]
-    if (curJob === undefined) {
-      detachedTaskCount++
-      curJob = jobPool[cacheKey] =
-        task().then(value => {
-          detachedTaskCount--
-          // 1 秒钟后删除
-          // 一方面缓存至少 5 秒，成功后 1 秒以内再次请求肯定没有过期
-          // 另一方面防止出现不 thread-safe 的情况
-          setTimeout(() => { delete jobPool[cacheKey] }, 1000)
-          return value
-        }).catch(error => {
-          detachedTaskCount--
-          // 出现错误，立刻删除这个任务
+    if (!curJob) {
+      curJob = jobPool[cacheKey] = (async () => {
+        try {
+          detachedTaskCount++
+          let task = func()
+          if (allowObsolete) {
+            task = Promise.race([
+              task, new Promise((_, r) => setTimeout(r, 3000))
+            ]).catch(e => cached)
+          }
+
+          let res = await task
+
+          // 若需要缓存，将中间件返回值存入 redis
+          if (seconds && res) {
+            cached = JSON.stringify(res)
+
+            // 同 [*]，这里利用 auth 的加解密函数，加密数据进行缓存
+            if (isPrivate) {
+              cached = this.user.encrypt(cached)
+            }
+            cache.set(cacheKey, cached)
+          }
+          return res
+        } finally {
           delete jobPool[cacheKey]
-          // 然后原样把异常扔出去
-          throw error
-        })
-      if (noAwait) {
-        // 懒抓取模式且有过期缓存时，脱离等待链异步回源，忽略回源结果，然后直接继续到第三步取上次缓存值
-        // lazy 忽略错误
-        curJob.catch(() => {})
-      }
+          detachedTaskCount--
+        }
+      })()
     } // 否则，之前已经在异步回源了，不管它
 
-    if (!noAwait) {
-      // 非 lazy 情况下，等待回源结束，返回回源结果
-      // 这个任务可能是刚创建的，也可能是由别处调用创建的
-      // (但是总计只会获取一次)
-      try {
-        return await curJob
-      } catch (error) { // 回源出错
-        if (cached) { // 如果(过期)缓存存在，返回它
-          return cached
-        } else { // 缓存不存在，继续扔出错误，控制流程将直接流向 return.js
-          throw error
-        }
-      }
-    }
+    return await curJob
   }
 
   // 3. 执行到此表示缓存未过期或(缓存存在但过期时)正在异步回源
