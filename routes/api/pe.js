@@ -8,9 +8,7 @@ exports.route = {
   * 跑操查询
   **/
   async get() {
-    // 有 WS2 Adapter 的条件下这里不能用 lazy
-    // 因为 WS2 中跑操次数和详情是两个请求，lazy 会导致结果不一致
-    return await this.userCache('1h', async () => {
+    return await this.userCache('1h+', async () => {
       // 取统一身份认证 Cookie，登录早操查询网站，拿到网站 Session Cookie
       await this.useAuthCookie()
       await this.get('http://zccx.seu.edu.cn')
