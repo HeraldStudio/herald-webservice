@@ -4,14 +4,19 @@ const { config } = require('../../app')
 const axios = require('axios')
 
 module.exports = async (ctx, next) => {
-  if (ctx.params.uuid) {
-    // 去除参数的 uuid，防止参数多变，污染 public redis 存储
-    delete ctx.params.uuid
+  if (ctx.path.indexOf('/adapter-ws2/') !== 0) {
+    return await next()
   }
 
-  if (ctx.path.indexOf('/adapter-appserv/') === 0) {
-    let originalPath = ctx.path
-    ctx.path = ctx.request.path = ctx.path.replace('/adapter-appserv', '')
+  let originalPath = ctx.path
+  let originalMethod = ctx.method
+  try {
+    if (ctx.params.uuid) {
+      // 去除参数的 uuid，防止参数多变，污染 public redis 存储
+      delete ctx.params.uuid
+    }
+
+    ctx.path = ctx.path.replace('/adapter-appserv', '')
 
     // 对应路由的转换操作
     if (ctx.path === '/checkversion') {
@@ -87,17 +92,13 @@ module.exports = async (ctx, next) => {
       ctx.body = data
     } else if (ctx.path === '/wxapp/tomd') {
       let url = ctx.request.body
-      let originalMethod = ctx.method
       ctx.path = '/api/notice'
-      ctx.method = ctx.request.method = 'POST'
+      ctx.method = 'POST'
       ctx.params = { url }
       await next()
-      ctx.method = originalMethod
-      ctx.path = '/wxapp/tomd'
     } else if (ctx.path === '/charge') {
-      let originalMethod = ctx.method
       ctx.path = '/api/card'
-      ctx.method = ctx.request.method = 'PUT'
+      ctx.method = 'PUT'
       try {
         await next()
         ctx.body = {
@@ -109,14 +110,15 @@ module.exports = async (ctx, next) => {
           retcode: 400,
           errmsg: e
         }
-      } finally {
-        ctx.method = originalMethod
-        ctx.path = '/wxapp/charge'
       }
     }
-
+  } catch (e) {
+    ctx.body = {
+      code: typeof e === 'number' ? e : 400
+    }
+  } finally {
     ctx.path = originalPath
-  } else {
-    await next()
+    ctx.method = originalMethod
+    ctx.status = ctx.body.code || ctx.body.retcode || 200
   }
 }
