@@ -4,7 +4,7 @@ const { config } = require('../../app')
 const axios = require('axios')
 
 module.exports = async (ctx, next) => {
-  if (ctx.path.indexOf('/adapter-ws2/') !== 0) {
+  if (ctx.path.indexOf('/adapter-appserv/') !== 0) {
     return await next()
   }
 
