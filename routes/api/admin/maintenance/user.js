@@ -44,7 +44,7 @@ exports.route = {
           userCount, realUserCount, dailyRegister,
           dailyInvoke, monthlyRegister, monthlyInvoke
         }
-      }))).sort((a, b) => b.userCount - a.userCount)
+      }))).sort((a, b) => b.realUserCount - a.realUserCount)
     }
   }
 }
