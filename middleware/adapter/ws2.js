@@ -45,7 +45,7 @@ module.exports = async (ctx, next) => {
 
       // 转换为对 ws3 auth 请求
       ctx.path = '/auth'
-      ctx.params = { cardnum: user, password, platform: 'adapter-ws2' }
+      ctx.params = { cardnum: user, password, platform: 'ws2' }
       await next()
 
       // 能执行到此处说明认证成功
