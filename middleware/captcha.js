@@ -21,6 +21,7 @@ module.exports = ({ python }) => {
   onDeath(() => {
     libraryProcess.kill()
     jwcProcess.kill()
+    process.exit()
   })
 
   jwcProcess.stdout.on('data', (chunk) => {
