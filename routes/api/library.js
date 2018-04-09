@@ -7,10 +7,10 @@ exports.route = {
   * @apiParam password
   * 图书馆信息查询
   **/
-  async get() {
+  async get({ password }) {
     return await this.userCache('1m+', async () => {
       let { cardnum } = this.user
-      let password = this.params.password || this.user.password
+      password = password || this.user.password
 
       // 获取解析后的验证码与Cookie并登陆
       let captcha = await this.libraryCaptcha()
@@ -55,8 +55,7 @@ exports.route = {
   * @apiParam borrowId
   * 图书续借
   **/
-    async post() {
-      let { cookies, bookId, borrowId } = this.params
+    async post({ cookies, bookId, borrowId }) {
       let time = new Date().getTime()
 
       // 获取解析后的验证码和Cookies

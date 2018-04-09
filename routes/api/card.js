@@ -8,7 +8,7 @@ exports.route = {
   * @apiParam date     查询日期，格式 yyyy-M-d，不填为当日流水（带日期不能查当日流水）
   * @apiParam page     页码，不填为首页
   **/
-  async get() {
+  async get({ date = '', page = 1 }) {
     // 懒缓存 1 分钟
     return await this.userCache('1m+', async () => {
       await this.useAuthCookie()
@@ -57,10 +57,6 @@ exports.route = {
 
       // 接口设计规范，能转换为数字/bool的数据尽量转换，不要都用字符串
       info.balance = parseFloat(balance.replace(/,/g, ''))
-
-      // 一卡通
-      let date = this.params.date || '' // 格式 yyyy-M-d
-      let page = this.params.page || 1
 
       // 当天流水，直接查询
       if (date === '') {
@@ -136,8 +132,7 @@ exports.route = {
   * @apiParam amount     充值金额，浮点数兼容
   * @apiParam eacc       为1时充值到电子钱包
   **/
-  async put() {
-    let { cardnum, password, amount, eacc } = this.params
+  async put({ cardnum, password, amount, eacc }) {
     cardnum || ({ cardnum } = this.user)
 
     let res = await this.post('http://58.192.115.47:8088/wechat-web/login/dologin.html', {

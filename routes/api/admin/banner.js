@@ -7,27 +7,24 @@ exports.route = {
     }
     return (await db.banner.find()).sort((a, b) => b.startTime - a.startTime)
   },
-  async post () {
+  async post ({ banner }) {
     if (!this.admin.publicity) {
       throw 403
     }
-    let { banner } = this.params
     await db.banner.insert(banner)
     return 'OK'
   },
-  async put () {
+  async put ({ banner }) {
     if (!this.admin.publicity) {
       throw 403
     }
-    let { banner } = this.params
     await db.banner.update({ bid: banner.bid }, banner)
     return 'OK'
   },
-  async delete () {
+  async delete ({ bid }) {
     if (!this.admin.publicity) {
       throw 403
     }
-    let { bid } = this.params
     await db.banner.remove({ bid })
     return 'OK'
   }

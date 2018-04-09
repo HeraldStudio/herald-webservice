@@ -43,8 +43,7 @@ exports.route = {
   * 对于这类课表，我们需要在系统中将长学期开学日期向前推4周。
   **/
   async get() {
-    return await this.userCache('1d+', async () => {
-      let { term } = this.params
+    return await this.userCache('1d+', async ({ term }) => {
       let { cardnum } = this.user
       let user = {}, curriculum = []
 

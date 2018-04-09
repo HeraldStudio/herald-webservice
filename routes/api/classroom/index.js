@@ -8,8 +8,7 @@ exports.route = {
   * @remark 获取某一数据表的所有条目的id与name
   * @note 前端可利用该API准备查询时的下拉框
   **/
-  async get() {
-    let type = this.params.type
+  async get({ type }) {
 
     // 参数检查
     if (typeof type !== "string") {
@@ -36,9 +35,9 @@ exports.route = {
     // 为方便处理，加载所有数据到内存中，并将相关方法改为内存版本实现
     await Promise.all([Campus, Building, Classroom, ClassRecord].map(async (c, i, a) => {
       a[i].all = await a[i].find({}) // ClassName.all 获取所有对象
-      a[i].findId = (name) => { 
-        const res = a[i].all.find(o => o.name === name); 
-        return res && res.id 
+      a[i].findId = (name) => {
+        const res = a[i].all.find(o => o.name === name);
+        return res && res.id
       }
     }))
 
@@ -59,12 +58,12 @@ exports.route = {
             id: v[0].findId(v[1]),
             name: v[1]
           }))
-          .reduce((pre, cur, i, a) => { 
+          .reduce((pre, cur, i, a) => {
             let [preName, curName] = [pre, cur].map(v => v && v.constructor.name.toLowerCase())
             if (!cur.id) { // 如果数据库中没有对应id，则新生成一条记录保存
               if (pre) { // 下层对象保存上一层Id
-                a[i][preName + "Id"] = pre.id 
-              }  
+                a[i][preName + "Id"] = pre.id
+              }
               a[i].id = Math.max(...a[i].constructor.all.map(o => o.id), 0) + 1 // 取最大Id + 1为新Id，数组为空时最大Id为0
               a[i].constructor.all.push(a[i])
               a[i].save() // await-free
@@ -74,7 +73,7 @@ exports.route = {
             delete record[curName + "Name"]
             return a[i] // 传递上层对象给下一层
           })
-          
+
           record.id = Math.max(...ClassRecord.all.map(o => o.id), 0) + 1 // FIXME：修正autoIncrement的问题
           record = new ClassRecord(record)
           ClassRecord.all.push(record)
@@ -89,7 +88,7 @@ exports.route = {
       // FIXME: 补全院系编号
       ...[000, 001].map(async department => crawler(
         (await this.post(
-          "http://121.248.63.139/nstudent/pygl/kbcx_yx.aspx"//, 
+          "http://121.248.63.139/nstudent/pygl/kbcx_yx.aspx"//,
           //"drpyx=000" // FIXME 还需要更多参数
         )).data,
         /<td>(.+)<\/td><td>(.+)<\/td><td>([^\s]+)\s*<\/td><td>第(\d+)-(\d+)周;? (.*)<\/td><td>(.+)<\/td><td>([^\w]+)([0-9a-zA-Z]+)<\/td><td>(\d+)<\/td><td>(\d+)<\/td>/img,
@@ -107,7 +106,7 @@ exports.route = {
             buildingName  : entry[8],
             classroomName : entry[8] + "-" + entry[9], // 上下三个属性将在crawler中被转换为Id属性
             campusName    : Campus.findName(entry[8]),
-            capacity      : parseInt(entry[10]), 
+            capacity      : parseInt(entry[10]),
             size          : parseInt(entry[11])
           })
         )
@@ -126,8 +125,7 @@ exports.route = {
   * @apiParam values     更新数据数组
   * @remark 通过body json数据来更新数据库
   **/
-  async put() {
-    let { type, values } = this.params
+  async put({ type, values }) {
 
     // 参数检查
     if (!(typeof type === "string" && typeof values === "object")) {
