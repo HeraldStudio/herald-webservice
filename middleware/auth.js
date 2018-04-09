@@ -103,7 +103,10 @@ module.exports = async (ctx, next) => {
     }
 
     // 获取一卡通号、密码、研究生密码、前端定义版本
-    let { cardnum, password, gpassword = password, platform } = ctx.params
+    let { cardnum, password, gpassword, platform } = ctx.params
+
+    // 这里不用解构赋值的默认值，因为不仅需要给 undefined 设置默认值，也需要对空字符串进行容错
+    gpassword = gpassword || password
 
     if (!platform) {
       throw '缺少参数 platform: 必须指定平台名'
