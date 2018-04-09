@@ -37,7 +37,7 @@ exports.route = {
         round(avg(duration)) as averageDuration,
         count(*) as count
       from stat
-      where time > ${yesterday}
+      where time > ${yesterday} and route not like '/api/admin/%'
       group by period, route, method, status;
     `)
     let totalCount = dailyStat.length
