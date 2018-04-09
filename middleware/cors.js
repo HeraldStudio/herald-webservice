@@ -18,5 +18,10 @@ module.exports = async (ctx, next) => {
       ctx.set('Access-Control-Allow-Headers', 'Origin,X-Requested-With,Content-Type,Accept,token')
     }
   }
-  await next()
+  if (ctx.method.toUpperCase() === 'OPTIONS') {
+    ctx.body = ''
+    ctx.status = 200
+  } else {
+    await next()
+  }
 }
