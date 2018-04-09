@@ -13,16 +13,16 @@ exports.route = {
     let spiders = spider.spiders
     return { requestCount, spiders, startTime, detachedTaskCount }
   },
-  async post() {
+  async post({ name }) {
     if (!this.admin.maintenance) {
       throw 403
     }
-    spider.acceptSpider(this.params.name)
+    spider.acceptSpider(name)
   },
-  async delete() {
+  async delete({ name }) {
     if (!this.admin.maintenance) {
       throw 403
     }
-    spider.rejectSpider(this.params.name)
+    spider.rejectSpider(name)
   }
 }

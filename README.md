@@ -156,7 +156,7 @@ exports.route = {
 
 ### 请求参数
 
-kf-router 提供了 `this` API ，代替 koa 中的 `ctx` ，另外经过 `koa-bodyparser` 处理，可以直接读取 `json`/`urlencoded`/`form` 格式的请求体。WebService3 将 `this.query` 和 `this.request.body` 进行了合并，可通过 `this.params` 统一获取。
+kf-router 提供了 `this` API ，代替 koa 中的 `ctx` ，另外经过 `koa-bodyparser` 处理，可以直接读取 `json`/`urlencoded`/`form` 格式的请求体。WebService3 将 `this.query` 和 `this.request.body` 进行了合并，可通过 `this.params` 统一获取，也可以直接从函数第一个参数中拿到。
 
 注意，本服务端使用较严格的参数解析，`GET` / `DELETE` 请求务必使用 URL 带参数，同样地，`POST` / `PUT` 请求只能解析 `body` 中的参数。
 
@@ -167,8 +167,7 @@ exports.route = {
     let { a, b } = this.params // 相当于 let a = this.params.a, b = this.params.b
     return parseInt(a) + parseInt(b)
   },
-  async post() {
-    let { c, d } = this.params
+  async post({ c, d }) {
     return parseInt(c) + parseInt(d)
   }
   // put, delete 也适用

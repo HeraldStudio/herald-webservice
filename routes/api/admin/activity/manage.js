@@ -2,11 +2,10 @@ const db = require('../../../../database/publicity')
 const admindb = require('../../../../database/admin')
 
 exports.route = {
-  async get () {
+  async get ({ page = 1, pagesize = 10 }) {
     if (!this.admin.publicity) {
       throw 403
     }
-    let { page = 1, pagesize = 10 } = this.params
     return await Promise.all((await db.activity.find())
       .sort((a, b) => !a.admittedBy ? -1 : (!b.admittedBy ? 1 : b.startTime - a.startTime))
       .slice((page - 1) * pagesize, page * pagesize)
@@ -20,32 +19,29 @@ exports.route = {
         return k
       }))
   },
-  async post () {
+  async post ({ activity }) {
     if (!this.admin.publicity) {
       throw 403
     }
     let { cardnum } = this.user
-    let { activity } = this.params
     activity.committedBy = cardnum
     activity.admittedBy = ''
     await db.activity.insert(activity)
     return 'OK'
   },
-  async put () {
+  async put ({ activity }) {
     if (!this.admin.publicity) {
       throw 403
     }
-    let { activity } = this.params
     let { cardnum } = this.user
     activity.admittedBy = cardnum
     await db.activity.update({ aid: activity.aid }, activity)
     return 'OK'
   },
-  async delete () {
+  async delete ({ aid }) {
     if (!this.admin.publicity) {
       throw 403
     }
-    let { aid } = this.params
     let { cardnum } = this.user
     await db.activity.remove({ aid })
     return 'OK'

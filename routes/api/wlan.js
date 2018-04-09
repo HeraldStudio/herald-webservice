@@ -76,9 +76,8 @@ exports.route = {
   * seu-wlan 开通/续期/解锁三合一
   * @apiParam months 要开通/续期的月数
   **/
-  async post() {
+  async post({ months = '' }) {
     let { cardnum, password } = this.user
-    let { months } = this.params || ''
     let username = cardnum
 
     // 模拟登录
@@ -135,8 +134,7 @@ exports.route = {
   * @apiParam ip   要下线的IP地址
   * @apiParam mac  要删除的设备MAC地址
   **/
-  async delete () {
-    let { ip, mac } = this.params
+  async delete ({ ip, mac }) {
     let operation = ip ? 'offline' : 'deletemacbind'
 
     // 执行下线或删除设备

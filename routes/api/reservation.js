@@ -64,8 +64,7 @@ exports.route = {
   * 场馆预约
   **/
 
-  async get() {
-    let params = this.params
+  async get(params) {
     await this.useAuthCookie()
 
     let curMethod = reservationAPI[params.method]

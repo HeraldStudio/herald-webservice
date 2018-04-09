@@ -124,6 +124,7 @@ module.exports = async (ctx, next) => {
       schoolnum,
       platform,
       password: passwordEncrypted,
+      gpassword: '',
       registered: now,
       lastInvoked: now
     })
@@ -145,8 +146,13 @@ module.exports = async (ctx, next) => {
       await db.auth.update({ tokenHash: tokenHash }, { lastInvoked: now })
 
       // 解密用户密码
-      let { cardnum, password, name, schoolnum, platform } = record
+      let { cardnum, password, gpassword, name, schoolnum, platform } = record
+
       password = decrypt(token, password)
+      if (gpassword) {
+        gpassword = decrypt(token, gpassword)
+      }
+
       let identity = new Buffer(crypto.createHash('md5').update(cardnum + name).digest()).toString('base64')
 
       // 将统一身份认证 Cookie 获取器暴露给模块
@@ -158,7 +164,7 @@ module.exports = async (ctx, next) => {
         encrypt: encrypt.bind(undefined, token),
         decrypt: decrypt.bind(undefined, token),
         token: tokenHash,
-        identity, cardnum, password, name, schoolnum, platform
+        identity, cardnum, password, gpassword, name, schoolnum, platform
       }
 
       // 调用下游中间件
@@ -177,6 +183,7 @@ module.exports = async (ctx, next) => {
     get token() { reject() },
     get cardnum() { reject() },
     get password() { reject() },
+    get gpassword() { reject() },
     get name() { reject() },
     get schoolnum() { reject() },
     get platform() { reject() }

@@ -118,8 +118,7 @@ exports.route = {
   * @apiParam nid? 需要查看 Markdown 的通知 nid
   * @apiReturn <string> 转换结果
   */
-  async post () {
-    let { url, nid } = this.params
+  async post ({ url, nid }) {
     if (url) {
       let typeObj = Object.keys(sites).map(k => sites[k]).find(k => url.indexOf(k.baseUrl) + 1)
 
