@@ -488,11 +488,15 @@ module.exports = async (ctx, next) => {
 
       } else if (ctx.path === '/api/user') {
         await next()
+        let { cardnum, name, schoolnum, gender: sex } = ctx.body
+
+        // 由于老 App 要求，用户必须学号为八位才能登录成功
+        // 因此对于研究生和教师，改为取一卡通后八位为学号
+        if (!/^21/.test(cardnum)) {
+          schoolnum = cardnum.slice(-8)
+        }
         let content = {
-          sex: ctx.body.gender,
-          cardnum: ctx.body.cardnum,
-          name: ctx.body.name,
-          schoolnum: ctx.body.schoolnum
+          sex, cardnum, name, schoolnum
         }
         ctx.body = { content, code: 200 }
 
