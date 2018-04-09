@@ -49,18 +49,26 @@ const { config } = require('../app')
 
 // 对称加密算法，要求 value 是 String 或 Buffer，否则会报错
 const encrypt = (key, value) => {
-  let cipher = crypto.createCipher(config.auth.cipher, key)
-  let result = cipher.update(value, 'utf8', 'hex')
-  result += cipher.final('hex')
-  return result
+  try {
+    let cipher = crypto.createCipher(config.auth.cipher, key)
+    let result = cipher.update(value, 'utf8', 'hex')
+    result += cipher.final('hex')
+    return result
+  } catch (e) {
+    return ''
+  }
 }
 
 // 对称解密算法，要求 value 是 String 或 Buffer，否则会报错
 const decrypt = (key, value) => {
-  let decipher = crypto.createDecipher(config.auth.cipher, key)
-  let result = decipher.update(value, 'hex', 'utf8')
-  result += decipher.final('utf8')
-  return result
+  try {
+    let decipher = crypto.createDecipher(config.auth.cipher, key)
+    let result = decipher.update(value, 'hex', 'utf8')
+    result += decipher.final('utf8')
+    return result
+  } catch (e) {
+    return ''
+  }
 }
 
 // 在这里选择认证接口提供者
