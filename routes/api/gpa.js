@@ -71,7 +71,10 @@ exports.route = {
             score = `${score} (规${standardScore})`
             return { semester, courseName, courseType: '', credit, score, scoreType }
           })
-        }).reduce((a, b) => a.concat(b), []).reduce((a, b) => { // 按学期分组
+        })
+        .reduce((a, b) => a.concat(b), [])
+        .sort((a, b) => b.semester - a.semester)
+        .reduce((a, b) => { // 按学期分组
           let semester = b.semester
           delete b.semester
           if (!a.length || a.slice(-1)[0].semester !== semester) {
