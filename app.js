@@ -23,13 +23,13 @@ process.on('uncaughtException', console.trace)
   ## A0. 兼容性解包层
   对于兼容旧版 API 的兼容性接口，从兼容性临时层出来后被返回格式层进行封装，以便安全通过监控层，
   然后在最外层进行解包，以便调用者能得到符合旧版 API 返回格式的结果。
- */
+*/
 app.use(require('./middleware/adapter/unpacker'))
 
 /**
   ## A. 监控层
   负责对服务运行状况进行监控，便于后台分析和交互，对服务本身不存在影响的中间件。
- */
+*/
 // 1. 如果是生产环境，显示请求计数器；此中间件在 module load 时，会对 console 的方法做修改
 app.use(require('./middleware/counter'))
 // 2. 日志输出，需要依赖返回格式中间件中返回出来的 JSON 格式
@@ -40,24 +40,25 @@ app.use(require('./middleware/statistics'))
 /**
   ## B. 接口层
   为了方便双方通信，负责对服务收到的请求和发出的返回值做变换的中间件。
- */
-// 1. 返回格式化和参数格式化，属于同一层，互不依赖
-app.use(require('./middleware/return'))
+*/
+// 1. 参数格式化，对上游传入的 URL 参数和请求体参数进行合并
 app.use(require('./middleware/params'))
-// 2. 跨域中间件，定义允许访问本服务的第三方前端页面
+// 2. 返回格式化，将下游返回内容包装一层JSON
+app.use(require('./middleware/return'))
+// 3. 跨域中间件，定义允许访问本服务的第三方前端页面
 app.use(require('./middleware/cors'))
 
 /**
   ## B1. 兼容性临时层
   为了兼容使用旧版 webserv2 接口的前端，引入以下兼容性中间件，实现老接口的部分子集
- */
+*/
 app.use(require('./middleware/adapter/ws2'))
 app.use(require('./middleware/adapter/appserv'))
 
 /**
   ## C. API 层
   负责为路由处理程序提供 API 以便路由处理程序使用的中间件。
- */
+*/
 // 1. 接口之间相互介绍的 API
 app.use(require('./middleware/related'))
 // 2. 分布式硬件爬虫，为 axios 提供了底层依赖
