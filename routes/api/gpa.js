@@ -67,12 +67,20 @@ exports.route = {
             let [courseName, credit, semester, score, standardScore]
               = tr.children('td').toArray().map(k => $(k).text().trim())
 
-            semester = parseInt(semester)
             credit = parseFloat(credit)
             score = `${score} (规${standardScore})`
             return { semester, courseName, courseType: '', credit, score, scoreType }
           })
-        }).reduce((a, b) => a.concat(b), []).sort((a, b) => b.semester - a.semester)
+        }).reduce((a, b) => a.concat(b), []).reduce((a, b) => { // 按学期分组
+          let semester = b.semester
+          delete b.semester
+          if (!a.length || a.slice(-1)[0].semester !== semester) {
+            return a.concat([{ semester, courses: [b] }])
+          } else {
+            a.slice(-1)[0].courses.push(b)
+            return a
+          }
+        }, [])
 
         // 规格化平均成绩
         let gpa = parseFloat($('#lblgghpjcj').text())
