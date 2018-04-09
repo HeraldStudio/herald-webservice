@@ -65,11 +65,15 @@ const decrypt = (key, value) => {
 
 // 在这里选择认证接口提供者
 const authProvider = require('./auth-provider/myold')
+const graduateAuthProvider = require('./auth-provider/graduate')
 
 // 认证接口提供者带错误处理的封装
-const auth = async (ctx, ...args) => {
+const auth = async (ctx, cardnum, password, gpassword) => {
   try {
-    return await authProvider(ctx, ...args)
+    if (/^22\d*(\d{6})$/.test(cardnum)) {
+      await graduateAuthProvider(ctx, RegExp.$1, gpassword)
+    }
+    return await authProvider(ctx, cardnum, password)
   } catch (e) {
     if (e === 401) {
       if (ctx.user && ctx.user.isLogin) {
@@ -90,8 +94,8 @@ module.exports = async (ctx, next) => {
       throw 405
     }
 
-    // 获取一卡通号、密码、前端定义版本
-    let { cardnum, password, platform } = ctx.params
+    // 获取一卡通号、密码、研究生密码、前端定义版本
+    let { cardnum, password, gpassword = password, platform } = ctx.params
 
     if (!platform) {
       throw '缺少参数 platform: 必须指定平台名'
@@ -101,14 +105,17 @@ module.exports = async (ctx, next) => {
     // 1. 验证密码正确性
     // 2. 获得统一身份认证 Cookie 以便后续请求使用
     // 3. 获得姓名和学号
-    let { name, schoolnum } = await auth(ctx, cardnum, password)
+    let { name, schoolnum } = await auth(ctx, cardnum, password, gpassword)
 
     // 生成 32 字节 token 转为十六进制，及其哈希值
     let token = new Buffer(crypto.randomBytes(32)).toString('hex')
     let tokenHash = new Buffer(crypto.createHash('md5').update(token).digest()).toString('base64')
 
-    // 用 token 加密用户密码和统一身份认证 cookie
+    // 用 token 加密用户密码
     let passwordEncrypted = encrypt(token, password)
+
+    // 对于研究生，用 token 加密研究生系统密码
+    let gpasswordEncrypted = /^22/.test(cardnum) && gpassword && encrypt(token, gpassword)
 
     // 将新用户信息插入数据库
     let now = new Date().getTime()
@@ -124,7 +131,7 @@ module.exports = async (ctx, next) => {
       schoolnum,
       platform,
       password: passwordEncrypted,
-      gpassword: '',
+      gpassword: gpasswordEncrypted,
       registered: now,
       lastInvoked: now
     })
@@ -155,8 +162,8 @@ module.exports = async (ctx, next) => {
 
       let identity = new Buffer(crypto.createHash('md5').update(cardnum + name).digest()).toString('base64')
 
-      // 将统一身份认证 Cookie 获取器暴露给模块
-      ctx.useAuthCookie = auth.bind(undefined, ctx, cardnum, password)
+      // 将统一身份认证和研究生身份认证 Cookie 获取器暴露给模块
+      ctx.useAuthCookie = auth.bind(undefined, ctx, cardnum, password, gpassword)
 
       // 将身份识别码、解密后的一卡通号、密码和 Cookie、加解密接口暴露给下层中间件
       ctx.user = {
