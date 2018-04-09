@@ -218,8 +218,38 @@ exports.route = {
         let res = await this.get('http://121.248.63.139/nstudent/pygl/pyxkcx.aspx', { headers })
         let $ = cheerio.load(res.data)
 
+        if (term) {
+          let [beginYear, endYear, period] = term.split('-')
+          period = ['短学期', '秋学期', '春学期'][period - 1]
+          let re = RegExp(`${endYear}${period}$`)
+          let option = $('#txtxq option').toArray().map(k => $(k))
+            .find(k => re.test(k.text()))
+
+          if (!option) {
+            // 构造学期信息
+            term = {
+              code: term,
+              startDate: config.term[term] ? new Date(config.term[term]).getTime() : null
+            }
+            return { term, curriculum: [] }
+          }
+
+          let data = {
+            '__EVENTTARGET': 'txtxq',
+            '__EVENTARGUMENT': '',
+            'txtxq': option.attr('value')
+          }
+
+          $('input[name="__VIEWSTATE"]').toArray().map(k => $(k)).map(k => {
+            data[k.attr('name')] = k.attr('value')
+          })
+
+          res = await this.post('http://121.248.63.139/nstudent/pygl/pyxkcx.aspx', data)
+          $ = cheerio.load(res.data)
+        }
+
         // 将学期号转换为本科生风格的学期号（但只有 -2 和 -3），统一格式
-        let term = $('option[selected]').text().trim().replace(/\d{2}(\d{2})/g, '$1')
+        term = $('option[selected]').text().trim().replace(/\d{2}(\d{2})/g, '$1')
           .replace('秋学期', '-2').replace('春学期', '-3')
 
         // 构造学期信息
