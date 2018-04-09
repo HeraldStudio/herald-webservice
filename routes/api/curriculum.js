@@ -42,8 +42,8 @@ exports.route = {
   * 这类课表出现时，老师通常让学生查询短学期课表作为前四周，长学期课表作为后 16 周。
   * 对于这类课表，我们需要在系统中将长学期开学日期向前推4周。
   **/
-  async get() {
-    return await this.userCache('1d+', async ({ term }) => {
+  async get({ term }) {
+    return await this.userCache('1d+', async () => {
       let { cardnum } = this.user
       let user = {}, curriculum = []
 
