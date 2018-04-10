@@ -3,7 +3,7 @@ const admindb = require('../../../../database/admin')
 
 exports.route = {
   async get ({ page = 1, pagesize = 10 }) {
-    if (!this.admin.publicity) {
+    if (!this.admin || !this.admin.publicity) {
       throw 403
     }
     return await Promise.all((await db.activity.find())
@@ -20,7 +20,7 @@ exports.route = {
       }))
   },
   async post ({ activity }) {
-    if (!this.admin.publicity) {
+    if (!this.admin || !this.admin.publicity) {
       throw 403
     }
     let { cardnum } = this.user
@@ -30,7 +30,7 @@ exports.route = {
     return 'OK'
   },
   async put ({ activity }) {
-    if (!this.admin.publicity) {
+    if (!this.admin || !this.admin.publicity) {
       throw 403
     }
     let { cardnum } = this.user
@@ -39,7 +39,7 @@ exports.route = {
     return 'OK'
   },
   async delete ({ aid }) {
-    if (!this.admin.publicity) {
+    if (!this.admin || !this.admin.publicity) {
       throw 403
     }
     let { cardnum } = this.user

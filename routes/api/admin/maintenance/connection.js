@@ -5,7 +5,7 @@ const startTime = new Date().getTime()
 
 exports.route = {
   async get() {
-    if (!this.admin.maintenance) {
+    if (!this.admin || !this.admin.maintenance) {
       throw 403
     }
     let requestCount = counter.connections - 1 // 去掉当前请求自身
@@ -14,13 +14,13 @@ exports.route = {
     return { requestCount, spiders, startTime, detachedTaskCount }
   },
   async post({ name }) {
-    if (!this.admin.maintenance) {
+    if (!this.admin || !this.admin.maintenance) {
       throw 403
     }
     spider.acceptSpider(name)
   },
   async delete({ name }) {
-    if (!this.admin.maintenance) {
+    if (!this.admin || !this.admin.maintenance) {
       throw 403
     }
     spider.rejectSpider(name)

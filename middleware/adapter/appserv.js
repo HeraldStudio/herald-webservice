@@ -1,4 +1,3 @@
-const db = require('../../database/adapter')
 const pubdb = require('../../database/publicity')
 const { config } = require('../../app')
 const axios = require('axios')

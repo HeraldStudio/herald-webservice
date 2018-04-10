@@ -22,7 +22,7 @@ Array.prototype.groupBy = function(keyOfKey, keyOfValue) {
 // 24 小时接口调用统计
 exports.route = {
   async get() {
-    if (!this.admin.maintenance) {
+    if (!this.admin || !this.admin.maintenance) {
       throw 403
     }
 
