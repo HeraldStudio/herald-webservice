@@ -69,8 +69,10 @@ module.exports = async (ctx, next) => {
         let { timedelta } = ctx.params
 
         if (timedelta && timedelta > 1) {
-          let yesterday = new Date(new Date().getTime() - 1000 * 60 * 60 * 24)
-          ctx.params.date = `${yesterday.getFullYear()}-${yesterday.getMonth() + 1}-${ yesterday.getDate() }`
+          let y = new Date(new Date().getTime() - 1000 * 60 * 60 * 24)
+          ctx.params = { date: `${y.getFullYear()}-${y.getMonth() + 1}-${y.getDate()}` }
+        } else {
+          ctx.params = {}
         }
 
         await next()
@@ -229,22 +231,9 @@ module.exports = async (ctx, next) => {
         ctx.body = { content: { count: detail.length, 'detial': detail }, code: 200 }
 
       } else if (ctx.path === '/api/library') {
-        ctx.params.password = ctx.user.password
-        try {
-          await next()
-        } catch (e) {
-          if (typeof e === 'string' && /密码错误/.test(e)) {
-            ctx.body = {
-              content: '密码错误',
-              code: 401
-            }
-            return
-          }
-        }
 
-        await ctx.userStorage('libCookie', ctx.body.cookies)
-
-        let content = ctx.body.bookList.map(k => {
+        await next()
+        let content = ctx.body.map(k => {
           return {
             barcode: k.bookId,
             title: k.name,
@@ -259,40 +248,19 @@ module.exports = async (ctx, next) => {
         ctx.body = { content, code: 200 }
 
       } else if (ctx.path === '/api/renew') {
+        let { barcode: bookId } = ctx.params
+        ctx.params = { bookId }
+
         ctx.path = '/api/library'
-        let { barcode } = ctx.params
-        let Cookie = await ctx.userStorage('libCookie')
-
-        let res = await axios.create(config.axios).get(
-          'http://www.libopac.seu.edu.cn:8080/reader/book_lst.php',
-          { headers: { Cookie } }
-        )
-        let $ = cheerio.load(res.data)
-        let bookList = $('#mylib_content tr').toArray().slice(1).map(tr => {
-          let bookId = $(tr).find('td').toArray().map(td => {
-            return $(td).text().trim()
-          })[0]
-
-          let borrowId = $(tr).find('input').attr('onclick').substr(20,8)
-
-          return { bookId, borrowId }
-        })
-
-        bookList.forEach( book => {
-          if(book['bookId'] === barcode) {
-            ctx.params = { cookies: libCookie, bookId: barcode, borrowId: book['borrowId']}
-          }
-        })
-        ctx.method = ctx.request.method = 'POST'
+        ctx.method = 'POST'
         await next()
 
         let content = ctx.body
-        if ( content === 'invalid call') {
-          ctx.body = { content:'fail', code:400 }
+        if (content === 'invalid call') {
+          ctx.body = { content: 'fail', code: 400 }
         } else {
-          ctx.body = { content, code:200 }
+          ctx.body = { content, code: 200 }
         }
-
       } else if (ctx.path === '/api/nic') {
         ctx.path = '/api/wlan'
         await next()
