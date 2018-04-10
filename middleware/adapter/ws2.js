@@ -201,14 +201,20 @@ module.exports = async (ctx, next) => {
 
       } else if (ctx.path === '/api/gpa') {
         await next()
-        let { gpa, gpaBeforeMakeup, calculationTime, detail } = ctx.body
-        let content = [
+        let { gpa, gpaBeforeMakeup, calculationTime, score, credits, detail } = ctx.body
+        let content = (gpa ? [
           {
             'calculate time': calculationTime ? new Date(calculationTime).format('yyyy-MM-dd HH:mm:ss') : '',
             'gpa without revamp': gpaBeforeMakeup.toString(),
             'gpa': gpa.toString()
           }
-        ].concat(detail.map(k => k.courses.map(course => {
+        ] : [ // 研究生暂时做个兼容
+          {
+            'calculate time': '',
+            'gpa without revamp': score.toString(),
+            'gpa': score.toString()
+          }
+        ]).concat(detail.map(k => k.courses.map(course => {
           return {
             name: course.courseName,
             extra: course.courseType,
