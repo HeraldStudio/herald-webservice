@@ -7,6 +7,10 @@ const db = require('../database/admin')
 const superToken = new Buffer(crypto.randomBytes(16)).toString('hex')
 console.log('本次会话的超级管理员 Token 为：' + chalk.blue(superToken) + '，请妥善保管')
 
+// ctx.admin API
+// 对于非管理员，ctx.admin 为 null
+// 对于普通管理员，ctx.admin 为包含所有自己所属的管理员域键为成真值的对象
+// 对于超级管理员，ctx.admin 为包含所有管理员域键为成真值的对象，且 super 键也为 true
 module.exports = async (ctx, next) => {
 
   // 中间件处理，允许下游查询当前用户的权限
@@ -26,10 +30,12 @@ module.exports = async (ctx, next) => {
     // 若 token 与超管 token 长度相同但不是超管 token，认为是老超管登录过期
     ctx.throw(401)
   } else if (ctx.user.isLogin) {
-    ctx.admin = { super: false }
     let { cardnum } = ctx.user
     let admins = await db.admin.find({ cardnum })
     for (let admin of admins) {
+      if (!ctx.admin) {
+        ctx.admin = {}
+      }
       let domain = admin.domain
       let domainInfo = await db.domain.find({ domain }, 1)
       admin.domain = domainInfo.name
