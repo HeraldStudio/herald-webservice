@@ -1,6 +1,6 @@
 # 待完成，检测可用性
 
-  - [ ] arch
+  - [x] arch
   - [ ] arts
   - [ ] automation
   - [ ] bme

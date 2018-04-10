@@ -4,14 +4,15 @@
     "codes": [
       "01"
     ],
-    "infoUrl": "http://arch.seu.edu.cn/",
+    "infoUrl": "http://arch.seu.edu.cn/news/list.php?did=2&id=24",
     "list": [
       [
-        "#ISL_Cont1",
+        ".list",
         "通知公告"
       ]
     ],
-    "name": "建筑学院"
+    "name": "建筑学院",
+    "dateSelector": "em"
   },
   "arts": {
     "baseUrl": "http://arts.seu.edu.cn",
