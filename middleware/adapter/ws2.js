@@ -1,4 +1,3 @@
-const db = require('../../database/adapter')
 const crypto = require('crypto')
 const { config } = require('../../app')
 const axios = require('axios')
@@ -38,7 +37,6 @@ module.exports = async (ctx, next) => {
   let originalPath = ctx.path
   let originalMethod = ctx.method
   try {
-
     // 代替 herald_auth 中的 AuthHandler.py，只提供 auth，不提供 deauth
     if (ctx.path === '/adapter-ws2/uc/auth') {
       let { user, password } = ctx.params // 对 appid 容错
@@ -48,27 +46,6 @@ module.exports = async (ctx, next) => {
       ctx.params = { cardnum: user, password, platform: 'ws2' }
       await next()
 
-      // 能执行到此处说明认证成功
-      // 取返回值中的 token
-      let token = ctx.body
-
-      // 首先在数据库中查找是否已有对应 uuid
-      // 如果已有，根据 ws2 行为应当优先保留已有的 uuid，更新其对应的 ws3 token
-      let existing = await db.auth.find({ cardnum: user }, 1)
-      if (existing) {
-        await db.auth.update({ cardnum: user }, { token })
-        ctx.body = existing.uuid
-      } else {
-        // 模仿 ws2 行为生成 20 字节（40 个十六进制字符）uuid，与 token 一起存入数据库
-        // 由于 ws2 本身就是无加密的，因此此处也只能无加密存储 token，无法提供进一步的隐私保护
-        // 因此各客户端应尽快升级对接 ws3 接口以提供安全的隐私保护
-        let uuid = new Buffer(crypto.randomBytes(20)).toString('hex')
-        await db.auth.insert({ uuid, cardnum: user, token, libPwd: '', libCookie: '' })
-        ctx.body = uuid
-      }
-      // 还原原始 path 以便上游中间件处理
-      ctx.path = '/adapter-ws2/uc/auth'
-
     // 代替 herald_auth 中的 APIHandler.py，对 uuid 解析转换成 ws3 token
     } else if (ctx.path.indexOf('/adapter-ws2/api/') === 0) {
 
@@ -76,17 +53,7 @@ module.exports = async (ctx, next) => {
       if (uuid) {
         // 去除参数的 uuid，防止参数多变，污染 public redis 存储
         delete ctx.params.uuid
-        if (!/^0+$/.test(uuid)) {
-          let existing = await db.auth.find({ uuid }, 1)
-          if (!existing) {
-            ctx.throw(401)
-          }
-
-          let { token } = existing
-
-          // 重写请求 headers，插入 token，以便 ws3 下游识别
-          ctx.request.headers.token = token
-        }
+        ctx.request.headers.token = uuid
       }
 
       // 将路由转换成 /api/...，且为默认 GET 请求
@@ -102,8 +69,10 @@ module.exports = async (ctx, next) => {
         let { timedelta } = ctx.params
 
         if (timedelta && timedelta > 1) {
-          let yesterday = new Date(new Date().getTime() - 1000 * 60 * 60 * 24)
-          ctx.params.date = `${yesterday.getFullYear()}-${yesterday.getMonth() + 1}-${ yesterday.getDate() }`
+          let y = new Date(new Date().getTime() - 1000 * 60 * 60 * 24)
+          ctx.params = { date: `${y.getFullYear()}-${y.getMonth() + 1}-${y.getDate()}` }
+        } else {
+          ctx.params = {}
         }
 
         await next()
@@ -262,24 +231,9 @@ module.exports = async (ctx, next) => {
         ctx.body = { content: { count: detail.length, 'detial': detail }, code: 200 }
 
       } else if (ctx.path === '/api/library') {
-        let { libPwd } = await db.auth.find({ uuid }, 1)
-        ctx.params.password = libPwd
 
-        try {
-          await next()
-        } catch (e) {
-          if (typeof e === 'string' && /密码错误/.test(e)) {
-            ctx.body = {
-              content: '密码错误',
-              code: 401
-            }
-            return
-          }
-        }
-
-        await db.auth.update({ uuid }, { libCookie: ctx.body.cookies })
-
-        let content = ctx.body.bookList.map(k => {
+        await next()
+        let content = ctx.body.map(k => {
           return {
             barcode: k.bookId,
             title: k.name,
@@ -294,45 +248,19 @@ module.exports = async (ctx, next) => {
         ctx.body = { content, code: 200 }
 
       } else if (ctx.path === '/api/renew') {
+        let { barcode: bookId } = ctx.params
+        ctx.params = { bookId }
+
         ctx.path = '/api/library'
-        let { barcode } = ctx.params
-        let { libCookie } = await db.auth.find({ uuid }, 1)
-
-        let res = await axios.create(config.axios).get(
-          'http://www.libopac.seu.edu.cn:8080/reader/book_lst.php',
-          {
-            headers: {
-              "Cookie" : libCookie
-            }
-          }
-        )
-        let $ = cheerio.load(res.data)
-        let bookList = $('#mylib_content tr').toArray().slice(1).map(tr => {
-          let bookId = $(tr).find('td').toArray().map(td => {
-            return $(td).text().trim()
-          })[0]
-
-          let borrowId = $(tr).find('input').attr('onclick').substr(20,8)
-
-          return { bookId, borrowId }
-        })
-
-        bookList.forEach( book => {
-          if(book['bookId'] === barcode) {
-            ctx.params = { cookies: libCookie, bookId: barcode, borrowId: book['borrowId']}
-          }
-        })
-        ctx.method = ctx.request.method = 'POST'
+        ctx.method = 'POST'
         await next()
-        ctx.path = '/api/renew'
 
         let content = ctx.body
-        if ( content === 'invalid call') {
-          ctx.body = { content:'fail', code:400 }
-        }else {
-          ctx.body = { content, code:200 }
+        if (content === 'invalid call') {
+          ctx.body = { content: 'fail', code: 400 }
+        } else {
+          ctx.body = { content, code: 200 }
         }
-
       } else if (ctx.path === '/api/nic') {
         ctx.path = '/api/wlan'
         await next()
