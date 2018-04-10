@@ -3,7 +3,7 @@ const admindb = require('../../../../database/admin')
 
 exports.route = {
   async get ({ page = 1, pagesize = 10 }) {
-    if (!this.admin.publisher) {
+    if (!this.admin || !this.admin.publisher) {
       throw 403
     }
     let { cardnum } = this.user
@@ -12,7 +12,7 @@ exports.route = {
       .slice((page - 1) * pagesize, page * pagesize)
   },
   async post ({ activity }) {
-    if (!this.admin.publisher) {
+    if (!this.admin || !this.admin.publisher) {
       throw 403
     }
     let { cardnum } = this.user
@@ -22,7 +22,7 @@ exports.route = {
     return 'OK'
   },
   async put ({ activity }) {
-    if (!this.admin.publisher) {
+    if (!this.admin || !this.admin.publisher) {
       throw 403
     }
     let { cardnum } = this.user
@@ -32,7 +32,7 @@ exports.route = {
     return 'OK'
   },
   async delete ({ aid }) {
-    if (!this.admin.publisher) {
+    if (!this.admin || !this.admin.publisher) {
       throw 403
     }
     let { cardnum } = this.user

@@ -12,6 +12,8 @@ exports.route = {
       if (!(this.admin && this.admin.super) && !this.user.isLogin) {
         throw 401
       }
+      this.body = ''
+      this.status = 200
       return this.admin
     } else {
       // 只允许当前域中的管理员和超级管理员查看当前域中的管理员

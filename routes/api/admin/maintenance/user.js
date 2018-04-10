@@ -2,7 +2,7 @@ const db = require('../../../../database/auth')
 
 exports.route = {
   async get() {
-    if (!this.admin.maintenance) {
+    if (!this.admin || !this.admin.maintenance) {
       throw 403
     }
 
