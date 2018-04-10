@@ -10,9 +10,9 @@ console.log('本次会话的超级管理员 Token 为：' + chalk.blue(superToke
 module.exports = async (ctx, next) => {
 
   // 中间件处理，允许下游查询当前用户的权限
-  ctx.admin = { super: false }
+  ctx.admin = null
   if (ctx.request.headers.token === superToken) {
-    ctx.admin.super = true
+    ctx.admin = { super: true }
     let domains = await db.domain.find()
     for (let domain of domains) {
       ctx.admin[domain.domain] = {
@@ -26,6 +26,7 @@ module.exports = async (ctx, next) => {
     // 若 token 与超管 token 长度相同但不是超管 token，认为是老超管登录过期
     ctx.throw(401)
   } else if (ctx.user.isLogin) {
+    ctx.admin = { super: false }
     let { cardnum } = ctx.user
     let admins = await db.admin.find({ cardnum })
     for (let admin of admins) {

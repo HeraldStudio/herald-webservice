@@ -150,7 +150,7 @@ async function internalCached (isPublic, ...args) {
   let isPrivate = !isPublic && this.user.isLogin
 
   // 对于超管，强制禁用任何缓存机制（否则由于超管不是用户，会被当做游客进行缓存，造成严重影响）
-  if (this.admin.super) {
+  if (this.admin && this.admin.super) {
     seconds = 0
   }
 

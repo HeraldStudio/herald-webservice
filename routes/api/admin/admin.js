@@ -9,7 +9,7 @@ exports.route = {
   */
   async get ({ domain }) {
     if (!domain) {
-      if (!this.admin.super && !this.user.isLogin) {
+      if (!(this.admin && this.admin.super) && !this.user.isLogin) {
         throw 401
       }
       return this.admin
