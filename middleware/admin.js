@@ -44,20 +44,22 @@ module.exports = async (ctx, next) => {
     }
 
     // 利用 Proxy 机制，每当 get 某个 domain 权限时，自动更新数据库中的调用时间
-    ctx.admin = new Proxy(ctx.admin, {
-      set(target, key, value) {
-        target[key] = value
-        return true
-      },
-      get(target, key) {
-        if (target[key]) {
-          let now = new Date().getTime()
-          let domain = key
-          db.admin.update({ cardnum, domain }, { lastUsed: now })
+    if (ctx.admin) {
+      ctx.admin = new Proxy(ctx.admin, {
+        set(target, key, value) {
+          target[key] = value
+          return true
+        },
+        get(target, key) {
+          if (target[key]) {
+            let now = new Date().getTime()
+            let domain = key
+            db.admin.update({ cardnum, domain }, { lastUsed: now })
+          }
+          return target[key]
         }
-        return target[key]
-      }
-    })
+      })
+    }
   }
 
   await next()
