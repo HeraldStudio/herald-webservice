@@ -237,11 +237,11 @@ module.exports = async (ctx, next) => {
           return {
             barcode: k.bookId,
             title: k.name,
-            author: '',
-            render_date: k.borrowDate,
-            due_date: k.returnDate,
-            renew_time: k.times,
-            place: k.place
+            author: k.author,
+            render_date: new Date(k.borrowDate).format('yyyy-MM-dd'),
+            due_date: new Date(k.returnDate).format('yyyy-MM-dd'),
+            renew_time: k.renewCount,
+            place: k.location
           }
         })
 
