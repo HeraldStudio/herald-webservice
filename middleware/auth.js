@@ -98,59 +98,66 @@ module.exports = async (ctx, next) => {
 
   // 对于 auth 路由的请求，直接截获，不交给 kf-router
   if (ctx.path === '/auth') {
-    if (ctx.method.toUpperCase() !== 'POST') {
-      throw 405
+
+    // POST /auth 登录认证
+    if (ctx.method.toUpperCase() === 'POST') {
+      // 获取一卡通号、密码、研究生密码、前端定义版本
+      let { cardnum, password, gpassword, platform } = ctx.params
+
+      // 这里不用解构赋值的默认值，因为不仅需要给 undefined 设置默认值，也需要对空字符串进行容错
+      gpassword = gpassword || password
+
+      if (!platform) {
+        throw '缺少参数 platform: 必须指定平台名'
+      }
+
+      // 登录统一身份认证，有三个作用：
+      // 1. 验证密码正确性
+      // 2. 获得统一身份认证 Cookie 以便后续请求使用
+      // 3. 获得姓名和学号
+      let { name, schoolnum } = await auth(ctx, cardnum, password, gpassword)
+
+      // 生成 32 字节 token 转为十六进制，及其哈希值
+      let token = new Buffer(crypto.randomBytes(32)).toString('hex')
+      let tokenHash = new Buffer(crypto.createHash('md5').update(token).digest()).toString('base64')
+
+      // 用 token 加密用户密码
+      let passwordEncrypted = encrypt(token, password)
+
+      // 对于研究生，用 token 加密研究生系统密码
+      let gpasswordEncrypted = /^22/.test(cardnum) && gpassword && encrypt(token, gpassword)
+
+      // 将新用户信息插入数据库
+      let now = new Date().getTime()
+
+      // // 同平台不允许多处登录
+      // await db.auth.remove({ cardnum, platform })
+
+      // 插入用户数据
+      await db.auth.insert({
+        tokenHash: tokenHash,
+        cardnum,
+        name,
+        schoolnum,
+        platform,
+        password: passwordEncrypted,
+        gpassword: gpasswordEncrypted,
+        registered: now,
+        lastInvoked: now
+      })
+
+      // 返回 token
+      ctx.body = token
+      return
+    } else if (ctx.method.toUpperCase() === 'DELETE') {
+      // DELETE /auth 退出登录
+      // 在经常需要切换用户的平台上，请尽量调用此接口以节省数据库空间
+      let token = ctx.request.headers.token
+      let tokenHash = new Buffer(crypto.createHash('md5').update(token).digest()).toString('base64')
+      await db.auth.remove({ tokenHash: tokenHash }, 1)
+      ctx.body = 'OK'
+      return
     }
-
-    // 获取一卡通号、密码、研究生密码、前端定义版本
-    let { cardnum, password, gpassword, platform } = ctx.params
-
-    // 这里不用解构赋值的默认值，因为不仅需要给 undefined 设置默认值，也需要对空字符串进行容错
-    gpassword = gpassword || password
-
-    if (!platform) {
-      throw '缺少参数 platform: 必须指定平台名'
-    }
-
-    // 登录统一身份认证，有三个作用：
-    // 1. 验证密码正确性
-    // 2. 获得统一身份认证 Cookie 以便后续请求使用
-    // 3. 获得姓名和学号
-    let { name, schoolnum } = await auth(ctx, cardnum, password, gpassword)
-
-    // 生成 32 字节 token 转为十六进制，及其哈希值
-    let token = new Buffer(crypto.randomBytes(32)).toString('hex')
-    let tokenHash = new Buffer(crypto.createHash('md5').update(token).digest()).toString('base64')
-
-    // 用 token 加密用户密码
-    let passwordEncrypted = encrypt(token, password)
-
-    // 对于研究生，用 token 加密研究生系统密码
-    let gpasswordEncrypted = /^22/.test(cardnum) && gpassword && encrypt(token, gpassword)
-
-    // 将新用户信息插入数据库
-    let now = new Date().getTime()
-
-    // // 同平台不允许多处登录
-    // await db.auth.remove({ cardnum, platform })
-
-    // 插入用户数据
-    await db.auth.insert({
-      tokenHash: tokenHash,
-      cardnum,
-      name,
-      schoolnum,
-      platform,
-      password: passwordEncrypted,
-      gpassword: gpasswordEncrypted,
-      registered: now,
-      lastInvoked: now
-    })
-
-    // 返回 token
-    ctx.body = token
-    return
-
   } else if (ctx.request.headers.token) {
     // 对于其他请求，根据 token 的哈希值取出表项
     let token = ctx.request.headers.token

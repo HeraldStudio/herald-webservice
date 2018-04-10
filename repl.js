@@ -20,12 +20,12 @@ exports.start = () => {
   })
 
   console.log('')
-  console.log(`命令格式：${chalk.green('[get]/post/put/delete')} [路由] ${chalk.cyan('[参数1=值1...]')}`)
+  console.log(`命令格式：${chalk.green('[get]/post/put/delete')} 路由 ${chalk.cyan('[参数1=值1...]')}`)
   console.log(`命令示例：${chalk.green('put')} api/card ${chalk.cyan('amount=0.2 password=123456')}`)
   console.log('')
-  console.log(`1. auth 请求提供了特殊省略形式：${chalk.blue('auth [一卡通号] [密码] [研究生系统密码(可选)]')}`)
-  console.log(`   成功后 token 将保存，后续测试请求都会自动带上，使用 ${chalk.blue('auth [token]')} 可直接切换 token；`)
-  console.log(`   ${chalk.magenta('对于研究生，不提供研究生密码时默认与统一身份认证密码相同，若无效将抛出 401')}`)
+  console.log(`1. auth 请求省略形式：${chalk.blue('auth 一卡通号 密码 [研院密码]')}；使用 ${chalk.blue('delete auth')} 退出登录。`)
+  console.log(`   成功后 token 将保存，后续请求都会自动带上，使用 ${chalk.blue('auth [token]')} 可直接切换 token；`)
+  console.log(`   ${chalk.magenta('对于研究生，不提供研究生院密码时默认与统一身份认证密码相同，若无效将抛出 401；')}`)
   console.log('2. 需要传复杂参数直接用 js 格式书写即可，支持 JSON 兼容的任何类型：')
   console.log(`   ${chalk.green('put')} api/card ${chalk.cyan('{ amount: 0.2, password: 123456 }')}`)
   console.log(`3. 连接远程 WS3 服务器：${chalk.green('server')} https://myseu.cn/ws3/`)
@@ -39,12 +39,6 @@ exports.start = () => {
       }
 
       let [method, path, params] = parts.slice(1)
-
-      if (path === 'deauth') {
-        testClient.defaults.headers = {}
-        console.log('\n清除用户身份了！')
-        return callback(null)
-      }
 
       let composedParams = {}
 
@@ -96,8 +90,13 @@ exports.start = () => {
 
       testClient[method](path, composedParams).then(res => {
         if (/^\/?auth$/.test(path) && res.data.result) {
-          console.log(`\n用 ${composedParams.cardnum} 的身份登录了！`)
-          testClient.defaults.headers = { token: res.data.result }
+          if (method === 'post') {
+            console.log(`\n用 ${composedParams.cardnum} 的身份登录了！`)
+            testClient.defaults.headers = { token: res.data.result }
+          } else if (method === 'delete') {
+            console.log(`\n退出登录了！`)
+            testClient.defaults.headers = {}
+          }
         }
         console.log('\n' + prettyjson.render(res.data))
         callback(null)
