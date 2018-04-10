@@ -2,7 +2,7 @@
   # 用户身份认证中间件
 
   提供对称加密算法，把用户名密码加密保存到 sqlite 数据库，请求时用私钥解密代替用户名密码进行请求
-  目的是为了给缓存和用户密码进行加密，程序只有在用户请求期间可以解密用户密码和用户数据
+  目的是为了给缓存和用户密码进行加密，程序只有在用户请求期间可以解密用户密码和用户数据。
 
   ## 依赖接口
 
@@ -30,17 +30,6 @@
   以上接口除 isLogin 外，其他属性一旦被获取，将对用户进行鉴权，不允许游客使用；因此，若要定义用户和游客
   均可使用的功能，需要先通过 isLogin 区分用户和游客，然后对用户按需获取其他属性，不能对游客获取用户属性，
   否则将抛出 401。
-
-  ## 伪 token
-
-  对于始终需要明文用户名密码的爬虫程序来说，用户信息的安全性始终是重要话题。在爬虫程序不得不知道用户名
-  和密码的情况下，我们希望尽可能缩短明文密码的生命周期，让它们只能短暂存在于爬虫程序中，然后对于上线的爬
-  虫程序进行严格审查，确保明文密码没有被第三方恶意截获和存储。
-
-  对于 token，爬虫程序其实也应当有权限获得，并用于一些自定义的加密和解密中，但相对于明文密码来说，token
-  的隐私性更容易被爬虫程序开发者忽视，并可能被存入数据库作为区别用户身份的标志，从而导致潜在的隐私泄漏。
-  因此，这里不向爬虫程序提供明文 token，而是只提供 token 的哈希值，仅用于区分不同用户，不用于加解密。
-  对于加解密，此中间件将暴露 encrypt/decrypt 接口来帮助下游中间件加解密数据。
  */
 const db = require('../database/auth')
 const tough = require('tough-cookie')
@@ -71,11 +60,20 @@ const decrypt = (key, value) => {
   }
 }
 
+// 哈希算法，用于对 token 和密码进行摘要
+const hash = value => {
+  return new Buffer(crypto.createHash('md5').update(value).digest()).toString('base64')
+}
+
 // 在这里选择认证接口提供者
 const authProvider = require('./auth-provider/myold')
 const graduateAuthProvider = require('./auth-provider/graduate')
 
-// 认证接口提供者带错误处理的封装
+// 认证接口带错误处理的封装
+// 此方法用于：
+// - 用户首次登录；
+// - 用户重复登录时，提供的密码哈希与数据库保存的值不一致；
+// - 需要获取统一身份认证 Cookie (useAuthCookie()) 调用时。
 const auth = async (ctx, cardnum, password, gpassword) => {
   try {
     if (/^22\d*(\d{6})$/.test(cardnum)) {
@@ -100,85 +98,119 @@ module.exports = async (ctx, next) => {
   if (ctx.path === '/auth') {
 
     // POST /auth 登录认证
-    if (ctx.method.toUpperCase() === 'POST') {
-      // 获取一卡通号、密码、研究生密码、前端定义版本
-      let { cardnum, password, gpassword, platform } = ctx.params
-
-      // 这里不用解构赋值的默认值，因为不仅需要给 undefined 设置默认值，也需要对空字符串进行容错
-      gpassword = gpassword || password
-
-      if (!platform) {
-        throw '缺少参数 platform: 必须指定平台名'
-      }
-
-      // 登录统一身份认证，有三个作用：
-      // 1. 验证密码正确性
-      // 2. 获得统一身份认证 Cookie 以便后续请求使用
-      // 3. 获得姓名和学号
-      let { name, schoolnum } = await auth(ctx, cardnum, password, gpassword)
-
-      // 生成 32 字节 token 转为十六进制，及其哈希值
-      let token = new Buffer(crypto.randomBytes(32)).toString('hex')
-      let tokenHash = new Buffer(crypto.createHash('md5').update(token).digest()).toString('base64')
-
-      // 用 token 加密用户密码
-      let passwordEncrypted = encrypt(token, password)
-
-      // 对于研究生，用 token 加密研究生系统密码
-      let gpasswordEncrypted = /^22/.test(cardnum) && gpassword && encrypt(token, gpassword)
-
-      // 将新用户信息插入数据库
-      let now = new Date().getTime()
-
-      // // 同平台不允许多处登录
-      // await db.auth.remove({ cardnum, platform })
-
-      // 插入用户数据
-      await db.auth.insert({
-        tokenHash: tokenHash,
-        cardnum,
-        name,
-        schoolnum,
-        platform,
-        password: passwordEncrypted,
-        gpassword: gpasswordEncrypted,
-        registered: now,
-        lastInvoked: now
-      })
-
-      // 返回 token
-      ctx.body = token
-      return
-    } else if (ctx.method.toUpperCase() === 'DELETE') {
-      // DELETE /auth 退出登录
-      // 在经常需要切换用户的平台上，请尽量调用此接口以节省数据库空间
-      let token = ctx.request.headers.token
-      let tokenHash = new Buffer(crypto.createHash('md5').update(token).digest()).toString('base64')
-      await db.auth.remove({ tokenHash: tokenHash }, 1)
-      ctx.body = 'OK'
-      return
+    if (ctx.method.toUpperCase() !== 'POST') {
+      throw 405
     }
+
+    // 获取一卡通号、密码、研究生密码、前端定义版本
+    let { cardnum, password, gpassword, platform } = ctx.params
+
+    // 这里不用解构赋值的默认值，因为不仅需要给 undefined 设置默认值，也需要对空字符串进行容错
+    gpassword = gpassword || password
+
+    if (!platform) {
+      throw '缺少参数 platform: 必须指定平台名'
+    }
+
+    // 查找同一用户同一平台的已认证记录
+    let existing = await db.auth.find({ cardnum, platform }, 1)
+
+    // 若找到已认证记录，比对密码
+    if (existing) {
+      let { passwordHash, gpasswordEncrypted, tokenEncrypted } = existing
+
+      // 新认证数据库中，密码和 token 双向加密，用密码反向解密可以得到 token
+      // 解密成功即可返回
+      let token = decrypt(password, tokenEncrypted)
+      if (token) {
+        // 若两个密码有任何一个不同，可能是密码已变化，走认证
+        if (passwordHash !== hash(password)
+          || /^22/.test(cardnum) && gpassword !== decrypt(token, gpasswordEncrypted)) {
+
+          await auth(ctx, cardnum, password, gpassword)
+
+          // 未抛出异常说明新密码正确，更新数据库中密码
+          // 密码变化后，密文 token、两个密文密码、密码哈希均发生变化，都要修改
+          let passwordEncrypted = encrypt(token, password)
+          gpasswordEncrypted = /^22/.test(cardnum) ? encrypt(token, gpassword) : ''
+          tokenEncrypted = encrypt(password, token)
+          passwordHash = hash(password)
+
+          await db.update({ cardnum, platform }, {
+            passwordEncrypted,
+            gpasswordEncrypted,
+            tokenEncrypted,
+            passwordHash
+          })
+        }
+
+        // 若密码相同，直接通过认证，不再进行统一身份认证
+        // 虽然这样可能会出现密码修改后误放行旧密码的问题，但需要 Cookie 的接口调用统一身份认证时就会 401
+        ctx.body = token
+        return
+      }
+    }
+
+    // 无已认证记录，则登录统一身份认证，有三个作用：
+    // 1. 验证密码正确性
+    // 2. 获得统一身份认证 Cookie 以便后续请求使用
+    // 3. 获得姓名和学号
+    let { name, schoolnum } = await auth(ctx, cardnum, password, gpassword)
+
+    // 生成 32 字节 token 转为十六进制，及其哈希值
+    let token = new Buffer(crypto.randomBytes(20)).toString('hex')
+    let tokenHash = hash(token)
+    let passwordHash = hash(password)
+
+    // 将 token 和密码互相加密
+    let tokenEncrypted = encrypt(password, token)
+    let passwordEncrypted = encrypt(token, password)
+    let gpasswordEncrypted = /^22/.test(cardnum) ? encrypt(token, gpassword) : ''
+
+    // 将新用户信息插入数据库
+    let now = new Date().getTime()
+
+    // 插入用户数据
+    await db.auth.insert({
+      cardnum,
+      tokenHash,
+      tokenEncrypted,
+      passwordEncrypted,
+      passwordHash,
+      gpasswordEncrypted,
+      name, schoolnum, platform,
+      registered: now,
+      lastInvoked: now
+    })
+
+    // 返回 token
+    ctx.body = token
+    return
   } else if (ctx.request.headers.token) {
     // 对于其他请求，根据 token 的哈希值取出表项
     let token = ctx.request.headers.token
-    let tokenHash = new Buffer(crypto.createHash('md5').update(token).digest()).toString('base64')
-    let record = await db.auth.find({ tokenHash: tokenHash }, 1)
+    let tokenHash = hash(token)
+    let record = await db.auth.find({ tokenHash }, 1)
 
     if (record) { // 若 token 失效，穿透到未登录的情况去
       let now = new Date().getTime()
 
       // 更新用户最近调用时间
-      await db.auth.update({ tokenHash: tokenHash }, { lastInvoked: now })
+      await db.auth.update({ tokenHash }, { lastInvoked: now })
 
       // 解密用户密码
-      let { cardnum, password, gpassword, name, schoolnum, platform } = record
+      let {
+        cardnum, name, schoolnum, platform,
+        passwordEncrypted, gpasswordEncrypted
+      } = record
 
-      password = decrypt(token, password)
-      if (gpassword) {
-        gpassword = decrypt(token, gpassword)
+      let password = decrypt(token, passwordEncrypted)
+      let gpassword = ''
+      if (/^22/.test(cardnum)) {
+        gpassword = decrypt(token, gpasswordEncrypted)
       }
 
-      let identity = new Buffer(crypto.createHash('md5').update(cardnum + name).digest()).toString('base64')
+      let identity = hash(cardnum + name)
 
       // 将统一身份认证和研究生身份认证 Cookie 获取器暴露给模块
       ctx.useAuthCookie = auth.bind(undefined, ctx, cardnum, password, gpassword)
@@ -205,7 +237,6 @@ module.exports = async (ctx, next) => {
     get encrypt() { reject() },
     get decrypt() { reject() },
     get identity() { reject() },
-    get token() { reject() },
     get cardnum() { reject() },
     get password() { reject() },
     get gpassword() { reject() },
