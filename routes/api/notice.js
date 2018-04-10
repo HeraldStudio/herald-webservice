@@ -53,7 +53,10 @@ exports.route = {
       ? (typeof this.params.site !== 'undefined' ? [this.params.site] : commonSites)
       : commonSites
 
-    if (this.user.isLogin) { keys = keys.concat(deptCodeFromSchoolNum(this.user.schoolnum)) }
+    if (this.user.isLogin
+        && /^21/.test(this.user.cardnum)) { // 只处理本科生，似乎研究生从学号无法获取学院信息
+      keys = keys.concat(deptCodeFromSchoolNum(this.user.schoolnum))
+    }
     let ret = await Promise.all(keys.map(async (site) =>
       await this.publicCache(site, '1m+', async () => {
         if (!sites[site]) {
