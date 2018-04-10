@@ -5,6 +5,7 @@ exports.route = {
   /**
   * GET /api/gpa
   * 成绩查询
+  * 注意本科生和研究生返回结果格式略有不同
   **/
   async get() {
     return await this.userCache('1h+', async () => {
@@ -85,12 +86,14 @@ exports.route = {
           }
         }, [])
 
-        // 规格化平均成绩
-        let gpa = parseFloat($('#lblgghpjcj').text())
-        let now = new Date()
-        let year = now.getFullYear()
+        let score = parseFloat($('#lblgghpjcj').text()) // 规格化平均成绩
+        let degree = parseFloat($('#lblxwxf').text()) // 学位学分
+        let optional = parseFloat($('#lblxxxf').text()) // 选修学分
+        let total = parseFloat($('#lblyxxf').text()) // 总学分
+        let required = parseFloat($('#lblyxxf1').text()) // 应修总学分
+        let credits = { degree, optional, total, required }
 
-        return { gpa, gpaBeforeMakeup: gpa, year, calculationTime: now.getTime(), detail }
+        return { score, credits, detail }
       }
     })
   }
