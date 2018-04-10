@@ -68,20 +68,20 @@ exports.route = {
         ).reduce((a, b) => a.concat(b), [])
 
         const infoUrlDir = /^(https?:\/\/(.+\/|[^\/]+$))[^\/]*$/.exec(sites[site].infoUrl)[0]
-
+        console.log(infoUrlDir) // DEBUG
         return list.map(ele => $(ele[0]).find('a').toArray().map(k => $(k)).map(k => {
           let href = k.attr('href')
             return {
               category: ele[1],
               department: sites[site].name,
-              title: k.attr('title'),
+              title: k.attr('title') || k.text(),
               url: /^\//.test(href)
                 ? sites[site].baseUrl + href // 绝对路径
                 : (/^(https?|ftp):\/\//.test(href)
                    ? href // 带了域名的路径
                    : infoUrlDir + href
                   ),
-              isAttachment: ! /(\.html?$|\.aspx)/.test(k.attr('href')),
+              isAttachment: ! /\.(html?$|asp|php)/.test(k.attr('href')),
               isImportant: !!k.find('font').length,
             }
           })).reduce((a, b) => a.concat(b), []).map((k, i) => {
@@ -96,7 +96,7 @@ exports.route = {
             }
             return k
           })
-      }) // using
+      }) // publicCache
     )) // Promise.all
 
     // 小猴系统通知
