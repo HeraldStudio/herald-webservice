@@ -22,7 +22,7 @@ const sites = {
     codes: ['96'],
     baseUrl: 'http://zwc.seu.edu.cn',
     infoUrl: 'http://zwc.seu.edu.cn/4297/list.htm',
-    list: [['#wp_news_w3', '总务处公告']],
+    list: [['#wp_news_w3', '公告']],
     contentSelector: '[portletmode="simpleArticleContent"]' // 两个平台的正文选择器是一样的
   },
   ...require('./notice/depts.json') // FIXME 各个学院网站不能保证都能获取到通知，需要测试
@@ -71,19 +71,20 @@ exports.route = {
             .map(item => new Date($(item).text()).getTime())
         ).reduce((a, b) => a.concat(b), [])
 
+        // 当前页面的目录
         const infoUrlDir = /^(https?:\/\/(.+\/|[^\/]+$))[^\/]*$/.exec(sites[site].infoUrl)[1]
 
         return list.map(ele => $(ele[0]).find('a').toArray().map(k => $(k)).map(k => {
           let href = k.attr('href')
             return {
-              category: ele[1],
-              department: sites[site].name,
+              category: sites[site].name + ' - ' + ele[1],
+              // department: sites[site].name,
               title: k.attr('title') || k.text(),
               url: /^\//.test(href)
                 ? sites[site].baseUrl + href // 绝对路径
                 : (/^(https?|ftp):\/\//.test(href)
                    ? href // 带了域名的路径
-                   : infoUrlDir + href
+                   : infoUrlDir + href // 相对路径
                   ),
               isAttachment: ! /\.(html?$|asp|php)/.test(k.attr('href')),
               isImportant: !!k.find('font').length,
@@ -107,7 +108,7 @@ exports.route = {
     ret = ret.concat((await db.notice.find()).map(k => {
       return {
         category: '小猴通知',
-        department: '小猴偷米',
+        // department: '小猴偷米',
         title: k.title,
         nid: k.nid,
         time: k.publishTime,
