@@ -1,0 +1,35 @@
+# 待完成，检测可用性
+
+  - [ ] arch
+  - [ ] arts
+  - [ ] automation
+  - [ ] bme
+  - [ ] chem
+  - [ ] cis
+  - [ ] civil
+  - [ ] cose
+  - [x] cse
+  - [ ] cyber
+  - [ ] ee
+  - [ ] electronic
+  - [ ] em
+  - [ ] gw
+  - [ ] ic
+  - [ ] ils
+  - [x] ins
+  - [ ] law
+  - [ ] marxism
+  - [ ] math
+  - [ ] me
+  - [ ] med
+  - [ ] physics
+  - [ ] power
+  - [ ] radio
+  - [ ] rcls
+  - [ ] rwxy
+  - [ ] sfl
+  - [ ] smjgs
+  - [ ] smse
+  - [ ] tc
+  - [ ] tyx
+  - [ ] wjx

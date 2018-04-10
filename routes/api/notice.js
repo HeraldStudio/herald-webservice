@@ -34,6 +34,7 @@ const deptCodeFromSchoolNum = schoolnum => {
 }
 
 const commonSites = ['jwc', 'zwc']
+
 // 5 天之内的信息，全部留下
 const keepTime = 1000 * 60 * 60 * 24 * 5
 // 10 条以内的信息，全部留下
@@ -47,7 +48,7 @@ exports.route = {
   */
   async get () {
     let now = new Date().getTime()
-    let keys = commonSites
+    let keys = typeof this.params.site !== 'undefined' ? [this.params.site] : commonSites
     if (this.user.isLogin) { keys = keys.concat(deptCodeFromSchoolNum(this.user.schoolnum)) }
     let ret = await Promise.all(keys.map(async (site) =>
       await this.publicCache(site, '1m+', async () => {
@@ -61,10 +62,12 @@ exports.route = {
 
         let timeList = list.map(
           ele =>
-            $(ele[0]).find('div').toArray()
+            $(ele[0]).find(sites[site].dateSelector || 'div').toArray()
             .filter(arr => /\d+-\d+-\d+/.test($(arr).text()))
             .map(item => new Date($(item).text()).getTime())
         ).reduce((a, b) => a.concat(b), [])
+
+        const infoUrlDir = /^(https?:\/\/(.+\/|[^\/]+$))[^\/]*$/.exec(sites[site].infoUrl)[0]
 
         return list.map(ele => $(ele[0]).find('a').toArray().map(k => $(k)).map(k => {
           let href = k.attr('href')
@@ -73,9 +76,12 @@ exports.route = {
               department: sites[site].name,
               title: k.attr('title'),
               url: /^\//.test(href)
-                ? sites[site].baseUrl + href
-                : href,
-              isAttachment: !/.+.html?$/.test(k.attr('href')),
+                ? sites[site].baseUrl + href // 绝对路径
+                : (/^(https?|ftp):\/\//.test(href)
+                   ? href // 带了域名的路径
+                   : infoUrlDir + href
+                  ),
+              isAttachment: ! /(\.html?$|\.aspx)/.test(k.attr('href')),
               isImportant: !!k.find('font').length,
             }
           })).reduce((a, b) => a.concat(b), []).map((k, i) => {
