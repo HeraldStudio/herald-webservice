@@ -206,10 +206,12 @@ module.exports = async (ctx, next) => {
         let content = {}
         ctx.body.map(k => {
           if (k.category !== '小猴通知') {
-            if (!content[k.category]) {
-              content[k.category] = []
+            // App 只有名为「教务信息」的分类，才会显示在首页上
+            let category = k.category === '教务处 - 教务信息' ? '教务信息' : k.category
+            if (!content[category]) {
+              content[category] = []
             }
-            content[k.category].push({
+            content[category].push({
               date: new Date(k.time).format('yyyy-MM-dd'),
               href: k.url,
               title: k.title
