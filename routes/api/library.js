@@ -17,7 +17,10 @@ exports.route = {
       return $('#mylib_content tr').toArray().slice(1).map(tr => {
         let [bookId, name, borrowDate, returnDate, renewCount, location, addition]
           = $(tr).find('td').toArray().map(td => $(td).text().trim())
-        let borrowId = $(tr).find('input').attr('onclick').substr(20,8)
+        let borrowId = $(tr).find('input').attr('onclick').substr(20, 8)
+        borrowDate = new Date(borrowDate).getTime()
+        returnDate = new Date(returnDate).getTime()
+        renewCount = parseInt(renewCount)
         return { bookId, name, borrowDate, returnDate, renewCount, location, addition, borrowId }
       })
     })
