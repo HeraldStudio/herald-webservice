@@ -10,7 +10,7 @@ exports.route = {
   **/
   async get({ date = '', page = 1 }) {
     // 懒缓存 1 分钟
-    return await this.userCache('1m+', async () => {
+    return await this.userCache('10m+', async () => {
       await this.useAuthCookie()
       // 带着统一身份认证 Cookie 获取一卡通中心 Cookie；带着一卡通中心 Cookie 抓取一卡通页面
       await this.get('http://allinonecard.seu.edu.cn/ecard/dongnanportalHome.action')
