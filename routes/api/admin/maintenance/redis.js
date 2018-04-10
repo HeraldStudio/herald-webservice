@@ -11,7 +11,7 @@ const exec = (command) => new Promise((resolve, reject) => {
 
 exports.route = {
   async get() {
-    if (!this.admin.maintenance) {
+    if (!this.admin || !this.admin.maintenance) {
       throw 403
     }
     let { stdout } = await exec('redis-cli info')
