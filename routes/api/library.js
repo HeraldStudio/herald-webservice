@@ -18,10 +18,13 @@ exports.route = {
         let [bookId, name, borrowDate, returnDate, renewCount, location, addition]
           = $(tr).find('td').toArray().map(td => $(td).text().trim())
         let borrowId = $(tr).find('input').attr('onclick').substr(20, 8)
+        let [bookName, author] = name.split(/\s*\/\s*/g)
+        name = bookName
+        author = author.replace(/编?著?$/, '')
         borrowDate = new Date(borrowDate).getTime()
         returnDate = new Date(returnDate).getTime()
         renewCount = parseInt(renewCount)
-        return { bookId, name, borrowDate, returnDate, renewCount, location, addition, borrowId }
+        return { bookId, name, author, borrowDate, returnDate, renewCount, location, addition, borrowId }
       })
     })
   },
