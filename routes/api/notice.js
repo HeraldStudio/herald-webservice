@@ -48,7 +48,11 @@ exports.route = {
   */
   async get () {
     let now = new Date().getTime()
-    let keys = typeof this.params.site !== 'undefined' ? [this.params.site] : commonSites
+    // 调试环境下接受 site 参数用于单独获取某网站的通知
+    let keys = process.env.NODE_ENV === 'development'
+      ? (typeof this.params.site !== 'undefined' ? [this.params.site] : commonSites)
+      : commonSites
+
     if (this.user.isLogin) { keys = keys.concat(deptCodeFromSchoolNum(this.user.schoolnum)) }
     let ret = await Promise.all(keys.map(async (site) =>
       await this.publicCache(site, '1m+', async () => {
@@ -67,8 +71,8 @@ exports.route = {
             .map(item => new Date($(item).text()).getTime())
         ).reduce((a, b) => a.concat(b), [])
 
-        const infoUrlDir = /^(https?:\/\/(.+\/|[^\/]+$))[^\/]*$/.exec(sites[site].infoUrl)[0]
-        console.log(infoUrlDir) // DEBUG
+        const infoUrlDir = /^(https?:\/\/(.+\/|[^\/]+$))[^\/]*$/.exec(sites[site].infoUrl)[1]
+
         return list.map(ele => $(ele[0]).find('a').toArray().map(k => $(k)).map(k => {
           let href = k.attr('href')
             return {
