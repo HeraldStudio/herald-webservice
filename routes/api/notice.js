@@ -34,6 +34,17 @@ const deptCodeFromSchoolNum = schoolnum => {
   return Object.keys(sites).filter(k => sites[k].codes.includes(deptNum))
 }
 
+const autoDate = md => {
+  const now = new Date()
+  const thisYear = now.getYear() + 1900
+  const dateOfThisYear = new Date(`${thisYear}-${md}`)
+  if (dateOfThisYear <= now) {
+    return dateOfThisYear
+  } else {
+    return new Date(`${thisYear - 1}-${md}`)
+  }
+}
+
 const commonSites = ['jwc', 'zwc']
 
 // 5 天之内的信息，全部留下
@@ -72,8 +83,10 @@ exports.route = {
         let timeList = list.map(
           ele =>
             $(ele[0]).find(sites[site].dateSelector || 'div').toArray()
-            .map(k => /\d+-\d+-\d+/.exec($(k).text())).filter(k => k)
-            .map(k => new Date(k[0]).getTime())
+            .map(k => /(\d+-)?\d+-\d+/.exec($(k).text())).filter(k => k)
+            .map(k => k[1]
+                 ? new Date(k[0]).getTime()
+                 : autoDate(k[0]).getTime())
         ).reduce((a, b) => a.concat(b), [])
 
         return list.map(ele => $(ele[0]).find('a').toArray().map(k => $(k)).map(k => {
