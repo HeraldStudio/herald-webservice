@@ -79,7 +79,11 @@ const auth = async (ctx, cardnum, password, gpassword) => {
     if (/^22\d*(\d{6})$/.test(cardnum)) {
       await graduateAuthProvider(ctx, RegExp.$1, gpassword)
     }
-    return await authProvider(ctx, cardnum, password)
+    let { schoolnum, name } = await authProvider(ctx, cardnum, password)
+    if (!schoolnum || !name) {
+      throw '解析失败'
+    }
+    return { schoolnum, name }
   } catch (e) {
     if (e === 401) {
       if (ctx.user && ctx.user.isLogin) {
@@ -213,7 +217,14 @@ module.exports = async (ctx, next) => {
       let identity = hash(cardnum + name)
 
       // 将统一身份认证和研究生身份认证 Cookie 获取器暴露给模块
-      ctx.useAuthCookie = auth.bind(undefined, ctx, cardnum, password, gpassword)
+      // 在获取 Cookie 的同时，也会对密码进行统一身份认证
+      // 另外还会更新用户的学号，以避免转系学生学号始终不变的问题
+      ctx.useAuthCookie = async () => {
+        let res = await auth(ctx, cardnum, password, gpassword)
+        if (res.schoolnum !== schoolnum) {
+          await db.auth.update({ tokenHash }, { schoolnum: res.schoolnum })
+        }
+      }
 
       // 将身份识别码、解密后的一卡通号、密码和 Cookie、加解密接口暴露给下层中间件
       ctx.user = {
