@@ -1,6 +1,7 @@
 const cheerio = require('cheerio')
 const Europa = require('node-europa')
 const db = require('../../database/publicity')
+const url = require('url');
 
 const sites = {
   jwc: {
@@ -64,6 +65,7 @@ exports.route = {
         }
 
         let res = await this.get(sites[site].infoUrl)
+
         let $ = cheerio.load(res.data)
         let list = sites[site].list
 
@@ -74,22 +76,14 @@ exports.route = {
             .map(item => new Date($(item).text()).getTime())
         ).reduce((a, b) => a.concat(b), [])
 
-        // 当前页面的目录
-        const infoUrlDir = /^(https?:\/\/(.+\/|[^\/]+$))[^\/]*$/.exec(sites[site].infoUrl)[1]
-
         return list.map(ele => $(ele[0]).find('a').toArray().map(k => $(k)).map(k => {
           let href = k.attr('href')
             return {
               category: sites[site].name + ' - ' + ele[1],
               // department: sites[site].name,
               title: k.attr('title') || k.text(),
-              url: /^\//.test(href)
-                ? sites[site].baseUrl + href // 绝对路径
-                : (/^(https?|ftp):\/\//.test(href)
-                   ? href // 带了域名的路径
-                   : infoUrlDir + href // 相对路径
-                  ),
-              isAttachment: ! /\.(html?$|asp|php)/.test(k.attr('href')),
+              url: url.resolve(sites[site].infoUrl, href),
+              isAttachment: ! /\.(html?$|aspx?|jsp|php)/.test(k.attr('href')),
               isImportant: !!k.find('font').length,
             }
           })).reduce((a, b) => a.concat(b), []).map((k, i) => {
