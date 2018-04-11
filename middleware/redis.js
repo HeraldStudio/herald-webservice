@@ -194,6 +194,10 @@ async function internalCached (isPublic, ...args) {
           detachedTaskCount++
           let task = func()
           if (allowObsolete) {
+
+            // 若允许过期缓存，则将回源任务限制在3秒之内
+            // 把超时归类为异常，然后统一在异常情况下返回缓存
+            // 这样处理同时也使得回源函数中出现异常时，同样也返回缓存
             task = Promise.race([
               task, new Promise((_, r) => setTimeout(r, 3000))
             ]).catch(e => cached)
@@ -217,12 +221,13 @@ async function internalCached (isPublic, ...args) {
           detachedTaskCount--
         }
       })()
-    } // 否则，之前已经在异步回源了，不管它
+    }
 
+    // 等待该回源任务完成
     return await curJob
   }
 
-  // 3. 执行到此表示缓存未过期或(缓存存在但过期时)正在异步回源
+  // 3. 执行到此表示缓存未过期，返回缓存
   return cached
 }
 
