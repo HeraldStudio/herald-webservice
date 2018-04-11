@@ -72,32 +72,32 @@ exports.route = {
         let timeList = list.map(
           ele =>
             $(ele[0]).find(sites[site].dateSelector || 'div').toArray()
-            .filter(arr => /\d+-\d+-\d+/.test($(arr).text()))
-            .map(item => new Date($(item).text()).getTime())
+            .map(k => /\d+-\d+-\d+/.exec($(k).text())).filter(k => k)
+            .map(k => new Date(k[0]).getTime())
         ).reduce((a, b) => a.concat(b), [])
 
         return list.map(ele => $(ele[0]).find('a').toArray().map(k => $(k)).map(k => {
           let href = k.attr('href')
-            return {
-              category: sites[site].name + ' - ' + ele[1],
-              // department: sites[site].name,
-              title: k.attr('title') || k.text(),
-              url: url.resolve(sites[site].infoUrl, href),
-              isAttachment: ! /\.(html?$|aspx?|jsp|php)/.test(k.attr('href')),
-              isImportant: !!k.find('font').length,
+          return {
+            category: sites[site].name + ' - ' + ele[1],
+            // department: sites[site].name,
+            title: k.attr('title') || k.text(),
+            url: url.resolve(sites[site].infoUrl, href),
+            isAttachment: ! /\.(html?$|aspx?|jsp|php)/.test(k.attr('href')),
+            isImportant: !!k.find('font').length,
+          }
+        })).reduce((a, b) => a.concat(b), []).map((k, i) => {
+          k.time = timeList[i]
+          if (! k.time) {
+            // 有些学院网站上没有发布日期，于是使用url中的日期代替
+            // url 中的日期未必准确
+            let match = /\/(\d{4})\/(\d{2})(\d{2})\//.exec(k.url)
+            if (match !== null) {
+              k.time = new Date(match[1] + '-' + match[2] + '-' + match[3]).getTime()
             }
-          })).reduce((a, b) => a.concat(b), []).map((k, i) => {
-            k.time = timeList[i]
-            if (! k.time) {
-              // 有些学院网站上没有发布日期，于是使用url中的日期代替
-              // url 中的日期未必准确
-              let match = /\/(\d{4})\/(\d{2})(\d{2})\//.exec(k.url)
-              if (match !== null) {
-                k.time = new Date(match[1] + '-' + match[2] + '-' + match[3]).getTime()
-              }
-            }
-            return k
-          })
+          }
+          return k
+        })
       }) // publicCache
     )) // Promise.all
 
