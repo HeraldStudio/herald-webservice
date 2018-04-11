@@ -7,7 +7,7 @@
   - [ ] chem
   - [ ] cis
   - [ ] civil
-  - [ ] cose
+  - [x] cose
   - [x] cse
   - [ ] cyber
   - [ ] ee
@@ -32,4 +32,5 @@
   - [ ] smse
   - [ ] tc
   - [ ] tyx
-  - [ ] wjx
+  - [x] wjx
+    「健雄快讯」一栏有奇奇怪怪的bug(a里套a)，我给砍了
