@@ -148,8 +148,22 @@
       "05"
     ],
     "infoUrl": "http://civil.seu.edu.cn/",
-    "list": [],
-    "name": "土木工程学院"
+    "list": [
+      [
+        "#wp_news_w14",
+        "学院新闻"
+      ],
+      [
+        "#wp_news_w15",
+        "院务通知"
+      ],
+      [
+        "#wp_news_w16",
+        "信息公告"
+      ]
+    ],
+    "name": "土木工程学院",
+    "dateSelector": ".Article_PublishDate"
   },
   "cose": {
     "baseUrl": "http://cose.seu.edu.cn",
