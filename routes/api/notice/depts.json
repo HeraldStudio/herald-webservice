@@ -38,7 +38,8 @@
         "教务信息"
       ]
     ],
-    "name": "艺术学院"
+    "name": "艺术学院",
+    "dateSelector": "span.post_time"
   },
   "automation": {
     "baseUrl": "http://automation.seu.edu.cn",
@@ -46,7 +47,16 @@
       "08"
     ],
     "infoUrl": "http://automation.seu.edu.cn/",
-    "list": [],
+    "list": [
+      [
+        "#ctl00_ContentPlaceHolder1_ArticleList1_R2",
+        "新闻公告"
+      ],
+      [
+        "#ctl00_ContentPlaceHolder1_ArticleList2_R2",
+        "学术报告"
+      ]
+    ],
     "name": "自动化学院"
   },
   "bme": {
@@ -63,6 +73,18 @@
       [
         "#wp_news_w113",
         "院系新闻"
+      ],
+      [
+        "#wp_news_w12",
+        "公告栏"
+      ],
+      [
+        "#wp_news_w32",
+        "招生就业信息"
+      ],
+      [
+        "#wp_news_w100",
+        "学工看板"
       ]
     ],
     "name": "生物科学与医学工程学院"
@@ -89,6 +111,18 @@
       [
         "#wp_news_w33",
         "通知公告"
+      ],
+      [
+        "#wp_news_w17",
+        "研究生培养"
+      ],
+      [
+        "#wp_news_w19",
+        "本科生教学"
+      ],
+      [
+        "#wp_news_w21",
+        "学生活动"
       ]
     ],
     "name": "化学化工学院"
@@ -105,7 +139,8 @@
         "News"
       ]
     ],
-    "name": "海外教育学院"
+    "name": "海外教育学院",
+    "dateSelector": ".date-day"
   },
   "civil": {
     "baseUrl": "http://civil.seu.edu.cn",
@@ -113,8 +148,22 @@
       "05"
     ],
     "infoUrl": "http://civil.seu.edu.cn/",
-    "list": [],
-    "name": "土木工程学院"
+    "list": [
+      [
+        "#wp_news_w14",
+        "学院新闻"
+      ],
+      [
+        "#wp_news_w15",
+        "院务通知"
+      ],
+      [
+        "#wp_news_w16",
+        "信息公告"
+      ]
+    ],
+    "name": "土木工程学院",
+    "dateSelector": ".Article_PublishDate"
   },
   "cose": {
     "baseUrl": "http://cose.seu.edu.cn",
@@ -210,11 +259,24 @@
     "infoUrl": "http://ee.seu.edu.cn/",
     "list": [
       [
-        "#wp_news_w81",
+        "#wp_news_w1",
+        "左侧栏"
+      ],
+      [
+        "#wp_news_w8",
         "新闻"
+      ],
+      [
+        "#wp_news_w80",
+        "通知"
+      ],
+      [
+        "#wp_news_w81",
+        "公告"
       ]
     ],
-    "name": "电气工程学院"
+    "name": "电气工程学院",
+    "dateSelector": ".fabushijian"
   },
   "electronic": {
     "baseUrl": "http://electronic.seu.edu.cn",
@@ -642,7 +704,7 @@
         "教务信息"
       ],
       [
-        "#wp_news_w28",
+        "#wp_news_w28 a.gray12",
         "健雄快讯"
       ]
     ],
