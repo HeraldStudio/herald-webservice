@@ -139,7 +139,8 @@
         "News"
       ]
     ],
-    "name": "海外教育学院"
+    "name": "海外教育学院",
+    "dateSelector": ".date-day"
   },
   "civil": {
     "baseUrl": "http://civil.seu.edu.cn",
