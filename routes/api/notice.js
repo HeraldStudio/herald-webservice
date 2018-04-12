@@ -34,15 +34,18 @@ const deptCodeFromSchoolNum = schoolnum => {
   return Object.keys(sites).filter(k => sites[k].codes.includes(deptNum))
 }
 
+// 强制使用本地时间
+const newLocalDate = str => new Date(str + 'Z+0800')
+
 // 根据月日，找出在今天和之前最近的符合的日期
 const autoDate = md => {
   const now = new Date()
   const thisYear = now.getYear() + 1900
-  const dateOfThisYear = new Date(`${thisYear}-${md}`)
+  const dateOfThisYear = newLocalDate(`${thisYear}-${md}`)
   if (dateOfThisYear <= now) {
     return dateOfThisYear
   } else {
-    return new Date(`${thisYear - 1}-${md}`)
+    return newLocalDate(`${thisYear - 1}-${md}`)
   }
 }
 
@@ -51,7 +54,7 @@ const autoDate = md => {
 const deduceTimeFromUrl = url => {
   let match = /\/(\d{4})\/(\d{2})(\d{2})\//.exec(url)
   if (match !== null) {
-    return new Date(match[1] + '-' + match[2] + '-' + match[3]).getTime()
+    return newLocalDate(match[1] + '-' + match[2] + '-' + match[3]).getTime()
   }
 }
 
@@ -97,7 +100,7 @@ exports.route = {
               $(ele[0]).find(sites[site].dateSelector || 'div').toArray()
               .map(k => /(\d+-)?\d+-\d+/.exec($(k).text())).filter(k => k)
               .map(k => k[1]
-                   ? new Date(k[0]).getTime()
+                   ? newLocalDate(k[0]).getTime()
                    : autoDate(k[0]).getTime())
           }
         )
