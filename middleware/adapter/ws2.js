@@ -15,16 +15,16 @@ Date.prototype.format = function (format) {
     'S': this.getMilliseconds() //毫秒
   }
   let week = ['日', '一', '二', '三', '四', '五', '六']
-  if (/(y+)/.test(format)) {
-    format = format.replace(RegExp.$1, (this.getFullYear() + '').substr(4 - RegExp.$1.length))
-  }
-  if (/(E+)/.test(format)) {
-    format = format.replace(RegExp.$1, ((RegExp.$1.length > 1) ? (RegExp.$1.length > 2 ? '星期' : '周') : '') + week[this.getDay()])
-  }
+  format = format
+    .replace(/y+/, match => (this.getFullYear() + '').substr(4 - match.length))
+    .replace(/E+/, match => ((match.length > 1)
+                             ? (match.length > 2 ? '星期' : '周')
+                             : '') + week[this.getDay()])
+
   for (let k in o) {
-    if (new RegExp('(' + k + ')').test(format)) {
-      format = format.replace(RegExp.$1, (RegExp.$1.length === 1) ? (o[k]) : (('00' + o[k]).substr(('' + o[k]).length)))
-    }
+    format = format.replace(new RegExp(k), match => (match.length === 1)
+                            ? (o[k])
+                            : (('00' + o[k]).substr(('' + o[k]).length)))
   }
   return format.replace(/N?aN/g, '')
 }
