@@ -25,13 +25,19 @@
 
   - [x] cose
   - [x] cse
-  - [ ] cyber
-  - [ ] ee
+  - [x] cyber
+  - [x] ee
+
+    网页上所有日期都在一个共有的 div 里。
+
   - [ ] electronic
   - [ ] em
   - [ ] gw
   - [ ] ic
   - [ ] ils
+
+    它没有任何代号。现在不准备做。
+
   - [x] ins
   - [ ] law
   - [ ] marxism
