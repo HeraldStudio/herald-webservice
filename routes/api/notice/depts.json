@@ -38,7 +38,8 @@
         "教务信息"
       ]
     ],
-    "name": "艺术学院"
+    "name": "艺术学院",
+    "dateSelector": "span.post_time"
   },
   "automation": {
     "baseUrl": "http://automation.seu.edu.cn",
@@ -46,7 +47,16 @@
       "08"
     ],
     "infoUrl": "http://automation.seu.edu.cn/",
-    "list": [],
+    "list": [
+      [
+        "#ctl00_ContentPlaceHolder1_ArticleList1_R2",
+        "新闻公告"
+      ],
+      [
+        "#ctl00_ContentPlaceHolder1_ArticleList2_R2",
+        "学术报告"
+      ]
+    ],
     "name": "自动化学院"
   },
   "bme": {
@@ -63,6 +73,18 @@
       [
         "#wp_news_w113",
         "院系新闻"
+      ],
+      [
+        "#wp_news_w12",
+        "公告栏"
+      ],
+      [
+        "#wp_news_w32",
+        "招生就业信息"
+      ],
+      [
+        "#wp_news_w100",
+        "学工看板"
       ]
     ],
     "name": "生物科学与医学工程学院"
@@ -75,10 +97,6 @@
     "infoUrl": "http://chem.seu.edu.cn/",
     "list": [
       [
-        "#topw15",
-        "新闻快讯"
-      ],
-      [
         "#wp_news_w18",
         "党群工作"
       ],
@@ -89,6 +107,18 @@
       [
         "#wp_news_w33",
         "通知公告"
+      ],
+      [
+        "#wp_news_w17",
+        "研究生培养"
+      ],
+      [
+        "#wp_news_w19",
+        "本科生教学"
+      ],
+      [
+        "#wp_news_w21",
+        "学生活动"
       ]
     ],
     "name": "化学化工学院"
