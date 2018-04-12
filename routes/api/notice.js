@@ -34,6 +34,7 @@ const deptCodeFromSchoolNum = schoolnum => {
   return Object.keys(sites).filter(k => sites[k].codes.includes(deptNum))
 }
 
+// 根据月日，找出在今天和之前最近的符合的日期
 const autoDate = md => {
   const now = new Date()
   const thisYear = now.getYear() + 1900
@@ -42,6 +43,15 @@ const autoDate = md => {
     return dateOfThisYear
   } else {
     return new Date(`${thisYear - 1}-${md}`)
+  }
+}
+
+// 有些学院网站上没有发布日期，于是使用url中的日期代替
+// url 中的日期未必准确
+const deduceTimeFromUrl = url => {
+  let match = /\/(\d{4})\/(\d{2})(\d{2})\//.exec(url)
+  if (match !== null) {
+    return new Date(match[1] + '-' + match[2] + '-' + match[3]).getTime()
   }
 }
 
@@ -80,37 +90,32 @@ exports.route = {
         let $ = cheerio.load(res.data)
         let list = sites[site].list
 
-        let timeList = list.map(
-          ele =>
-            $(ele[0]).find(sites[site].dateSelector || 'div').toArray()
-            .map(k => /(\d+-)?\d+-\d+/.exec($(k).text())).filter(k => k)
-            .map(k => k[1]
-                 ? new Date(k[0]).getTime()
-                 : autoDate(k[0]).getTime())
-        ).reduce((a, b) => a.concat(b), [])
+        let timeList = {}
+        list.forEach(
+          ele => {
+            timeList[ele[1]] =
+              $(ele[0]).find(sites[site].dateSelector || 'div').toArray()
+              .map(k => /(\d+-)?\d+-\d+/.exec($(k).text())).filter(k => k)
+              .map(k => k[1]
+                   ? new Date(k[0]).getTime()
+                   : autoDate(k[0]).getTime())
+          }
+        )
 
-        return list.map(ele => $(ele[0]).find('a').toArray().map(k => $(k)).map(k => {
+        return list.map(ele => $(ele[0]).find('a').toArray().map(k => $(k)).map((k, i) => {
           let href = k.attr('href')
+          currentUrl = url.resolve(sites[site].infoUrl, href)
           return {
             category: sites[site].name + ' - ' + ele[1],
             // department: sites[site].name,
             title: k.attr('title') || k.text(),
-            url: url.resolve(sites[site].infoUrl, href),
+            url: currentUrl,
             isAttachment: ! /\.(html?$|aspx?|jsp|php)/.test(k.attr('href')),
             isImportant: !!k.find('font').length,
+            time: timeList[ele[1]][i]
+              || deduceTimeFromUrl(currentUrl)
           }
-        })).reduce((a, b) => a.concat(b), []).map((k, i) => {
-          k.time = timeList[i]
-          if (! k.time) {
-            // 有些学院网站上没有发布日期，于是使用url中的日期代替
-            // url 中的日期未必准确
-            let match = /\/(\d{4})\/(\d{2})(\d{2})\//.exec(k.url)
-            if (match !== null) {
-              k.time = new Date(match[1] + '-' + match[2] + '-' + match[3]).getTime()
-            }
-          }
-          return k
-        })
+        })).reduce((a, b) => a.concat(b), [])
       }) // publicCache
     )) // Promise.all
 
