@@ -259,11 +259,24 @@
     "infoUrl": "http://ee.seu.edu.cn/",
     "list": [
       [
-        "#wp_news_w81",
+        "#wp_news_w1",
+        "左侧栏"
+      ],
+      [
+        "#wp_news_w8",
         "新闻"
+      ],
+      [
+        "#wp_news_w80",
+        "通知"
+      ],
+      [
+        "#wp_news_w81",
+        "公告"
       ]
     ],
-    "name": "电气工程学院"
+    "name": "电气工程学院",
+    "dateSelector": ".fabushijian"
   },
   "electronic": {
     "baseUrl": "http://electronic.seu.edu.cn",
