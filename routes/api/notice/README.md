@@ -30,10 +30,13 @@
 
     网页上所有日期都在一个共有的 div 里。
 
-  - [ ] electronic
-  - [ ] em
-  - [ ] gw
+  - [x] electronic
+  - [x] em
+  - [x] gw
   - [ ] ic
+
+    没代号。先摆着。
+
   - [ ] ils
 
     它没有任何代号。现在不准备做。
