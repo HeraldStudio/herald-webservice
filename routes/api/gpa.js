@@ -14,14 +14,6 @@ exports.route = {
 
       // 本科生
       if (/^21/.test(cardnum)) {
-        let { password } = this.user
-        let captcha = await this.jwcCaptcha()
-
-        await this.post(
-          'http://xk.urp.seu.edu.cn/studentService/system/login.action',
-          { userName: cardnum, password, vercode: captcha }
-        )
-
         res = await this.get(
           'http://xk.urp.seu.edu.cn/studentService/cs/stuServe/studentExamResultQuery.action'
         )
