@@ -40,7 +40,7 @@ const reservationAPI = {
     // 是根据一卡通可以获得一个同学的信息，然后返回他的userId之类的东西
     // args: [['cardNo', function (k) { return k.user }]]
   },
-  newReservation: {
+  'new': {
     url: "http://yuyue.seu.edu.cn/eduplus/phoneOrder/insertOredrP.do?sclId=1",
     info: "新的预约",
     args: ['orderVO.useMode','orderVO.useTime','orderVO.itemId','orderVO.phone','useUserIds','orderVO.remark']
@@ -66,38 +66,42 @@ exports.route = {
   **/
 
   async get(params) {
-    await this.useAuthCookie()
+    // await this.useAuthCookie()
 
-    let curMethod = reservationAPI[params.method]
-    // Bad Request
-    if (! curMethod) {
-      throw 400
-    }
-    // 得到 args 的值
-    let args = (curMethod.args || [])
-        .map(k => {
-          if (Array.isArray(k) && typeof(k[1]) === 'function') {
-            k[1] = k[1](this)
-          } else {
-            k = [k, params[k]]
-          }
-          return k
-        })
+    // let curMethod = reservationAPI[params.method]
+    // // Bad Request
+    // if (! curMethod) {
+    //   throw 400
+    // }
+    // // 得到 args 的值
+    // let args = (curMethod.args || [])
+    //     .map(k => {
+    //       if (Array.isArray(k) && typeof(k[1]) === 'function') {
+    //         k[1] = k[1](this)
+    //       } else {
+    //         k = [k, params[k]]
+    //       }
+    //       return k
+    //     })
 
-    let res =
-        await (curMethod.method === 'post'
-              ? (this.post
-                  (curMethod.url,
-                  // 转化成 Object
-                  args.reduce((k, a) =>
-                              { k[a[0]] = a[1]; return k }, {})))
-              : (this.get(curMethod.url
-                          // 转化成 &foo=bar 的形式
-                          + args
-                          .reduce((k, a) =>
-                                  k + '&' + a[0] + '=' + a[1]
-                                  , ''))))
+    // try {
+    //   let res =
+    //     await (curMethod.method === 'post'
+    //       ? (this.post
+    //         (curMethod.url,
+    //         // 转化成 Object
+    //         args.reduce((k, a) => { k[a[0]] = a[1]; return k }, {})))
+    //       : (this.get(curMethod.url
+    //         // 转化成 &foo=bar 的形式
+    //         + args
+    //           .reduce((k, a) =>
+    //             k + '&' + a[0] + '=' + a[1]
+    //             , ''))))
 
-    return res.data
+    //   return res.data
+    // } catch (e) {
+    //   console.log(e)
+    //   throw 400
+    // }
   }
 }
