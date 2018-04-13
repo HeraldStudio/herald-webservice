@@ -473,6 +473,10 @@
     "infoUrl": "http://marxism.seu.edu.cn/",
     "list": [
       [
+        "#wp_news_w12",
+        "学院动态"
+      ],
+      [
         "#wp_news_w13",
         "通知公告"
       ],
@@ -529,8 +533,12 @@
         "学院新闻"
       ],
       [
-        "#wp_news_w5",
-        "通知公告"
+        "#wp_news_w6",
+        "本科生教务"
+      ],
+      [
+        "#wp_news_w7",
+        "研究生教务"
       ],
       [
         "#wp_news_w71",
@@ -539,9 +547,14 @@
       [
         "#wp_news_w8",
         "学工通知"
+      ],
+      [
+        "#wp_news_w17",
+        "党群工作"
       ]
     ],
-    "name": "机械工程学院"
+    "name": "机械工程学院",
+    "dateSelector": ".date"
   },
   "med": {
     "baseUrl": "http://med.seu.edu.cn",
@@ -554,14 +567,27 @@
     "list": [
       [
         "#wp_news_w21",
-        "学院新闻"
+        "学院动态"
       ],
       [
         "#wp_news_w22",
         "通知公告"
+      ],
+      [
+        "#wp_news_w31",
+        "招生培养"
+      ],
+      [
+        "#wp_news_w12",
+        "学科师资"
+      ],
+      [
+        "#wp_news_w32",
+        "学生园地"
       ]
     ],
-    "name": "医学院"
+    "name": "医学院",
+    "dateSelector": "Article_PublishDate"
   },
   "physics": {
     "baseUrl": "http://physics.seu.edu.cn",
@@ -571,11 +597,24 @@
     "infoUrl": "http://physics.seu.edu.cn/",
     "list": [
       [
-        "#slideBar",
-        "学生工作"
+        "td[width=\"472\"] table table",
+        "新闻快讯"
+      ],
+      [
+        "td[width=\"410\"] table table",
+        "信息公告"
+      ],
+      [
+        "td[width=\"420\"] table table",
+        "学术活动"
+      ],
+      [
+        "td[width=\"418\"] table table",
+        "学生活动"
       ]
     ],
-    "name": "物理学院"
+    "name": "物理学院",
+    "dateSelector": "td[align=\"right\"]"
   },
   "power": {
     "baseUrl": "http://power.seu.edu.cn",
@@ -587,6 +626,22 @@
       [
         "#wp_news_w32",
         "学院新闻"
+      ],
+      [
+        "#wp_news_w71",
+        "通知公告"
+      ],
+      [
+        "#wp_news_w23",
+        "研究生专栏"
+      ],
+      [
+        "#wp_news_w22",
+        "本科生专栏"
+      ],
+      [
+        "#wp_news_w25",
+        "学术活动"
       ]
     ],
     "name": "能源与环境学院"
@@ -599,15 +654,19 @@
     "infoUrl": "http://radio.seu.edu.cn/",
     "list": [
       [
-        "#academyAnnouncement",
+        "#academyNews ul",
         "学院新闻"
       ],
       [
-        "#qty_items",
-        "暂无信息"
+        "#academyAnnouncement ul"
+      ],
+      [
+        "#academyNotice ul",
+        "重要通知"
       ]
     ],
-    "name": "信息科学与工程学院"
+    "name": "信息科学与工程学院",
+    "dateSelector": "span"
   },
   "rcls": {
     "baseUrl": "http://rcls.seu.edu.cn",
@@ -635,6 +694,18 @@
       [
         "#wp_news_w14",
         "教师通知"
+      ],
+      [
+        "#wp_news_w23",
+        "长江学者专栏"
+      ],
+      [
+        "#wp_news_w24",
+        "本科生通知"
+      ],
+      [
+        "#wp_news_w15",
+        "研究生通知"
       ]
     ],
     "name": "人文学院"
@@ -657,6 +728,10 @@
       [
         "#wp_news_w6",
         "学生公告"
+      ],
+      [
+        "#wp_news_w7",
+        "教研动态"
       ]
     ],
     "name": "外国语学院"
@@ -691,9 +766,14 @@
       [
         "#wp_news_w30",
         "信息公告"
+      ],
+      [
+        "#wp_news_w31",
+        "科研动态"
       ]
     ],
-    "name": "材料科学与工程学院"
+    "name": "材料科学与工程学院",
+    "dateSelector": "span.Article_PublishDate"
   },
   "tc": {
     "baseUrl": "http://tc.seu.edu.cn",
@@ -703,8 +783,16 @@
     "infoUrl": "http://tc.seu.edu.cn/",
     "list": [
       [
-        "#wp_news_w7",
+        "#wp_news_w6",
+        "学院动态"
+      ],
+      [
+        "#wp_news_w7 .item-title",
         "信息公告"
+      ],
+      [
+        "#wp_news_w77",
+        "学生动态"
       ],
       [
         "#wp_news_w71",
@@ -713,9 +801,22 @@
       [
         "#wp_news_w74",
         "就业信息"
+      ],
+      [
+        "#wp_news_w72",
+        "本科生通知"
+      ],
+      [
+        "#wp_news_w73",
+        "研究生通知"
+      ],
+      [
+        "#wp_news_w74",
+        "就业信息"
       ]
     ],
-    "name": "交通学院"
+    "name": "交通学院",
+    "dateSelector": "div.ex_fields"
   },
   "tyx": {
     "baseUrl": "http://tyx.seu.edu.cn",
@@ -725,16 +826,28 @@
     "infoUrl": "http://tyx.seu.edu.cn/",
     "list": [
       [
-        "#wp_news_w6",
-        "最新信息"
-      ],
-      [
         "#wp_news_w4",
         "体育新闻"
       ],
       [
         "#wp_news_w5",
         "信息公告"
+      ],
+      [
+        "#wp_news_w7",
+        "体育教学"
+      ],
+      [
+        "#wp_news_w8",
+        "运动竞赛"
+      ],
+      [
+        "#wp_news_w10",
+        "阳光体育"
+      ],
+      [
+        "#wp_news_w11",
+        "体育科研"
       ]
     ],
     "name": "体育系"
