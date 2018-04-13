@@ -1,4 +1,5 @@
 let { Campus, Building, Classroom, ClassRecord, DayOfWeek, ClassOfDay } = require("./models")
+const cheerio = require('cheerio')
 
 exports.route = {
 
@@ -12,14 +13,14 @@ exports.route = {
 
     // 参数检查
     if (typeof type !== "string") {
-      throw (400)
+      throw '参数 type 应该是 string'
     }
 
     // 转换字符串至对应的类型
     type = Object.entries(require("./models")).find(e => e[0].toLowerCase() === type.toLowerCase())[1]
 
     if (!type) {
-      throw (400)
+      throw '找不到对应的 type'
     }
 
     // 返回对应类型所有条目的id与name
@@ -82,16 +83,20 @@ exports.route = {
       }
     }
 
+    let $ = cheerio.load((await this.get("http://121.248.63.139/nstudent/pygl/kbcx_yx.aspx")).data)
+    let form = $('input').toArray().map(k => $(k)).reduce(
+      (f, input) => (f[input.attr('name')] = input.attr('value'), f), {})
+
     // 等待所有数据更新完毕
     await Promise.all([
       // 更新研究生数据
       // FIXME: 补全院系编号
-      ...[000, 001].map(async department => crawler(
+      ...["000",/*"001","002","003","004","005","006","007","008","009","010","011","012","014","016","017","018","019","021","022","025","040","042","044","055","080","081","084","086","101","110","111","301","316","317","318","319","401","403","404","990","997"*/].map(async department => crawler(
         (await this.post(
-          "http://121.248.63.139/nstudent/pygl/kbcx_yx.aspx"//,
-          //"drpyx=000" // FIXME 还需要更多参数
+          "http://121.248.63.139/nstudent/pygl/kbcx_yx.aspx",
+          { ...form, drpyx: department }
         )).data,
-        /<td>(.+)<\/td><td>(.+)<\/td><td>([^\s]+)\s*<\/td><td>第(\d+)-(\d+)周;? (.*)<\/td><td>(.+)<\/td><td>([^\w]+)([0-9a-zA-Z]+)<\/td><td>(\d+)<\/td><td>(\d+)<\/td>/img,
+        /<td>([^<]+)<\/td><td>([^<]+)<\/td><td>([^\s<]+)\s*<\/td><td>第(\d+)-(\d+)周;? ([^<]*)<\/td><td>([^<]+)<\/td><td>([^\w<]+)([0-9a-zA-Z]+)<\/td><td>(\d+)<\/td><td>(\d+)<\/td>/img,
         entry => entry && entry[6].split(' ').map(v => v.match(/(星期.)-(.+)/)).map( // 把一星期中上多天的一门课拆成若干个Record
           time => ({
             name          : entry[1],
