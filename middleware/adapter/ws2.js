@@ -457,17 +457,19 @@ module.exports = async (ctx, next) => {
         ctx.body = {
           content: ctx.body.map(k => {
             let startTime = new Date(k.startTime).format('yyyy-M-d')
-            let endTime = new Date(k.endTime).format('yyyy-M-d')
+
+            // 截止时间减去1毫秒，使得0点的回到前一天23:59，防止误导
+            let endTime = new Date(k.endTime - 1).format('yyyy-M-d')
             return {
               title: k.title,
               introduction: k.content,
               start_time: startTime,
               end_time: endTime,
-              activity_time: startTime + '~' + endTime,
+              activity_time: startTime === endTime ? startTime : startTime + '~' + endTime,
               detail_url: k.url,
               pic_url: k.pic,
               association: '校园活动',
-              location: '查看详情'
+              location: '…'
             }
           }),
           code: 200
