@@ -16,3 +16,4 @@ captcha-temp-*
 yarn-error.log
 slack.json
 spider-secret.json
+log
