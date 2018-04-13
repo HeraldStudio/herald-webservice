@@ -24,7 +24,8 @@ const reservationAPI = {
   },
   judgeOrder: {
     url: "http://yuyue.seu.edu.cn/eduplus/phoneOrder/judgeOrderP.do?sclId=1",
-    info: "预约校验"
+    info: "预约校验",
+    args: ['itemId', 'dayInfo', 'time'] // dayInfo form: 2018-03-19
   },
   getPhone: {
     url: "http://yuyue.seu.edu.cn/eduplus/phoneOrder/initEditOrderP.do?sclId=1",
