@@ -438,6 +438,7 @@ module.exports = async (ctx, next) => {
 
       } else if (ctx.path === '/api/yuyue') {
         ctx.path = '/api/reservation'
+        ctx.method = 'GET'
         await next()
         ctx.body = {
           content: ctx.body,
