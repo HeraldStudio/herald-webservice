@@ -93,30 +93,32 @@ exports.route = {
         let $ = cheerio.load(res.data)
         let list = sites[site].list
 
+        // 分组获取时间，按组名装入 timeList 的 property 里，防止混乱
         let timeList = {}
         list.forEach(
           ele => {
             timeList[ele[1]] =
               $(ele[0]).find(sites[site].dateSelector || 'div').toArray()
               .map(k => /(\d+-)?\d+-\d+/.exec($(k).text())).filter(k => k)
-              .map(k => k[1]
+              .map(k => k[1] // 有的网站上没有年份信息。
                    ? newLocalDate(k[0]).getTime()
                    : autoDate(k[0]).getTime())
           }
         )
 
+        // 找出所有新闻条目，和日期配对，返回
         return list.map(ele => $(ele[0]).find('a').toArray().map(k => $(k)).map((k, i) => {
           let href = k.attr('href')
           currentUrl = url.resolve(sites[site].infoUrl, href)
           return {
             category: sites[site].name + ' - ' + ele[1],
-            // department: sites[site].name,
+            // 标题可能在 title 属性中，也可能并不在。
             title: k.attr('title') || k.text(),
             url: currentUrl,
-            isAttachment: ! /\.(html?$|aspx?|jsp|php)/.test(k.attr('href')),
+            isAttachment: ! /\.(html?$|aspx?|jsp|php)/.test(href),
             isImportant: !!k.find('font').length,
             time: timeList[ele[1]][i]
-              || deduceTimeFromUrl(currentUrl)
+              || deduceTimeFromUrl(currentUrl) // 可能网页上没有日期信息
           }
         })).reduce((a, b) => a.concat(b), [])
       }) // publicCache
@@ -126,7 +128,6 @@ exports.route = {
     ret = ret.concat((await db.notice.find()).map(k => {
       return {
         category: '小猴通知',
-        // department: '小猴偷米',
         title: k.title,
         nid: k.nid,
         time: k.publishTime,
