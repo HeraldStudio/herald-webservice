@@ -126,7 +126,7 @@ async function start() {
     await enqueue('http://www.seu.edu.cn')
   }
   while (true) {
-    if (counter.connections < 3) {
+    if (counter.connections < 10) {
 
       let href = await dequeue()
       if (!href) {
