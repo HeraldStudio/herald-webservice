@@ -7,7 +7,6 @@
     "start": "yarn; NODE_ENV=production nodemon app.js"
   },
   "dependencies": {
-    "await-semaphore": "^0.1.3",
     "axios": "^0.17.1",
     "axios-cookiejar-support": "^0.3.2",
     "bluebird": "^3.5.1",

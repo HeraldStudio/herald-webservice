@@ -2,7 +2,7 @@ const log = require('fs').createWriteStream('search.log', { flags: 'w' })
 const sleep = async (t) => new Promise(r => setTimeout(r, t))
 const axios = require('axios').create({ timeout: 3000 })
 const counter = require('../../middleware/counter')
-const chardet = require('jschardet')
+const chardet = require('chardet')
 const sqlongo = require('sqlongo')
 const jieba = require('nodejieba')
 const iconv = require('iconv')
@@ -101,7 +101,7 @@ function filter(href) {
           }
 
           res = (await axios.get(href, { responseType: 'arraybuffer' })).data
-          res = new iconv.Iconv(chardet.detect(res).encoding, 'UTF-8//TRANSLIT//IGNORE').convert(res).toString()
+          res = new iconv.Iconv(chardet.detect(res), 'UTF-8//TRANSLIT//IGNORE').convert(res).toString()
           res = res.replace(/<!([^<>]*<[^<>]*>)*[^<>]*>/img, '')
           res = res.replace(/<\s*(script|style|template)[\s\S]*?<\s*\/\s*\1\s*>/img, '')
           res = res.replace(/([>^])\s+([<$])/img, '$1$2')
