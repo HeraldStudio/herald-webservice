@@ -14,10 +14,7 @@ jieba.load()
 start()
 
 exports.route = {
-  async get() {
-    let query = this.query.q || ''
-    let page = this.query.page || 0
-    let pagesize = Math.max(0, Math.min(50, this.query.pagesize || 10))
+  async get({ q: query = '', page = 1, pagesize = 10 }) {
     let result = await search(query, page, pagesize)
     if (result.rows) {
       let queryRegify = query.split(/ +/g).map(RegExp.escape).join('|')
@@ -88,7 +85,7 @@ async function search (query, page, pagesize = 10) {
   let words = cut(query)
   let cond = words.map(k => 'word.word = ?').join(' or ')
   let count = (await db.raw(`
-    select count(distinct(standardUrl)) count from word where ${cond}
+    select count(distinct(standardUrl)) count from word ${cond ? 'where ' + cond : ''}
   `, words))[0].count
 
   if (pagesize <= 0) {
@@ -102,14 +99,13 @@ async function search (query, page, pagesize = 10) {
       page.content content,
       page.updateTime updateTime
     from word inner join page on word.standardUrl = page.standardUrl
-    where ${cond}
+    ${cond ? 'where ' + cond : ''}
     group by word.standardUrl
     order by case
       when page.title = ? then 0
       when page.title like ? then 1
       else (100000 - wordHitCount)
-    end
-    limit ? offset ?
+    end limit ? offset ?
   `, words.concat([query, `%${query}%`, pagesize, (page - 1) * pagesize]))
   
   return { count, rows }
