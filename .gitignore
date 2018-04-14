@@ -18,3 +18,4 @@ slack.json
 spider-secret.json
 log
 search.log
+*.db-journal
