@@ -18,4 +18,6 @@ db.word = {
   standardUrl: 'text not null'
 }
 
+db.raw(`create index if not exists wordindex on word(word)`)
+
 module.exports = db
