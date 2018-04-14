@@ -5,12 +5,7 @@ const jieba = require('nodejieba')
 RegExp.escape = (s) => s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
 
 function cut(...args) {
-  return jieba.tag(args.join('/').replace(/\s+/g, '')).map(k => k.word)
-}
-
-if (process.env.NODE_ENV === 'production') {
-  let worker = cp.spawn('node', [require.resolve('../../worker/search/spider')])
-  process.on('exit', () => worker.kill())
+  return jieba.cut(args.join('/').replace(/\s+/g, ''))
 }
 
 async function search(query, page, pagesize = 10) {
@@ -41,24 +36,26 @@ async function search(query, page, pagesize = 10) {
 
 exports.route = {
   async get({ q: query = '', page = 1, pagesize = 10 }) {
-    let result = await search(query, page, pagesize)
-    if (result.rows) {
-      let queryRegify = cut(query).map(RegExp.escape).join('|')
-      let queryReg = new RegExp(queryRegify, 'img')
-      let queryContextReg = new RegExp('([\\s\\S]{0,20})(' + queryRegify + ')([\\s\\S]{0,80})', 'img')
-      result.rows.forEach(row => {
-        row.content = row.title + ' ' + row.content
-        let appears = (row.content.match(queryContextReg) || []).slice(0, 5)
-          .map(k => {
-            let parts = queryContextReg.exec(k)
-            if (!parts || parts.length < 4) { return }
-            let [left, keyword, right] = parts.slice(1)
-            return { left, keyword, right }
-          }).filter(k => k)
-        row.content = undefined
-        row.appears = appears
-      })
-    }
-    return result
+    return await this.publicCache('1d+', async () => {
+      let result = await search(query, page, pagesize)
+      if (result.rows) {
+        let queryRegify = cut(query).map(RegExp.escape).join('|')
+        let queryReg = new RegExp(queryRegify, 'img')
+        let queryContextReg = new RegExp('([\\s\\S]{0,20})(' + queryRegify + ')([\\s\\S]{0,80})', 'img')
+        result.rows.forEach(row => {
+          row.content = row.title + ' ' + row.content
+          let appears = (row.content.match(queryContextReg) || []).slice(0, 5)
+            .map(k => {
+              let parts = queryContextReg.exec(k)
+              if (!parts || parts.length < 4) { return }
+              let [left, keyword, right] = parts.slice(1)
+              return { left, keyword, right }
+            }).filter(k => k)
+          row.content = undefined
+          row.appears = appears
+        })
+      }
+      return result
+    })
   }
 }
