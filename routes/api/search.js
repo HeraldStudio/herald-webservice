@@ -18,7 +18,7 @@ exports.route = {
   async get({ q: query = '', page = 1, pagesize = 10 }) {
     let result = await search(query, page, pagesize)
     if (result.rows) {
-      let queryRegify = query.split(/ +/g).map(RegExp.escape).join('|')
+      let queryRegify = cut(query).map(RegExp.escape).join('|')
       let queryReg = new RegExp(queryRegify, 'img')
       let queryContextReg = new RegExp('([\\s\\S]{0,20})(' + queryRegify + ')([\\s\\S]{0,80})', 'img')
       result.rows.forEach(row => {
