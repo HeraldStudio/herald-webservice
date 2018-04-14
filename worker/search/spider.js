@@ -1,9 +1,73 @@
-const { jieba, has, enqueue, dequeue, sleep, log, push, filter } = require('./common')
+const log = require('fs').createWriteStream('search.log', { flags: 'w' })
+const sleep = async (t) => new Promise(r => setTimeout(r, t))
 const axios = require('axios').create({ timeout: 3000 })
+const counter = require('../../middleware/counter')
 const chardet = require('jschardet')
+const sqlongo = require('sqlongo')
+const jieba = require('nodejieba')
 const iconv = require('iconv')
 const url = require('url')
+
+sqlongo.defaults.path = 'database'
+const db = require('../../database/search')
+
 jieba.load();
+
+function standardize(url) {
+  return url.replace(/^.*:\/+/, '').replace(/\/(\?|$)/g, '$1').toLowerCase()
+}
+
+async function has(url) {
+  let standardUrl = standardize(url)
+  if (await db.page.find({ standardUrl }, 1)) {
+    return true
+  }
+  if (await db.queue.find({ standardUrl }, 1)) {
+    return true
+  }
+  return false
+}
+
+async function enqueue(url) {
+  let standardUrl = standardize(url)
+  await db.queue.insert({ standardUrl, url })
+}
+
+async function dequeue() {
+  let row = await db.queue.find({}, 1)
+  if (!row) return null
+  let { standardUrl, url } = row
+  await db.queue.remove({ standardUrl })
+  return url
+}
+
+function cut(...args) {
+  return jieba.tag(args.join('/').replace(/\s+/g, '')).map(k => k.word)
+}
+
+async function push(title, content, url) {
+  title = title.trim()
+  content = content.trim()
+  let standardUrl = standardize(url)
+  let updateTime = new Date().getTime()
+  await db.page.remove({ standardUrl })
+  await db.page.insert({ standardUrl, url, title, content, updateTime })
+  for (let word of cut(title, content)) {
+    await db.word.insert({ word, standardUrl })
+  }
+}
+
+function filter(href) {
+  try {
+    let domain = /:\/\/([^\/]+)/.exec(href)[1]
+    let protocol = /^([a-zA-Z]+):/.exec(href)[1]
+    return ['http', 'https', 'ftp'].find(k => k === protocol)
+      && (/^58\.192\.\d+\.\d+$/.test(domain) || /^223\.3\.\d+\.\d+$/.test(domain)
+        || /\.seu\.edu\.cn$/.test(domain) && !/^s?bbs\.seu\.edu\.cn$/.test(domain))
+  } catch (e) {
+    return false
+  }
+}
 
 (async () => {
   let begun = await has('http://www.seu.edu.cn')

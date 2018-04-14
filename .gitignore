@@ -9,7 +9,7 @@ spider_test.js
 !.gitkeep
 **/*.db
 sdk/sdk.json
-middleware/captcha-childprocess/models/
+worker/captcha/models/
 *.swp
 .repl_history
 captcha-temp-*
