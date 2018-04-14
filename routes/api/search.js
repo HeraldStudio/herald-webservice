@@ -99,9 +99,9 @@ async function search (query, page, pagesize = 10) {
       group by word.standardUrl
     ) words inner join page on words.standardUrl = page.standardUrl
     order by (case
-      when title = ? then 0
-      when title like ? then 1
-      else 2
+      when title = ? then 1
+      when title like ? then 2
+      else 3
     end) * 100000 - wordHitCount limit ? offset ?
   `, words.concat([query, `%${query}%`, pagesize, (page - 1) * pagesize]))
   
