@@ -8,41 +8,33 @@ function cut(...args) {
   return jieba.cut(args.join('/').replace(/\s+/g, ''))
 }
 
-async function search(query, page, pagesize = 10) {
-  let words = cut(query)
-  let cond = words.map(k => 'word.word = ?').join(' or ')
-  let count = (await db.raw(`
-    select count(distinct(standardUrl)) count from word ${cond ? 'where ' + cond : ''}
-  `, words))[0].count
-
-  if (pagesize <= 0) {
-    return { count }
-  }
-  let rows = await db.raw(`
-    select * from (
-      select count(*) wordHitCount, standardUrl from word
-      ${cond ? 'where ' + cond : ''}
-      group by word.standardUrl
-    ) words inner join page on words.standardUrl = page.standardUrl
-    order by (case
-      when title = ? then 1
-      when title like ? then 2
-      else 3
-    end) * 100000 - wordHitCount limit ? offset ?
-  `, words.concat([query, `%${query}%`, pagesize, (page - 1) * pagesize]))
-
-  return { count, rows }
-}
-
 exports.route = {
   async get({ q: query = '', page = 1, pagesize = 10 }) {
-    return await this.publicCache('1d+', async () => {
-      let result = await search(query, page, pagesize)
-      if (result.rows) {
+    return await this.publicCache('1m+', async () => {
+      let words = cut(query)
+      let cond = words.map(k => 'word.word = ?').join(' or ')
+      let count = (await db.raw(`
+        select count(distinct(standardUrl)) count from word ${cond ? 'where ' + cond : ''}
+      `, words))[0].count
+
+      if (pagesize > 0) {
+        let rows = await db.raw(`
+          select * from (
+            select count(*) wordHitCount, standardUrl from word
+            ${cond ? 'where ' + cond : ''}
+            group by word.standardUrl
+          ) words inner join page on words.standardUrl = page.standardUrl
+          order by (case
+            when title = ? then 1
+            when title like ? then 2
+            else 3
+          end) * 100000 - wordHitCount limit ? offset ?
+        `, words.concat([query, `%${query}%`, pagesize, (page - 1) * pagesize]))
+
         let queryRegify = cut(query).map(RegExp.escape).join('|')
         let queryReg = new RegExp(queryRegify, 'img')
         let queryContextReg = new RegExp('([\\s\\S]{0,20})(' + queryRegify + ')([\\s\\S]{0,80})', 'img')
-        result.rows.forEach(row => {
+        rows.forEach(row => {
           row.content = row.title + ' ' + row.content
           let appears = (row.content.match(queryContextReg) || []).slice(0, 5)
             .map(k => {
@@ -54,8 +46,9 @@ exports.route = {
           row.content = undefined
           row.appears = appears
         })
+        return { count, rows }
       }
-      return result
+      return { count }
     })
   }
 }
