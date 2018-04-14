@@ -1,11 +1,42 @@
+const db = require('../../database/search')
+const cp = require('child_process')
+const jieba = require('nodejieba')
+
 RegExp.escape = (s) => s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
-const { search, cut } = require('./search/common')
-const semaphore = require('await-semaphore')
-const sem = new semaphore.Semaphore(10)
-const threads = require('threads')
+
+function cut(...args) {
+  return jieba.tag(args.join('/').replace(/\s+/g, '')).map(k => k.word)
+}
 
 if (process.env.NODE_ENV === 'production') {
-  threads.spawn('routes/api/search/worker')
+  let worker = cp.spawn('node', [require.resolve('../../worker/search/spider')])
+  process.on('exit', () => worker.kill())
+}
+
+async function search(query, page, pagesize = 10) {
+  let words = cut(query)
+  let cond = words.map(k => 'word.word = ?').join(' or ')
+  let count = (await db.raw(`
+    select count(distinct(standardUrl)) count from word ${cond ? 'where ' + cond : ''}
+  `, words))[0].count
+
+  if (pagesize <= 0) {
+    return { count }
+  }
+  let rows = await db.raw(`
+    select * from (
+      select count(*) wordHitCount, standardUrl from word
+      ${cond ? 'where ' + cond : ''}
+      group by word.standardUrl
+    ) words inner join page on words.standardUrl = page.standardUrl
+    order by (case
+      when title = ? then 1
+      when title like ? then 2
+      else 3
+    end) * 100000 - wordHitCount limit ? offset ?
+  `, words.concat([query, `%${query}%`, pagesize, (page - 1) * pagesize]))
+
+  return { count, rows }
 }
 
 exports.route = {
