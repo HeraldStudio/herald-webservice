@@ -4,7 +4,9 @@ const semaphore = require('await-semaphore')
 const sem = new semaphore.Semaphore(10)
 const threads = require('threads')
 
-threads.spawn('routes/api/search/worker')
+if (process.env.NODE_ENV === 'production') {
+  threads.spawn('routes/api/search/worker')
+}
 
 exports.route = {
   async get({ q: query = '', page = 1, pagesize = 10 }) {
