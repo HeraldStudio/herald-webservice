@@ -93,18 +93,14 @@ async function search (query, page, pagesize = 10) {
     return { count }
   }
   let rows = await db.raw(`
-    select
-      count(*) wordHitCount,
-      page.url url,
-      page.title title,
-      page.content content,
-      page.updateTime updateTime
-    from word inner join page on word.standardUrl = page.standardUrl
-    ${cond ? 'where ' + cond : ''}
-    group by word.standardUrl
+    select * from (
+      select count(*) wordHitCount, standardUrl from word
+      ${cond ? 'where ' + cond : ''}
+      group by word.standardUrl
+    ) words inner join page on words.standardUrl = page.standardUrl
     order by case
-      when page.title = ? then 0
-      when page.title like ? then 1
+      when title = ? then 0
+      when title like ? then 1
       else (100000 - wordHitCount)
     end limit ? offset ?
   `, words.concat([query, `%${query}%`, pagesize, (page - 1) * pagesize]))
