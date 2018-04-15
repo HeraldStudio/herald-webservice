@@ -15,59 +15,68 @@ exports.route = {
   * @apiParam endSequence   一天中结束周次
   * @apiParam termId?       查询的学期，留空则查询当前学期
   * @remarks 查询空教室
-  * @note 
+  * @note
   *   若查询教一~教七则调用学校接口；
   *   对于其他建筑，学校接口暂未提供查询，因而从web service内置数据库中查询。
   **/
-  async get() {
+  async get({ pageNo, pageSize, campusId, buildingId,
+              startWeek, endWeek, dayOfWeek, startSequence, endSequence, termId }) {
     let result = {}
 
-    if (this.params.campusID === 22) { // 九龙湖教一~教七
+    // 缓存时不针对分页信息，后续查询就不用到数据库里翻
+    delete this.params.pageNo
+    delete this.params.pageSize
+
+    /*if (this.params.campusID === 22) { // 九龙湖教一~教七
       // 转发请求至学校空教室接口
       result = (await this.post(
         "http://58.192.114.179/classroom/show/getemptyclassroomlist",
         this.querystring
       )).data
-    } else { // 纪忠楼 & 四牌楼 & 无线谷 & 无锡分校
-      // 利用开课列表筛选出当前条件下有课的教室ID
+    } else { */ // 纪忠楼 & 四牌楼 & 无线谷 & 无锡分校
+    // 利用开课列表筛选出当前条件下有课的教室ID
+    let spare = await this.publicCache('1d+', async () => {
+      // FIXME: 尚未能够处理单双周
       let occupiedClassroomIds = (await db.all(`
         select classroomId from ClassRecord
-        where termId = ? 
+        where termId = ?
         and   campusId = ifnull(?, campusId)
         and   buildingId = ifnull(?, buildingId)
         and   dayOfWeek = ifnull(?, dayOfWeek)
         and   (startWeek <= ? and endWeek >= ?)
         and   (startSequence <= ? and endSequence >= ?)
       `, [
-          this.params.termId || ClassRecord.currentTermId(),
-          this.params.capmusId || null,
-          this.params.buildingId || null,
-          this.params.dayOfWeek || null,
-          this.params.endWeek,
-          this.params.startWeek,
-          this.params.endSequence,
-          this.params.startSequence
+        termId || ClassRecord.currentTermId(),
+        campusId || null,
+        buildingId || null,
+        dayOfWeek || null,
+        endWeek,
+        startWeek,
+        endSequence,
+        startSequence
       ])).map(row => row.classroomId)
 
       // 筛选出所有无课的教室
-      let spareClassrooms = await db.all(`
+      let spareClassrooms = await Promise.all((await db.all(`
         select * from Classroom
         where buildingId = ifnull(?, buildingId)
         and   id not in(${occupiedClassroomIds.toString()})
       `, [
-          this.params.buildingId || null,
-      ])
+        this.params.buildingId || null,
+      ])).map(c => new Classroom(c).load())) // 利用Classroom类剔除多余属性，统一返回的JSON格式
 
-      result = {
-        "pager.pageNo": this.params.pageNo,
-        "pager.totalRows": spareClassrooms.length,
-        "rows": spareClassrooms.slice(this.params.pageSize * (this.params.pageNo - 1), this.params.pageSize * this.params.pageNo)
+      if (campusId) { // 对校区过滤
+        let id = parseInt(campusId)
+        spareClassrooms = spareClassrooms.filter(k => k.building.campusId === id)
       }
+      return spareClassrooms
+    }) // publicCache
+
+    // 分页
+    return {
+      "pager.pageNo": pageNo,
+      "pager.totalRows": spare.length,
+      "rows": spare.slice(pageSize * (pageNo - 1), pageSize * pageNo)
     }
-
-    // 利用Classroom类剔除多余属性，统一返回的JSON格式
-    result.rows = await Promise.all(result.rows.map(c => new Classroom(c).load()))
-
-    return result
   }
 }
