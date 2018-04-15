@@ -36,6 +36,7 @@ exports.route = {
     } else { */ // 纪忠楼 & 四牌楼 & 无线谷 & 无锡分校
     // 利用开课列表筛选出当前条件下有课的教室ID
     let spare = await this.publicCache('1d+', async () => {
+      // FIXME: 尚未能够处理单双周
       let occupiedClassroomIds = (await db.all(`
         select classroomId from ClassRecord
         where termId = ?
