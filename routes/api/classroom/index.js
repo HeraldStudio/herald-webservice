@@ -30,6 +30,8 @@ exports.route = {
   /**
   * POST /api/classroom
   * @remark 爬取学校网站，完整更新一次数据库（校区/建筑/教室/课程数据）
+  * 似乎不应该反复调用，而且每个学期都应该清空一次数据库。
+  * gradDepts 和 ugDepts 表示单独获取某些学院(分别是研究生和本科生)，只要指定了一个，就不会完整抓取所有学院。
   **/
   async post({ gradDepts, ugDepts }) {
     if (! this.admin || ! this.admin.maintenance) {
@@ -49,10 +51,8 @@ exports.route = {
       }
     }))
 
-    // 方法复用，source提供原始网页数据，regex解析数据，parser将regex的一个match转换为对应的record
-    // 整个函数完成一次对某一处课程信息的提取
+    // 将一条记录添加到数据库里，根据需要，自动创建上一层对象。
     async function addToDB(record) {
-
       // 流式编程，处理需要新增校区/建筑/教室信息的情况
       ;[
         [Object,    record.notExistName],  // 哨兵顶层
@@ -95,7 +95,6 @@ exports.route = {
       (k) => [k.text(), 'http://xk.urp.seu.edu.cn/jw_service/service/' + k.attr('href')])
 
     // 等待所有数据更新完毕
-    // FIXME 要限制线程。一次只能抓几个。不然超时
     // 更新研究生数据
     let gradError = []
     for (let department of gradDepts || ["000","001","002","003","004","005","006","007","008","009","010","011","012","014","016","017","018","019","021","022","025","040","042","044","055","080","081","084","086","101","110","111","301","316","317","318","319","401","403","404","990","997"]) {
@@ -107,7 +106,6 @@ exports.route = {
         )
         let $ = cheerio.load(res.data)
 
-        // /<td>([^<]+)<\/td><td>([^<]+)<\/td><td>([^\s<]+)\s*<\/td><td>第(\d+)-(\d+)周;? ([^<]*)<\/td><td>([^<]+)<\/td><td>([^\w<]+)([0-9a-zA-Z]+)<\/td><td>(\d+)<\/td><td>(\d+)<\/td>/img,
         // 找到表格，去掉标题栏
         $('#dgData > tbody > tr').toArray().slice(1)
           .map(k => $(k).find('td').toArray().map(k => $(k).text().trim())) // 找到每一栏的信息
@@ -116,7 +114,8 @@ exports.route = {
               let [, startWeek, endWeek] = /^第(\d+)-(\d+)周/.exec(hours)
               let [, buildingName, classroomName] = /^([^0-9a-zA-Z]+)([0-9a-zA-Z]+)$/.exec(location)
               hours
-                .split(' ').map(v => /星期(.)-(.+)/.exec(v)).slice(1) // 去掉第几周的信息
+                .split(' ').map(v => /星期(.)-(.+)/.exec(v))
+                .slice(1) // 去掉第几周的信息
                 .forEach( // 把一星期中上多天的一门课拆成若干个Record
                   ([, day, time]) => {
                     let sequence = time.split(',').map(e => ClassOfDay[e])
@@ -153,20 +152,22 @@ exports.route = {
 
         $('#table2 > tbody > tr').toArray().slice(1)
           .map(k => $(k).find('td').toArray().map(k => $(k).text().replace(/\&nbsp;/g, ' ').trim()))
-        // .map(k => (console.log(JSON.stringify(k)), k))
           .forEach(
             ([num, term, name, standing, teacher, arrangement]) => {
               let [weeks, hours] = arrangement.split(' ')
+              // 没有指明上课时间，对于教室查找没有任何帮助
               if (! hours) {
                 return
               }
               let [, startWeek, endWeek] = /^\[(\d+)-(\d+)周\]$/.exec(weeks)
               hours.split(',').map(v => /^周(.)\((单|双|)(\d+)-(\d+)\)(.*)$/.exec(v))
-                .forEach(async ([, day, flip, startSequence, endSequence, location]) => {
+                .forEach(([, day, flip, startSequence, endSequence, location]) => {
                   let buildingName, classroomName
+                  // 没有指明上课地点，对于教室查找没有任何帮助
                   if (! location) {
                     return
                   }
+                  // 将地点拆分为 `建筑`-`教室` 的形式
                   if (/-/.test(location)) {
                     ;[buildingName, classroomName] = location.split('-')
                   } else if (/大学生活动中心/.test(location)) {
@@ -176,10 +177,10 @@ exports.route = {
                     return
                   }
                   classroomFullName = buildingName + '-' + classroomName
-                  await addToDB({
+                  addToDB({ // 免于等待
                     name,
                     courseName: name,
-                    flip: {'单': 'odd', '双': 'even', '': 'none'}[flip],
+                    flip: {'单': 'odd', '双': 'even', '': 'none'}[flip], // FIXME 这里尚未能够处理
                     startWeek: parseInt(startWeek),
                     endWeek: parseInt(endWeek),
                     dayOfWeek: DayOfWeek[day],
