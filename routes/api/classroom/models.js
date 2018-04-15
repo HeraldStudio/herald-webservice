@@ -4,7 +4,7 @@ const { db, ModelBase } = require("./orm")("classroom")
   ## Campus 数据表结构
 
   id      integer    校区Id
-  name    text       校区名 
+  name    text       校区名
  */
 class Campus extends ModelBase {
   static get schema() {
@@ -24,7 +24,7 @@ class Campus extends ModelBase {
         return "九龙湖"
       case /纪忠楼/.test(buildingName):
         return "九龙湖研究生"
-      case /四牌楼/.test(buildingName):        
+      case /四牌楼/.test(buildingName):
       default:
         return "四牌楼"
     }
@@ -35,7 +35,7 @@ class Campus extends ModelBase {
   ## Building 数据表结构
 
   id          integer    建筑Id
-  name        text       建筑名 
+  name        text       建筑名
   campusId    integer    建筑所属校区Id
  */
 class Building extends ModelBase {
@@ -51,7 +51,7 @@ class Building extends ModelBase {
   ## Classroom 数据表结构
 
   id                   integer     教室Id
-  name                 text        教室名 
+  name                 text        教室名
   buildingId           integer     教室所属建筑Id
   classroomTypeIdList  array       教室类型Id数组
  */
@@ -128,13 +128,13 @@ class ClassRecord extends ModelBase {
 }
 
 const DayOfWeek = {
-  "星期一": 1,
-  "星期二": 2,
-  "星期三": 3,
-  "星期四": 4,
-  "星期五": 5,
-  "星期六": 6,
-  "星期日": 7,
+  "一": 1,
+  "二": 2,
+  "三": 3,
+  "四": 4,
+  "五": 5,
+  "六": 6,
+  "日": 7,
 }
 
 const ClassOfDay = {
