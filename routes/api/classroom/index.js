@@ -85,13 +85,13 @@ exports.route = {
 
     let $ugrad = cheerio.load((await this.get('http://xk.urp.seu.edu.cn/jw_service/service/academyClassLook.action')).data)
     let links = $ugrad('.FrameItemFont a').toArray().map(k => $ugrad(k)).map(
-      (k) => [k.text(), 'http://xk.urp.seu.edu.cn/jw_service/service/' + k.attr('href')]).slice(0,1) // DEBUG
+      (k) => [k.text(), 'http://xk.urp.seu.edu.cn/jw_service/service/' + k.attr('href')])
 
     // 等待所有数据更新完毕
+    // FIXME 要限制线程。一次只能抓几个。不然超时
     await Promise.all([
       // 更新研究生数据
-      // FIXME: 补全院系编号
-      ...["000",/*"001","002","003","004","005","006","007","008","009","010","011","012","014","016","017","018","019","021","022","025","040","042","044","055","080","081","084","086","101","110","111","301","316","317","318","319","401","403","404","990","997"*/].map(
+      ...["000","001","002","003","004","005","006","007","008","009","010","011","012","014","016","017","018","019","021","022","025","040","042","044","055","080","081","084","086","101","110","111","301","316","317","318","319","401","403","404","990","997"].map(
         async department => {
           let res = await this.post(
             "http://121.248.63.139/nstudent/pygl/kbcx_yx.aspx",
@@ -132,7 +132,6 @@ exports.route = {
             ) // forEach courseInfo[]
         }), // map async department
       // 更新本科生课程数据
-      // TODO: 补充本科生爬取、解析规则
       ...links.map(
         async ([department, link]) => {
           let res = await this.get(link)
