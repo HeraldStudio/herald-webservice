@@ -21,68 +21,69 @@ module.exports = async (ctx, next) => {
 
     // 对应路由的转换操作
     if (ctx.path === '/checkversion') {
-      let { uuid, versiontype } = ctx.params
+      let content = { serverHealth: true }
+      try {
+        let { uuid, versiontype } = ctx.params
 
-      // 与 middleware/adapter/ws2.js:44 一致，快速更新用户的具体平台
-      if (uuid && versiontype) {
-        let { platform } = await authdb.auth.find({ tokenHash: hash(uuid) }, 1)
-        if (platform === 'ws2') {
-          let platform = 'ws2-' + versiontype.toLowerCase().replace('wxapp', 'mina')
-          await authdb.auth.update({ tokenHash: hash(uuid) }, { platform })
+        // 与 middleware/adapter/ws2.js:44 一致，快速更新用户的具体平台
+        if (uuid && versiontype) {
+          let { platform } = await authdb.auth.find({ tokenHash: hash(uuid) }, 1)
+          if (platform === 'ws2') {
+            let platform = 'ws2-' + versiontype.toLowerCase().replace('wxapp', 'mina')
+            await authdb.auth.update({ tokenHash: hash(uuid) }, { platform })
+          }
         }
-      }
+        
+        let notices = await pubdb.notice.find()
 
-      ctx.body = { content: {}, code: 200 }
-      let notices = await pubdb.notice.find()
+        // 每条系统通知对应转换为小程序的一条通知
+        // 内容直接用 Markdown 代码
+        // 地址直接用 Markdown 中找到的第一个链接地址
+        let wxappMessages = notices.map(k => {
+          let link = `https://myseu.cn/?nid=${k.nid}#/`
+          return {
+            image: '',
+            title: k.title,
+            content: k.content.substring(0, 100) + '…\n\n查看完整公告 >',
+            url: link
+          }
+        })
 
-      // 每条系统通知对应转换为小程序的一条通知
-      // 内容直接用 Markdown 代码
-      // 地址直接用 Markdown 中找到的第一个链接地址
-      let wxappMessages = notices.map(k => {
-        let link = `https://myseu.cn/?nid=${k.nid}#/`
-        return {
-          image: '',
-          title: k.title,
-          content: k.content.substring(0, 100) + '…\n\n查看完整公告 >',
-          url: link
+        // 根据老版小程序设定，没有通知时应去掉 messages 数组
+        if (wxappMessages.length) {
+          content.messages = wxappMessages
         }
-      })
+        content.matchers = []
 
-      // 根据老版小程序设定，没有通知时应去掉 messages 数组
-      if (wxappMessages.length) {
-        ctx.body.content.messages = wxappMessages
-      }
-      ctx.body.content.matchers = []
+        // 小程序的登录提示不要了
+        if (notices.length) {
+          let link = `https://myseu.cn/#/notice/${notices[0].nid}`
 
-      // 小程序的登录提示不要了
-      if (notices.length) {
-        let link = `https://myseu.cn/#/notice/${notices[0].nid}`
-
-        ctx.body.content.message = {
-          image: '',
-          content: notices[0].title,
-          url: link
+          content.message = {
+            image: '',
+            content: notices[0].title,
+            url: link
+          }
         }
-      }
 
-      let { schoolnum = '' } = ctx.params
-      let now = new Date().getTime()
-      ctx.body.content.sliderviews = (await pubdb.banner.find({
-        startTime: { $lte: now },
-        endTime: { $gt: now }
-      })).filter(k =>
-        schoolnum.indexOf(k.schoolnumPrefix) === 0 ||
-        !schoolnum && k.schoolnumPrefix === 'guest' ||
-        schoolnum && k.schoolnumPrefix === '!guest'
-      ).sort((a, b) => b.startTime - a.startTime).map(k => {
-        return {
-          title: k.title,
-          imageurl: k.pic,
-          url: k.url
-        }
-      })
-
-      ctx.body.content.serverHealth = true
+        let { schoolnum = '' } = ctx.params
+        let now = new Date().getTime()
+        content.sliderviews = (await pubdb.banner.find({
+          startTime: { $lte: now },
+          endTime: { $gt: now }
+        })).filter(k =>
+          schoolnum.indexOf(k.schoolnumPrefix) === 0 ||
+          !schoolnum && k.schoolnumPrefix === 'guest' ||
+          schoolnum && k.schoolnumPrefix === '!guest'
+        ).sort((a, b) => b.startTime - a.startTime).map(k => {
+          return {
+            title: k.title,
+            imageurl: k.pic,
+            url: k.url
+          }
+        })
+      } finally {}
+      ctx.body = { content, code: 200 }
     } else if (ctx.path === '/download') {
       ctx.redirect('http://herald-app.oss-cn-shanghai.aliyuncs.com/app-release.apk')
     } else if (ctx.path.indexOf('/counter/') === 0) {
