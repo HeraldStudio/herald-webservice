@@ -41,6 +41,21 @@ module.exports = async (ctx, next) => {
     if (ctx.path === '/adapter-ws2/uc/auth') {
       let { user, password } = ctx.params // 对 appid 容错
 
+      // 根据头部特征识别具体平台
+      let { 'user-agent': ua, 'accept-language': lang } = ctx.request.headers
+      let platform = 'ws2'
+      if (!ua && lang) {
+        platform += '-ios'
+      } else if (/okhttp/i.test(ua)) {
+        platform += '-android'
+      } else if (/iphone/i.test(ua)) {
+        platform += '-mina-ios'
+      } else if (/android/i.test(ua)) {
+        platform += '-mina-android'
+      } else if (/devtools/i.test(ua)) {
+        platform += '-mina-devtools'
+      }
+
       // 转换为对 ws3 auth 请求
       ctx.path = '/auth'
       ctx.params = { cardnum: user, password, platform: 'ws2' }
