@@ -154,7 +154,7 @@ module.exports = async (ctx, next) => {
           tokenEncrypted = encrypt(password, token)
           passwordHash = hash(password)
 
-          await db.update({ cardnum, platform }, {
+          await db.auth.update({ cardnum, platform }, {
             passwordEncrypted,
             gpasswordEncrypted,
             tokenEncrypted,

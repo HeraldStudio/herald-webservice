@@ -10,11 +10,6 @@ module.exports = async (ctx, next) => {
   let originalPath = ctx.path
   let originalMethod = ctx.method
   try {
-    if (ctx.params.uuid) {
-      // 去除参数的 uuid，防止参数多变，污染 public redis 存储
-      delete ctx.params.uuid
-    }
-
     ctx.path = ctx.path.replace('/adapter-appserv', '')
 
     // 对应路由的转换操作
