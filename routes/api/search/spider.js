@@ -135,6 +135,6 @@ function filter(href) {
     } catch (e) {
       log.write('-> Failed to fetch: ' + e.message + '\n')
     }
+    await sleep(1000)
   }
-  await sleep(1000)
 })()
