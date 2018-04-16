@@ -25,7 +25,7 @@ module.exports = async (ctx, next) => {
 
       // 与 middleware/adapter/ws2.js:44 一致，快速更新用户的具体平台
       if (uuid && versiontype) {
-        let { platform } = await authdb.auth.find({ tokenHash: hash(uuid) })
+        let { platform } = await authdb.auth.find({ tokenHash: hash(uuid) }, 1)
         if (platform === 'ws2') {
           let platform = 'ws2-' + versiontype.toLowerCase().replace('wxapp', 'mina')
           await authdb.auth.update({ tokenHash: hash(uuid) }, { platform })
