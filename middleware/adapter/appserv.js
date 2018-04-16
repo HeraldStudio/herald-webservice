@@ -27,13 +27,13 @@ module.exports = async (ctx, next) => {
 
         // 与 middleware/adapter/ws2.js:44 一致，快速更新用户的具体平台
         if (uuid && versiontype) {
-          let { platform } = await authdb.auth.find({ tokenHash: hash(uuid) }, 1)
-          if (platform === 'ws2') {
+          let auth = await authdb.auth.find({ tokenHash: hash(uuid) }, 1)
+          if (auth && auth.platform === 'ws2') {
             let platform = 'ws2-' + versiontype.toLowerCase().replace('wxapp', 'mina')
             await authdb.auth.update({ tokenHash: hash(uuid) }, { platform })
           }
         }
-        
+
         let notices = await pubdb.notice.find()
 
         // 每条系统通知对应转换为小程序的一条通知
@@ -82,8 +82,11 @@ module.exports = async (ctx, next) => {
             url: k.url
           }
         })
-      } finally {}
-      ctx.body = { content, code: 200 }
+        ctx.body = { content, code: 200 }
+      } catch (e) {
+        console.error(e)
+        ctx.body = { content, code: 200 }
+      }
     } else if (ctx.path === '/download') {
       ctx.redirect('http://herald-app.oss-cn-shanghai.aliyuncs.com/app-release.apk')
     } else if (ctx.path.indexOf('/counter/') === 0) {
