@@ -436,7 +436,7 @@ module.exports = async (ctx, next) => {
         await next()
         let content = ctx.body.sort((a, b) => b.current - a.current).map(k => k.name)
         ctx.body = { content, code: 200 }
-
+        
       } else if (ctx.path === '/api/user') {
         await next()
         let { cardnum, name, schoolnum, gender: sex } = ctx.body
