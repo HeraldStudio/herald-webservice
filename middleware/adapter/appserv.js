@@ -1,6 +1,12 @@
 const pubdb = require('../../database/publicity')
+const authdb = require('../../database/auth')
 const { config } = require('../../app')
 const axios = require('axios')
+
+// 哈希算法，用于对 token 和密码进行摘要
+const hash = value => {
+  return new Buffer(crypto.createHash('md5').update(value).digest()).toString('base64')
+}
 
 module.exports = async (ctx, next) => {
   if (ctx.path.indexOf('/adapter-appserv/') !== 0) {
@@ -14,6 +20,17 @@ module.exports = async (ctx, next) => {
 
     // 对应路由的转换操作
     if (ctx.path === '/checkversion') {
+      let { uuid, versiontype } = ctx.params
+
+      // 与 middleware/adapter/ws2.js:44 一致，快速更新用户的具体平台
+      if (uuid && versiontype) {
+        let { platform } = await authdb.auth.find({ tokenHash: hash(uuid) })
+        if (platform === 'ws2') {
+          let platform = 'ws2-' + versiontype.toLowerCase().replace('wxapp', 'mina')
+          await authdb.auth.update({ tokenHash: hash(uuid) }, { platform })
+        }
+      }
+
       ctx.body = { content: {}, code: 200 }
       let notices = await pubdb.notice.find()
 
