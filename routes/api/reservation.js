@@ -75,42 +75,42 @@ exports.route = {
 
   // FIXME: 这里代码有些看不懂...不知道对后面维护有什么影响，大概的API文档如上所示
   async get(params) {
-     await this.useAuthCookie()
-
-     let curMethod = reservationAPI[params.method]
-     // Bad Request
-     if (! curMethod) {
-       throw 400
-     }
-     // 得到 args 的值
-     let args = (curMethod.args || [])
-         .map(k => {
-           if (Array.isArray(k) && typeof(k[1]) === 'function') {
-             k[1] = k[1](this)
-           } else {
-             k = [k, params[k]]
-           }
-           return k
-         })
-
-     try {
-       let res =
-         await (curMethod.method === 'post'
-           ? (this.post
-             (curMethod.url,
-             // 转化成 Object
-             args.reduce((k, a) => { k[a[0]] = a[1]; return k }, {})))
-           : (this.get(curMethod.url
-             // 转化成 &foo=bar 的形式
-             + args
-               .reduce((k, a) =>
-                 k + '&' + a[0] + '=' + a[1]
-                 , ''))))
-
-       return res.data
-     } catch (e) {
-       console.log(e)
-       throw 400
-     }
+     // await this.useAuthCookie()
+     //
+     // let curMethod = reservationAPI[params.method]
+     // // Bad Request
+     // if (! curMethod) {
+     //   throw 400
+     // }
+     // // 得到 args 的值
+     // let args = (curMethod.args || [])
+     //     .map(k => {
+     //       if (Array.isArray(k) && typeof(k[1]) === 'function') {
+     //         k[1] = k[1](this)
+     //       } else {
+     //         k = [k, params[k]]
+     //       }
+     //       return k
+     //     })
+     //
+     // try {
+     //   let res =
+     //     await (curMethod.method === 'post'
+     //       ? (this.post
+     //         (curMethod.url,
+     //         // 转化成 Object
+     //         args.reduce((k, a) => { k[a[0]] = a[1]; return k }, {})))
+     //       : (this.get(curMethod.url
+     //         // 转化成 &foo=bar 的形式
+     //         + args
+     //           .reduce((k, a) =>
+     //             k + '&' + a[0] + '=' + a[1]
+     //             , ''))))
+     //
+     //   return res.data
+     // } catch (e) {
+     //   console.log(e)
+     //   throw 400
+     // }
   }
 }
