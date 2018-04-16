@@ -65,7 +65,7 @@ module.exports = async (ctx, next) => {
         }
       }
 
-      let { schoolnum } = ctx.params
+      let { schoolnum = '' } = ctx.params
       let now = new Date().getTime()
       ctx.body.content.sliderviews = (await pubdb.banner.find({
         startTime: { $lte: now },
