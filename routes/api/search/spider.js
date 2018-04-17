@@ -11,7 +11,10 @@ const url = require('url')
 sqlongo.defaults.path = 'database'
 const db = require('../../../database/search')
 
-jieba.load()
+if (process.env.NODE_ENV === 'development') {
+  jieba.load()
+  start()
+}
 
 function standardize(url) {
   return url.replace(/^.*:\/+/, '').replace(/\/(\?|$)/g, '$1').toLowerCase()
@@ -69,7 +72,7 @@ function filter(href) {
   }
 }
 
-(async () => {
+async function start () {
   let begun = await has('http://www.seu.edu.cn')
   if (!begun) {
     await enqueue('http://www.seu.edu.cn')
@@ -137,4 +140,4 @@ function filter(href) {
     }
     await sleep(1000)
   }
-})()
+}
