@@ -1,6 +1,7 @@
 const cheerio = require('cheerio')
 const { config } = require('../../app')
 
+// 本科生和研究生的时间表完全一样
 const courseStartTime
   = '8:00|8:50|9:50|10:40|11:30|14:00|14:50|15:50|16:40|17:30|18:30|19:20|20:10'
   .split('|').map(k => k.split(':').map(Number).reduce((a, b) => a * 60 + b, 0))
