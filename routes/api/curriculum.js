@@ -1,7 +1,8 @@
 const cheerio = require('cheerio')
 const { config } = require('../../app')
 
-// 本科生和研究生的时间表完全一样
+// 每节课的开始时间 (时 * 60 + 分)
+// 注：本科生和研究生的时间表完全一样。
 const courseStartTime
   = '8:00|8:50|9:50|10:40|11:30|14:00|14:50|15:50|16:40|17:30|18:30|19:20|20:10'
   .split('|').map(k => k.split(':').map(Number).reduce((a, b) => a * 60 + b, 0))
@@ -295,6 +296,7 @@ exports.route = {
         }).reduce((a, b) => a.concat(b), [])
       }// if 本科生 / 研究生
 
+      // 给有上课时间的课程添加上课具体周次、每周上课的具体起止时间戳
       curriculum.map(k => {
         let { beginWeek, endWeek, dayOfWeek, beginPeriod, endPeriod, flip } = k
         if (dayOfWeek) {
