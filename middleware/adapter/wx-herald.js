@@ -76,10 +76,10 @@ const handler = {
     let currentCount = current.length
 
     return `🗓 本学期上了 ${endedCount} 节课，还有 ${upcomingCount} 节课\n\n` + 
-      current.map(k => `🕒 正在上课：${k.courseName} @ ${k.location}\n`).join('') +
-      upcoming.slice(0, 1).map(k => `🕒 ${df.formatTimeNatural(k.startTime)}：${k.courseName} @ ${k.location}`).join('\n') + `
+      current.map(k => `正在上课：${k.courseName} @ ${k.location}\n`).join('') +
+      upcoming.slice(0, 1).map(k => `${df.formatTimeNatural(k.startTime)}：${k.courseName} @ ${k.location}`).join('\n') + `
       
-      💡 登录网页版或小程序查看完整课表`.padd()
+      💡 完整课表详见网页版或小程序`.padd()
   },
 
   default: '公众号正在施工中，如有功能缺失请谅解~',
