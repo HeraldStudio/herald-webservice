@@ -232,7 +232,7 @@ const handler = {
     let notices = this.body
     return [
       `📨 最近通知：`,
-      notices.slice(10).map(k => `${k.category} ${df.formatDateNatural(k.publishTime)}
+      notices.slice(10).map(k => `${k.category} ${new Date(k.publishTime).format('yyyy-M-d')}
         <a href="${k.url || 'https://myseu.cn/?nid=' + k.nid}">${k.title}</a>`).join('\n\n')
     ].filter(k => k).join('\n\n').padd()
   },
