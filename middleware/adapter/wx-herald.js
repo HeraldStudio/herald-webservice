@@ -3,6 +3,9 @@
  */
 const wechat = require('co-wechat')
 const config = require('../../sdk/sdk.json').wechat['wx-herald']
+const api = require('../../sdk/wechat').getAxios('wx-herald')
+const menu = require('./wx-herald-menu.json')
+api.post('/menu/create', menu).then(res => console.log(res.data))
 
 const handler = wechat(config).middleware(async (message, ctx) => {
   return 'Hello, World! 小猴偷米微信服务号施工中~'
