@@ -23,11 +23,11 @@ if (process.env.NODE_ENV === 'production') {
 const handler = {
   '菜单': `🐵 小猴偷米功能菜单
 
-          💬 一卡通 课表 跑操 体测
-          💬 　实验 考试 成绩 讲座
-          💬 　图书 奖助 搜索 SRTP
+          👾 一卡通 课表 跑操 体测
+          👾 　实验 考试 成绩 讲座
+          👾 　图书 奖助 搜索 SRTP
 
-          回复关键词使用对应功能`.padd(),
+          💡 回复关键词使用对应功能`.padd(),
 
   async '绑定' (cardnum, password, gpassword = '') {
     this.path = '/auth'
