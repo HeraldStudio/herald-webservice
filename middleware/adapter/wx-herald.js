@@ -14,7 +14,7 @@ if (process.env.NODE_ENV === 'production') {
   })
 }
 
-// 各种功能的 handler 函数
+// 各种功能的 handler 函数或对象
 const handler = {
   async 绑定 (cardnum, password) {
     this.path = '/auth'
@@ -26,9 +26,7 @@ const handler = {
     }
     return await this.next().then(() => '绑定成功', e => `绑定失败 ${e}, ${this.params}`)
   },
-  default () {
-    return '公众号正在施工中，如有功能缺失请谅解~'
-  }
+  default: '公众号正在施工中，如有功能缺失请谅解~'
 }
 
 // 分割用户指令并进入相应 handler 函数中
@@ -37,7 +35,12 @@ const middleware = wechat(config).middleware(async (message, ctx) => {
   ctx.request.headers.token = message.FromUserName
   ctx.message = message
   let originalPath = ctx.path
-  let res = await (handler[cmd] || handler.default).call(ctx, args)
+  let han = handler[cmd] || handler.default
+  if (han instanceof Function) {
+    let res = await han.call(ctx, args)
+  } else {
+    return han
+  }
   ctx.path = originalPath
   return res
 })
