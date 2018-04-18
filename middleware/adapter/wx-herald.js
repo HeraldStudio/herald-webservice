@@ -52,7 +52,7 @@ const handler = {
       platform: 'wx-herald'
     }
     await this.next()
-    return `🔗 绑定成功，回复 菜单 查看功能列表~
+    return `🔗 绑定成功
     💡 若之前绑定过其他账号，旧账号缓存数据会出现短时间的暂留，属正常现象。`.padd()
   },
 
@@ -250,6 +250,8 @@ const handler = {
   },
 
   default: `🤔 命令无法识别
+  
+    💡 回复 菜单 查看功能列表
     💡 所有命令与参数之间均有空格`.padd(),
 
   401: `🔗 绑定东南大学学生账号
@@ -267,6 +269,8 @@ const handler = {
   timeout: '请求超时，学校服务又挂啦 🙁',
 
   defaultError: `🤔 命令执行出错，请检查命令格式
+
+    💡 回复 菜单 查看功能列表
     💡 所有命令与参数之间均有空格`.padd()
 }
 
