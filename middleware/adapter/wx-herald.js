@@ -40,7 +40,7 @@ const handler = {
           实验 考试 成绩 SRTP
           图书 奖助 通知 讲座
 
-          💡 回复关键词使用对应功能`
+          💡 回复关键词使用对应功能`.padd()
   },
 
   async '绑定|登录|登陆|綁定|登錄' (cardnum, password, gpassword = '') {
@@ -250,7 +250,7 @@ const handler = {
   },
 
   default: `🤔 命令无法识别
-  
+
     💡 回复 菜单 查看功能列表
     💡 所有命令与参数之间均有空格`.padd(),
 
