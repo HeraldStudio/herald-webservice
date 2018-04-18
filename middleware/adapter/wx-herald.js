@@ -37,7 +37,7 @@ const middleware = wechat(config).middleware(async (message, ctx) => {
   let han = handler[cmd] || handler.default
   if (han instanceof Function) {
     let originalPath = ctx.path
-    let res = await han.call(ctx, args)
+    let res = await han.call(ctx, ...args)
     ctx.path = originalPath
     return res
   } else {
