@@ -108,12 +108,11 @@ exports.route = {
         // 接口设计规范，一定是数字的字段尽量转成数字；表示日期时间的字段转成毫秒时间戳
         if (cells.length >= 10) rows.push({
           id: parseInt(cells[7]),
-          desc: cells[4] || cells[3], // 地点或者交易性质
+          desc: cells[4] || cells[3].replace(/扣款/g, '') || cells[9].replace(/^[\d-]+/, ''), // 地点或者交易性质
           time: new Date(cells[0]).getTime(),
           amount: parseFloat(cells[5].replace(/,/g, '')),
           balance: parseFloat(cells[6].replace(/,/g, '')),
-          state: cells[8],
-          comment: cells[9]
+          state: cells[8]
         })
       })
 
