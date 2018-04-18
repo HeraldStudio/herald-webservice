@@ -40,11 +40,11 @@ module.exports = {
     }
     let dmin = Math.round(dsec / 60)
     if (Math.abs(dmin) < 60) {
-      return Math.abs(dmin) + '分钟' + (dmin < 0 ? '前' : '后')
+      return Math.abs(dmin) + '分' + (dmin < 0 ? '前' : '后')
     }
     let dhr = Math.round(dmin / 60)
     if (Math.abs(dhr) < 24 && date.getDate() === now.getDate()) {
-      return Math.abs(dhr) + '小时' + (dhr < 0 ? '前' : '后')
+      return Math.abs(dhr) + '时' + (dhr < 0 ? '前' : '后')
     }
     return this.formatDateNatural(timestamp)
   },
