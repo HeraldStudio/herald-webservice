@@ -179,7 +179,7 @@ const middleware = wechat(config).middleware(async (message, ctx) => {
       ])
       return res
     } catch (e) {
-      let han = handler[e] || handler.defaultError
+      let han = handler[e] || e && handler[e.message] || handler.defaultError
       if (han instanceof Function) {
         return await han.call(ctx, ...args)
       } else {
