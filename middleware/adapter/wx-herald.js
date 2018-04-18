@@ -16,7 +16,7 @@ if (process.env.NODE_ENV === 'production') {
 
 // 各种功能的 handler 函数或对象
 const handler = {
-  async 绑定 (cardnum, password) {
+  async '绑定' (cardnum, password) {
     this.path = '/auth'
     this.method = 'POST'
     this.params = {
@@ -34,15 +34,15 @@ const middleware = wechat(config).middleware(async (message, ctx) => {
   let [cmd, ...args] = message.Content.trim().split(/\s+/g)
   ctx.request.headers.token = message.FromUserName
   ctx.message = message
-  let originalPath = ctx.path
   let han = handler[cmd] || handler.default
   if (han instanceof Function) {
+    let originalPath = ctx.path
     let res = await han.call(ctx, args)
+    ctx.path = originalPath
+    return res
   } else {
     return han
   }
-  ctx.path = originalPath
-  return res
 })
 
 module.exports = async (ctx, next) => {
