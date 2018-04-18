@@ -60,6 +60,7 @@ app.use(require('./middleware/cors'))
 */
 app.use(require('./middleware/adapter/ws2'))
 app.use(require('./middleware/adapter/appserv'))
+app.use(require('./middleware/adapter/wx-herald'))
 
 /**
   ## C. API 层
