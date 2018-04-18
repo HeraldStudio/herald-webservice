@@ -120,8 +120,9 @@ module.exports = async (ctx, next) => {
       throw 405
     }
 
-    // 获取一卡通号、密码、研究生密码、前端定义版本
-    let { cardnum, password, gpassword, platform } = ctx.params
+    // 获取一卡通号、密码、研究生密码、前端定义版本、自定义 token
+    // 自定义 token 可用于将微信 openid 作为 token，实现微信端账号的无明文绑定
+    let { cardnum, password, gpassword, platform, customToken } = ctx.params
 
     // 这里不用解构赋值的默认值，因为不仅需要给 undefined 设置默认值，也需要对空字符串进行容错
     gpassword = gpassword || password
@@ -130,10 +131,18 @@ module.exports = async (ctx, next) => {
       throw '缺少参数 platform: 必须指定平台名'
     }
 
-    // 查找同一用户同一平台的已认证记录
-    let existing = await db.auth.find({ cardnum, platform }, 1)
+    // 根据用户提供的凭据，尽可能查找当前用户已认证的可解密记录，以便免去统一身份认证流程、复用已有记录
+    // 无自定义 token 情况下，遵循同平台共用 token 原则，只需按平台查找用户
+    // 有自定义 token 情况下，需要按自定义 token 一起查找该用户，与该 token 不一致的无法复用
+    // 例如同一用户从多个微信登录，将出现同平台不同的自定 token，此时若覆盖老 token，将导致较早登录的微信被解绑 
+    let criteria = { cardnum, platform }
+    if (customToken) {
+      criteria.tokenHash = hash(customToken)
+    }
+    let existing = await db.auth.find(criteria, 1)
 
-    // 若找到已认证记录，比对密码
+    // 若找到已认证记录，比对密码，以便免去统一身份认证流程
+    // 该过程遵循 token 不变原则，禁止覆盖原有 token，防止原有的登录会话被丢失
     if (existing) {
       let { passwordHash, gpasswordEncrypted, tokenEncrypted } = existing
 
@@ -176,9 +185,21 @@ module.exports = async (ctx, next) => {
     let { name, schoolnum } = await auth(ctx, cardnum, password, gpassword)
 
     // 生成 32 字节 token 转为十六进制，及其哈希值
-    let token = new Buffer(crypto.randomBytes(20)).toString('hex')
+    let token = customToken || new Buffer(crypto.randomBytes(20)).toString('hex')
     let tokenHash = hash(token)
     let passwordHash = hash(password)
+
+    // 若存在自定义 token，删除相同 tokenHash 的原有记录。
+    // token 已存在有两种情况：
+    // 1. 非自定义 token 已存在，说明当前生成的 token 与其他用户发生哈希碰撞。该情况需要 let it crash，
+    //    让数据库发生插入冲突，让用户收到错误消息 400，用户再次登录将会生成新的 token，避开碰撞；
+    // 2. 自定义 token（openid）已存在，说明当前微信在当前微信公众平台下已经登录了用户；又因为上面的判断
+    //    已经排除了「已经登录同一用户」的情况，所以现在的情况是「当前微信在当前公众平台下已经登录其他用户」。
+    //    注：微信 openid 不仅用户唯一，且平台唯一，即一个 openid 对应 (一个微信用户 × 一个平台)。
+    //    这种情况下，应通过数据库删除操作将原绑定用户挤掉。
+    if (customToken) {
+      await db.auth.remove({ tokenHash })
+    }
 
     // 将 token 和密码互相加密
     let tokenEncrypted = encrypt(password, token)
