@@ -121,7 +121,7 @@ const handler = {
     let currentCount = current.length
 
     return [
-      `️⚗ 已做 ${endedCount} 次实验，还有 ${upcomingCount} 次`,
+      `🔬 已做 ${endedCount} 次实验，还有 ${upcomingCount} 次`,
       current.map(k => `正在进行：${k.labName} @ ${k.location}\n`).join(''),
       upcoming.map(k => `${df.formatPeriodNatural(k.startTime, k.endTime)}
         ${k.labName} @ ${k.location}`).join('\n\n')
@@ -141,7 +141,7 @@ const handler = {
     let currentCount = current.length
 
     return [
-      `️⚗ 已完成 ${endedCount} 场考试，还有 ${upcomingCount} 场`,
+      `️📝 已完成 ${endedCount} 场考试，还有 ${upcomingCount} 场`,
       current.map(k => `正在进行：${k.courseName} @ ${k.location}\n`).join(''),
       upcoming.map(k => `${df.formatPeriodNatural(k.startTime, k.endTime)}
         ${k.courseName} @ ${k.location}`).join('\n\n')
@@ -156,6 +156,8 @@ const handler = {
     例：绑定 213170000 mypassword
 
     🙈 密码全加密 小猴不偷你 🙈`.padd(),
+    
+  timeout: '请求超时，学校服务又挂啦 🙁',
 
   defaultError: '查询失败，请检查指令格式'
 }
@@ -171,10 +173,12 @@ const middleware = wechat(config).middleware(async (message, ctx) => {
     let originalPath = ctx.path
     let originalMethod = ctx.method
     try {
-      let res = await han.call(ctx, ...args)
+      let res = await Promise.race([
+        han.call(ctx, ...args),
+        new Promise((_, rej) => setTimeout(() => rej('timeout'), 5000))
+      ])
       return res
     } catch (e) {
-      console.log(e)
       let han = handler[e] || handler.defaultError
       if (han instanceof Function) {
         return await han.call(ctx, ...args)
