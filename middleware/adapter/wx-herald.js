@@ -5,8 +5,11 @@ const chalk = require('chalk')
 const wechat = require('co-wechat')
 const config = require('../../sdk/sdk.json').wechat['wx-herald']
 const api = require('../../sdk/wechat').getAxios('wx-herald')
+const df = require('./date-format')
 
-require('./ws2')// date format
+String.prototype.padd = function () {
+  return this.split('\n').map(k => k.trim()).join('\n')
+}
 
 // 生产环境更新自定义菜单
 if (process.env.NODE_ENV === 'production') {
@@ -18,13 +21,13 @@ if (process.env.NODE_ENV === 'production') {
 
 // 各种功能的 handler 函数或对象
 const handler = {
-  '菜单': `🐵 小猴偷米功能菜单 [方括号表示可选参数]
-🔗 绑定 一卡通号 统一身份认证密码 [研究生院密码]
-💳 一卡通 📅 课表 🏃 跑操 🏓 体测
-⚗️ 实验 📝 考试 📈 成绩 🎙 讲座
-📚 图书 🏆 奖助 🔍 搜索 🔬 SRTP
+  '菜单': `🐵 小猴偷米功能菜单
 
-⬇️ 点击 [小程序] 使用小程序版，戳 [<a href='myseu.cn'>这里</a>] 使用网页版`,
+          💬 一卡通 课表 跑操 体测
+          💬 　实验 考试 成绩 讲座
+          💬 　图书 奖助 搜索 SRTP
+
+          回复关键词使用对应功能`.padd(),
 
   async '绑定' (cardnum, password, gpassword = '') {
     this.path = '/auth'
@@ -41,11 +44,43 @@ const handler = {
   async '一卡通' (date) {
     this.path = '/api/card'
     this.method = 'GET'
-    this.params = { date }
+    this.query = this.params = { date }
     await this.next()
     let { info, detail } = this.body
-    return `💳 卡余额 ${info.balance}\n` +
-      detail.map(k => `[${new Date(k.time).format('H:mm')}] ${k.desc} [${k.amount}]`).join('\n')
+    return `💳 一卡通余额 ${info.balance}\n\n` + detail.map(k => {
+      let time = df.formatTimeNatural(k.time)
+      let amount = k.amount.toFixed(2).replace(/^(?:\d)/, '+')
+      return `[${time}] ${k.desc} ${amount}元`
+    }).join('\n') + (date ? '' : `
+      
+    💡 可查指定日期，注意中间加空格，例如：
+    💳 一卡通 2018-3-17`.padd())
+  },
+
+  async '课表' (term) {
+    this.path = '/api/curriculum'
+    this.method = 'GET'
+    this.params = { term }
+    await this.next()
+
+    let { curriculum } = this.body
+    curriculum = curriculum.map(course => {
+      let { courseName, location, events } = course
+      return events.map(e => Object.assign(e, { courseName, location }))
+    }).reduce((a, b) => a.concat(b), [])
+
+    let now = new Date().getTime()
+    let endedCount = curriculum.filter(k => k.endTime <= now).length
+    let upcoming = curriculum.filter(k => k.startTime > now)
+    let upcomingCount = upcoming.length
+    let current = curriculum.filter(k => k.startTime <= now && k.endTime > now)
+    let currentCount = current.length
+
+    return `🗓 本学期上了 ${endedCount} 节课，还有 ${upcomingCount} 节课\n\n` + 
+      current.map(k => `🕒 正在上课：${k.courseName} @ ${k.location}\n`).join('') +
+      upcoming.map(k => `🕒 即将上课：${k.courseName} @ ${k.location}\n`).join('') + `
+      
+      💡 登录网页版或小程序查看完整课表`
   },
 
   default: '公众号正在施工中，如有功能缺失请谅解~',
