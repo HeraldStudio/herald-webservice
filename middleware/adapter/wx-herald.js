@@ -53,8 +53,7 @@ const handler = {
       return `[${time}] ${k.desc} ${amount}元`
     }).join('\n') + (date ? '' : `
       
-    💡 可查指定日期，注意中间加空格，例如：
-    💳 一卡通 2018-3-17`.padd())
+    💡 可查指定日期，注意日期前加空格，例如：一卡通 2018-3-17`.padd())
   },
 
   async '课表' (term) {
@@ -71,14 +70,14 @@ const handler = {
 
     let now = new Date().getTime()
     let endedCount = curriculum.filter(k => k.endTime <= now).length
-    let upcoming = curriculum.filter(k => k.startTime > now)
+    let upcoming = curriculum.filter(k => k.startTime > now).sort((a, b) => a.time - b.time)
     let upcomingCount = upcoming.length
     let current = curriculum.filter(k => k.startTime <= now && k.endTime > now)
     let currentCount = current.length
 
     return `🗓 本学期上了 ${endedCount} 节课，还有 ${upcomingCount} 节课\n\n` + 
       current.map(k => `🕒 正在上课：${k.courseName} @ ${k.location}\n`).join('') +
-      upcoming.map(k => `🕒 即将上课：${k.courseName} @ ${k.location}\n`).join('') + `
+      upcoming.slice(1).map(k => `🕒 ${df.formatTimeNatural(k.startTime)}$：{k.courseName} @ ${k.location}\n`).join('') + `
       
       💡 登录网页版或小程序查看完整课表`.padd()
   },
