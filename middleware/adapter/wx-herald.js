@@ -108,6 +108,7 @@ const middleware = wechat(config).middleware(async (message, ctx) => {
       let res = await han.call(ctx, ...args)
       return res
     } catch (e) {
+      console.log(e)
       let han = handler[e] || handler.defaultError
       if (han instanceof Function) {
         return await han.call(ctx, ...args)
