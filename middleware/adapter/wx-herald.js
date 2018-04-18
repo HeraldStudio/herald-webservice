@@ -47,10 +47,10 @@ const handler = {
     this.query = this.params = { date }
     await this.next()
     let { info, detail } = this.body
-    return `💳 一卡通余额 ${info.balance}\n\n` + detail.map(k => {
+    return `💳 一卡通余额 ${info.balance}\n\n${date || ''}` + detail.map(k => {
       let time = df.formatTimeNatural(k.time)
       let amount = k.amount.toFixed(2).replace(/^(?:\d)/, '+')
-      return `[${time}] ${k.desc} ${amount}元`
+      return date ? `${k.desc} ${amount}` : `${time}：${k.desc} ${amount}`
     }).join('\n') + (date ? '' : `
       
     💡 可查指定日期，注意日期前加空格，例如：一卡通 2018-3-17`.padd())
@@ -70,7 +70,7 @@ const handler = {
 
     let now = new Date().getTime()
     let endedCount = curriculum.filter(k => k.endTime <= now).length
-    let upcoming = curriculum.filter(k => k.startTime > now).sort((a, b) => a.time - b.time)
+    let upcoming = curriculum.filter(k => k.startTime > now).sort((a, b) => a.startTime - b.startTime)
     let upcomingCount = upcoming.length
     let current = curriculum.filter(k => k.startTime <= now && k.endTime > now)
     let currentCount = current.length
@@ -84,13 +84,14 @@ const handler = {
 
   default: '公众号正在施工中，如有功能缺失请谅解~',
 
-  401: '😵 该功能需要绑定使用：\n' +
-    '本科生: 绑定 卡号 密码\n' +
-    '研究生: 绑定 卡号 密码 研院密码\n' +
-    '例: 绑定 213170000 mypassword\n' +
-    '🙈 密码隐私全加密 小猴偷米不偷你 🙈',
+  401: `绑定东南大学学生账号
+    本科生：绑定 卡号 密码
+    研究生：绑定 卡号 密码 研院密码
+    例：绑定 213170000 mypassword
 
-  defaultError: '😵 查询失败，请检查指令格式'
+    🙈 密码全加密 小猴不偷你 🙈`.padd(),
+
+  defaultError: '查询失败，请检查指令格式'
 }
 
 // 分割用户指令并进入相应 handler 函数中
