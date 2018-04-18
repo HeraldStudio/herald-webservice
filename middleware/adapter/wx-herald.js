@@ -10,7 +10,7 @@ const api = require('../../sdk/wechat').getAxios('wx-herald')
 if (process.env.NODE_ENV === 'production') {
   const menu = require('./wx-herald-menu.json')
   api.post('/menu/create', menu).then(res => {
-    console.log(chalk.blue('wx-herald 自定义菜单 ') + res.data.errmsg)
+    console.log(chalk.blue('[wx-herald] 自定义菜单 ') + res.data.errmsg)
   })
 }
 
@@ -25,6 +25,9 @@ const handler = {
       platform: 'wx-herald'
     }
     return await this.next().then(() => '绑定成功', () => '绑定失败')
+  },
+  default () {
+    return '公众号正在施工中，如有功能缺失请谅解~'
   }
 }
 
@@ -34,7 +37,7 @@ const middleware = wechat(config).middleware(async (message, ctx) => {
   ctx.request.headers.token = message.FromUserName
   ctx.message = message
   let originalPath = ctx.path
-  let res = handler[cmd] || handler.default.call(ctx, args)
+  let res = (handler[cmd] || handler.default).call(ctx, args)
   ctx.path = originalPath
   return res
 })
