@@ -60,12 +60,12 @@ const handler = {
   async '课表' (term) {
     this.path = '/api/curriculum'
     this.method = 'GET'
-    this.params = { term }
+    this.query = this.params = { term }
     await this.next()
 
     let { curriculum } = this.body
     curriculum = curriculum.map(course => {
-      let { courseName, location, events } = course
+      let { courseName, location, events = [] } = course
       return events.map(e => Object.assign(e, { courseName, location }))
     }).reduce((a, b) => a.concat(b), [])
 
@@ -103,6 +103,7 @@ const middleware = wechat(config).middleware(async (message, ctx) => {
   let han = handler[cmd] || handler.default
   if (han instanceof Function) {
     let originalPath = ctx.path
+    let originalMethod = ctx.method
     try {
       let res = await han.call(ctx, ...args)
       return res
@@ -115,6 +116,7 @@ const middleware = wechat(config).middleware(async (message, ctx) => {
       }
     } finally {
       ctx.path = originalPath
+      ctx.method = originalMethod
     }
   } else {
     return han
