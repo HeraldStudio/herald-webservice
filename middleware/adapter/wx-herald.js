@@ -16,7 +16,7 @@ if (process.env.NODE_ENV === 'production') {
 
 // 各种功能的 handler 函数
 const handler = {
-  async '绑定' (cardnum, password) {
+  async 绑定 (cardnum, password) {
     this.path = '/auth'
     this.method = 'POST'
     this.params = {
@@ -24,7 +24,7 @@ const handler = {
       customToken: this.message.FromUserName,
       platform: 'wx-herald'
     }
-    return await this.next().then(() => '绑定成功', () => '绑定失败')
+    return await this.next().then(() => '绑定成功', e => `绑定失败 ${e}, ${this.params}`)
   },
   default () {
     return '公众号正在施工中，如有功能缺失请谅解~'
@@ -37,7 +37,7 @@ const middleware = wechat(config).middleware(async (message, ctx) => {
   ctx.request.headers.token = message.FromUserName
   ctx.message = message
   let originalPath = ctx.path
-  let res = (handler[cmd] || handler.default).call(ctx, args)
+  let res = await (handler[cmd] || handler.default).call(ctx, args)
   ctx.path = originalPath
   return res
 })
