@@ -22,13 +22,15 @@ if (process.env.NODE_ENV === 'production') {
 // 各种功能的 handler 函数或对象
 const handler = {
   async '菜单|功能|菜單|選單' () {
-    let user = '未登录'
-    if (this.user.isLogin) {
+    let user
+    try {
       this.path = '/api/user'
       this.method = 'GET'
       await this.next()
       let { name, identity } = this.body
       user = `${name}（${identity}）`
+    } catch (e) {
+      user = '未登录'
     }
 
     return `🐵 小猴偷米微信功能菜单
@@ -172,7 +174,7 @@ const handler = {
     let { gpa, gpaBeforeMakeup, score, credits, detail } = this.body
     let info
     if (gpa) { // 本科生
-      info = `绩点：${gpa}（首修${gpaBeforeMakeup}）`
+      info = `绩点：${gpa}（首修 ${gpaBeforeMakeup}）`
     } else { // 研究生
       info = `平均规格化成绩：${score}
         已修学分：${credits.degree} + ${credits.optional}
@@ -181,7 +183,7 @@ const handler = {
     return [
       `📈 ${info}`,
       detail[0].courses.map(k => `${k.courseName} (${k.scoreType})
-        成绩 ${k.score} / 学分 ${k.credit}`).join('\n')
+        ${k.score} - ${k.credit} 学分`).join('\n\n')
     ].filter(k => k).join('\n\n').padd()
   },
 
@@ -217,25 +219,25 @@ const handler = {
     let applied = scholarshipApplied.concat(stipendApplied)
     return [
       `🔑 可申请奖助学金：`,
-      list.map(k => k.name),
+      list.map(k => k.name).join('\n'),
       `🔑 已申请奖助学金：`,
-      applied.map(k => `${k.name}（${k.state}）`)
+      applied.map(k => `${k.name}（${k.endYear} ${k.state}）`).join('\n')
     ].filter(k => k).join('\n\n').padd()
   },
 
-  async '通知' () {
+  async '通知|公告' () {
     this.path = '/api/notice'
     this.method = 'GET'
     await this.next()
     let notices = this.body
     return [
       `📨 最近通知：`,
-      notices.map(k => `${k.category} ${df.formatDateNatural(k.publishTime)}
+      notices.slice(10).map(k => `${k.category} ${df.formatDateNatural(k.publishTime)}
         <a href="${k.url || 'https://myseu.cn/?nid=' + k.nid}">${k.title}</a>`).join('\n\n')
     ].filter(k => k).join('\n\n').padd()
   },
 
-  async 'srtp' () {
+  async 'srtp|研学|研學' () {
     this.path = '/api/srtp'
     this.method = 'GET'
     await this.next()
