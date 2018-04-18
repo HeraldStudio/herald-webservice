@@ -38,7 +38,8 @@ const handler = {
       platform: 'wx-herald'
     }
     await this.next()
-    return '绑定成功，回复 菜单 查看功能列表'
+    return `🔗 绑定成功，回复 菜单 查看功能列表~
+    💡 若之前绑定过其他账号，旧账号缓存数据会出现短时间的暂留，属正常现象。`.padd()
   },
 
   async '一卡通' (date) {
@@ -47,13 +48,17 @@ const handler = {
     this.query = this.params = { date }
     await this.next()
     let { info, detail } = this.body
-    return `💳 一卡通余额 ${info.balance}\n\n${date || ''}` + detail.map(k => {
-      let time = df.formatTimeNatural(k.time)
-      let amount = k.amount.toFixed(2).replace(/^(?:\d)/, '+')
-      return date ? `${k.desc} ${amount}` : `${time}：${k.desc} ${amount}`
-    }).join('\n') + (date ? '' : `
-      
-    💡 可查指定日期，注意日期前加空格，例如：一卡通 2018-3-17`.padd())
+    let total = (- detail.map(k => k.amount).filter(k => k < 0).reduce((a, b) => a + b, 0)).toFixed(2)
+    return [
+      `💳 一卡通余额 ${info.balance}`,
+      `${date || '今日'} 总支出 ${ total } 元`,
+      detail.map(k => {
+        let time = df.formatTimeNatural(k.time)
+        let amount = k.amount.toFixed(2).replace(/^(?:\d)/, '+')
+        return date ? `${k.desc} ${amount}` : `${time}：${k.desc} ${amount}`
+      }).join('\n'),
+      date ? '' : `💡 可查指定日期，注意日期前加空格，例如：一卡通 2018-3-17`
+    ].filter(k => k).join('\n\n').padd()
   },
 
   async '课表' () {
@@ -141,7 +146,7 @@ const handler = {
     let currentCount = current.length
 
     return [
-      `️📝 已完成 ${endedCount} 场考试，还有 ${upcomingCount} 场`,
+      `📝 已完成 ${endedCount} 场考试，还有 ${upcomingCount} 场`,
       current.map(k => `正在进行：${k.courseName} @ ${k.location}\n`).join(''),
       upcoming.map(k => `${df.formatPeriodNatural(k.startTime, k.endTime)}
         ${k.courseName} @ ${k.location}`).join('\n\n')
