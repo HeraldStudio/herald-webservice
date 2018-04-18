@@ -56,10 +56,9 @@ const handler = {
     💡 可查指定日期，注意日期前加空格，例如：一卡通 2018-3-17`.padd())
   },
 
-  async '课表' (term) {
+  async '课表' () {
     this.path = '/api/curriculum'
     this.method = 'GET'
-    this.query = this.params = { term }
     await this.next()
 
     let { curriculum } = this.body
@@ -75,15 +74,78 @@ const handler = {
     let current = curriculum.filter(k => k.startTime <= now && k.endTime > now)
     let currentCount = current.length
 
-    return `🗓 已上 ${endedCount} 次课，还有 ${upcomingCount} 次课\n\n` + 
-      current.map(k => `正在上课：${k.courseName} @ ${k.location}\n`).join('') +
-      upcoming.slice(0, 5).map(k => 
-        `${df.formatPeriodNatural(k.startTime, k.endTime)}
-        ${k.courseName} @ ${k.location}`
-      ).join('\n\n') + `
-      
-      💡 完整课表详见网页版或小程序
-      💡 可查指定学期，注意学期前加空格，例如：课表 17-18-3`.padd()
+    return [
+      `🗓 已上 ${endedCount} 次课，还有 ${upcomingCount} 次课`, 
+      current.map(k => `正在上课：${k.courseName} @ ${k.location}\n`).join(''),
+      upcoming.slice(0, 5).map(k => `${df.formatPeriodNatural(k.startTime, k.endTime)}
+        ${k.courseName} @ ${k.location}`).join('\n\n'),
+      `💡 完整课表详见网页版或小程序`
+    ].filter(k => k).join('\n\n').padd()
+  },
+
+  async '跑操' () {
+    this.path = '/api/pe'
+    this.method = 'GET'
+    await this.next()
+    let { count, detail, remainDays } = this.body
+    let remaining = Math.max(0, 45 - count)
+    let lastTime = count && df.formatTimeNatural(detail.sort((a, b) => a - b).slice(-1)[0])
+    return [
+      `🥇 已跑操 ${count} 次，还有 ${remainDays} 天`,
+      count && `上次跑操是在 ${lastTime}`,
+      `💡 回复 体测 查看体测成绩`
+    ].filter(k => k).join('\n\n').padd()
+  },
+
+  async '体测' () {
+    this.path = '/api/pe'
+    this.method = 'GET'
+    await this.next()
+    let { health } = this.body
+    return [
+      `🏓 最近一次体测成绩：`,
+      health.map(k => `${k.name}：${k.value}（${k.score}，${k.grade}）`).join('\n')
+    ].filter(k => k).join('\n\n').padd()
+  },
+
+  async '实验'() {
+    this.path = '/api/phylab'
+    this.method = 'GET'
+    await this.next()
+    let labs = this.body
+    let now = new Date().getTime()
+    let endedCount = labs.filter(k => k.endTime <= now).length
+    let upcoming = labs.filter(k => k.startTime > now).sort((a, b) => a.startTime - b.startTime)
+    let upcomingCount = upcoming.length
+    let current = labs.filter(k => k.startTime <= now && k.endTime > now)
+    let currentCount = current.length
+
+    return [
+      `️⚗ 已做 ${endedCount} 次实验，还有 ${upcomingCount} 次`,
+      current.map(k => `正在进行：${k.labName} @ ${k.location}\n`).join(''),
+      upcoming.map(k => `${df.formatPeriodNatural(k.startTime, k.endTime)}
+        ${k.labName} @ ${k.location}`).join('\n\n')
+    ].filter(k => k).join('\n\n').padd()
+  },
+
+  async '考试' () {
+    this.path = '/api/exam'
+    this.method = 'GET'
+    await this.next()
+    let exams = this.body
+    let now = new Date().getTime()
+    let endedCount = exams.filter(k => k.endTime <= now).length
+    let upcoming = exams.filter(k => k.startTime > now).sort((a, b) => a.startTime - b.startTime)
+    let upcomingCount = upcoming.length
+    let current = exams.filter(k => k.startTime <= now && k.endTime > now)
+    let currentCount = current.length
+
+    return [
+      `️⚗ 已完成 ${endedCount} 场考试，还有 ${upcomingCount} 场`,
+      current.map(k => `正在进行：${k.courseName} @ ${k.location}\n`).join(''),
+      upcoming.map(k => `${df.formatPeriodNatural(k.startTime, k.endTime)}
+        ${k.courseName} @ ${k.location}`).join('\n\n')
+    ].filter(k => k).join('\n\n').padd()
   },
 
   default: '公众号正在施工中，如有功能缺失请谅解~',
