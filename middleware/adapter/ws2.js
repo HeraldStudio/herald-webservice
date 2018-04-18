@@ -2,32 +2,7 @@ const crypto = require('crypto')
 const { config } = require('../../app')
 const axios = require('axios')
 const cheerio = require('cheerio')
-
-Date.prototype.format = function (format) {
-  let o = {
-    'M+': this.getMonth() + 1, //月份
-    'd+': this.getDate(), //日
-    'h+': this.getHours() % 12 === 0 ? 12 : this.getHours() % 12, //小时
-    'H+': this.getHours(), //小时
-    'm+': this.getMinutes(), //分
-    's+': this.getSeconds(), //秒
-    'q+': Math.floor((this.getMonth() + 3) / 3), //季度
-    'S': this.getMilliseconds() //毫秒
-  }
-  let week = ['日', '一', '二', '三', '四', '五', '六']
-  format = format
-    .replace(/y+/, match => (this.getFullYear() + '').substr(4 - match.length))
-    .replace(/E+/, match => ((match.length > 1)
-                             ? (match.length > 2 ? '星期' : '周')
-                             : '') + week[this.getDay()])
-
-  for (let k in o) {
-    format = format.replace(new RegExp(k), match => (match.length === 1)
-                            ? (o[k])
-                            : (('00' + o[k]).substr(('' + o[k]).length)))
-  }
-  return format.replace(/N?aN/g, '')
-}
+const df = require('./date-format')
 
 module.exports = async (ctx, next) => {
   if (ctx.path.indexOf('/adapter-ws2/') !== 0) {
