@@ -27,7 +27,7 @@ const getToken = async (type) => {
   return access_token
 }
 
-const fakeAxios = (type) => {
+const getAxios = (type) => {
   let ret = {}
   'get,post,put,delete'.split(',').map(k => {
     ret[k] = async (path, ...args) => {
@@ -42,7 +42,5 @@ const fakeAxios = (type) => {
 }
 
 module.exports = {
-  getToken,
-  biz: fakeAxios('biz'),
-  min: fakeAxios('min')
+  getToken, getAxios
 }
