@@ -16,7 +16,7 @@ if (process.env.NODE_ENV === 'production') {
 
 // 各种功能的 handler 函数
 const handler = {
-  ['绑定'] (cardnum, password) {
+  async '绑定' (cardnum, password) {
     this.path = '/auth'
     this.method = 'POST'
     this.params = {
