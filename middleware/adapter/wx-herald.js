@@ -75,11 +75,15 @@ const handler = {
     let current = curriculum.filter(k => k.startTime <= now && k.endTime > now)
     let currentCount = current.length
 
-    return `🗓 本学期上了 ${endedCount} 节课，还有 ${upcomingCount} 节课\n\n` + 
+    return `🗓 已上 ${endedCount} 次课，还有 ${upcomingCount} 次课\n\n` + 
       current.map(k => `正在上课：${k.courseName} @ ${k.location}\n`).join('') +
-      upcoming.slice(0, 1).map(k => `${df.formatTimeNatural(k.startTime)}：${k.courseName} @ ${k.location}`).join('\n') + `
+      upcoming.slice(0, 5).map(k => 
+        `${df.formatPeriodNatural(k.startTime, k.endTime)}
+        ${k.courseName} @ ${k.location}`
+      ).join('\n\n') + `
       
-      💡 完整课表详见网页版或小程序`.padd()
+      💡 完整课表详见网页版或小程序
+      💡 可查指定学期，注意学期前加空格，例如：课表 17-18-3`.padd()
   },
 
   default: '公众号正在施工中，如有功能缺失请谅解~',
