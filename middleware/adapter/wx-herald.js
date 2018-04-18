@@ -94,7 +94,7 @@ const handler = {
     let currentCount = current.length
 
     return [
-      `🗓 已上 ${endedCount} 次课，还有 ${upcomingCount} 次课`, 
+      `🗓 本学期已上 ${endedCount} 课，还有 ${upcomingCount} 课`, 
       current.map(k => `正在上课：${k.courseName} @ ${k.location}\n`).join(''),
       upcoming.slice(0, 5).map(k => `${df.formatPeriodNatural(k.startTime, k.endTime)}
         ${k.courseName} @ ${k.location}`).join('\n\n'),
