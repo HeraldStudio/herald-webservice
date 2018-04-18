@@ -178,13 +178,12 @@ const middleware = wechat(config).middleware(async (message, ctx) => {
     let originalPath = ctx.path
     let originalMethod = ctx.method
     try {
-      let res = await Promise.race([
-        han.call(ctx, ...args),
-        new Promise((_, rej) => setTimeout(() => rej('timeout'), 5000))
+      return await Promise.race([
+        new Promise((_, rej) => setTimeout(() => rej('timeout'), 5000)),
+        han.call(ctx, ...args)
       ])
-      return res
     } catch (e) {
-      let han = handler[e] || e && handler[e.message] || handler.defaultError
+      let han = handler[e] || handler.defaultError
       if (han instanceof Function) {
         return await han.call(ctx, ...args)
       } else {
