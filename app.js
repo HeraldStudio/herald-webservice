@@ -85,10 +85,6 @@ if (process.env.NODE_ENV === 'production') {
   app.use(require('./middleware/captcha')({
     python: '/usr/local/bin/anaconda3/envs/captcha/bin/python'
   }))
-} else {
-  app.use(require('./middleware/captcha')({
-    python: 'python3'
-  }))
 }
 
 /**

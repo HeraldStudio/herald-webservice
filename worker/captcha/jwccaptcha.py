@@ -97,5 +97,7 @@ if __name__ == '__main__':
               'result': engine.predict(image)
             })
             print(result)
+        except KeyboardInterrupt:
+            break
         except:
             pass
