@@ -20,7 +20,7 @@
     "js-yaml": "^3.10.0",
     "jschardet": "^1.6.0",
     "kcors": "^2.2.1",
-    "kf-router": "^2.2.1",
+    "kf-router": "^2.2.2",
     "koa": "^2.4.1",
     "koa-bodyparser": "^4.2.0",
     "node-europa": "^4.0.0",
