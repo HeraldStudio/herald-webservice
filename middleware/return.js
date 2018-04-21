@@ -34,7 +34,7 @@ module.exports = async (ctx, next) => {
 
   let json = {}
 
-  if (ctx.status === 302) {
+  if (ctx.response.get('Location')) {
     return
   } else if (ctx.status < 400) {
     json = {
