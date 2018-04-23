@@ -14,4 +14,4 @@ term:
 spider:
   enable:       true
   port:         49034
-  heartCycle:   4000
+  heartCycle:   40000
