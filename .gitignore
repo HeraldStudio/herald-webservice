@@ -9,10 +9,12 @@ spider_test.js
 !.gitkeep
 **/*.db
 sdk/sdk.json
-middleware/captcha-childprocess/models/
+worker/captcha/models/
 *.swp
 .repl_history
 captcha-temp-*
 yarn-error.log
 slack.json
 spider-secret.json
+log
+*.db-journal

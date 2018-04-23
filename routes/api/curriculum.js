@@ -1,6 +1,12 @@
 const cheerio = require('cheerio')
 const { config } = require('../../app')
 
+// 每节课的开始时间 (时 * 60 + 分)
+// 注：本科生和研究生的时间表完全一样。
+const courseStartTime
+  = '8:00|8:50|9:50|10:40|11:30|14:00|14:50|15:50|16:40|17:30|18:30|19:20|20:10'
+  .split('|').map(k => k.split(':').map(Number).reduce((a, b) => a * 60 + b, 0))
+
 exports.route = {
 
   /**
@@ -20,7 +26,10 @@ exports.route = {
   *       dayOfWeek?,               // 为了数据直观以及前端绘图方便，1-7 分别表示周一到周日
   *       flip?,                    // even 双周, odd 单周, none 全周
   *       location?,
-  *       beginPeriod?, endPeriod?  // 1 ~ 13
+  *       beginPeriod?, endPeriod?, // 1 ~ 13
+  *       events: [
+  *         { week, startTime, endTime } // 课程每一周上课的具体时间戳
+  *       ]
   *     }
   *   ]
   * }
@@ -206,9 +215,6 @@ exports.route = {
           /-1$/.test(term.code) && // 而且当前查询的是短学期
           (term = term.code.replace(/-1$/, '-2')) // 则改为查询秋季学期，重新执行
         )
-
-        return { term, curriculum }
-
       } else { // 研究生版
         await this.useAuthCookie()
         let headers = { 'Referer': 'http://121.248.63.139/nstudent/index.aspx' }
@@ -264,7 +270,7 @@ exports.route = {
         }
 
         // 课表信息，与本科生格式完全一致
-        let curriculum = $('table.GridBackColor tr').toArray().slice(1, -1).map(k => $(k)).map(tr => {
+        curriculum = $('table.GridBackColor tr').toArray().slice(1, -1).map(k => $(k)).map(tr => {
           let [className, location, department, id, courseName, teacherName, period, hours, credit, degree]
             = tr.children('td').toArray().map(k => $(k).text())
           credit = parseFloat(credit || 0)
@@ -288,9 +294,24 @@ exports.route = {
             }))
           }).reduce((a, b) => a.concat(b), [])
         }).reduce((a, b) => a.concat(b), [])
+      }// if 本科生 / 研究生
 
-        return { term, curriculum }
-      }
+      // 给有上课时间的课程添加上课具体周次、每周上课的具体起止时间戳
+      curriculum.map(k => {
+        let { beginWeek, endWeek, dayOfWeek, beginPeriod, endPeriod, flip } = k
+        if (dayOfWeek) {
+          k.events = Array(endWeek - beginWeek + 1).fill()
+            .map((_, i) => i + beginWeek)
+            .filter(i => i % 2 !== ['odd', 'even'].indexOf(flip))
+            .map(week => ({
+              week,
+              startTime: term.startDate + ((week * 7 + dayOfWeek - 8) * 1440 + courseStartTime[beginPeriod - 1]) * 60000,
+              endTime: term.startDate + ((week * 7 + dayOfWeek - 8) * 1440 + courseStartTime[endPeriod - 1] + 45) * 60000
+            }))
+        }
+      })
+
+      return { term, curriculum }
     })
   }
 }

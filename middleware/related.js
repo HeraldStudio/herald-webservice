@@ -29,8 +29,11 @@ module.exports = async (ctx, next) => {
       ctx._related.push(description)
     }
   }
-  await next()
-  if (!ctx._related.length) {
-    ctx._related = undefined
+  try {
+    await next()
+  } finally {
+    if (!ctx._related.length) {
+      ctx._related = undefined
+    }
   }
 }

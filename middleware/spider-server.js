@@ -213,7 +213,7 @@ class SpiderServer {
         let spider = this.pickSpider()
         spider.send(encodedRequest)
       } catch (e) {
-        console.log('[-] 向硬件爬虫发送请求数据期间出错：' + e.message)
+        // console.log('[-] 向硬件爬虫发送请求数据期间出错：' + e.message)
         e.errCode = WEBSOCKET_TRASFER_ERROR
         reject(e)
         clearTimeout(this.requestPool[name].timeout)

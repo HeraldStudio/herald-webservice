@@ -16,6 +16,12 @@ sqlongo.defaults.path = 'database'
 process.on('unhandledRejection', e => { throw e })
 process.on('uncaughtException', console.trace)
 
+// 监听两个结束进程事件，将它们绑定至 exit 事件，有两个作用：
+// 1. 使用 child_process 运行子进程时，可直接监听主进程 exit 事件来杀掉子进程；
+// 2. 防止按 Ctrl+C 时程序变为后台僵尸进程。
+process.on('SIGTERM', () => process.exit())
+process.on('SIGINT', () => process.exit())
+
 /**
   # WS3 框架中间件
   以下中间件共分为四层，每层内部、层与层之间都严格按照依赖关系排序。
@@ -54,6 +60,7 @@ app.use(require('./middleware/cors'))
 */
 app.use(require('./middleware/adapter/ws2'))
 app.use(require('./middleware/adapter/appserv'))
+app.use(require('./middleware/adapter/wx-herald'))
 
 /**
   ## C. API 层
@@ -77,10 +84,6 @@ app.use(require('./middleware/slack').middleware)
 if (process.env.NODE_ENV === 'production') {
   app.use(require('./middleware/captcha')({
     python: '/usr/local/bin/anaconda3/envs/captcha/bin/python'
-  }))
-} else {
-  app.use(require('./middleware/captcha')({
-    python: 'python3'
   }))
 }
 

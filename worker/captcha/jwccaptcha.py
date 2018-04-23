@@ -10,7 +10,7 @@ import json
 import traceback
 
 MODEL_NAME = 'gpa_captcha.tflearn'
-MODEL_PATH = './middleware/captcha-childprocess/models'
+MODEL_PATH = './worker/captcha/models'
 
 MAX_CAPTCHA = 4  # 验证码字符长度（4位验证码）（4）
 CHAR_SET_LEN = 10  # 验证码字符取值（0-9）（10）
@@ -97,5 +97,7 @@ if __name__ == '__main__':
               'result': engine.predict(image)
             })
             print(result)
+        except KeyboardInterrupt:
+            break
         except:
             pass

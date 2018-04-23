@@ -1,0 +1,316 @@
+/**
+ * wx-herald 小猴偷米微信公众号中间件
+ */
+const chalk = require('chalk')
+const wechat = require('co-wechat')
+const config = require('../../sdk/sdk.json').wechat['wx-herald']
+const api = require('../../sdk/wechat').getAxios('wx-herald')
+const df = require('./date-format')
+
+String.prototype.padd = function () {
+  return this.split('\n').map(k => k.trim()).join('\n')
+}
+
+// 生产环境更新自定义菜单
+if (process.env.NODE_ENV === 'production') {
+  const menu = require('./wx-herald-menu.json')
+  api.post('/menu/create', menu).then(res => {
+    console.log(chalk.blue('[wx-herald] 自定义菜单 ') + res.data.errmsg)
+  })
+}
+
+// 各种功能的 handler 函数或对象
+const handler = {
+  async '菜单|功能|菜單|選單' () {
+    let user
+    try {
+      this.path = '/api/user'
+      this.method = 'GET'
+      await this.next()
+      let { name, identity } = this.body
+      user = `${name}（${identity}）`
+    } catch (e) {
+      user = '未登录'
+    }
+
+    return `🐵 小猴偷米微信功能菜单
+          👥 ${user}
+
+          课表 跑操 体测 一卡通
+          实验 考试 成绩 SRTP
+          图书 奖助 通知 讲座
+
+          💡 回复关键词使用对应功能`.padd()
+  },
+
+  async '绑定|登录|登陆|綁定|登錄' (cardnum, password, gpassword = '') {
+    this.path = '/auth'
+    this.method = 'POST'
+    this.params = {
+      cardnum, password, gpassword,
+      customToken: this.message.FromUserName,
+      platform: 'wx-herald'
+    }
+    await this.next()
+    return `🔗 绑定成功
+    
+    💡 若之前绑定过其他账号，旧账号缓存数据会出现短时间的暂留，属正常现象。`.padd()
+  },
+
+  async '一卡通|消费|余额|流水|消費|餘額' (date) {
+    this.path = '/api/card'
+    this.method = 'GET'
+    this.query = this.params = { date }
+    await this.next()
+    let { info, detail } = this.body
+    let total = (- detail.map(k => k.amount).filter(k => k < 0).reduce((a, b) => a + b, 0)).toFixed(2)
+    return [
+      `💳 一卡通余额 ${info.balance}`,
+      `${date || '今日'} 总支出 ${ total } 元`,
+      detail.map(k => {
+        let time = df.formatTimeNatural(k.time)
+        let amount = k.amount.toFixed(2).replace(/^(?:\d)/, '+')
+        return date ? `${k.desc} ${amount}` : `${time}：${k.desc} ${amount}`
+      }).join('\n'),
+      date ? '' : `💡 可查指定日期，注意日期前加空格，例如：一卡通 2018-3-17`
+    ].filter(k => k).join('\n\n').padd()
+  },
+
+  async '课|課' () {
+    this.path = '/api/curriculum'
+    this.method = 'GET'
+    await this.next()
+
+    let { curriculum } = this.body
+    curriculum = curriculum.map(course => {
+      let { courseName, location, events = [] } = course
+      return events.map(e => Object.assign(e, { courseName, location }))
+    }).reduce((a, b) => a.concat(b), [])
+
+    let now = new Date().getTime()
+    let endedCount = curriculum.filter(k => k.endTime <= now).length
+    let upcoming = curriculum.filter(k => k.startTime > now).sort((a, b) => a.startTime - b.startTime)
+    let upcomingCount = upcoming.length
+    let current = curriculum.filter(k => k.startTime <= now && k.endTime > now)
+    let currentCount = current.length
+
+    return [
+      `🗓 本学期已上 ${endedCount} 课，还有 ${upcomingCount} 课`, 
+      current.map(k => `正在上课：${k.courseName} @ ${k.location}\n`).join(''),
+      upcoming.slice(0, 5).map(k => `${df.formatPeriodNatural(k.startTime, k.endTime)}
+        ${k.courseName} @ ${k.location}`).join('\n\n'),
+      `💡 完整课表详见网页版或小程序`
+    ].filter(k => k).join('\n\n').padd()
+  },
+
+  async '跑操|早操|锻炼|鍛煉' () {
+    this.path = '/api/pe'
+    this.method = 'GET'
+    await this.next()
+    let { count, detail, remainDays } = this.body
+    let remaining = Math.max(0, 45 - count)
+    let lastTime = count && df.formatTimeNatural(detail.sort((a, b) => a - b).slice(-1)[0])
+    return [
+      `🥇 已跑操 ${count} 次，还有 ${remainDays} 天`,
+      count && `上次跑操是在 ${lastTime}`,
+      `💡 回复 体测 查看体测成绩`
+    ].filter(k => k).join('\n\n').padd()
+  },
+
+  async '体测|体育|體測|體育' () {
+    this.path = '/api/pe'
+    this.method = 'GET'
+    await this.next()
+    let { health } = this.body
+    return [
+      `🏓 最近一次体测成绩：`,
+      health.map(k => `${k.name}：${k.value}（${k.score}，${k.grade}）`).join('\n')
+    ].filter(k => k).join('\n\n').padd()
+  },
+
+  async '实验|實驗' () {
+    this.path = '/api/phylab'
+    this.method = 'GET'
+    await this.next()
+    let labs = this.body
+    let now = new Date().getTime()
+    let endedCount = labs.filter(k => k.endTime <= now).length
+    let upcoming = labs.filter(k => k.startTime > now).sort((a, b) => a.startTime - b.startTime)
+    let upcomingCount = upcoming.length
+    let current = labs.filter(k => k.startTime <= now && k.endTime > now)
+    let currentCount = current.length
+
+    return [
+      `🔬 已做 ${endedCount} 次实验，还有 ${upcomingCount} 次`,
+      current.map(k => `正在进行：${k.labName} @ ${k.location}\n`).join(''),
+      upcoming.map(k => `${df.formatPeriodNatural(k.startTime, k.endTime)}
+        ${k.labName} @ ${k.location}`).join('\n\n')
+    ].filter(k => k).join('\n\n').padd()
+  },
+
+  async '考试|考試|測驗' () {
+    this.path = '/api/exam'
+    this.method = 'GET'
+    await this.next()
+    let exams = this.body
+    let now = new Date().getTime()
+    let endedCount = exams.filter(k => k.endTime <= now).length
+    let upcoming = exams.filter(k => k.startTime > now).sort((a, b) => a.startTime - b.startTime)
+    let upcomingCount = upcoming.length
+    let current = exams.filter(k => k.startTime <= now && k.endTime > now)
+    let currentCount = current.length
+
+    return [
+      `📝 已完成 ${endedCount} 场考试，还有 ${upcomingCount} 场`,
+      current.map(k => `正在进行：${k.courseName} @ ${k.location}\n`).join(''),
+      upcoming.map(k => `${df.formatPeriodNatural(k.startTime, k.endTime)}
+        ${k.courseName} @ ${k.location}`).join('\n\n')
+    ].filter(k => k).join('\n\n').padd()
+  },
+
+  async '成绩|成績' () {
+    this.path = '/api/gpa'
+    this.method = 'GET'
+    await this.next()
+    let { gpa, gpaBeforeMakeup, score, credits, detail } = this.body
+    let info
+    if (gpa) { // 本科生
+      info = `绩点：${gpa}（首修 ${gpaBeforeMakeup}）`
+    } else { // 研究生
+      info = `平均规格化成绩：${score}
+        已修学分：${credits.degree} + ${credits.optional}
+        应修学分：${credits.required}`.padd()
+    }
+    return [
+      `📈 ${info}`,
+      detail[0].courses.map(k => `${k.courseName} (${k.scoreType})
+        ${k.score} - ${k.credit} 学分`).join('\n\n')
+    ].filter(k => k).join('\n\n').padd()
+  },
+
+  async '讲座|講座' () {
+    this.path = '/api/lecture'
+    this.method = 'GET'
+    await this.next()
+    let lectures = this.body
+    return [
+      `🎬 已听讲座次数：${lectures.length}`,
+      lectures.map(k => `${new Date(k.time).format('yyyy-M-d')}（${k.location}）`).join('\n')
+    ].filter(k => k).join('\n\n').padd()
+  },
+
+  async '图书|圖書' () {
+    this.path = '/api/library'
+    this.method = 'GET'
+    await this.next()
+    let books = this.body
+    return [
+      `📖 已借图书：${books.length}`,
+      books.map(k => `${k.name}（${k.author}）
+      应还：${new Date(k.returnDate).format('yyyy-M-d')}`).join('\n')
+    ].filter(k => k).join('\n\n').padd()
+  },
+
+  async '奖助|獎助' () {
+    this.path = '/api/scholarship'
+    this.method = 'GET'
+    await this.next()
+    let { scholarshipList, scholarshipApplied, stipendList, stipendApplied } = this.body
+    let list = scholarshipList.concat(stipendList)
+    let applied = scholarshipApplied.concat(stipendApplied)
+    return [
+      `🔑 可申请奖助学金：`,
+      list.map(k => k.name).join('\n'),
+      `🔑 已申请奖助学金：`,
+      applied.map(k => `${k.name}（${k.endYear} ${k.state}）`).join('\n')
+    ].filter(k => k).join('\n\n').padd()
+  },
+
+  async '通知|公告' () {
+    this.path = '/api/notice'
+    this.method = 'GET'
+    await this.next()
+    let notices = this.body
+    return [
+      `📨 最近通知：`,
+      notices.slice(0, 5).map(k => `${k.category} ${df.formatDateNatural(k.time)}
+        <a href="${k.url || 'https://myseu.cn/?nid=' + k.nid}">${k.title}</a>`).join('\n\n')
+    ].filter(k => k).join('\n\n').padd()
+  },
+
+  async 'srtp|研学|研學' () {
+    this.path = '/api/srtp'
+    this.method = 'GET'
+    await this.next()
+    let { info, projects } = this.body
+    return [
+      `🚀 SRTP 学分：${info.points}（${info.grade}）`,
+      projects.map(k => `${k.project}
+        ${k.type} ${k.date} ${k.credit}分`).join('\n\n')
+    ].filter(k => k).join('\n\n').padd()
+  },
+
+  default: `🤔 命令无法识别
+
+    💡 回复 菜单 查看功能列表
+    💡 所有命令与参数之间均有空格`.padd(),
+
+  401: `🔗 绑定东南大学学生账号
+
+    本：绑定 卡号 统一身份认证密码
+    例：绑定 213123333 1234
+
+    研：绑定 卡号 密码 研院密码
+    例：绑定 220123333 1234 5678
+    注：研究生院密码初始为八位生日
+
+    💡 所有命令与参数之间均有空格
+    🙈 密码及缓存经过交叉加密保护`.padd(),
+    
+  timeout: '请求超时，学校服务又挂啦 🙁',
+
+  defaultError: `🤔 命令执行出错，请检查命令格式
+
+    💡 回复 菜单 查看功能列表
+    💡 所有命令与参数之间均有空格`.padd()
+}
+
+// 分割用户指令并进入相应 handler 函数中
+const middleware = wechat(config).middleware(async (message, ctx) => {
+  let [cmd, ...args] = message.Content.trim().split(/\s+/g)
+  ctx.request.headers.token = message.FromUserName
+  ctx.message = message
+  
+  let han = handler[Object.keys(handler).find(k => new RegExp(k, 'i').test(cmd)) || 'default']
+  if (han instanceof Function) {
+    let originalPath = ctx.path
+    let originalMethod = ctx.method
+    try {
+      return await han.call(ctx, ...args)
+    } catch (e) {
+      if (e instanceof Error && ~e.message.indexOf('timeout')) {
+        e = 'timeout'
+      }
+      let han = handler[e] || handler.defaultError
+      if (han instanceof Function) {
+        return await han.call(ctx, ...args)
+      } else {
+        return han
+      }
+    } finally {
+      ctx.path = originalPath
+      ctx.method = originalMethod
+    }
+  } else {
+    return han
+  }
+})
+
+module.exports = async (ctx, next) => {
+  if (ctx.path.indexOf('/adapter-wx-herald/') === 0) {
+    ctx.next = next
+    await middleware.call(this, ctx, next)
+  } else {
+    await next()
+  }
+}

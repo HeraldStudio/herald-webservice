@@ -1,4 +1,5 @@
 let { Campus, Building, Classroom, ClassRecord, DayOfWeek, ClassOfDay } = require("./models")
+const cheerio = require('cheerio')
 
 exports.route = {
 
@@ -12,14 +13,14 @@ exports.route = {
 
     // 参数检查
     if (typeof type !== "string") {
-      throw (400)
+      throw '参数 type 应该是 string'
     }
 
     // 转换字符串至对应的类型
     type = Object.entries(require("./models")).find(e => e[0].toLowerCase() === type.toLowerCase())[1]
 
     if (!type) {
-      throw (400)
+      throw '找不到对应的 type'
     }
 
     // 返回对应类型所有条目的id与name
@@ -29,8 +30,17 @@ exports.route = {
   /**
   * POST /api/classroom
   * @remark 爬取学校网站，完整更新一次数据库（校区/建筑/教室/课程数据）
+  * 似乎不应该反复调用，而且每个学期都应该清空一次数据库。
+  * gradDepts 和 ugDepts 表示单独获取某些学院(分别是研究生和本科生)，只要指定了一个，就不会完整抓取所有学院。
   **/
-  async post() {
+  async post({ gradDepts, ugDepts }) {
+    if (! this.admin || ! this.admin.maintenance) {
+      throw 403
+    }
+    if (gradDepts || ugDepts) {
+      gradDepts = gradDepts ? JSON.parse(gradDepts) : []
+      ugDepts = ugDepts ? JSON.parse(ugDepts) : []
+    }
     // 此API会对数据库进行一次大更新。
     // 为方便处理，加载所有数据到内存中，并将相关方法改为内存版本实现
     await Promise.all([Campus, Building, Classroom, ClassRecord].map(async (c, i, a) => {
@@ -41,82 +51,160 @@ exports.route = {
       }
     }))
 
-    // 方法复用，source提供原始网页数据，regex解析数据，parser将regex的一个match转换为对应的record
-    // 整个函数完成一次对某一处课程信息的提取
-    async function crawler(source, regex, parser) {
-      // 通过parser将正则匹配结果转换为课程条目数组（一次匹配结果可能分成多条记录）
-      for (let records; (records = parser(regex.exec(source))); ) {
-        records.forEach(record => {
-          // 流式编程，处理需要新增校区/建筑/教室信息的情况
-          [
-            [Object,    record.notExistName],  // 哨兵顶层
-            [Campus,    record.campusName],    // 校区，上层
-            [Building,  record.buildingName],  // 建筑，中层
-            [Classroom, record.classroomName]  // 教室，下层
-          ]
-          .map(v => v[1] && new v[0]({ // 转换为对应的类对象
-            id: v[0].findId(v[1]),
-            name: v[1]
-          }))
-          .reduce((pre, cur, i, a) => {
-            let [preName, curName] = [pre, cur].map(v => v && v.constructor.name.toLowerCase())
-            if (!cur.id) { // 如果数据库中没有对应id，则新生成一条记录保存
-              if (pre) { // 下层对象保存上一层Id
-                a[i][preName + "Id"] = pre.id
-              }
-              a[i].id = Math.max(...a[i].constructor.all.map(o => o.id), 0) + 1 // 取最大Id + 1为新Id，数组为空时最大Id为0
-              a[i].constructor.all.push(a[i])
-              a[i].save() // await-free
+    // 将一条记录添加到数据库里，根据需要，自动创建上一层对象。
+    async function addToDB(record) {
+      // 流式编程，处理需要新增校区/建筑/教室信息的情况
+      ;[
+        [Object,    record.notExistName],  // 哨兵顶层
+        [Campus,    record.campusName],    // 校区，上层
+        [Building,  record.buildingName],  // 建筑，中层
+        [Classroom, record.classroomName]  // 教室，下层
+      ]
+        .map(([type, value]) => value && new type({ // 转换为对应的类对象
+          id: type.findId(value),
+          name: value
+        }))
+        .reduce((pre, cur, i, a) => {
+          let [preName, curName] = [pre, cur].map(v => v && v.constructor.name.toLowerCase())
+          if (!cur.id) { // 如果数据库中没有对应id，则新生成一条记录保存
+            if (pre) { // 下层对象保存上一层Id
+              a[i][preName + "Id"] = pre.id
             }
-            // 将record中各类name属性转换为Id属性
-            record[curName + "Id"] = a[i].id
-            delete record[curName + "Name"]
-            return a[i] // 传递上层对象给下一层
-          })
-
-          record.id = Math.max(...ClassRecord.all.map(o => o.id), 0) + 1 // FIXME：修正autoIncrement的问题
-          record = new ClassRecord(record)
-          ClassRecord.all.push(record)
-          record.save() // await-free
+            a[i].id = Math.max(...a[i].constructor.all.map(o => o.id), 0) + 1 // 取最大Id + 1为新Id，数组为空时最大Id为0
+            a[i].constructor.all.push(a[i])
+            a[i].save() // await-free
+          }
+          // 将record中各类name属性转换为Id属性
+          record[curName + "Id"] = a[i].id
+          delete record[curName + "Name"]
+          return a[i] // 传递上层对象给下一层
         })
+
+      record.id = Math.max(...ClassRecord.all.map(o => o.id), 0) + 1 // FIXME：修正autoIncrement的问题
+      record = new ClassRecord(record)
+      ClassRecord.all.push(record)
+      record.save() // await-free
+    }
+
+    let $grad = cheerio.load((await this.get("http://121.248.63.139/nstudent/pygl/kbcx_yx.aspx")).data)
+    let form = $grad('input').toArray().map(k => $grad(k)).reduce(
+      (f, input) => (f[input.attr('name')] = input.attr('value'), f), {})
+
+    let $ugrad = cheerio.load((await this.get('http://xk.urp.seu.edu.cn/jw_service/service/academyClassLook.action')).data)
+    let links = $ugrad('.FrameItemFont a').toArray().map(k => $ugrad(k)).map(
+      (k) => [k.text(), 'http://xk.urp.seu.edu.cn/jw_service/service/' + k.attr('href')])
+
+    // 等待所有数据更新完毕
+    // 更新研究生数据
+    let gradError = []
+    for (let department of gradDepts || ["000","001","002","003","004","005","006","007","008","009","010","011","012","014","016","017","018","019","021","022","025","040","042","044","055","080","081","084","086","101","110","111","301","316","317","318","319","401","403","404","990","997"]) {
+      try {
+        console.log("[classroom:grad] 正抓取", department)
+        let res = await this.post(
+          "http://121.248.63.139/nstudent/pygl/kbcx_yx.aspx",
+          { ...form, drpyx: department }
+        )
+        let $ = cheerio.load(res.data)
+
+        // 找到表格，去掉标题栏
+        $('#dgData > tbody > tr').toArray().slice(1)
+          .map(k => $(k).find('td').toArray().map(k => $(k).text().trim())) // 找到每一栏的信息
+          .forEach(
+            ([name, courseId, courseName, hours, teacher, location, capacity, size]) => {
+              let [, startWeek, endWeek] = /^第(\d+)-(\d+)周/.exec(hours)
+              let [, buildingName, classroomName] = /^([^0-9a-zA-Z]+)([0-9a-zA-Z]+)$/.exec(location)
+              hours
+                .split(' ').map(v => /星期(.)-(.+)/.exec(v))
+                .slice(1) // 去掉第几周的信息
+                .forEach( // 把一星期中上多天的一门课拆成若干个Record
+                  ([, day, time]) => {
+                    let sequence = time.split(',').map(e => ClassOfDay[e])
+                    let classroomFullName = buildingName + "-" + classroomName
+                    addToDB({
+                      name, courseId, courseName,
+                      startWeek: parseInt(startWeek),
+                      endWeek: parseInt(endWeek),
+                      dayOfWeek: DayOfWeek[day],
+                      startSequence: sequence[0],
+                      endSequence: sequence[sequence.length - 1],
+                      teacher, buildingName, // 名称属性将在 addToDB 中被转换为 Id 属性
+                      classroomName: classroomFullName,
+                      campusName: Campus.findName(buildingName),
+                      capacity: parseInt(capacity),
+                      size: parseInt(size)
+                    })
+                  }
+                )
+            }
+          ) // forEach courseInfo[]
+      } catch (e) {
+        console.log("[classroom:grad] 抓取", department, "时出错")
+        gradError.push(department)
+      }
+    }// for department
+    // 更新本科生课程数据
+    let ugError = []
+    for (let [department, link] of ugDepts ? links.filter(k => ugDepts.includes(k[0])) : links) {
+      try {
+        console.log("[classroom:ug] 正抓取", department)
+        let res = await this.get(link)
+        let $ = cheerio.load(res.data)
+
+        $('#table2 > tbody > tr').toArray().slice(1)
+          .map(k => $(k).find('td').toArray().map(k => $(k).text().replace(/\&nbsp;/g, ' ').trim()))
+          .forEach(
+            ([num, term, name, standing, teacher, arrangement]) => {
+              let [weeks, hours] = arrangement.split(' ')
+              // 没有指明上课时间，对于教室查找没有任何帮助
+              if (! hours) {
+                return
+              }
+              let [, startWeek, endWeek] = /^\[(\d+)-(\d+)周\]$/.exec(weeks)
+              hours.split(',').map(v => /^周(.)\((单|双|)(\d+)-(\d+)\)(.*)$/.exec(v))
+                .forEach(([, day, flip, startSequence, endSequence, location]) => {
+                  let buildingName, classroomName
+                  // 没有指明上课地点，对于教室查找没有任何帮助
+                  if (! location) {
+                    return
+                  }
+                  // 将地点拆分为 `建筑`-`教室` 的形式
+                  if (/-/.test(location)) {
+                    ;[buildingName, classroomName] = location.split('-')
+                  } else if (/大学生活动中心/.test(location)) {
+                    ;[buildingName, classroomName] = ['九龙湖其它', location.replace('大学生活动中心', '大活')]
+                  } else { // TODO
+                    console.log("不知道该如何处理 " + location)
+                    return
+                  }
+                  classroomFullName = buildingName + '-' + classroomName
+                  addToDB({ // 免于等待
+                    name,
+                    courseName: name,
+                    flip: {'单': 'odd', '双': 'even', '': 'none'}[flip], // FIXME 这里尚未能够处理
+                    startWeek: parseInt(startWeek),
+                    endWeek: parseInt(endWeek),
+                    dayOfWeek: DayOfWeek[day],
+                    startSequence: parseInt(startSequence),
+                    endSequence: parseInt(endSequence),
+                    teacher, buildingName,
+                    classroomName: classroomFullName,
+                    campusName: Campus.findName(buildingName),
+                  })
+                })
+            }
+          )
+      } catch (e) {
+        console.log("[classroom:ug] 抓取", department, "时出错")
+        ugError.push(department)
       }
     }
 
-    // 等待所有数据更新完毕
-    await Promise.all([
-      // 更新研究生数据
-      // FIXME: 补全院系编号
-      ...[000, 001].map(async department => crawler(
-        (await this.post(
-          "http://121.248.63.139/nstudent/pygl/kbcx_yx.aspx"//,
-          //"drpyx=000" // FIXME 还需要更多参数
-        )).data,
-        /<td>(.+)<\/td><td>(.+)<\/td><td>([^\s]+)\s*<\/td><td>第(\d+)-(\d+)周;? (.*)<\/td><td>(.+)<\/td><td>([^\w]+)([0-9a-zA-Z]+)<\/td><td>(\d+)<\/td><td>(\d+)<\/td>/img,
-        entry => entry && entry[6].split(' ').map(v => v.match(/(星期.)-(.+)/)).map( // 把一星期中上多天的一门课拆成若干个Record
-          time => ({
-            name          : entry[1],
-            courseId      : entry[2],
-            courseName    : entry[3],
-            startWeek     : parseInt(entry[4]),
-            endWeek       : parseInt(entry[5]),
-            dayOfWeek     : DayOfWeek[time[1]],
-            startSequence : time[2].split(',').map(e => ClassOfDay[e])[0],
-            endSequence   : time[2].split(',').map(e => ClassOfDay[e]).slice(-1)[0],
-            teacher       : entry[7],
-            buildingName  : entry[8],
-            classroomName : entry[8] + "-" + entry[9], // 上下三个属性将在crawler中被转换为Id属性
-            campusName    : Campus.findName(entry[8]),
-            capacity      : parseInt(entry[10]),
-            size          : parseInt(entry[11])
-          })
-        )
-      )),
-      // 更新本科生课程数据
-      // TODO: 补充本科生爬取、解析规则
-    ])
-
-    // 成功状态码为201 Created
-    this.response.status = 201
+    if (! gradError.length && ! ugError.length) {
+      // 成功状态码为201 Created
+      this.response.status = 201
+    } else {
+      throw { ugError, gradError }
+    }
   },
 
   /**

@@ -1,6 +1,13 @@
 const pubdb = require('../../database/publicity')
+const authdb = require('../../database/auth')
 const { config } = require('../../app')
+const crypto = require('crypto')
 const axios = require('axios')
+
+// 哈希算法，用于对 token 和密码进行摘要
+const hash = value => {
+  return new Buffer(crypto.createHash('md5').update(value).digest()).toString('base64')
+}
 
 module.exports = async (ctx, next) => {
   if (ctx.path.indexOf('/adapter-appserv/') !== 0) {
@@ -10,66 +17,76 @@ module.exports = async (ctx, next) => {
   let originalPath = ctx.path
   let originalMethod = ctx.method
   try {
-    if (ctx.params.uuid) {
-      // 去除参数的 uuid，防止参数多变，污染 public redis 存储
-      delete ctx.params.uuid
-    }
-
     ctx.path = ctx.path.replace('/adapter-appserv', '')
 
     // 对应路由的转换操作
     if (ctx.path === '/checkversion') {
-      ctx.body = { content: {}, code: 200 }
-      let notices = await pubdb.notice.find()
+      let content = { serverHealth: true }
+      try {
+        let { uuid, versiontype } = ctx.params
 
-      // 每条系统通知对应转换为小程序的一条通知
-      // 内容直接用 Markdown 代码
-      // 地址直接用 Markdown 中找到的第一个链接地址
-      let wxappMessages = notices.map(k => {
-        let link = `https://myseu.cn/?nid=${k.nid}#/`
-        return {
-          image: '',
-          title: k.title,
-          content: k.content.substring(0, 100) + '…\n\n查看完整公告 >',
-          url: link
+        // 与 middleware/adapter/ws2.js:44 一致，快速更新用户的具体平台
+        if (uuid && versiontype) {
+          let auth = await authdb.auth.find({ tokenHash: hash(uuid) }, 1)
+          if (auth && auth.platform === 'ws2') {
+            let platform = 'ws2-' + versiontype.toLowerCase().replace('wxapp', 'mina')
+            await authdb.auth.update({ tokenHash: hash(uuid) }, { platform })
+          }
         }
-      })
 
-      // 根据老版小程序设定，没有通知时应去掉 messages 数组
-      if (wxappMessages.length) {
-        ctx.body.content.messages = wxappMessages
+        let notices = await pubdb.notice.find()
+
+        // 每条系统通知对应转换为小程序的一条通知
+        // 内容直接用 Markdown 代码
+        // 地址直接用 Markdown 中找到的第一个链接地址
+        let wxappMessages = notices.map(k => {
+          let link = `https://myseu.cn/?nid=${k.nid}#/`
+          return {
+            image: '',
+            title: k.title,
+            content: k.content.substring(0, 100) + '…\n\n查看完整公告 >',
+            url: link
+          }
+        })
+
+        // 根据老版小程序设定，没有通知时应去掉 messages 数组
+        if (wxappMessages.length) {
+          content.messages = wxappMessages
+        }
+        content.matchers = []
+
+        // 小程序的登录提示不要了
+        if (notices.length) {
+          let link = `https://myseu.cn/#/notice/${notices[0].nid}`
+
+          content.message = {
+            image: '',
+            content: notices[0].title,
+            url: link
+          }
+        }
+
+        let { schoolnum = '' } = ctx.params
+        let now = new Date().getTime()
+        content.sliderviews = (await pubdb.banner.find({
+          startTime: { $lte: now },
+          endTime: { $gt: now }
+        })).filter(k =>
+          schoolnum.indexOf(k.schoolnumPrefix) === 0 ||
+          !schoolnum && k.schoolnumPrefix === 'guest' ||
+          schoolnum && k.schoolnumPrefix === '!guest'
+        ).sort((a, b) => b.startTime - a.startTime).map(k => {
+          return {
+            title: k.title,
+            imageurl: k.pic,
+            url: k.url
+          }
+        })
+        ctx.body = { content, code: 200 }
+      } catch (e) {
+        console.error(e)
+        ctx.body = { content, code: 200 }
       }
-      ctx.body.content.matchers = []
-
-      // 小程序的登录提示不要了
-      if (notices.length) {
-        let link = `https://myseu.cn/#/notice/${notices[0].nid}`
-
-        ctx.body.content.message = {
-          image: '',
-          content: notices[0].title,
-          url: link
-        }
-      }
-
-      let { schoolnum } = ctx.params
-      let now = new Date().getTime()
-      ctx.body.content.sliderviews = (await pubdb.banner.find({
-        startTime: { $lte: now },
-        endTime: { $gt: now }
-      })).filter(k =>
-        schoolnum.indexOf(k.schoolnumPrefix) === 0 ||
-        !schoolnum && k.schoolnumPrefix === 'guest' ||
-        schoolnum && k.schoolnumPrefix === '!guest'
-      ).sort((a, b) => b.startTime - a.startTime).map(k => {
-        return {
-          title: k.title,
-          imageurl: k.pic,
-          url: k.url
-        }
-      })
-
-      ctx.body.content.serverHealth = true
     } else if (ctx.path === '/download') {
       ctx.redirect('http://herald-app.oss-cn-shanghai.aliyuncs.com/app-release.apk')
     } else if (ctx.path.indexOf('/counter/') === 0) {
