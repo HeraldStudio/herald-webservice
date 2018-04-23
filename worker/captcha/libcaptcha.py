@@ -11,7 +11,7 @@ import json
 
 
 MODEL_NAME = 'library_captcha.tflearn'
-MODEL_PATH = './middleware/captcha-childprocess/models'
+MODEL_PATH = './worker/captcha/models'
 
 IMAGE_WIDTH = 160
 IMAGE_HEIGHT = 40
@@ -100,5 +100,7 @@ if __name__ == '__main__':
               'result': engine.predict(image)
             })
             print(result)
+        except KeyboardInterrupt:
+            break
         except:
             pass

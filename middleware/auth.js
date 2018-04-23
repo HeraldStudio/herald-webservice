@@ -1,8 +1,22 @@
 /**
   # 用户身份认证中间件
 
-  提供对称加密算法，把用户名密码加密保存到 sqlite 数据库，请求时用私钥解密代替用户名密码进行请求
-  目的是为了给缓存和用户密码进行加密，程序只有在用户请求期间可以解密用户密码和用户数据。
+  ## 交叉加密算法
+
+  用户某平台初次登录时，为用户生成 token，与用户密码互相加密后，与两者哈希一并存入数据
+  库，并将 token 明文返回给用户，服务端只保存两个密文和两个哈希，不具备解密能力；
+
+  用户登录后，所有请求将使用 token 发起，服务端使用 token 哈希校验找到对应用户，利用
+  用户提供的 token 解密用户密码，提供给路由处理程序；
+
+  用户同一平台再次登录时，服务端使用一卡通号和平台名找到已有用户数据，通过密码哈希进行
+  本地认证，认证成功则使用用户提供的密码解密原有 token，将 token 重新颁发给用户保存；
+  若本地认证失败，则调用上游统一身份认证，若上游认证成功，说明密码变化，对数据库中与密码
+  有关的信息进行更新。
+
+  上述算法我们称之为交叉加密，在交叉加密下，服务端存储的隐私数据有极强的自保护性，只有
+  持有用户密码和 token 之一才能解密用户隐私，而由于用户密码只有用户知道，token 只在
+  用户端保存，从服务端数据库批量静态解密用户数据的风险极低。
 
   ## 依赖接口
 
@@ -106,8 +120,9 @@ module.exports = async (ctx, next) => {
       throw 405
     }
 
-    // 获取一卡通号、密码、研究生密码、前端定义版本
-    let { cardnum, password, gpassword, platform } = ctx.params
+    // 获取一卡通号、密码、研究生密码、前端定义版本、自定义 token
+    // 自定义 token 可用于将微信 openid 作为 token，实现微信端账号的无明文绑定
+    let { cardnum, password, gpassword, platform, customToken } = ctx.params
 
     // 这里不用解构赋值的默认值，因为不仅需要给 undefined 设置默认值，也需要对空字符串进行容错
     gpassword = gpassword || password
@@ -116,10 +131,18 @@ module.exports = async (ctx, next) => {
       throw '缺少参数 platform: 必须指定平台名'
     }
 
-    // 查找同一用户同一平台的已认证记录
-    let existing = await db.auth.find({ cardnum, platform }, 1)
+    // 根据用户提供的凭据，尽可能查找当前用户已认证的可解密记录，以便免去统一身份认证流程、复用已有记录
+    // 无自定义 token 情况下，遵循同平台共用 token 原则，只需按平台查找用户
+    // 有自定义 token 情况下，需要按自定义 token 一起查找该用户，与该 token 不一致的无法复用
+    // 例如同一用户从多个微信登录，将出现同平台不同的自定 token，此时若覆盖老 token，将导致较早登录的微信被解绑 
+    let criteria = { cardnum, platform }
+    if (customToken) {
+      criteria.tokenHash = hash(customToken)
+    }
+    let existing = await db.auth.find(criteria, 1)
 
-    // 若找到已认证记录，比对密码
+    // 若找到已认证记录，比对密码，以便免去统一身份认证流程
+    // 该过程遵循 token 不变原则，禁止覆盖原有 token，防止原有的登录会话被丢失
     if (existing) {
       let { passwordHash, gpasswordEncrypted, tokenEncrypted } = existing
 
@@ -140,7 +163,7 @@ module.exports = async (ctx, next) => {
           tokenEncrypted = encrypt(password, token)
           passwordHash = hash(password)
 
-          await db.update({ cardnum, platform }, {
+          await db.auth.update({ cardnum, platform }, {
             passwordEncrypted,
             gpasswordEncrypted,
             tokenEncrypted,
@@ -162,9 +185,21 @@ module.exports = async (ctx, next) => {
     let { name, schoolnum } = await auth(ctx, cardnum, password, gpassword)
 
     // 生成 32 字节 token 转为十六进制，及其哈希值
-    let token = new Buffer(crypto.randomBytes(20)).toString('hex')
+    let token = customToken || new Buffer(crypto.randomBytes(20)).toString('hex')
     let tokenHash = hash(token)
     let passwordHash = hash(password)
+
+    // 若存在自定义 token，删除相同 tokenHash 的原有记录。
+    // token 已存在有两种情况：
+    // 1. 非自定义 token 已存在，说明当前生成的 token 与其他用户发生哈希碰撞。该情况需要 let it crash，
+    //    让数据库发生插入冲突，让用户收到错误消息 400，用户再次登录将会生成新的 token，避开碰撞；
+    // 2. 自定义 token（openid）已存在，说明当前微信在当前微信公众平台下已经登录了用户；又因为上面的判断
+    //    已经排除了「已经登录同一用户」的情况，所以现在的情况是「当前微信在当前公众平台下已经登录其他用户」。
+    //    注：微信 openid 不仅用户唯一，且平台唯一，即一个 openid 对应 (一个微信用户 × 一个平台)。
+    //    这种情况下，应通过数据库删除操作将原绑定用户挤掉。
+    if (customToken) {
+      await db.auth.remove({ tokenHash })
+    }
 
     // 将 token 和密码互相加密
     let tokenEncrypted = encrypt(password, token)
