@@ -93,6 +93,8 @@ class SpiderServer {
       } else {
         //使用控制台token认证的部分
         let secret = JSON.parse(data).secret;
+        console.log(secret)
+        console.log(spiderSecret.acceptToken)
         if (spiderSecret.acceptToken.indexOf(secret) !== -1) {
           this.acceptSpider(connection)
           console.log(`爬虫 ${connection.spiderName} 主动认证成功`);
