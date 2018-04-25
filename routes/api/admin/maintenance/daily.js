@@ -26,18 +26,29 @@ exports.route = {
       throw 403
     }
 
-    let yesterday = new Date().getTime() - 1000 * 60 * 60 * 24
+    // 获得昨天同一时间的时间戳
+    let now = new Date().getTime()
+    let yesterdayNow = now - 1000 * 60 * 60 * 24
+
+    // 获得昨天本地时间零点的时间戳
+    let today = new Date()
+    today.setHours(0)
+    today.setMinutes(0)
+    today.setSeconds(0)
+    today.setMilliseconds(0)
+    today = today.getTime()
+    let yesterday = today - 1000 * 60 * 60 * 24
 
     // 根据需求构造更快速的数据库查询
     // 按时间片、路由、方法、状态、请求数量分组，这几项都相同的进行累计
     let dailyStat = await db.raw(`
       select
-        (time - ${yesterday}) / 1800000 as period,
+        ((time - ${yesterday}) % 86400000 / 1800000) as period,
         route, method, status,
         round(avg(duration)) as averageDuration,
         count(*) as count
       from stat
-      where time > ${yesterday} and route not like '/api/admin/%'
+      where time > ${yesterdayNow} and route not like '/api/admin/%'
       group by period, route, method, status;
     `)
     let totalCount = dailyStat.length
@@ -73,12 +84,15 @@ exports.route = {
         }
       })
 
+      let isToday = now - today >= i * 1800000
+
       // 返回能够概括该时间范围内所有类型请求情况的一个对象
       return {
 
         // 时间范围的开始和结束戳
-        startTime: i * (1000 * 60 * 30) + yesterday,
-        endTime: (i + 1) * (1000 * 60 * 30) + yesterday,
+        startTime: i * (1000 * 60 * 30) + (isToday ? today : yesterday),
+        endTime: (i + 1) * (1000 * 60 * 30) + (isToday ? today : yesterday),
+        isToday,
 
         // 该时间范围内的所有请求的数组，按不同操作进行分组
         operations,
