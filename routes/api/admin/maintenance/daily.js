@@ -88,10 +88,6 @@ exports.route = {
 
       // 返回能够概括该时间范围内所有类型请求情况的一个对象
       return {
-
-        // 时间范围的开始和结束戳
-        startTime: i * (1000 * 60 * 30) + (isToday ? today : yesterday),
-        endTime: (i + 1) * (1000 * 60 * 30) + (isToday ? today : yesterday),
         isToday,
 
         // 该时间范围内的所有请求的数组，按不同操作进行分组
