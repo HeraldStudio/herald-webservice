@@ -482,6 +482,6 @@ module.exports = async (ctx, next) => {
   } finally {
     ctx.path = originalPath
     ctx.method = originalMethod
-    ctx.status = ctx.body.code || 200
+    ctx.status = ctx.body && ctx.body.code || 200
   }
 }
