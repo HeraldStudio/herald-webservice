@@ -11,13 +11,13 @@ const tough = require('tough-cookie')
 const chalk = require('chalk')
 const sms = require('../sdk/yunpian')
 const slackMessage = require('./slack').SlackMessage
-const spiderSecret = () => {
+const spiderSecret = (() => {
   try {
     return require('./spider-secret.json')
   } catch (e) {
     return {}
   }
-}
+})()
 
 // errcode定义
 const NO_SPIDER_ERROR = 0 // 没有可用在线爬虫
