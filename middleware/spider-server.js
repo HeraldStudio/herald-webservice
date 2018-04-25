@@ -11,7 +11,7 @@ const tough = require('tough-cookie')
 const chalk = require('chalk')
 const sms = require('../sdk/yunpian')
 const slackMessage = require('./slack').SlackMessage
-
+const spiderSecret = require('./spider-secret.json');
 
 // errcode定义
 const NO_SPIDER_ERROR = 0 // 没有可用在线爬虫
@@ -92,9 +92,11 @@ class SpiderServer {
         this.handleResponse(data)
       } else {
         //使用控制台token认证的部分
-        let secret = JSON.parse(data).secret;
-        if (token === connection.token) {
+        let secret = JSON.parse(data).token;
+        if (spiderSecret.acceptToken.indexOf(secret) !== -1) {
           this.acceptSpider(connection)
+          console.log(`爬虫 ${connection.spiderName} 主动认证成功`);
+          new slackMessage().send(`爬虫 ${connection.spiderName} 主动认证成功，身份标识 ${spiderSecret.map[secret]}`)
         } else {
           this.rejectSpider(connection)
         }
