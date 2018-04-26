@@ -47,7 +47,9 @@ exports.route = {
         route, status,
         count(*) as count
       from stat
-      where time > ${yesterdayNow} and route not like '/api/admin/%'
+      where rowid > (
+        select rowid from stat where time < ${yesterday} order by rowid desc limit 1
+      ) and route not like '/api/admin/%'
       group by period, route, status;
     `)
     let totalCount = dailyStat.length
