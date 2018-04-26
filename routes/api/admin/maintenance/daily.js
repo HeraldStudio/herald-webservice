@@ -48,7 +48,7 @@ exports.route = {
         count(*) as count
       from stat
       where rowid > (
-        select rowid from stat where time < ${yesterday} order by rowid desc limit 1
+        select rowid from stat where time < ${yesterdayNow} order by rowid desc limit 1
       ) and route not like '/api/admin/%'
       group by period, route, status;
     `
