@@ -45,7 +45,6 @@ exports.route = {
       select
         ((time - ${yesterday}) % 86400000 / 1800000) as period,
         route, method, status,
-        round(avg(duration)) as averageDuration,
         count(*) as count
       from stat
       where time > ${yesterdayNow} and route not like '/api/admin/%'
@@ -75,8 +74,7 @@ exports.route = {
           // 操作结果再按 status 状态码分组
           results: group.results.map(k => ({
             status: k.status,
-            count: k.count,
-            averageDuration: k.averageDuration
+            count: k.count
           })),
 
           // 执行该操作的请求的总次数
