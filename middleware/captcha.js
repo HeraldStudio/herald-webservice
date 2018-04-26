@@ -13,33 +13,33 @@ module.exports = ({ python }) => {
   const libraryProcess = spawn(python, [
     process.cwd() + '/worker/captcha/libcaptcha.py'
   ]);
-  const jwcProcess = spawn(python, [
-    process.cwd() + '/worker/captcha/jwccaptcha.py'
-  ]);
+  // const jwcProcess = spawn(python, [
+  //   process.cwd() + '/worker/captcha/jwccaptcha.py'
+  // ]);
   
   process.on('exit', () => {
     libraryProcess.kill()
-    jwcProcess.kill()
+    // jwcProcess.kill()
   })
 
-  jwcProcess.stdout.on('data', (chunk) => {
-    "use strict";
-    let message = chunk.toString();
-    message.trim().split('\n').map(message => {
-      if (message === 'loaded') {
-        // console.log('[python] 教务处验证码模型加载成功');
-        jwcActive = true;
-      } else {
-        try {
-          message = JSON.parse(message);
-          let job = captchaJobPool[message.path];
-          delete captchaJobPool[message.path];
-          let result = message.result;
-          job.resolve(result)
-        } catch (e) {}
-      }
-    })
-  });
+  // jwcProcess.stdout.on('data', (chunk) => {
+  //   "use strict";
+  //   let message = chunk.toString();
+  //   message.trim().split('\n').map(message => {
+  //     if (message === 'loaded') {
+  //       // console.log('[python] 教务处验证码模型加载成功');
+  //       jwcActive = true;
+  //     } else {
+  //       try {
+  //         message = JSON.parse(message);
+  //         let job = captchaJobPool[message.path];
+  //         delete captchaJobPool[message.path];
+  //         let result = message.result;
+  //         job.resolve(result)
+  //       } catch (e) {}
+  //     }
+  //   })
+  // });
 
   libraryProcess.stdout.on('data', (chunk) => {
     "use strict";
@@ -68,29 +68,29 @@ module.exports = ({ python }) => {
     //   .map(k => console.log('[python]', k))
   }
 
-  jwcProcess.stderr.on('data', handleError);
+  // jwcProcess.stderr.on('data', handleError);
   libraryProcess.stderr.on('data', handleError);
 
   const generateName = () => {
     return Math.random().toString(36).substr(2)
   };
 
-  const jwcCaptcha = async ctx => {
+  // const jwcCaptcha = async ctx => {
 
-    let pic = Buffer.from((await ctx.get('http://xk.urp.seu.edu.cn/studentService/getCheckCode')).data);
-    return new Promise((resolve, reject) => {
-      let picName = `/tmp/ws3-captcha-${generateName()}.jpg`;
-      fs.writeFile(picName, pic, err => {
-        "use strict";
-        if (err || !jwcActive) {
-          reject(err || Error('Failed to get captcha'))
-        } else {
-          jwcProcess.stdin.write(picName + '\n');
-          captchaJobPool[picName] = {resolve, reject}
-        }
-      });
-    });
-  };
+  //   let pic = Buffer.from((await ctx.get('http://xk.urp.seu.edu.cn/studentService/getCheckCode')).data);
+  //   return new Promise((resolve, reject) => {
+  //     let picName = `/tmp/ws3-captcha-${generateName()}.jpg`;
+  //     fs.writeFile(picName, pic, err => {
+  //       "use strict";
+  //       if (err || !jwcActive) {
+  //         reject(err || Error('Failed to get captcha'))
+  //       } else {
+  //         jwcProcess.stdin.write(picName + '\n');
+  //         captchaJobPool[picName] = {resolve, reject}
+  //       }
+  //     });
+  //   });
+  // };
 
   const libraryCaptcha = async ctx => {
     let pic = Buffer.from((await ctx.get('http://www.libopac.seu.edu.cn:8080/reader/captcha.php')).data);
@@ -109,10 +109,10 @@ module.exports = ({ python }) => {
   };
 
   return async (ctx, next) => {
-    ctx.jwcCaptcha = () => Promise.race([
-      jwcCaptcha(ctx),
-      new Promise((_, reject) => setTimeout(() => reject('验证码解析失败'), 3000))
-    ])
+    // ctx.jwcCaptcha = () => Promise.race([
+    //   jwcCaptcha(ctx),
+    //   new Promise((_, reject) => setTimeout(() => reject('验证码解析失败'), 3000))
+    // ])
     ctx.libraryCaptcha = () => Promise.race([
       libraryCaptcha(ctx),
       new Promise((_, reject) => setTimeout(() => reject('验证码解析失败'), 3000))
