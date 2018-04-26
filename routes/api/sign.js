@@ -134,11 +134,11 @@ exports.route = {
         // 取选项组的最大可选限制数，若有限制，判断是否已达到限制
         let { maxSelection } = group
         if (maxSelection > 0) {
-          let { count } = (await db.raw(`
+          let { count } = (await db`
             select count(oid) count from signOptionResult inner join signOption
             on signOptionResult.oid = signOption.oid
-            where signOptionResult.cardnum = ? and signOption.gid = ?
-          `, [cardnum, gid]))[0]
+            where signOptionResult.cardnum = ${ cardnum } and signOption.gid = ${ gid }
+          `)[0]
           if (count >= maxSelection) throw `该组最多可选 ${maxSelection} 个选项`
         }
       }
@@ -278,7 +278,7 @@ exports.route = {
 
     // 通配符情况下，直接利用 SQLite 做通配判断
     if (userType === 'glob') {
-      return !!(await db.raw('select ? glob ?', schoolnum, userGlob))[0]
+      return !!(await db`select ${ schoolnum } glob ${ userGlob }`)[0]
     }
   }
 }

@@ -41,7 +41,7 @@ exports.route = {
 
     // 根据需求构造更快速的数据库查询
     // 按时间片、路由、方法、状态、请求数量分组，这几项都相同的进行累计
-    let dailyStat = await db.raw(`
+    let dailyStat = await db`
       select
         ((time - ${yesterday}) % 86400000 / 1800000) as period,
         route, status,
@@ -51,7 +51,7 @@ exports.route = {
         select rowid from stat where time < ${yesterday} order by rowid desc limit 1
       ) and route not like '/api/admin/%'
       group by period, route, status;
-    `)
+    `
     let totalCount = dailyStat.length
 
     // 不直接拿数据库结果做 map，防止遗漏没有请求的时间片

@@ -64,7 +64,7 @@ db.signWhitelist = {
   cardnum: 'text not null'
 }
 
-db.raw(`create index if not exists whitelistIndex on signWhitelist(sid, cardnum)`)
+db`create index if not exists whitelistIndex on signWhitelist(sid, cardnum)`
 
 // 报名前的信息填写情况，为用户和报名表的关系表
 db.signForm = {
@@ -78,7 +78,7 @@ db.signForm = {
   submitTime: 'int not null' 
 }
 
-db.raw(`create index if not exists signFormIndex on signForm(sid, cardnum)`)
+db`create index if not exists signFormIndex on signForm(sid, cardnum)`
 
 // 报名选项结果，为用户和选项表的关系表
 db.signOptionResult = {
@@ -87,6 +87,6 @@ db.signOptionResult = {
   selectTime: 'int not null'
 }
 
-db.raw(`create index if not exists signOptionResultIndex on signOptionResult(oid, cardnum)`)
+db`create index if not exists signOptionResultIndex on signOptionResult(oid, cardnum)`
 
 module.exports = db
