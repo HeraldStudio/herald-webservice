@@ -8,7 +8,7 @@ exports.route = {
   * 跑操查询
   **/
   async get() {
-    return await this.userCache('1h+', async () => {
+    let { count, detail, health } = await this.userCache('1h+', async () => {
       // 取统一身份认证 Cookie，登录早操查询网站，拿到网站 Session Cookie
       await this.useAuthCookie()
       await this.get('http://zccx.seu.edu.cn')
@@ -53,7 +53,11 @@ exports.route = {
         return {name, value, score, grade}
       })
 
-      // 计算剩余天数
+      return { count, detail, health }
+    })
+
+    // 剩余天数单独缓存，防止受跑操上游故障影响
+    let remainDays = await this.publicCache('remainDays', '1h', async () => {
       let now = new Date().getTime()
       let beginOfTerm = Object.keys(config.term)
         .filter(k => /-[23]$/.test(k))                // 取两个长学期
@@ -61,15 +65,15 @@ exports.route = {
         // 去掉未开始和已结束的，留下一个学期，或者 undefined（没有符合条件的学期）
         .filter(k => k <= now && k + 1000 * 60 * 60 * 24 * 7 * 16 > now)[0]
 
-      let remainDays = beginOfTerm ? (
+      return beginOfTerm ? (
         Array(16 * 7).fill() // 生成当前学期每一天的下标数组
           // 当前学期每一天的跑操结束时间戳
           .map((_, i) => beginOfTerm + 1000 * 60 * ((i * 60 * 24) + (7 * 60 + 20)))
           // 去掉已经过去的，转换成星期，去掉双休日，剩下的天数
           .filter(k => now < k).map(k => new Date(k).getDay()).filter(k => k >= 1 && k <= 5).length
       ) : 0
-
-      return { count, detail, health, remainDays }
     })
+
+    return { count, detail, health, remainDays }
   }
 }
