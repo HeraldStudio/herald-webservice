@@ -44,32 +44,28 @@ exports.route = {
     let dailyStat = await db.raw(`
       select
         ((time - ${yesterday}) % 86400000 / 1800000) as period,
-        route, method, status,
+        route, status,
         count(*) as count
       from stat
       where time > ${yesterdayNow} and route not like '/api/admin/%'
-      group by period, route, method, status;
+      group by period, route, status;
     `)
     let totalCount = dailyStat.length
-    dailyStat = dailyStat.map(k => {
-      k.operation = k.method + ' ' + k.route
-      return k
-    })
 
     // 不直接拿数据库结果做 map，防止遗漏没有请求的时间片
     // 首先得到 [0, 48) 的整数区间，对其使用 map
     return [].slice.call([].fill.call({ length: 24 * 2 }, 0)).map((_, i) => {
 
       // 对于 [0, 48) 的每一个整数，在日志中查找该时间范围内的请求
-      let operations = dailyStat.filter(k => k.period === i).groupBy('operation', 'results').map(group => {
+      let routes = dailyStat.filter(k => k.period === i).groupBy('route', 'results').map(group => {
 
-        // 经过 groupBy 分组操作后，每一组都包含 operation 字符串和对应的 results 数组
+        // 经过 groupBy 分组操作后，每一组都包含路由名和对应的 results 数组
         // 这里每一个 group 代表同一个时间段内的每一种不同操作
         // 对于每个操作，这里需要转化为概括该操作所有不同结果的一个对象
         return {
 
-          // 操作名称保留不变
-          operation: group.operation,
+          // 路由名保留不变
+          route: group.route,
 
           // 操作结果再按 status 状态码分组
           results: group.results.map(k => ({
@@ -89,10 +85,10 @@ exports.route = {
         isToday,
 
         // 该时间范围内的所有请求的数组，按不同操作进行分组
-        operations,
+        routes,
 
         // 该时间范围内的请求的总次数
-        count: operations.map(k => k.count).reduce((a, b) => a + b, 0)
+        count: routes.map(k => k.count).reduce((a, b) => a + b, 0)
       }
     })
   }
