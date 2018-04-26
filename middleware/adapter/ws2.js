@@ -472,6 +472,10 @@ module.exports = async (ctx, next) => {
       }
     } else if (ctx.path === '/adapter-ws2/queryEmptyClassrooms/m') {
       ctx.redirect('http://map.seu.edu.cn/#/freeClassroom')
+    } else if (ctx.path === '/adapter-ws2/static/images/xiaoli.jpg') {
+      ctx.path = '/api/schedule'
+      await next()
+      ctx.redirect(ctx.body)
     } else {
       await next()
     }
