@@ -1,9 +1,9 @@
 exports.route = {
   async get() {
-    return await this.publicCache('10s', async () => {
+    return await this.publicCache('10m', async () => {
       const testConnection = async (url) => {
         let start = new Date().getTime()
-        try { await this.get(url, { timeout: 1000 }) } catch (e) { return -1 }
+        try { await this.get(url, { timeout: 3000 }) } catch (e) { return -1 }
         let end = new Date().getTime()
         return end - start
       }
