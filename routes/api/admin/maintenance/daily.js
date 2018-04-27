@@ -53,7 +53,6 @@ exports.route = {
       group by period, route, status;
     `
     let totalCount = dailyStat.length
-    console.log(dailyStat)
 
     // 不直接拿数据库结果做 map，防止遗漏没有请求的时间片
     // 首先得到 [0, 48) 的整数区间，对其使用 map
