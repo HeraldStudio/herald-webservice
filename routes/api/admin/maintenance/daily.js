@@ -53,6 +53,16 @@ exports.route = {
       group by period, route, status;
     `
     let totalCount = dailyStat.length
+    let userStat = await db`
+      select
+        cast(((time - ${yesterday}) % 86400000 / 1800000) as int) as period,
+        count(distinct(identity)) as userCount
+      from stat
+      where rowid > (
+        select rowid from stat where time < ${yesterdayNow} order by rowid desc limit 1
+      ) and route not like '/api/admin/%'
+      group by period;
+    `
 
     // 不直接拿数据库结果做 map，防止遗漏没有请求的时间片
     // 首先得到 [0, 48) 的整数区间，对其使用 map
@@ -85,6 +95,8 @@ exports.route = {
       // 返回能够概括该时间范围内所有类型请求情况的一个对象
       return {
         isToday,
+
+        userCount: (userStat.find(k => k.period === i) || {}).userCount || 0,
 
         // 该时间范围内的所有请求的数组，按不同操作进行分组
         routes,
