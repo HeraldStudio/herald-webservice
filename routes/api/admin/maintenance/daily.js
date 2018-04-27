@@ -43,7 +43,7 @@ exports.route = {
     // 按时间片、路由、方法、状态、请求数量分组，这几项都相同的进行累计
     let dailyStat = await db`
       select
-        ((time - ${yesterday}) % 86400000 / 1800000) as period,
+        cast(((time - ${yesterday}) % 86400000 / 1800000) as int) as period,
         route, status,
         count(*) as count
       from stat
@@ -53,6 +53,7 @@ exports.route = {
       group by period, route, status;
     `
     let totalCount = dailyStat.length
+    console.log(dailyStat)
 
     // 不直接拿数据库结果做 map，防止遗漏没有请求的时间片
     // 首先得到 [0, 48) 的整数区间，对其使用 map
