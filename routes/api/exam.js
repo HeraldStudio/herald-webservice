@@ -25,8 +25,8 @@ exports.route = {
 
         let [y, M, d, h, m] = time.split(/[- :(]/g)
 
-        let startTime = new Date(y, M - 1, d, h, m)
-        let endTime = new Date(startTime.getTime() + duration * 1000 * 60)
+        let startTime = new Date(y, M - 1, d, h, m).getTime()
+        let endTime = startTime + duration * 1000 * 60
 
         return {semester, campus, courseName, courseType, teacherName, startTime, endTime, location, duration}
       })
