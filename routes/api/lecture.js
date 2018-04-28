@@ -27,7 +27,7 @@ exports.route = {
 
       // 根据长度生成 [0, length) 的整数数组用于流式编程
       // 相当于调用 Python range 函数
-      let range = [].slice.call([].fill.call({ length }, 0)).map((k, i) => i)
+      let range = Array(length).fill().map((_, i) => i)
 
       // 并行获取每一页数据
       return (await Promise.all(range.map(async i => {

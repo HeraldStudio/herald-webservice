@@ -66,7 +66,7 @@ exports.route = {
 
     // 不直接拿数据库结果做 map，防止遗漏没有请求的时间片
     // 首先得到 [0, 48) 的整数区间，对其使用 map
-    return [].slice.call([].fill.call({ length: 24 * 2 }, 0)).map((_, i) => {
+    return Array(24 * 2).fill().map((_, i) => {
 
       // 对于 [0, 48) 的每一个整数，在日志中查找该时间范围内的请求
       let routes = dailyStat.filter(k => k.period === i).groupBy('route', 'results').map(group => {
