@@ -28,7 +28,7 @@ exports.route = {
     // 对于登录用户，进行点击量统计
     if (this.user.isLogin) {
       let { identity } = this.user
-      if (!await db.activityClick.find({ aid, identity })) {
+      if (!await db.activityClick.find({ aid, identity }, 1)) {
         await db.activityClick.insert({ aid, identity })
       }
     }
