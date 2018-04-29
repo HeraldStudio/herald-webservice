@@ -3,8 +3,6 @@
 
   按照一定的规则，规范返回格式，将 HTTP Status Code 下放到 JSON 中，使 HTTP Status Code 保持为 200。
  */
-const errorLog = require('fs').createWriteStream('error.log', { flags: 'w' })
-
 module.exports = async (ctx, next) => {
 
   // 不要使用这个对流程控制具有迷惑性的 API，请直接用 throw 代替
@@ -13,7 +11,6 @@ module.exports = async (ctx, next) => {
   try {
     await next()
   } catch (e) {
-    errorLog.write(`${Date()} - ${ctx.user && ctx.user.isLogin ? ctx.user.cardnum : 'guest'}: ${e.stack}\n`)
     ctx.body = ''
     if (!e) {
       ctx.status = 400

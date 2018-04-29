@@ -463,11 +463,11 @@ module.exports = async (ctx, next) => {
       await next()
       return ctx.redirect(ctx.body)
     } else if (ctx.path === '/adapter-ws2/herald/api/v1/huodong/get') {
-      let { page, type } = ctx.query
+      let { page = 1, type } = ctx.query
       if (type === 'hot') {
         ctx.body = { content: [], code: 200 }
       } else {
-        let acts = await pubdb.activity.find({ admittedBy: { $ne: '' } }, 10, (page - 1) * 10, 'startTime-')
+        let acts = await pubdb.activity.find({ admittedBy: { $ne: '' }}, 10, (page - 1) * 10, 'startTime-')
         ctx.body = {
           content: acts.map(k => {
             let startTime = new Date(k.startTime).format('yyyy-M-d')
@@ -506,6 +506,7 @@ module.exports = async (ctx, next) => {
       await next()
     }
   } catch (e) {
+    console.trace(e)
     ctx.body = {
       code: typeof e === 'number' ? e : 400
     }
