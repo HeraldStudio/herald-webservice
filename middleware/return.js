@@ -13,7 +13,7 @@ module.exports = async (ctx, next) => {
   try {
     await next()
   } catch (e) {
-    errorLog.write(Date() + ': ' + e.stack + '\n')
+    errorLog.write(`${Date()} - ${ctx.user && ctx.user.isLogin ? ctx.user.cardnum : 'guest'}: ${e.stack}\n`)
     ctx.body = ''
     if (!e) {
       ctx.status = 400
