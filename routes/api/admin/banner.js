@@ -8,6 +8,7 @@ exports.route = {
     return await Promise.all((await db.banner.find({}, pagesize, (page - 1) * pagesize, 'startTime-'))
       .map(async k => {
         k.clicks = await db.bannerClick.count({ bid: k.bid })
+        return k
       }))
   },
   async post ({ banner }) {
