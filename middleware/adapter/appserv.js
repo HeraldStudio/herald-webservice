@@ -101,7 +101,7 @@ module.exports = async (ctx, next) => {
       ctx.body = ''
     } else if (ctx.path.indexOf('/wxapp/getfile/') === 0) {
       let url = ctx.path.replace('/wxapp/getfile/', '')
-      let { data } = await axios.create(config.axios).get(url, {
+      let { data, headers } = await axios.create(config.axios).get(url, {
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36',
           'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
@@ -113,6 +113,7 @@ module.exports = async (ctx, next) => {
         },
         responseType: 'stream'
       })
+      ctx.set('content-type', headers['content-type'])
       ctx.body = data
     } else if (ctx.path === '/wxapp/tomd') {
       let url = ctx.request.body
