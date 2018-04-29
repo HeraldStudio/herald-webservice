@@ -444,23 +444,24 @@ module.exports = async (ctx, next) => {
       // 作为参数（WS2 uuid 即为 WS3 token），因此可以在这个请求的 URL 参数中拿到用户的 token
       let { aid, bid, token } = ctx.query
 
-      // auth 中间件在 adapter 的下游，可以通过复写头部，强行加上登录态
-      ctx.request.headers = { token }
-
       // 更旧版本的 App 不能识别 [uuid] 控制指令，会把 [uuid] 原样传回来；另外未登录态下，老 App 的 uuid 为全零
-      // 这两种情况都要排除
+      // 这两种情况都要排除（保留非登录态），其余情况加上登录态
       if (/^[0-9A-Za-z]+$/.test(token) && !/^0+$/.test(token)) {
-        if (aid) { // 点击活动
-          ctx.path = '/api/activity'
-        } else { // 点击轮播图
-          ctx.path = '/api/banner'
-        }
-        ctx.method = 'PUT'
-
-        // 下游是 WS3 PUT 请求，会进行统计记录，并返回目标链接，这里为了兼容，帮 App 做重定向
-        await next()
-        return ctx.redirect(ctx.body)
+        // auth 中间件在 adapter 的下游，可以通过复写头部，强行加上登录态
+        ctx.request.headers = { token }
       }
+
+      // 无论是否有登录态都要做重定向
+      if (aid) { // 点击活动
+        ctx.path = '/api/activity'
+      } else { // 点击轮播图
+        ctx.path = '/api/banner'
+      }
+      ctx.method = 'PUT'
+
+      // 下游是 WS3 PUT 请求，会进行统计记录，并返回目标链接，这里为了兼容，帮 App 做重定向
+      await next()
+      return ctx.redirect(ctx.body)
     } else if (ctx.path === '/adapter-ws2/herald/api/v1/huodong/get') {
       let { page, type } = ctx.query
       if (type === 'hot') {
@@ -481,7 +482,7 @@ module.exports = async (ctx, next) => {
               activity_time: startTime === endTime ? startTime : startTime + '~' + endTime,
 
               // 此处有大段解释，见 appserv.js:83
-              detail_url: k.url && `https://myseu.cn/adapter-ws2/click?aid=${k.aid}&token=[uuid]`,
+              detail_url: k.url && `https://myseu.cn/ws3/adapter-ws2/click?aid=${k.aid}&token=[uuid]`,
               pic_url: k.pic,
               association: '校园活动',
               location: '…'
