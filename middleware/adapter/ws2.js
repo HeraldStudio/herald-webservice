@@ -3,6 +3,7 @@ const { config } = require('../../app')
 const axios = require('axios')
 const cheerio = require('cheerio')
 const df = require('./date-format')
+const pubdb = require('../../database/publicity')
 
 module.exports = async (ctx, next) => {
   if (ctx.path.indexOf('/adapter-ws2/') !== 0) {
@@ -36,7 +37,7 @@ module.exports = async (ctx, next) => {
       ctx.params = { cardnum: user, password, platform: 'ws2' }
       await next()
 
-    // 代替 herald_auth 中的 APIHandler.py，对 uuid 解析转换成 ws3 token
+      // 代替 herald_auth 中的 APIHandler.py，对 uuid 解析转换成 ws3 token
     } else if (ctx.path.indexOf('/adapter-ws2/api/') === 0) {
 
       let { uuid } = ctx.params
@@ -105,7 +106,7 @@ module.exports = async (ctx, next) => {
             content[weekdays[k.dayOfWeek - 1]].push([
               k.courseName,
               `[${k.beginWeek}-${k.endWeek}周]${k.beginPeriod}-${k.endPeriod}节`,
-              `${{none:'',odd:'(单)',even:'(双)'}[k.flip]}${k.location}`
+              `${{ none: '', odd: '(单)', even: '(双)' }[k.flip]}${k.location}`
             ])
           }
         })
@@ -126,9 +127,9 @@ module.exports = async (ctx, next) => {
         let { term, curriculum } = ctx.body
         curriculum.map(k => {
           if (!sidebar.find(j =>
-              j.lecturer === k.teacherName
-              && j.course === k.courseName
-              && j.week === `${k.beginWeek}-${k.endWeek}`)) {
+            j.lecturer === k.teacherName
+            && j.course === k.courseName
+            && j.week === `${k.beginWeek}-${k.endWeek}`)) {
             sidebar.push({
               lecturer: k.teacherName,
               course: k.courseName,
@@ -168,21 +169,21 @@ module.exports = async (ctx, next) => {
             'gpa': gpa.toString()
           }
         ] : [ // 研究生暂时做个兼容
-          {
-            'calculate time': '',
-            'gpa without revamp': score.toString(),
-            'gpa': score.toString()
-          }
-        ]).concat(detail.map(k => k.courses.map(course => {
-          return {
-            name: course.courseName,
-            extra: course.courseType,
-            credit: course.credit.toString(),
-            semester: k.semester,
-            score: course.score,
-            type: course.scoreType
-          }
-        })).reduce((a, b) => a.concat(b), []))
+            {
+              'calculate time': '',
+              'gpa without revamp': score.toString(),
+              'gpa': score.toString()
+            }
+          ]).concat(detail.map(k => k.courses.map(course => {
+            return {
+              name: course.courseName,
+              extra: course.courseType,
+              credit: course.credit.toString(),
+              semester: k.semester,
+              score: course.score,
+              type: course.scoreType
+            }
+          })).reduce((a, b) => a.concat(b), []))
 
         ctx.body = { content, code: 200 }
 
@@ -342,42 +343,42 @@ module.exports = async (ctx, next) => {
           content: {
             weekend: {
               '前往地铁站': [
-                {time: '8:00-9:30', bus: '每 30min 一班'},
-                {time: '9:30-11:30', bus: '每 1h 一班'},
-                {time: '11:30-13:00', bus: '每 30min 一班'},
-                {time: '13:30-16:30', bus: '每 1h 一班'},
-                {time: '17:00-19:00', bus: '每 30min 一班'},
-                {time: '19:00-22:00', bus: '每 1h 一班'}
+                { time: '8:00-9:30', bus: '每 30min 一班' },
+                { time: '9:30-11:30', bus: '每 1h 一班' },
+                { time: '11:30-13:00', bus: '每 30min 一班' },
+                { time: '13:30-16:30', bus: '每 1h 一班' },
+                { time: '17:00-19:00', bus: '每 30min 一班' },
+                { time: '19:00-22:00', bus: '每 1h 一班' }
               ],
               '返回九龙湖': [
-                {time: '8:00-9:30', bus: '每 30min 一班'},
-                {time: '9:30-11:30', bus: '每 1h 一班'},
-                {time: '11:30-13:00', bus: '每 30min 一班'},
-                {time: '13:30-16:30', bus: '每 1h 一班'},
-                {time: '17:00-19:00', bus: '每 30min 一班'},
-                {time: '19:00-22:00', bus: '每 1h 一班'}
+                { time: '8:00-9:30', bus: '每 30min 一班' },
+                { time: '9:30-11:30', bus: '每 1h 一班' },
+                { time: '11:30-13:00', bus: '每 30min 一班' },
+                { time: '13:30-16:30', bus: '每 1h 一班' },
+                { time: '17:00-19:00', bus: '每 30min 一班' },
+                { time: '19:00-22:00', bus: '每 1h 一班' }
               ]
             },
-            weekday:{
+            weekday: {
               '前往地铁站': [
-                {time: '7:10-10:00', bus: '每 10min 一班'},
-                {time: '10:00-11:30', bus: '每 30min 一班'},
-                {time: '11:30-13:30', bus: '每 10min 一班'},
-                {time: '13:30-15:00', bus: '13:30,14:00'},
-                {time: '15:00-15:50', bus: '每 10min 一班'},
-                {time: '16:00-17:00', bus: '16:00'},
-                {time: '17:00-18:30', bus: '每 10min 一班'},
-                {time: '18:30-22:00', bus: '每 30min 一班(20:30没有班车)'}
+                { time: '7:10-10:00', bus: '每 10min 一班' },
+                { time: '10:00-11:30', bus: '每 30min 一班' },
+                { time: '11:30-13:30', bus: '每 10min 一班' },
+                { time: '13:30-15:00', bus: '13:30,14:00' },
+                { time: '15:00-15:50', bus: '每 10min 一班' },
+                { time: '16:00-17:00', bus: '16:00' },
+                { time: '17:00-18:30', bus: '每 10min 一班' },
+                { time: '18:30-22:00', bus: '每 30min 一班(20:30没有班车)' }
               ],
               '返回九龙湖': [
-                {time: '7:10-10:00', bus: '每 10min 一班'},
-                {time: '10:00-11:30', bus: '每 30min 一班'},
-                {time: '11:30-13:30', bus: '每 10min 一班'},
-                {time: '13:30-15:00', bus: '13:30,14:00'},
-                {time: '15:00-15:50', bus: '每 10min 一班'},
-                {time: '16:00-17:00', bus: '16:00'},
-                {time: '17:00-18:30', bus: '每 10min 一班'},
-                {time: '18:30-22:00', bus: '每 30min 一班(20:30没有班车)'}
+                { time: '7:10-10:00', bus: '每 10min 一班' },
+                { time: '10:00-11:30', bus: '每 30min 一班' },
+                { time: '11:30-13:30', bus: '每 10min 一班' },
+                { time: '13:30-15:00', bus: '13:30,14:00' },
+                { time: '15:00-15:50', bus: '每 10min 一班' },
+                { time: '16:00-17:00', bus: '16:00' },
+                { time: '17:00-18:30', bus: '每 10min 一班' },
+                { time: '18:30-22:00', bus: '每 30min 一班(20:30没有班车)' }
               ]
             }
           },
@@ -443,34 +444,31 @@ module.exports = async (ctx, next) => {
       // 作为参数（WS2 uuid 即为 WS3 token），因此可以在这个请求的 URL 参数中拿到用户的 token
       let { aid, bid, token } = ctx.query
 
-      // 更旧版本的 App 不能识别 [uuid] 控制指令，会把 [uuid] 原样传回来；另外未登录态下，老 App 的 uuid 为全零
-      // 这两种情况都要排除（保留非登录态），其余情况加上登录态
-      if (/^[0-9A-Za-z]+$/.test(token) && !/^0+$/.test(token)) {
-        // auth 中间件在 adapter 的下游，可以通过复写头部，强行加上登录态
-        ctx.request.headers = { token }
-      }
-      
-      // 无论是否有登录态都要做重定向
-      if (aid) { // 点击活动
-        ctx.path = '/api/activity'
-      } else { // 点击轮播图
-        ctx.path = '/api/banner'
-      }
-      ctx.method = 'PUT'
+      // auth 中间件在 adapter 的下游，可以通过复写头部，强行加上登录态
+      ctx.request.headers = { token }
 
-      // 下游是 WS3 PUT 请求，会进行统计记录，并返回目标链接，这里为了兼容，帮 App 做重定向
-      await next()
-      return ctx.redirect(ctx.body)
+      // 更旧版本的 App 不能识别 [uuid] 控制指令，会把 [uuid] 原样传回来；另外未登录态下，老 App 的 uuid 为全零
+      // 这两种情况都要排除
+      if (/^[0-9A-Za-z]+$/.test(token) && !/^0+$/.test(token)) {
+        if (aid) { // 点击活动
+          ctx.path = '/api/activity'
+        } else { // 点击轮播图
+          ctx.path = '/api/banner'
+        }
+        ctx.method = 'PUT'
+
+        // 下游是 WS3 PUT 请求，会进行统计记录，并返回目标链接，这里为了兼容，帮 App 做重定向
+        await next()
+        return ctx.redirect(ctx.body)
+      }
     } else if (ctx.path === '/adapter-ws2/herald/api/v1/huodong/get') {
       let { page, type } = ctx.query
       if (type === 'hot') {
         ctx.body = { content: [], code: 200 }
       } else {
-        ctx.params = { page }
-        ctx.path = '/api/activity'
-        await next()
+        let acts = await pubdb.activity.find({ admittedBy: { $ne: '' } }, 10, (page - 1) * 10, 'startTime-')
         ctx.body = {
-          content: ctx.body.map(k => {
+          content: acts.map(k => {
             let startTime = new Date(k.startTime).format('yyyy-M-d')
 
             // 截止时间减去1毫秒，使得0点的回到前一天23:59，防止误导
@@ -483,7 +481,7 @@ module.exports = async (ctx, next) => {
               activity_time: startTime === endTime ? startTime : startTime + '~' + endTime,
 
               // 此处有大段解释，见 appserv.js:83
-              detail_url: k.url && `https://myseu.cn/ws3/adapter-ws2/click?aid=${k.aid}&token=[uuid]`,
+              detail_url: k.url && `https://myseu.cn/adapter-ws2/click?aid=${k.aid}&token=[uuid]`,
               pic_url: k.pic,
               association: '校园活动',
               location: '…'
