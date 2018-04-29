@@ -7,9 +7,17 @@ exports.route = {
       throw 403
     }
     let { cardnum } = this.user
-    return (await db.activity.find({ committedBy: cardnum }))
-      .sort((a, b) => b.startTime - a.startTime)
-      .slice((page - 1) * pagesize, page * pagesize)
+    return await Promise.all((await db.activity.find({ committedBy: cardnum }, pagesize, (page - 1) * pagesize, 'startTime-'))
+      .map(async k => {
+        let record = await admindb.admin.find({ cardnum: k.committedBy }, 1)
+        k.committedByName = record ? record.name : k.committedBy
+        if (k.admittedBy) {
+          record = await admindb.admin.find({ cardnum: k.admittedBy }, 1)
+          k.admittedByName = record ? record.name : k.admittedBy
+        }
+        k.clicks = await db.activityClick.count({ aid: k.aid })
+        return k
+      }))
   },
   async post ({ activity }) {
     if (!this.admin || !this.admin.publisher) {
@@ -36,7 +44,11 @@ exports.route = {
       throw 403
     }
     let { cardnum } = this.user
-    await db.activity.remove({ aid, committedBy: cardnum })
-    return 'OK'
+    if (await db.activity.find({ aid, committedBy: cardnum }, 1)) {
+      await db.activity.remove({ aid })
+      await db.activityClick.remove({ aid })
+      return 'OK'
+    }
+    throw 403
   }
 }
