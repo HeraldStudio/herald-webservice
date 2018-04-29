@@ -26,7 +26,7 @@ module.exports = async (ctx, next) => {
       && /^timeout of \d+ms exceeded$/.test(e.message)) { // 探测 Axios 异常
       ctx.status = 408
     } else {
-      console.error(e)
+      console.trace(e)
       ctx.status = 400
     }
   }
