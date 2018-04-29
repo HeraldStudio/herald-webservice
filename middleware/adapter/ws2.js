@@ -483,7 +483,7 @@ module.exports = async (ctx, next) => {
               activity_time: startTime === endTime ? startTime : startTime + '~' + endTime,
 
               // 此处有大段解释，见 appserv.js:83
-              detail_url: k.url && `https://myseu.cn/adapter-ws2/click?aid=${k.aid}&token=[uuid]`,
+              detail_url: k.url && `https://myseu.cn/ws3/adapter-ws2/click?aid=${k.aid}&token=[uuid]`,
               pic_url: k.pic,
               association: '校园活动',
               location: '…'

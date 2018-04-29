@@ -87,7 +87,7 @@ module.exports = async (ctx, next) => {
             // 这里利用老 App 会把点击的 URL 中 [uuid] 替换成当前 WS2 uuid (WS3 token) 的特性，实现精确点击量统计
             // 当老 App 完全被替代之后，应该在前端废除原来那种不便于点击量统计的直链模式，转而使用 /api/activity
             // 和 /api/banner 的 Ajax PUT 请求来处理用户点击。
-            url: k.url && `https://myseu.cn/adapter-ws2/click?bid=${k.bid}&token=[uuid]`
+            url: k.url && `https://myseu.cn/ws3/adapter-ws2/click?bid=${k.bid}&token=[uuid]`
           }
         })
         ctx.body = { content, code: 200 }
