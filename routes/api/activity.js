@@ -6,6 +6,7 @@ exports.route = {
       return (await db.activity.find({ admittedBy: { $ne: '' }}, pagesize, (page - 1) * pagesize, 'startTime-'))
         // 这里删除 url 参数，强制要求前端在用户点击时通过 put 请求获取链接，以保证统计不遗漏
         .map(k => {
+          k.hasUrl = !!k.url
           delete k.url
           return k
         })
