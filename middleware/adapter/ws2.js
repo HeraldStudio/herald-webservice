@@ -506,7 +506,9 @@ module.exports = async (ctx, next) => {
       await next()
     }
   } catch (e) {
-    console.trace(e)
+    if (e instanceof Error) {
+      console.trace(e)
+    }
     ctx.body = {
       code: typeof e === 'number' ? e : 400
     }
