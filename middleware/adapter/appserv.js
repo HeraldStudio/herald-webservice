@@ -71,15 +71,23 @@ module.exports = async (ctx, next) => {
         content.sliderviews = (await pubdb.banner.find({
           startTime: { $lte: now },
           endTime: { $gt: now }
-        })).filter(k =>
+        }, -1, 0, 'startTime-')).filter(k =>
           schoolnum.indexOf(k.schoolnumPrefix) === 0 ||
           !schoolnum && k.schoolnumPrefix === 'guest' ||
           schoolnum && k.schoolnumPrefix === '!guest'
-        ).sort((a, b) => b.startTime - a.startTime).map(k => {
+        ).map(k => {
           return {
             title: k.title,
             imageurl: k.pic,
-            url: k.url
+
+            // 再次强调，标准的前后端分离不应该有重定向 API，后端只负责提供数据，不应该控制浏览器做任何事
+            // 因此在 WS3 中，任何带重定向的东西都不能放在普通路由中，只能作为终将废弃的 Adapter 存在
+            // 这对于点击量统计来说是一件好事，因为传统的重定向方式在无 Cookie 模式下无法探测到是哪个用户点击了链接
+            // 但为了兼容老 App，只能写一个重定向 API 来做这件事，因此就写到了 /adapter-ws2/click 这个路由中
+            // 这里利用老 App 会把点击的 URL 中 [uuid] 替换成当前 WS2 uuid (WS3 token) 的特性，实现精确点击量统计
+            // 当老 App 完全被替代之后，应该在前端废除原来那种不便于点击量统计的直链模式，转而使用 /api/activity
+            // 和 /api/banner 的 Ajax PUT 请求来处理用户点击。
+            url: k.url && `https://myseu.cn/ws3/adapter-ws2/click?bid=${k.bid}&token=[uuid]`
           }
         })
         ctx.body = { content, code: 200 }

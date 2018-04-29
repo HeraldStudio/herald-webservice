@@ -436,6 +436,31 @@ module.exports = async (ctx, next) => {
       } else if (ctx.path === '/api/library_hot') {
         ctx.body = { content: [], code: 200 }
       }
+    } else if (ctx.path === '/adapter-ws2/click') {
+      // 此处有大段解释，见 appserv.js:83
+      // 续：这个请求是用于兼容老 App 的 WebView 点击，是浏览器发起的请求，没有登录态（headers 中没有 token）
+      // 但因为轮播和活动的 adapter 路由中在 URL 中带了 [uuid] 控制指令，强制 App 传入 uuid
+      // 作为参数（WS2 uuid 即为 WS3 token），因此可以在这个请求的 URL 参数中拿到用户的 token
+      let { aid, bid, token } = ctx.query
+
+      // 更旧版本的 App 不能识别 [uuid] 控制指令，会把 [uuid] 原样传回来；另外未登录态下，老 App 的 uuid 为全零
+      // 这两种情况都要排除（保留非登录态），其余情况加上登录态
+      if (/^[0-9A-Za-z]+$/.test(token) && !/^0+$/.test(token)) {
+        // auth 中间件在 adapter 的下游，可以通过复写头部，强行加上登录态
+        ctx.request.headers = { token }
+      }
+      
+      // 无论是否有登录态都要做重定向
+      if (aid) { // 点击活动
+        ctx.path = '/api/activity'
+      } else { // 点击轮播图
+        ctx.path = '/api/banner'
+      }
+      ctx.method = 'PUT'
+
+      // 下游是 WS3 PUT 请求，会进行统计记录，并返回目标链接，这里为了兼容，帮 App 做重定向
+      await next()
+      return ctx.redirect(ctx.body)
     } else if (ctx.path === '/adapter-ws2/herald/api/v1/huodong/get') {
       let { page, type } = ctx.query
       if (type === 'hot') {
@@ -456,7 +481,9 @@ module.exports = async (ctx, next) => {
               start_time: startTime,
               end_time: endTime,
               activity_time: startTime === endTime ? startTime : startTime + '~' + endTime,
-              detail_url: k.url,
+
+              // 此处有大段解释，见 appserv.js:83
+              detail_url: k.url && `https://myseu.cn/ws3/adapter-ws2/click?aid=${k.aid}&token=[uuid]`,
               pic_url: k.pic,
               association: '校园活动',
               location: '…'

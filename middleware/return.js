@@ -61,7 +61,7 @@ module.exports = async (ctx, next) => {
       } else if (ctx.status === 403) {
         json.reason = '权限不允许'
       } else if (ctx.status === 404) {
-        json.reason = '接口不存在'
+        json.reason = '内容不存在'
       } else if (ctx.status === 405) {
         json.reason = '调用方式不正确'
       } else if (ctx.status === 408) {
