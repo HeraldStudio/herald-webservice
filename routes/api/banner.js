@@ -36,7 +36,7 @@ exports.route = {
     // 对于登录用户，进行点击量统计
     if (this.user.isLogin) {
       let { identity } = this.user
-      if (!await db.bannerClick.find({ bid, identity })) {
+      if (!await db.bannerClick.find({ bid, identity }, 1)) {
         await db.bannerClick.insert({ bid, identity })
       }
     }
