@@ -3,6 +3,7 @@ const authdb = require('../../database/auth')
 const { config } = require('../../app')
 const crypto = require('crypto')
 const axios = require('axios')
+const moment = require('moment')
 
 // 哈希算法，用于对 token 和密码进行摘要
 const hash = value => {
@@ -67,7 +68,7 @@ module.exports = async (ctx, next) => {
         }
 
         let { schoolnum = '' } = ctx.params
-        let now = new Date().getTime()
+        let now = +moment()
         content.sliderviews = (await pubdb.banner.find({
           startTime: { $lte: now },
           endTime: { $gt: now }
@@ -99,12 +100,6 @@ module.exports = async (ctx, next) => {
       ctx.redirect('http://herald-app.oss-cn-shanghai.aliyuncs.com/app-release.apk')
     } else if (ctx.path.indexOf('/counter/') === 0) {
       ctx.body = ''
-    } else if (ctx.path === '/wxapp/tomd') {
-      let url = ctx.request.body
-      ctx.path = '/api/notice'
-      ctx.method = 'POST'
-      ctx.params = { url }
-      await next()
     } else if (ctx.path === '/charge') {
       ctx.path = '/api/card'
       ctx.method = 'PUT'

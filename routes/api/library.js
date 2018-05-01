@@ -1,4 +1,5 @@
 const cheerio = require('cheerio')
+const moment = require('moment')
 
 exports.route = {
 
@@ -23,8 +24,8 @@ exports.route = {
         let [bookName, author] = name.split(/\s*\/\s*/g)
         name = bookName
         author = author.replace(/编?著?$/, '')
-        borrowDate = new Date(borrowDate).getTime()
-        returnDate = new Date(returnDate).getTime()
+        borrowDate = +moment(borrowDate)
+        returnDate = +moment(returnDate)
         renewCount = parseInt(renewCount)
 
         return { bookId, name, author, borrowDate, returnDate, renewCount, location, addition, borrowId }
@@ -53,7 +54,7 @@ exports.route = {
 
     let { borrowId } = bookList.find(k => k.bookId === bookId)
     let captcha = await this.libraryCaptcha()
-    let time = new Date().getTime()
+    let time = +moment()
 
     res = await this.get('http://www.libopac.seu.edu.cn:8080/reader/ajax_renew.php', {
       params: {

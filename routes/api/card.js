@@ -1,4 +1,5 @@
 const cheerio = require('cheerio')
+const moment = require('moment')
 
 exports.route = {
 
@@ -109,7 +110,7 @@ exports.route = {
         if (cells.length >= 10) rows.push({
           id: parseInt(cells[7]),
           desc: cells[4] || cells[3].replace(/扣款/g, '') || cells[9].replace(/^[\d-]+/, ''), // 地点或者交易性质
-          time: new Date(cells[0]).getTime(),
+          time: +moment(cells[0]),
           amount: parseFloat(cells[5].replace(/,/g, '')),
           balance: parseFloat(cells[6].replace(/,/g, '')),
           state: cells[8]

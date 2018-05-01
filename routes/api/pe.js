@@ -1,5 +1,6 @@
 const cheerio = require('cheerio')
 const { config } = require('../../app')
+const moment = require('moment')
 
 exports.route = {
 
@@ -35,10 +36,7 @@ exports.route = {
       let detail = $('tr[height="30"]').toArray().map(k => {
         let [date, time] = $(k).children('td').toArray().map(k => $(k).text()).slice(3)
         let [hour, min] = /^\d+\.\d{2}/.exec(time + '0')[0].split('.').map(k => parseInt(k))
-        let d = new Date(date)
-        d.setHours(hour)
-        d.setMinutes(min)
-        return d.getTime()
+        return +moment(date).hour(hour).minute(min)
       })
 
       // 次数偶尔刷不出来，误显示为零，这种情况下暂时用详情的条数代替次数
@@ -58,19 +56,21 @@ exports.route = {
 
     // 剩余天数单独缓存，防止受跑操上游故障影响
     let remainDays = await this.publicCache('remainDays', '1h', async () => {
-      let now = new Date().getTime()
+      let now = moment()
       let beginOfTerm = Object.keys(config.term)
-        .filter(k => /-[23]$/.test(k))                // 取两个长学期
-        .map(k => new Date(config.term[k]).getTime())  // 转为学期开始时间戳
+        .filter(k => /-[23]$/.test(k))     // 取两个长学期
+        .map(k => moment(config.term[k]))  // 转为学期开始时间戳
         // 去掉未开始和已结束的，留下一个学期，或者 undefined（没有符合条件的学期）
-        .filter(k => k <= now && k + 1000 * 60 * 60 * 24 * 7 * 16 > now)[0]
+        .find(k => k <= now && k.add(16, 'weeks') > now)
+        .hour(7).minute(20) // 调整为开学当天跑操结束时间
 
       return beginOfTerm ? (
         Array(16 * 7).fill() // 生成当前学期每一天的下标数组
           // 当前学期每一天的跑操结束时间戳
-          .map((_, i) => beginOfTerm + 1000 * 60 * ((i * 60 * 24) + (7 * 60 + 20)))
+          // 注意这里 beginOfTerm 本身是 Moment 实例，但要传给构造函数用来克隆
+          .map((_, i) => beginOfTerm.clone().add(i, 'days'))
           // 去掉已经过去的，转换成星期，去掉双休日，剩下的天数
-          .filter(k => now < k).map(k => new Date(k).getDay()).filter(k => k >= 1 && k <= 5).length
+          .filter(k => now < k).map(k => k.day()).filter(k => k >= 1 && k <= 5).length
       ) : 0
     })
 

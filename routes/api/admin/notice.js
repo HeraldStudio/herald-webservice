@@ -1,4 +1,5 @@
 const db = require('../../../database/publicity')
+const moment = require('moment')
 
 exports.route = {
   async get () {
@@ -11,7 +12,7 @@ exports.route = {
     if (!this.admin || !this.admin.maintenance) {
       throw 403
     }
-    notice.publishTime = new Date().getTime()
+    notice.publishTime = +moment()
     await db.notice.insert(notice)
     return 'OK'
   },

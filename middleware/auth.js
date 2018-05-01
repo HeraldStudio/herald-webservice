@@ -49,6 +49,7 @@ const db = require('../database/auth')
 const tough = require('tough-cookie')
 const crypto = require('crypto')
 const { config } = require('../app')
+const moment = require('moment')
 
 // 对称加密算法，要求 value 是 String 或 Buffer，否则会报错
 const encrypt = (key, value) => {
@@ -207,7 +208,7 @@ module.exports = async (ctx, next) => {
     let gpasswordEncrypted = /^22/.test(cardnum) ? encrypt(token, gpassword) : ''
 
     // 将新用户信息插入数据库
-    let now = new Date().getTime()
+    let now = +moment()
 
     // 插入用户数据
     await db.auth.insert({
@@ -232,7 +233,7 @@ module.exports = async (ctx, next) => {
     let record = await db.auth.find({ tokenHash }, 1)
 
     if (record) { // 若 token 失效，穿透到未登录的情况去
-      let now = new Date().getTime()
+      let now = +moment()
 
       // 更新用户最近调用时间
       await db.auth.update({ tokenHash }, { lastInvoked: now })

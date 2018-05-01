@@ -1,6 +1,7 @@
 const db = require('../../database/sign')
 const { Mutex } = require('await-semaphore')
 const mutex = new Mutex()
+const moment = require('moment')
 
 /**
  * 阅读此文件请用 WebStorm 或 VSCode
@@ -61,7 +62,7 @@ exports.route = {
 
     // 输入值转为字符串，插入数据库
     input = JSON.stringify(input)
-    let now = new Date().getTime()
+    let now = +moment()
     await db.signForm.insert({ sid, cardnum, input, submitTime: now })
     return 'OK'
   },
@@ -74,7 +75,7 @@ exports.route = {
 
     // 需要登录
     let { cardnum } = this.user
-    let now = new Date().getTime()
+    let now = +moment()
     
     // 根据 oid 获得选项数据项，检查有效性
     let option = await db.signOption.find({ oid }, 1)
@@ -197,7 +198,7 @@ exports.route = {
 
   // 工具函数：给报名信息增加相关字段用于判断
   async fill(sign) {
-    let now = new Date().getTime()
+    let now = +moment()
 
     // 增加 isOngoing 字段表示当前是否进行中
     sign.isOngoing = sign.mode === 'on'

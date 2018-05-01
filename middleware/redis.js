@@ -11,6 +11,7 @@
   ctx.user.encrypt    from auth.js
   ctx.user.decrypt    from auth.js
  */
+const moment = require('moment')
 let client
 
 // job pool，用于异步获取
@@ -57,14 +58,14 @@ if (process.env.NODE_ENV === 'development') {
  */
 const cache = {
   async set(key, value) {
-    let time = Math.floor(new Date().getTime() / 1000)
+    let time = +moment().unix()
     client.set(key, JSON.stringify({ value, time }))
   },
   async get(key, ttl) {
     if (key && ttl) {
       let got = JSON.parse(await client.getAsync(key))
       if (got) {
-        let expired = Math.floor(new Date().getTime() / 1000) - got.time >= ttl
+        let expired = +moment().unix() - got.time >= ttl
         return [got.value, expired]
       }
     }

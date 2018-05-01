@@ -1,3 +1,5 @@
+const moment = require('moment')
+
 const timetable = {
   "双休节假日": [
     { "time":"8:00-9:30", "bus":"每 30min 一班"},
@@ -28,8 +30,8 @@ exports.route = {
     return await this.publicCache('5s', async () => {
       let buses = (await this.get('http://121.248.63.119/busservice/lines')).data.data.lines
       let instant = await Promise.all(buses.map(async k => {
-        k.startTime = new Date(k.startTime).getTime()
-        k.endTime = new Date(k.endTime).getTime()
+        k.startTime = +moment(k.startTime)
+        k.endTime = +moment(k.endTime)
         k.detail = (await this.get('http://121.248.63.119/busservice/lineDetail?lineId=' + k.id)).data.data.line
         k.detail.linePoints.map(k => {
           transformPosition(k.station)
