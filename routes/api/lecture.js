@@ -1,5 +1,4 @@
 const cheerio = require('cheerio')
-const moment = require('moment')
 const locations = {
   37: '教一-111',
   62: '教三-105'

@@ -1,5 +1,4 @@
 const db = require('../database/stat')
-const moment = require('moment')
 
 module.exports = async (ctx, next) => {
   let start = +moment()

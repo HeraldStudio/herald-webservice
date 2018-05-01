@@ -1,7 +1,6 @@
 const cheerio = require('cheerio')
 const loginUrl = 'http://phylab.seu.edu.cn/plms/UserLogin.aspx?ReturnUrl=%2fplms%2fSelectLabSys%2fDefault.aspx'
 const courseUrl = 'http://phylab.seu.edu.cn/plms/SelectLabSys/StuViewCourse.aspx'
-const moment = require('moment')
 
 const headers = {
   'Cache-Control': 'no-cache',
@@ -101,7 +100,6 @@ exports.route = {
           let labs = []
           while (data.length) {
             let [labName, teacherName, date, time, location, score] = data.splice(0, 6)
-            console.log(date, time)
             let [y, M, d] = date.split(/[年月日（ (]/g)
             let [h, m] = { '上午': [9, 45], '下午': [13, 45], '晚上': [18, 15] }[time]
             let startMoment = moment([y, M - 1, d, h, m])

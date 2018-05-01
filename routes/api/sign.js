@@ -1,7 +1,6 @@
 const db = require('../../database/sign')
 const { Mutex } = require('await-semaphore')
 const mutex = new Mutex()
-const moment = require('moment')
 
 /**
  * 阅读此文件请用 WebStorm 或 VSCode

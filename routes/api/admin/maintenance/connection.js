@@ -1,4 +1,3 @@
-const moment = require('moment')
 const counter = require('../../../../middleware/counter')
 const spider = require('../../../../middleware/spider-server')
 const redis = require('../../../../middleware/redis')

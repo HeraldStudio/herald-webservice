@@ -3,7 +3,9 @@ const app = new koa()
 const kf = require('kf-router')
 const fs = require('fs')
 const cors = require('kcors')
-const moment = require('moment')
+
+// 将 moment 导出到全局作用域
+global.moment = require('moment')
 
 // 解析 YAML 配置文件
 const config = require('js-yaml').load(fs.readFileSync('./config.yml'))

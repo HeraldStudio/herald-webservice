@@ -5,7 +5,6 @@ const chalk = require('chalk')
 const wechat = require('co-wechat')
 const config = require('../../sdk/sdk.json').wechat['wx-herald']
 const api = require('../../sdk/wechat').getAxios('wx-herald')
-const moment = require('moment')
 
 String.prototype.padd = function () {
   return this.split('\n').map(k => k.trim()).join('\n')

@@ -1,4 +1,3 @@
-const moment = require('moment')
 
 const timetable = {
   "双休节假日": [

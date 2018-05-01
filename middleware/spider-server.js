@@ -10,7 +10,6 @@ const axios = require('axios');
 const tough = require('tough-cookie')
 const chalk = require('chalk')
 const sms = require('../sdk/yunpian')
-const moment = require('moment')
 const slackMessage = require('./slack').SlackMessage
 const spiderSecret = (() => {
   try {

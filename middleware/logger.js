@@ -4,7 +4,6 @@
   代替 koa 的日志中间件，为了解析 return.js 中间件返回的 JSON 状态码，并且为了好看。
  */
 const chalk = require('chalk')
-const moment = require('moment')
 
 module.exports = async (ctx, next) => {
   let begin = moment()
