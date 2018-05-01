@@ -1,4 +1,5 @@
 const db = require('../../../../database/auth')
+const moment = require('moment')
 
 exports.route = {
   async get() {
@@ -6,8 +7,8 @@ exports.route = {
       throw 403
     }
 
-    let yesterday = new Date().getTime() - 1000 * 60 * 60 * 24
-    let lastMonth = new Date().getTime() - 1000 * 60 * 60 * 24 * 30
+    let yesterday = +moment().subtract(1, 'day')
+    let lastMonth = +moment().subtract(1, 'month')
 
     // 并行查询
     let [

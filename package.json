@@ -23,6 +23,7 @@
     "kf-router": "^2.2.2",
     "koa": "^2.4.1",
     "koa-bodyparser": "^4.2.0",
+    "moment": "^2.22.1",
     "node-europa": "^4.0.0",
     "nodejieba": "^2.2.5",
     "nodemon": "^1.15.1",

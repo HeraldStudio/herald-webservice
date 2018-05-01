@@ -1,4 +1,5 @@
 const cheerio = require('cheerio')
+const moment = require('moment')
 
 exports.route = {
 
@@ -21,12 +22,9 @@ exports.route = {
         let [semester, campus, courseName, courseType, teacherName, time, location, duration]
           = $(tr).find('td').toArray().slice(1).map(td => $(td).text().trim())
 
-        duration = parseInt(duration)
-
-        let [y, M, d, h, m] = time.split(/[- :(]/g)
-
-        let startTime = new Date(y, M - 1, d, h, m).getTime()
-        let endTime = startTime + duration * 1000 * 60
+        let startMoment = moment(time, 'YYYY-MM-DD HH:mm(dddd)')
+        let startTime = +startMoment
+        let endTime = +startMoment.add(duration, 'minutes')
 
         return {semester, campus, courseName, courseType, teacherName, startTime, endTime, location, duration}
       })

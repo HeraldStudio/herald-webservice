@@ -1,11 +1,12 @@
 const db = require('../database/stat')
+const moment = require('moment')
 
 module.exports = async (ctx, next) => {
-  let start = new Date().getTime()
+  let start = +moment()
   try {
     await next()
   } finally {
-    let end = new Date().getTime()
+    let end = +moment()
     let time = start
     let duration = end - start
     let identity = ctx.user && ctx.user.isLogin ? ctx.user.identity : 'guest'

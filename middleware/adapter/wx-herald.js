@@ -5,7 +5,7 @@ const chalk = require('chalk')
 const wechat = require('co-wechat')
 const config = require('../../sdk/sdk.json').wechat['wx-herald']
 const api = require('../../sdk/wechat').getAxios('wx-herald')
-const df = require('./date-format')
+const moment = require('moment')
 
 String.prototype.padd = function () {
   return this.split('\n').map(k => k.trim()).join('\n')
@@ -68,7 +68,7 @@ const handler = {
       `💳 一卡通余额 ${info.balance}`,
       `${date || '今日'} 总支出 ${ total } 元`,
       detail.map(k => {
-        let time = df.formatTimeNatural(k.time)
+        let time = moment(k.time).fromNow()
         let amount = k.amount.toFixed(2).replace(/^(?:\d)/, '+')
         return date ? `${k.desc} ${amount}` : `${time}：${k.desc} ${amount}`
       }).join('\n'),
@@ -87,7 +87,7 @@ const handler = {
       return events.map(e => Object.assign(e, { courseName, location }))
     }).reduce((a, b) => a.concat(b), [])
 
-    let now = new Date().getTime()
+    let now = +moment()
     let endedCount = curriculum.filter(k => k.endTime <= now).length
     let upcoming = curriculum.filter(k => k.startTime > now).sort((a, b) => a.startTime - b.startTime)
     let upcomingCount = upcoming.length
@@ -97,7 +97,7 @@ const handler = {
     return [
       `🗓 本学期已上 ${endedCount} 课，还有 ${upcomingCount} 课`, 
       current.map(k => `正在上课：${k.courseName} @ ${k.location}\n`).join(''),
-      upcoming.slice(0, 5).map(k => `${df.formatPeriodNatural(k.startTime, k.endTime)}
+      upcoming.slice(0, 5).map(k => `${moment(k.startTime).fromNow()}
         ${k.courseName} @ ${k.location}`).join('\n\n'),
       `💡 完整课表详见网页版或小程序`
     ].filter(k => k).join('\n\n').padd()
@@ -109,10 +109,10 @@ const handler = {
     await this.next()
     let { count, detail, remainDays } = this.body
     let remaining = Math.max(0, 45 - count)
-    let lastTime = count && df.formatTimeNatural(detail.sort((a, b) => a - b).slice(-1)[0])
+    let lastTime = count && moment(detail.sort((a, b) => a - b).slice(-1)[0]).fromNow()
     return [
       `🥇 已跑操 ${count} 次，还有 ${remainDays} 天`,
-      count && `上次跑操是在 ${lastTime}`,
+      count && `上次跑操是在${lastTime}`,
       `💡 回复 体测 查看体测成绩`
     ].filter(k => k).join('\n\n').padd()
   },
@@ -133,7 +133,7 @@ const handler = {
     this.method = 'GET'
     await this.next()
     let labs = this.body
-    let now = new Date().getTime()
+    let now = +moment()
     let endedCount = labs.filter(k => k.endTime <= now).length
     let upcoming = labs.filter(k => k.startTime > now).sort((a, b) => a.startTime - b.startTime)
     let upcomingCount = upcoming.length
@@ -143,7 +143,7 @@ const handler = {
     return [
       `🔬 已做 ${endedCount} 次实验，还有 ${upcomingCount} 次`,
       current.map(k => `正在进行：${k.labName} @ ${k.location}\n`).join(''),
-      upcoming.map(k => `${df.formatPeriodNatural(k.startTime, k.endTime)}
+      upcoming.map(k => `${moment(k.startTime).fromNow()}
         ${k.labName} @ ${k.location}`).join('\n\n')
     ].filter(k => k).join('\n\n').padd()
   },
@@ -153,7 +153,7 @@ const handler = {
     this.method = 'GET'
     await this.next()
     let exams = this.body
-    let now = new Date().getTime()
+    let now = +moment()
     let endedCount = exams.filter(k => k.endTime <= now).length
     let upcoming = exams.filter(k => k.startTime > now).sort((a, b) => a.startTime - b.startTime)
     let upcomingCount = upcoming.length
@@ -163,7 +163,7 @@ const handler = {
     return [
       `📝 已完成 ${endedCount} 场考试，还有 ${upcomingCount} 场`,
       current.map(k => `正在进行：${k.courseName} @ ${k.location}\n`).join(''),
-      upcoming.map(k => `${df.formatPeriodNatural(k.startTime, k.endTime)}
+      upcoming.map(k => `${moment(k.startTime).fromNow()}
         ${k.courseName} @ ${k.location}`).join('\n\n')
     ].filter(k => k).join('\n\n').padd()
   },
@@ -195,7 +195,7 @@ const handler = {
     let lectures = this.body
     return [
       `🎬 已听讲座次数：${lectures.length}`,
-      lectures.map(k => `${new Date(k.time).format('yyyy-M-d')}（${k.location}）`).join('\n')
+      lectures.map(k => `${moment(k.time).format('YYYY-M-D')}（${k.location}）`).join('\n')
     ].filter(k => k).join('\n\n').padd()
   },
 
@@ -207,7 +207,7 @@ const handler = {
     return [
       `📖 已借图书：${books.length}`,
       books.map(k => `${k.name}（${k.author}）
-      应还：${new Date(k.returnDate).format('yyyy-M-d')}`).join('\n')
+      应还：${moment(k.returnDate).format('YYYY-M-D')}`).join('\n')
     ].filter(k => k).join('\n\n').padd()
   },
 
@@ -233,7 +233,7 @@ const handler = {
     let notices = this.body
     return [
       `📨 最近通知：`,
-      notices.slice(0, 5).map(k => `${k.category} ${df.formatDateNatural(k.time)}
+      notices.slice(0, 5).map(k => `${k.category} ${moment(k.time).calendar()}
         <a href="${k.url || 'https://myseu.cn/?nid=' + k.nid}">${k.title}</a>`).join('\n\n')
     ].filter(k => k).join('\n\n').padd()
   },

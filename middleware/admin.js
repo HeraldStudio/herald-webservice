@@ -1,6 +1,7 @@
 const chalk = require('chalk')
 const crypto = require('crypto')
 const db = require('../database/admin')
+const moment = require('moment')
 
 // 程序启动时，生成超级管理员 Token
 // 为了防止与普通用户碰撞，此处字节数跟普通用户 token 字节数做区分，切勿轻易改成跟普通用户长度相同，否则会有问题
@@ -52,7 +53,7 @@ module.exports = async (ctx, next) => {
         },
         get(target, key) {
           if (target[key]) {
-            let now = new Date().getTime()
+            let now = +moment()
             let domain = key
             db.admin.update({ cardnum, domain }, { lastUsed: now })
           }

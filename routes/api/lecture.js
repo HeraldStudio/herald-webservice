@@ -1,4 +1,5 @@
 const cheerio = require('cheerio')
+const moment = require('moment')
 const locations = {
   37: '教一-111',
   62: '教三-105'
@@ -39,7 +40,7 @@ exports.route = {
         return $('.dangrichaxun tr').toArray().slice(1,-1).map(tr => {
           let td = $(tr).find('td')
           let machineId = parseInt(td.eq(2).text().trim())
-          let time = new Date(td.eq(0).text()).getTime()
+          let time = +moment(td.eq(0).text())
           return { time, machineId }
         })
       }))).reduce((a, b) => a.concat(b), [])
