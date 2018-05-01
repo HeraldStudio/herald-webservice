@@ -23,7 +23,7 @@ exports.route = {
       // 获取记录页数
       res = await this.post('http://allinonecard.seu.edu.cn/mjkqBrows.action', { account, startDate: '', endDate: '' })
       $ = cheerio.load(res.data)
-      let length = $("#pagetotal").text()
+      let length = parseInt($("#pagetotal").text())
 
       // 根据长度生成 [0, length) 的整数数组用于流式编程
       // 相当于调用 Python range 函数
