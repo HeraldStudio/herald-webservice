@@ -10,6 +10,7 @@ const axios = require('axios')
 const tough = require('tough-cookie')
 const chalk = require('chalk')
 const sms = require('../sdk/yunpian')
+const moment = require('moment')
 const slackMessage = require('./slack').SlackMessage
 const spiderSecret = (() => {
   try {
@@ -87,8 +88,7 @@ class SpiderServer {
     // 来自硬件爬虫数据的处理
     connection.on('message', async data => {
       // 有数据返回时即更新心跳时间戳
-      let date = new Date()
-      connection.finalHeartBeat = date.getTime()
+      connection.finalHeartBeat = +moment()
       // 如果是心跳包则拦截
       if (data === '@herald—spider') {
         connection.send('@herald-server') // 双向心跳包
@@ -280,8 +280,7 @@ class SpiderServer {
   }
 
   getAvailableSpiders() {
-    let timestamp = new Date()
-    timestamp = timestamp.getTime()
+    let timestamp = +moment()
     let availableList = []
     for (let name in this.connectionPool) {
       let heartCycle = timestamp - this.connectionPool[name].finalHeartBeat

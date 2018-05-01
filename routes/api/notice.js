@@ -1,7 +1,8 @@
 const cheerio = require('cheerio')
 const Europa = require('node-europa')
 const db = require('../../database/publicity')
-const url = require('url');
+const url = require('url')
+const moment = require('moment')
 
 const sites = {
   jwc: {
@@ -34,19 +35,15 @@ const deptCodeFromSchoolNum = schoolnum => {
   return Object.keys(sites).filter(k => sites[k].codes.includes(deptNum))
 }
 
-// 强制使用本地时间
-const newLocalDate = str => new Date(str + 'Z+0800')
-
 // 根据月日，找出在今天和之前最近的符合的日期
-const autoDate = md => {
-  const now = new Date()
-  const thisYear = now.getYear() + 1900
-  const dateOfThisYear = newLocalDate(`${thisYear}-${md}`)
-  if (dateOfThisYear <= now) {
-    return dateOfThisYear
-  } else {
-    return newLocalDate(`${thisYear - 1}-${md}`)
+const autoMoment = md => {
+  const now = moment()
+  const thisYear = now.year()
+  const date = moment(`${thisYear}-${md}`)
+  while (date > now) {
+    date.subtract(1, 'year')
   }
+  return date
 }
 
 // 有些学院网站上没有发布日期，于是使用url中的日期代替
@@ -54,14 +51,14 @@ const autoDate = md => {
 const deduceTimeFromUrl = url => {
   let match = /\/(\d{4})\/(\d{2})(\d{2})\//.exec(url)
   if (match !== null) {
-    return newLocalDate(match[1] + '-' + match[2] + '-' + match[3]).getTime()
+    return +moment(match[1] + '-' + match[2] + '-' + match[3])
   }
 }
 
 const commonSites = ['jwc', 'zwc']
 
 // 5 天之内的信息，全部留下
-const keepTime = 1000 * 60 * 60 * 24 * 5
+const keepTime = +moment.duration(5, 'days')
 // 10 条以内的信息，全部留下
 const keepNum = 10
 
@@ -72,7 +69,7 @@ exports.route = {
   * @apiReturn [{ category, department, title, url, time, isAttachment, isImportant }]
   */
   async get () {
-    let now = new Date().getTime()
+    let now = +moment()
     // 调试环境下接受 site 参数用于单独获取某网站的通知
     let keys = process.env.NODE_ENV === 'development'
       ? (typeof this.params.site !== 'undefined' ? [this.params.site] : commonSites)
@@ -101,8 +98,8 @@ exports.route = {
               $(ele[0]).find(sites[site].dateSelector || 'div').toArray()
               .map(k => /(\d+-)?\d+-\d+/.exec($(k).text())).filter(k => k)
               .map(k => k[1] // 有的网站上没有年份信息。
-                   ? newLocalDate(k[0]).getTime()
-                   : autoDate(k[0]).getTime())
+                   ? +moment(k[0])
+                   : +autoMoment(k[0]))
           }
         )
 

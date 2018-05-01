@@ -1,4 +1,5 @@
 const cheerio = require('cheerio')
+const moment = require('moment')
 
 exports.route = {
 
@@ -45,7 +46,7 @@ exports.route = {
         })
 
         // 时间解析为时间戳
-        calculationTime = calculationTime ? new Date(calculationTime).getTime() : null
+        calculationTime = calculationTime ? +moment(calculationTime) : null
         return { gpa, gpaBeforeMakeup, year, calculationTime, detail }
 
       } else if (/^22/.test(cardnum)) { // 研究生

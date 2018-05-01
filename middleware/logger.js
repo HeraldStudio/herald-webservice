@@ -4,15 +4,14 @@
   代替 koa 的日志中间件，为了解析 return.js 中间件返回的 JSON 状态码，并且为了好看。
  */
 const chalk = require('chalk')
+const moment = require('moment')
 
 module.exports = async (ctx, next) => {
-  let begin = new Date()
+  let begin = moment()
   await next()
-  let end = new Date()
+  let end = moment()
   let duration = end - begin
-  let time = end.getHours()
-    + ':' + ('0' + end.getMinutes()).split('').slice(-2).join('')
-    + ':' + ('0' + end.getSeconds()).split('').slice(-2).join('')
+  let time = end.format('H:mm:ss')
 
   // 考虑到某些情况（如重定向）时，返回中没有 JSON 格式的 body，只有 status
   let status = ctx.body && ctx.body.code || ctx.status

@@ -1,3 +1,4 @@
+const moment = require('moment')
 const { config } = require('../app')
 const axios = require('axios').create({
   baseURL: 'https://api.weixin.qq.com/cgi-bin/',
@@ -8,7 +9,7 @@ const lastToken = {}
 
 const getToken = async (type) => {
   let { token, expire = 0 } = lastToken[type] || {}
-  let now = new Date().getTime()
+  let now = +moment()
   if (expire > now) {
     return token
   }

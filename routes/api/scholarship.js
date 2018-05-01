@@ -1,5 +1,6 @@
 const cheerio = require('cheerio')
 const ids = require('../../middleware/auth-provider/ids')
+const moment = require('moment')
 
 // 可申请奖学金、已申请奖学金、可申请助学金、已申请助学金的 URL 参数
 // 原来为 base64 编码，此处解码书写，增加可读性
@@ -34,7 +35,7 @@ exports.route = {
               let entries = k.find('.jxjInfo').toArray().map(k => $(k).text().split('：')[1].trim())
               if (/\d+-\d+-\d+/.test(entries[0])) {
                 let [datePeriod, level, yearPeriod, amount] = entries
-                let [startDate, endDate] = datePeriod.match(/\d+-\d+-\d+/g).map(k => new Date(k).getTime())
+                let [startDate, endDate] = datePeriod.match(/\d+-\d+-\d+/g).map(k => +moment(k))
                 let [startYear, endYear] = yearPeriod.match(/\d+/g)
                 amount = /\d+/.exec(amount)[0]
                 return { name, level, startDate, endDate, startYear, endYear, amount }

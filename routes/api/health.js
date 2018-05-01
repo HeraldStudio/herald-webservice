@@ -1,10 +1,12 @@
+const moment = require('moment')
+
 exports.route = {
   async get() {
     return await this.publicCache('10m', async () => {
       const testConnection = async (url) => {
-        let start = new Date().getTime()
+        let start = +moment()
         try { await this.get(url, { timeout: 3000 }) } catch (e) { return -1 }
-        let end = new Date().getTime()
+        let end = +moment()
         return end - start
       }
 
