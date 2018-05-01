@@ -1,5 +1,4 @@
 const cheerio = require('cheerio')
-const moment = require('moment')
 
 exports.route = {
 

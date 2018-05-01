@@ -3,7 +3,6 @@ const { config } = require('../../app')
 const axios = require('axios')
 const cheerio = require('cheerio')
 const pubdb = require('../../database/publicity')
-const moment = require('moment')
 
 module.exports = async (ctx, next) => {
   if (ctx.path.indexOf('/adapter-ws2/') !== 0) {

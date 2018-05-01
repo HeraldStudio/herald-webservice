@@ -11,7 +11,6 @@
   ctx.user.encrypt    from auth.js
   ctx.user.decrypt    from auth.js
  */
-const moment = require('moment')
 let client
 
 // job pool，用于异步获取

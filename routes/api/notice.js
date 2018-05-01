@@ -2,7 +2,6 @@ const cheerio = require('cheerio')
 const Europa = require('node-europa')
 const db = require('../../database/publicity')
 const url = require('url')
-const moment = require('moment')
 
 const sites = {
   jwc: {

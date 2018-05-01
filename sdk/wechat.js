@@ -1,4 +1,3 @@
-const moment = require('moment')
 const { config } = require('../app')
 const axios = require('axios').create({
   baseURL: 'https://api.weixin.qq.com/cgi-bin/',

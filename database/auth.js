@@ -1,5 +1,4 @@
 const db = require('sqlongo')('auth')
-const moment = require('moment')
 
 db.auth = {
   cardnum:            'text not null',    // 一卡通号

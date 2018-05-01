@@ -1,6 +1,5 @@
 const cheerio = require('cheerio')
 const ids = require('../../middleware/auth-provider/ids')
-const moment = require('moment')
 
 // 可申请奖学金、已申请奖学金、可申请助学金、已申请助学金的 URL 参数
 // 原来为 base64 编码，此处解码书写，增加可读性

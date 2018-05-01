@@ -1,5 +1,4 @@
 const db = require('../../../../database/auth')
-const moment = require('moment')
 
 exports.route = {
   async get() {
