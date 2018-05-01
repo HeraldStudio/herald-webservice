@@ -1,6 +1,5 @@
 const cheerio = require('cheerio')
 const { config } = require('../../app')
-const moment = require('moment')
 
 // 每节课的开始时间 (时 * 60 + 分)
 // 注：本科生和研究生的时间表完全一样。

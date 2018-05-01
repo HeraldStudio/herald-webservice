@@ -1,5 +1,4 @@
 const db = require('../../../../database/stat')
-const moment = require('moment')
 
 Array.prototype.groupBy = function(keyOfKey, keyOfValue) {
   let keys = this.map(k => k[keyOfKey]).sort()

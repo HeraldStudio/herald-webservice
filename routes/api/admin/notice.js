@@ -1,5 +1,4 @@
 const db = require('../../../database/publicity')
-const moment = require('moment')
 
 exports.route = {
   async get () {

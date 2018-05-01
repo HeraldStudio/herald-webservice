@@ -1,6 +1,5 @@
 const cheerio = require('cheerio')
 const { config } = require('../../app')
-const moment = require('moment')
 
 exports.route = {
 

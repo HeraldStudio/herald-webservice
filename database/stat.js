@@ -1,5 +1,4 @@
 const db = require('sqlongo')('stat')
-const moment = require('moment')
 
 db.stat = {
   time:       'int not null',

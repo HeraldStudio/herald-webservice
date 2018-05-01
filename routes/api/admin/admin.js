@@ -1,5 +1,4 @@
 let db = require('../../../database/admin')
-const moment = require('moment')
 
 exports.route = {
 
