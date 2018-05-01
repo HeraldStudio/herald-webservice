@@ -66,7 +66,7 @@ exports.route = {
       return beginOfTerm ? (
         Array(16 * 7).fill() // 生成当前学期每一天的下标数组
           // 当前学期每一天的跑操结束时间戳
-          // 注意这里 beginOfTerm 本身是 Moment 实例，但要传给构造函数用来克隆
+          // 注意这里要克隆一次，不能在原对象上直接操作
           .map((_, i) => beginOfTerm.clone().add(i, 'days'))
           // 去掉已经过去的，转换成星期，去掉双休日，剩下的天数
           .filter(k => now < k).map(k => k.day()).filter(k => k >= 1 && k <= 5).length
