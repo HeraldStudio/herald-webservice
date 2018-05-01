@@ -12,11 +12,13 @@
     "webhookURL": ""
   },
   "wechat": {
-    "biz": {
+    "wx-herald": {
       "appid": "",
-      "appsecret": ""
+      "appsecret": "",
+      "token": "",
+      "encodingAESKey": ""
     },
-    "min": {
+    "mina-herald": {
       "appid": "",
       "appsecret": ""
     }
