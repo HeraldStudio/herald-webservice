@@ -11,7 +11,6 @@ const tough = require('tough-cookie')
 const chalk = require('chalk')
 const sms = require('../sdk/yunpian')
 const slackMessage = require('./slack').SlackMessage
-const { authProvider } = require('./auth')
 const spiderSecret = (() => {
   try {
     return require('./spider-secret.json')
@@ -99,13 +98,12 @@ class SpiderServer {
         this.handleResponse(data)
       } else {
         // token 认证的部分
-        data = JSON.parse(data)
-        let { token } = data
+        let { token } = JSON.parse(data)
 
         // 老版密令主动认证
         if (token in spiderSecret) {
           this.acceptSpider(connection)
-          console.log(`爬虫 ${connection.spiderName} 主动认证成功`);
+          console.log(`爬虫 ${connection.spiderName} 主动认证成功`)
           new slackMessage().send(`爬虫 ${connection.spiderName} 主动认证成功，身份标识 ${spiderSecret[token]}`)
         }
         
@@ -115,7 +113,10 @@ class SpiderServer {
             headers: { token }
           })
           if (res.data.result.maintenance) {
+            let name = res.data.result.maintenance.name
             this.acceptSpider(connection)
+            console.log(`爬虫 ${connection.spiderName} 运维认证成功，操作者${name}`)
+            new slackMessage().send(`爬虫 ${connection.spiderName} 运维认证成功，操作者${name}`)
           } else {
             this.rejectSpider(connection)
           }
