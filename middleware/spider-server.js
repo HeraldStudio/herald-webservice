@@ -4,13 +4,14 @@
 
 const ws = require('ws')
 const net = require('net')
-const {config} = require('../app')
+const { config } = require('../app')
 const chardet = require('chardet')
-const axios = require('axios');
+const axios = require('axios')
 const tough = require('tough-cookie')
 const chalk = require('chalk')
 const sms = require('../sdk/yunpian')
 const slackMessage = require('./slack').SlackMessage
+const { authProvider } = require('./auth')
 const spiderSecret = (() => {
   try {
     return require('./spider-secret.json')
@@ -85,25 +86,40 @@ class SpiderServer {
     connection.send(JSON.stringify(message))
 
     // 来自硬件爬虫数据的处理
-    connection.on('message', (data) => {
+    connection.on('message', async data => {
       // 有数据返回时即更新心跳时间戳
       let date = new Date()
       connection.finalHeartBeat = date.getTime()
       // 如果是心跳包则拦截
       if (data === '@herald—spider') {
-        connection.send('@herald-server'); // 双向心跳包
+        connection.send('@herald-server') // 双向心跳包
         return
       }
       if (connection.active) {
         this.handleResponse(data)
       } else {
-        //使用控制台token认证的部分
-        let secret = JSON.parse(data).token;
-        if (secret in spiderSecret) {
+        // token 认证的部分
+        data = JSON.parse(data)
+        let { token } = data
+
+        // 老版密令主动认证
+        if (token in spiderSecret) {
           this.acceptSpider(connection)
           console.log(`爬虫 ${connection.spiderName} 主动认证成功`);
-          new slackMessage().send(`爬虫 ${connection.spiderName} 主动认证成功，身份标识 ${spiderSecret[secret]}`)
-        } else {
+          new slackMessage().send(`爬虫 ${connection.spiderName} 主动认证成功，身份标识 ${spiderSecret[token]}`)
+        }
+        
+        // 新版运维登录 token 认证
+        else try {
+          let res = await axios.get(`http://localhost:${config.port}/api/admin`, {
+            headers: { token }
+          })
+          if (res.data.result.maintenance) {
+            this.acceptSpider(connection)
+          } else {
+            this.rejectSpider(connection)
+          }
+        } catch (e) {
           this.rejectSpider(connection)
         }
       }
