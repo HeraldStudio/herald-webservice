@@ -108,7 +108,7 @@ class SpiderServer {
         
         // 新版运维登录 token 认证
         else try {
-          let res = await axios.get(`http://localhost:${config.port}/api/admin`, {
+          let res = await axios.get(`http://localhost:${config.port}/api/admin/admin`, {
             headers: { token }
           })
           if (res.data.result.maintenance) {
