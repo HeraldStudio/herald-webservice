@@ -11,7 +11,6 @@ db.stat = {
 }
 
 // 每次初始化时清理超过两年的日志
-const ONE_YEAR = 1000 * 60 * 60 * 24 * 365
-db.stat.remove({ time: { $lt: new Date().getTime() - 2 * ONE_YEAR }})
+db.stat.remove({ time: { $lt: +moment().subtract(2, 'years') }})
 
 module.exports = db

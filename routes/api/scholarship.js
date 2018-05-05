@@ -34,7 +34,7 @@ exports.route = {
               let entries = k.find('.jxjInfo').toArray().map(k => $(k).text().split('：')[1].trim())
               if (/\d+-\d+-\d+/.test(entries[0])) {
                 let [datePeriod, level, yearPeriod, amount] = entries
-                let [startDate, endDate] = datePeriod.match(/\d+-\d+-\d+/g).map(k => new Date(k).getTime())
+                let [startDate, endDate] = datePeriod.match(/\d+-\d+-\d+/g).map(k => +moment(k))
                 let [startYear, endYear] = yearPeriod.match(/\d+/g)
                 amount = /\d+/.exec(amount)[0]
                 return { name, level, startDate, endDate, startYear, endYear, amount }

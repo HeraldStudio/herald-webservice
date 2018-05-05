@@ -114,13 +114,13 @@ class ClassRecord extends ModelBase {
 
   // 获取当前学期Id。注意！8、9月末调用可能会出错！
   static currentTermId() {
-    let today = new Date()
+    let today = moment()
     // 由上一年的9月开始，记录月份的偏移量
-    let m_offset = today.getMonth() + 4
+    let m_offset = today.month() + 4
     // 到了第二年9月即偏移1年
     let y_offset = Math.floor(m_offset / 12)
     // yy为最终表示在学期Id上的2位年份数
-    let yy = today.getFullYear() - 2001 + y_offset
+    let yy = today.year() - 2001 + y_offset
     // n为当前学期数，分别在偏移1（10月），5（2月）时增1
     let n = 1 + ((m_offset %= 12) && (m_offset < 5 ? 1 : 2))
     return `${yy}-${yy + 1}-${n}`

@@ -46,7 +46,7 @@ exports.route = {
       throw '管理员已存在'
     }
 
-    let now = new Date().getTime()
+    let now = +moment()
     await db.admin.insert({
       cardnum, name, phone, domain,
       level: this.admin[domain].level + 1,

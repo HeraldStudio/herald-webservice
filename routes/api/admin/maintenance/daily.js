@@ -26,18 +26,10 @@ exports.route = {
       throw 403
     }
 
-    // 获得昨天同一时间的时间戳
-    let now = new Date().getTime()
-    let yesterdayNow = now - 1000 * 60 * 60 * 24
-
-    // 获得昨天本地时间零点的时间戳
-    let today = new Date()
-    today.setHours(0)
-    today.setMinutes(0)
-    today.setSeconds(0)
-    today.setMilliseconds(0)
-    today = today.getTime()
-    let yesterday = today - 1000 * 60 * 60 * 24
+    let now = +moment()
+    let today = +moment().startOf('day')
+    let yesterdayNow = +moment().subtract(1, 'day')
+    let yesterday = +moment().subtract(1, 'day').startOf('day')
 
     // 根据需求构造更快速的数据库查询
     // 按时间片、路由、方法、状态、请求数量分组，这几项都相同的进行累计

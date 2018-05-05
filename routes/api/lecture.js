@@ -39,7 +39,7 @@ exports.route = {
         return $('.dangrichaxun tr').toArray().slice(1,-1).map(tr => {
           let td = $(tr).find('td')
           let machineId = parseInt(td.eq(2).text().trim())
-          let time = new Date(td.eq(0).text()).getTime()
+          let time = +moment(td.eq(0).text())
           return { time, machineId }
         })
       }))).reduce((a, b) => a.concat(b), [])

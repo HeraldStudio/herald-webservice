@@ -4,6 +4,9 @@ const kf = require('kf-router')
 const fs = require('fs')
 const cors = require('kcors')
 
+// 将 moment 导出到全局作用域
+global.moment = require('moment')
+
 // 解析 YAML 配置文件
 const config = require('js-yaml').load(fs.readFileSync('./config.yml'))
 exports.config = config
@@ -11,6 +14,9 @@ exports.config = config
 // 为 Sqlongo ORM 设置默认路径
 const sqlongo = require('sqlongo')
 sqlongo.defaults.path = 'database'
+
+// 为 Moment 设置默认语言
+moment.locale('zh-cn')
 
 // 出错输出
 process.on('unhandledRejection', e => { throw e })

@@ -31,7 +31,7 @@ exports.route = {
       if (/已开通/.test(state)) {
         state = {
           service: 'active',
-          due: new Date(/[\d\-]+/.exec(state)[0]).getTime()
+          due: +moment(/[\d\-]+/.exec(state)[0])
         }
       } else if (/超流量锁定/.test(state)) {
         state = { service: 'locked' }
@@ -54,7 +54,7 @@ exports.route = {
       // 解析设备
       devices = $(devices).find('tr').toArray().slice(1).map(k => {
         let [mac, location, due] = $(k).find('td').toArray().map(k => $(k).text().trim())
-        due = new Date(due).getTime()
+        due = +moment(due)
         return {location, mac, due}
       })
 
