@@ -2,7 +2,6 @@ const crypto = require('crypto')
 const { config } = require('../../app')
 const axios = require('axios')
 const cheerio = require('cheerio')
-const df = require('./date-format')
 const pubdb = require('../../database/publicity')
 
 module.exports = async (ctx, next) => {
@@ -60,8 +59,7 @@ module.exports = async (ctx, next) => {
         let { timedelta } = ctx.params
 
         if (timedelta && timedelta > 1) {
-          let y = new Date(new Date().getTime() - 1000 * 60 * 60 * 24)
-          ctx.params = { date: `${y.getFullYear()}-${y.getMonth() + 1}-${y.getDate()}` }
+          ctx.params = { date: moment().subtract(1, 'days').format('YYYY-M-D') }
         } else {
           ctx.params = {}
         }
@@ -71,7 +69,7 @@ module.exports = async (ctx, next) => {
         let { info, detail } = ctx.body
         detail = (detail || []).map(k => {
           return {
-            date: new Date(k.time).format('yyyy/MM/dd HH:mm:ss'),
+            date: moment(k.time).format('YYYY/MM/DD HH:mm:ss'),
             price: k.amount.toString(),
             type: '',
             system: k.desc,
@@ -111,10 +109,10 @@ module.exports = async (ctx, next) => {
           }
         })
 
-        let startDate = new Date(term.startDate)
+        let startDate = moment(term.startDate)
         content.startdate = {
-          month: startDate.getMonth(), // 从0开始
-          day: startDate.getDate()
+          month: startDate.month(), // 从0开始
+          day: startDate.date()
         }
 
         ctx.body = { content, term: term.code, code: 200, sidebar }
@@ -152,7 +150,7 @@ module.exports = async (ctx, next) => {
             course: k.courseName,
             type: k.courseType,
             teacher: k.teacherName,
-            time: new Date(k.startTime).format('yyyy-M-d H:mm(E)'),
+            time: moment(k.startTime).format('YYYY-M-D H:mm(dddd)'),
             location: k.location,
             hour: k.duration.toString()
           }
@@ -164,7 +162,7 @@ module.exports = async (ctx, next) => {
         let { gpa, gpaBeforeMakeup, calculationTime, score, credits, detail } = ctx.body
         let content = (gpa ? [
           {
-            'calculate time': calculationTime ? new Date(calculationTime).format('yyyy-MM-dd HH:mm:ss') : '',
+            'calculate time': calculationTime ? moment(calculationTime).format('YYYY-MM-DD HH:mm:ss') : '',
             'gpa without revamp': gpaBeforeMakeup.toString(),
             'gpa': gpa.toString()
           }
@@ -203,7 +201,7 @@ module.exports = async (ctx, next) => {
               content[category] = []
             }
             content[category].push({
-              date: new Date(k.time).format('yyyy-MM-dd'),
+              date: moment(k.time).format('YYYY-MM-DD'),
               href: k.url,
               title: k.title
             })
@@ -216,7 +214,7 @@ module.exports = async (ctx, next) => {
 
         let detail = ctx.body.map(k => {
           return {
-            date: new Date(k.time).format('yyyy-MM-dd HH:mm:ss'),
+            date: moment(k.time).format('YYYY-MM-DD HH:mm:ss'),
             place: k.location
           }
         })
@@ -231,8 +229,8 @@ module.exports = async (ctx, next) => {
             barcode: k.bookId,
             title: k.name,
             author: k.author,
-            render_date: new Date(k.borrowDate).format('yyyy-MM-dd'),
-            due_date: new Date(k.returnDate).format('yyyy-MM-dd'),
+            render_date: moment(k.borrowDate).format('YYYY-MM-DD'),
+            due_date: moment(k.returnDate).format('YYYY-MM-DD'),
             renew_time: k.renewCount,
             place: k.location
           }
@@ -292,10 +290,10 @@ module.exports = async (ctx, next) => {
 
         ctx.body = {
           content: ctx.body.detail.map(k => {
-            let date = new Date(k)
+            let date = moment(k)
             return {
-              sign_date: date.format('yyyy-MM-dd'),
-              sign_time: date.format('h.mm'),
+              sign_date: date.format('YYYY-MM-DD'),
+              sign_time: date.format('H.mm'),
               sign_effect: '有效'
             }
           }),
@@ -319,18 +317,18 @@ module.exports = async (ctx, next) => {
           if (!content[k.type]) {
             content[k.type] = []
           }
-          let date = new Date(k.startTime)
+          let date = moment(k.startTime)
           let day = '上午'
-          if (date.getHours() >= 12) {
+          if (date.hour() >= 12) {
             day = '下午'
           }
-          if (date.getHours() >= 18) {
+          if (date.hour() >= 18) {
             day = '晚上'
           }
           content[k.type].push({
             'name': k.labName,
             // 本来括号里是第几周周几，但这里很难拿到第几周，前端也不用这个参数，就只写周几就好了
-            'Date': date.format('yyyy年M月d日（EE）'),
+            'Date': date.format('YYYY年M月D日（ddd）'),
             'Day': day,
             'Teacher': k.teacherName,
             'Address': k.location,
@@ -470,10 +468,10 @@ module.exports = async (ctx, next) => {
         let acts = await pubdb.activity.find({ admittedBy: { $ne: '' }}, 10, (page - 1) * 10, 'startTime-')
         ctx.body = {
           content: acts.map(k => {
-            let startTime = new Date(k.startTime).format('yyyy-M-d')
+            let startTime = moment(k.startTime).format('YYYY-M-D')
 
             // 截止时间减去1毫秒，使得0点的回到前一天23:59，防止误导
-            let endTime = new Date(k.endTime - 1).format('yyyy-M-d')
+            let endTime = moment(k.endTime - 1).format('YYYY-M-D')
             return {
               title: k.title,
               introduction: k.content,

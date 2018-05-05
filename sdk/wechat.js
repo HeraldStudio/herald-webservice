@@ -8,7 +8,7 @@ const lastToken = {}
 
 const getToken = async (type) => {
   let { token, expire = 0 } = lastToken[type] || {}
-  let now = new Date().getTime()
+  let now = +moment()
   if (expire > now) {
     return token
   }

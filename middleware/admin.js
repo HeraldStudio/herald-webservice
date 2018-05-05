@@ -52,7 +52,7 @@ module.exports = async (ctx, next) => {
         },
         get(target, key) {
           if (target[key]) {
-            let now = new Date().getTime()
+            let now = +moment()
             let domain = key
             db.admin.update({ cardnum, domain }, { lastUsed: now })
           }

@@ -102,8 +102,9 @@ exports.route = {
             let [labName, teacherName, date, time, location, score] = data.splice(0, 6)
             let [y, M, d] = date.split(/[年月日（ (]/g)
             let [h, m] = { '上午': [9, 45], '下午': [13, 45], '晚上': [18, 15] }[time]
-            let startTime = new Date(y, M - 1, d, h, m).getTime()
-            let endTime = startTime + 1000 * 60 * 60 * 3
+            let startMoment = moment([y, M - 1, d, h, m])
+            let startTime = +startMoment
+            let endTime = +startMoment.add(3, 'hours')
             labs.push({type, labName, teacherName, startTime, endTime, location, score})
           }
           return labs

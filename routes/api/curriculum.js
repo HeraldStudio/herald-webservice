@@ -88,7 +88,7 @@ exports.route = {
           // 获取开学日期
           term = {
             code: term,
-            startDate: config.term[term] ? new Date(config.term[term]).getTime() : null
+            startDate: config.term[term] ? +moment(config.term[term]) : null
           }
 
           // 初始化侧边栏和课表解析结果
@@ -207,7 +207,7 @@ exports.route = {
 
           // 为了兼容丁家桥表示法，本科生和教师碰到秋季学期超过 16 周的课表，将开学日期前推四周
           if (term.maxWeek > 16 && !/^22/.test(cardnum) && /-2$/.test(term.code)) {
-            term.startDate -= 28 * 24 * 60 * 60 * 1000
+            term.startDate -= moment.duration(4, 'weeks')
           }
 
         } while ( // 为了兼容丁家桥表示法
@@ -235,7 +235,7 @@ exports.route = {
             // 构造学期信息
             term = {
               code: term,
-              startDate: config.term[term] ? new Date(config.term[term]).getTime() : null
+              startDate: config.term[term] ? +moment(config.term[term]) : null
             }
             return { term, curriculum: [] }
           }
@@ -261,12 +261,12 @@ exports.route = {
         // 构造学期信息
         term = {
           code: term,
-          startDate: config.term[term] ? new Date(config.term[term]).getTime() : null
+          startDate: config.term[term] ? +moment(config.term[term]) : null
         }
 
         // 研究生无短学期，秋季学期提前两周开始
         if (/-2$/.test(term.code)) {
-          term.startDate -= 2 * 7 * 24 * 60 * 60 * 1000
+          term.startDate -= moment.duration(2, 'weeks')
         }
 
         // 课表信息，与本科生格式完全一致

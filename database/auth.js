@@ -15,13 +15,11 @@ db.auth = {
   lastInvoked:        'int not null'      // 上次使用时间，超过一定设定值的会被清理
 }
 
-const ONE_DAY = 1000 * 60 * 60 * 24
-
 // 定期清理过期授权，超过指定天数未使用的将会过期
 setInterval(() => {
   db.auth.remove({
-    lastInvoked: { $lt: new Date().getTime() - config.auth.expireDays * ONE_DAY }
+    lastInvoked: { $lt: +moment().subtract(config.auth.expireDays, 'days') }
   })
-}, ONE_DAY)
+}, +moment.duration(1, 'day'))
 
 module.exports = db
