@@ -80,7 +80,7 @@ const hash = value => {
 }
 
 // 在这里选择认证接口提供者
-const authProvider = require('./auth-provider/myold')
+const authProvider = require('./auth-provider/app')
 const graduateAuthProvider = require('./auth-provider/graduate')
 
 // 认证接口带错误处理的封装
