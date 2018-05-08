@@ -53,7 +53,9 @@ exports.route = {
             // 若分数可识别为数字且非零，更新课程的平均分
             // course.sampleCount 是原来的样本容量，sampleCount 是更新后的样本容量
             let sampleCount = course.sampleCount + 1
-            let avgScore = numberScore ? (course.avgScore * course.sampleCount + numberScore) / sampleCount : course.avgScore
+
+            // 三种情况：自己有分，原来也有均分，重新取平均；自己有分，原来没有均分，取自己的分；自己没分，不变
+            let avgScore = numberScore ? course.avgScore ? (course.avgScore * course.sampleCount + numberScore) / sampleCount : numberScore : course.avgScore
             await db.course.update({ cid }, { courseName, courseType, credit, avgScore, sampleCount, updateTime: +moment() })
 
             // 课程学期信息插入课程学期表关系表
