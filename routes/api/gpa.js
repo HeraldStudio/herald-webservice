@@ -47,14 +47,14 @@ exports.route = {
             }
             let course = await db.course.find({ cid }, 1)
             if (!course) {
-              await db.course.insert(course = { cid, courseName, courseType, credit, avgScore: 0, sampleCount: 0 })
+              await db.course.insert(course = { cid, courseName, courseType, credit, avgScore: 0, sampleCount: 0, updateTime: 0 })
             }
 
             // 若分数可识别为数字且非零，更新课程的平均分
             // course.sampleCount 是原来的样本容量，sampleCount 是更新后的样本容量
             let sampleCount = course.sampleCount + 1
             let avgScore = numberScore ? (course.avgScore * course.sampleCount + numberScore) / sampleCount : course.avgScore
-            await db.course.update({ cid }, { courseName, courseType, credit, avgScore, sampleCount })
+            await db.course.update({ cid }, { courseName, courseType, credit, avgScore, sampleCount, updateTime: +moment() })
 
             // 课程学期信息插入课程学期表关系表
             if (scoreType !== '重修') {
