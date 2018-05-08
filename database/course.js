@@ -12,8 +12,12 @@ db.course = {
   courseType:  'text not null',    // '' | '经济管理类' | '人文社科类' | '自然科学与技术科学类'
   credit:      'real not null',    // 学分
   avgScore:    'real not null',    // 平均分，0 表示无法解析为数字
-  sampleCount: 'int not null'      // 样本容量，每次查询为一个样本，由于成绩查询具有缓存，而且去重需要加个表，暂不进行去重
+  sampleCount: 'int not null',     // 样本容量，每次查询为一个样本，由于成绩查询具有缓存，而且去重需要加个表，暂不进行去重
+  updateTime:  'int not null',     // 最后更新时间
 }
+
+// 启动时清理六个月不更新的课
+db.course.remove({ updateTime: { $lt: +moment().subtract(6, 'months') }})
 
 // 各课程的上课学期统计
 // 只计算首修
