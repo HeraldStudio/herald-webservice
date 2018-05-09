@@ -59,7 +59,7 @@ exports.route = {
         k.avgScore = Math.round(k.avgScore)
         return k
       })
-      .filter(k => k.sampleCount > 2) // 去掉样本很少的（可能是转专业数据）
+      .filter(k => !k.courseType && k.sampleCount > 2) // 去掉样本很少的（可能是转专业数据）
       .sort((a, b) => b.credit - a.credit) // 按学分倒序
   }
 }
