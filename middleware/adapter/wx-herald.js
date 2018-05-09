@@ -7,7 +7,7 @@ const config = require('../../sdk/sdk.json').wechat['wx-herald']
 const api = require('../../sdk/wechat').getAxios('wx-herald')
 
 String.prototype.padd = function () {
-  return this.split('\n').map(k => k.trim()).join('\n')
+  return this.split('\n').map(k => k.trim()).join('\n').trim()
 }
 
 // 生产环境更新自定义菜单
@@ -99,6 +99,39 @@ const handler = {
       upcoming.slice(0, 5).map(k => `${moment(k.startTime).fromNow()}
         ${k.courseName} @ ${k.location}`).join('\n\n'),
       `💡 完整课表详见网页版或小程序`
+    ].filter(k => k).join('\n\n').padd()
+  },
+
+  async '预测|預測'() {
+    this.path = '/api/course'
+    this.method = 'GET'
+    this.query = this.params = { term: 'next' }
+    await this.next()
+
+    let courses = this.body
+
+    return courses.length ? [
+      `🗓 你下学期可能有 ${ courses.length } 门课`,
+      courses.map(k => `
+        ${k.courseName} (${k.credit} 学分)
+        ${k.avgScore ? `平均参考成绩 ${k.avgScore} (样本容量 ${k.sampleCount})` : ''}
+      `).padd().join('\n'),
+    ].filter(k => k).join('\n\n').padd() : '🗓 你所在的院系年级样本不足，暂无记录'
+  },
+
+  async '选修|選修'() {
+    this.path = '/api/course/optional'
+    this.method = 'GET'
+    await this.next()
+
+    let courses = this.body
+
+    return [
+      `🗓 选修课程排行 Top 10`,
+      courses.map(k => `
+        ${k.courseName} (${k.courseType})
+        ${k.avgScore ? `平均参考成绩 ${k.avgScore} (样本容量 ${k.sampleCount})` : ''}
+      `).padd().join('\n'),
     ].filter(k => k).join('\n\n').padd()
   },
 
