@@ -46,20 +46,30 @@ exports.route = {
     // 学期次序，1 短学期，2 秋学期，3春学期
     let semester = parseInt(term.split('-')[2])
 
-    // 若查询短学期，改成短学期和秋学期同时查询
-    if (semester === 1) {
-      semester = { $lt: 3 }
-    }
-
-    // 为了条件书写方便，这里没法用 join，手动查两次目前看来无所谓
-    let result = await db.courseSemester.find({ major, grade, semester })
-    return (await Promise.all(result
-      .map(async k => await db.course.find({ cid: k.cid }, 1))
-    )).map(k => {
-        k.avgScore = Math.round(k.avgScore)
-        return k
-      })
-      .filter(k => !k.courseType && k.sampleCount > 2) // 去掉样本很少的（可能是转专业数据）
-      .sort((a, b) => b.credit - a.credit) // 按学分倒序
+    // 这里假设同一院系年级上的同名同学分课程都是同一个课程，对同名课程进行合并
+    // 用 max 实现查询短学期时自动附带下一个长学期
+    return await db`
+      select
+        course.courseName,
+        course.courseType,
+        max(course.credit) credit,
+        cast(sum(course.avgScore * course.sampleCount) / sum(course.sampleCount) as int) avgScore,
+        sum(course.sampleCount) sampleCount,
+        max(course.updateTime) updateTime
+      from
+        courseSemester inner join course
+        on courseSemester.cid = course.cid
+      where
+        courseSemester.major = ${major}
+        and courseSemester.grade = ${grade}
+        and courseSemester.semester >= ${semester}
+        and courseSemester.semester <= max(${semester}, 2)
+        and course.courseType = ''
+        and sampleCount > 2
+      group by
+        courseName, credit
+      order by
+        credit desc, courseName
+    `
   }
 }
