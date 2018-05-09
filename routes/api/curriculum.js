@@ -88,7 +88,7 @@ exports.route = {
           // 获取开学日期
           term = {
             code: term,
-            startDate: config.term[term] ? +moment(config.term[term]) : null
+            startDate: config.term[term] ? +moment(config.term[term], 'YYYY-M-D') : null
           }
 
           // 初始化侧边栏和课表解析结果
@@ -235,7 +235,7 @@ exports.route = {
             // 构造学期信息
             term = {
               code: term,
-              startDate: config.term[term] ? +moment(config.term[term]) : null
+              startDate: config.term[term] ? +moment(config.term[term], 'YYYY-M-D') : null
             }
             return { term, curriculum: [] }
           }
@@ -261,7 +261,7 @@ exports.route = {
         // 构造学期信息
         term = {
           code: term,
-          startDate: config.term[term] ? +moment(config.term[term]) : null
+          startDate: config.term[term] ? +moment(config.term[term], 'YYYY-M-D') : null
         }
 
         // 研究生无短学期，秋季学期提前两周开始

@@ -58,7 +58,7 @@ exports.route = {
       let now = moment()
       let beginOfTerm = Object.keys(config.term)
         .filter(k => /-[23]$/.test(k))     // 取两个长学期
-        .map(k => moment(config.term[k]))  // 转为学期开始时间戳
+        .map(k => moment(config.term[k], 'YYYY-M-D'))  // 转为学期开始时间戳
         // 去掉未开始和已结束的，留下一个学期，或者 undefined（没有符合条件的学期）
         .find(k => k <= now && k.clone().add(16, 'weeks') > now)
         .hour(7).minute(20) // 调整为开学当天跑操结束时间
