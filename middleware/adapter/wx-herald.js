@@ -301,10 +301,13 @@ const handler = {
     
   timeout: '请求超时，学校服务又挂啦 🙁',
 
-  defaultError: `🤔 命令执行出错，请检查命令格式
+  defaultError: e => {
+    console.error(e)
+    return `🤔 命令执行出错，请检查命令格式
 
     💡 回复 菜单 查看功能列表
     💡 所有命令与参数之间均有空格`.padd()
+  }
 }
 
 // 分割用户指令并进入相应 handler 函数中
@@ -323,7 +326,7 @@ const middleware = wechat(config).middleware(async (message, ctx) => {
       if (e instanceof Error && ~e.message.indexOf('timeout')) {
         e = 'timeout'
       }
-      let han = handler[e] || handler.defaultError
+      let han = handler[e] || handler.defaultError(e)
       if (han instanceof Function) {
         return await han.call(ctx, ...args)
       } else {
