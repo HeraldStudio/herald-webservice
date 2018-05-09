@@ -19,6 +19,19 @@ exports.route = {
           'http://xk.urp.seu.edu.cn/studentService/cs/stuServe/studentExamResultQuery.action'
         )
         let $ = cheerio.load(res.data)
+        
+        // 计算去年的当前学期号，以便统计时进行过滤。
+        // 早于去年当前学期的数据不再记录。
+        let now = +moment()
+        let currentTerm = Object.keys(config.term).find(k => {
+          let startMoment = moment(config.term[k], 'YYYY-M-D')
+          let startDate = +startMoment
+          let endDate = +startMoment.add(/-1$/.test(k) ? 4 : 18, 'weeks')
+          return startDate <= now && endDate > now
+        })
+        let prevYearCurrentTerm = currentTerm.split('-').map(Number).map((k, i) => i < 2 ? k - 1 : k).join('-')
+
+        // 解析课程
         let detail = (await Promise.all($('#table2 tr').toArray().slice(1).map(async tr => {
           let [semester, cid, courseName, credit, score, scoreType, courseType]
             = $(tr).find('td').toArray().slice(1).map(td => {
@@ -28,8 +41,8 @@ exports.route = {
           // 学分解析为浮点数；成绩可能为中文，不作解析
           credit = parseFloat(credit)
 
-          try /* 课程统计代码 */ {
-            // 课程插入课程统计数据库
+          // 不早于去年当前学期的数据，进行课程统计
+          if (semester >= prevYearCurrentTerm) try {
             let numberScore = parseFloat(score) || 0
             
             if (!numberScore) {
@@ -59,7 +72,7 @@ exports.route = {
             await db.course.update({ cid }, { courseName, courseType, credit, avgScore, sampleCount, updateTime: +moment() })
 
             // 课程学期信息插入课程学期表关系表
-            if (scoreType !== '重修') {
+            if (scoreType === '首修') {
               let major = schoolnum.substr(0, 3)
 
               // 入学年份后两位，必须在一卡通号里取，学号可能因为留级而变化
