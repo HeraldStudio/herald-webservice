@@ -115,7 +115,7 @@ const handler = {
       courses.map(k => `
         ${k.courseName} (${k.credit} 学分)
         ${k.avgScore ? `平均参考成绩 ${k.avgScore} (样本容量 ${k.sampleCount})` : ''}
-      `).padd().join('\n'),
+      `.padd()).join('\n'),
     ].filter(k => k).join('\n\n').padd() : '🗓 你所在的院系年级样本不足，暂无记录'
   },
 
@@ -131,7 +131,7 @@ const handler = {
       courses.map(k => `
         ${k.courseName} (${k.courseType})
         ${k.avgScore ? `平均参考成绩 ${k.avgScore} (样本容量 ${k.sampleCount})` : ''}
-      `).padd().join('\n'),
+      `.padd()).join('\n'),
     ].filter(k => k).join('\n\n').padd()
   },
 
