@@ -50,6 +50,7 @@ exports.route = {
     // 用 max 实现查询短学期时自动附带下一个长学期
     return await db`
       select
+        courseSemester.*,
         course.courseName,
         course.courseType,
         max(course.credit) credit,
