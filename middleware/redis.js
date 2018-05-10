@@ -10,6 +10,13 @@
   ctx.user.token      from auth.js
   ctx.user.encrypt    from auth.js
   ctx.user.decrypt    from auth.js
+
+  ## 提供接口
+
+  ctx.userCache       async (...string, string, async () => any) => any
+  ctx.publicCache     async (...string, string, async () => any) => any
+  ctx.clearUserCache  async () => undefined
+  ctx.clearAllCache   async () => undefined
  */
 let client
 
@@ -37,6 +44,9 @@ if (process.env.NODE_ENV === 'development') {
       let value = pool[key] || 'null'
       console.log('dev-fake-redis [get]', chalk.cyan(key), summarize(value, 32))
       return value
+    },
+    batchDelete (keyword) {
+      Object.keys(pool).filter(k => ~k.indexOf(keyword)).map(k => { delete pool[key] })
     }
   }
 } else {
@@ -45,6 +55,9 @@ if (process.env.NODE_ENV === 'development') {
   bluebird.promisifyAll(redis.RedisClient.prototype)
 
   client = redis.createClient()
+  client.batchDelete = async (keyword) => {
+    await client.evalAsync(`for _,k in ipairs(redis.call('keys','*${keyword}*')) do redis.call('del',k) end`, '0')
+  }
 }
 
 /**
@@ -237,6 +250,19 @@ let detachedTaskCount = 0
 module.exports = async (ctx, next) => {
   ctx.userCache = internalCached.bind(ctx, false)
   ctx.publicCache = internalCached.bind(ctx, true)
+
+  // 清空当前用户缓存
+  ctx.clearUserCache = async () => {
+    let { token } = this.user
+    await client.batchDelete(token)
+  }
+
+  // 清空所有 key 中包含某字符串的缓存，例如 clearCache('GET /api/gpa')；留空则清空所有缓存
+  // 应当仅允许对管理员使用该 API
+  ctx.clearAllCache = async (keyword = '') => {
+    await client.batchDelete(keyword)
+  }
+
   await next()
 }
 
