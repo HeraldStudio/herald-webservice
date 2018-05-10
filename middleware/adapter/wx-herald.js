@@ -60,6 +60,7 @@ const handler = {
 
   async '清除'() {
     this.path = '/api/clear'
+    this.method = 'GET'
     await this.next()
     return `🗑 缓存已清除`
   },
