@@ -253,7 +253,7 @@ module.exports = async (ctx, next) => {
 
   // 清空当前用户缓存
   ctx.clearUserCache = async () => {
-    let { token } = this.user
+    let { token } = ctx.user
     await client.batchDelete(token)
   }
 
