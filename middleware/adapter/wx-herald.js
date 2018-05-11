@@ -211,7 +211,7 @@ const handler = {
     ].filter(k => k).join('\n\n').padd()
   },
 
-  async '成绩|成績' () {
+  async '绩|績' () {
     this.path = '/api/gpa'
     this.method = 'GET'
     await this.next()
