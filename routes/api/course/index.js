@@ -25,7 +25,7 @@ exports.route = {
       let courseTaken = {}
 
       // 若为查下学期，计算下学期的学期号
-      if (term === 'next') {
+      if (!term || term === 'next') {
         let [startYear, endYear, semester] = currentTerm.split('-').map(Number)
         semester++
         if (semester > 3) {
