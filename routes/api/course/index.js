@@ -86,7 +86,7 @@ exports.route = {
         group by
           courseName, credit
         order by
-          credit desc, courseName
+          semester, credit desc, courseName
       `).filter(k => !courseTaken[k.cid])
     })
   }
