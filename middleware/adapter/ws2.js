@@ -459,7 +459,11 @@ module.exports = async (ctx, next) => {
 
       // 下游是 WS3 PUT 请求，会进行统计记录，并返回目标链接，这里为了兼容，帮 App 做重定向
       await next()
-      return ctx.redirect(ctx.body)
+
+      // 因为把原始 url 封装起来导致 App 无法替换原始 url 中的 [uuid] 控制指令，因此这里帮 App 做替换
+      let url = ctx.body
+      url = url.replace(/\[uuid\]/g, token)
+      return ctx.redirect(url)
     } else if (ctx.path === '/adapter-ws2/herald/api/v1/huodong/get') {
       let { page = 1, type } = ctx.query
       if (type === 'hot') {

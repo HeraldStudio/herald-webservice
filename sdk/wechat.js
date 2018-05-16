@@ -17,6 +17,9 @@ const getToken = async (type) => {
     '/token?grant_type=client_credential' +
     `&appid=${wechat[type].appid}&secret=${wechat[type].appsecret}`
   )
+  if (!access_token) {
+    throw '接口调用失败' // 可能是当前 IP 不在白名单，需要管理员到公众号后台添加当前服务器或测试机 IP 到白名单
+  }
   lastToken[type] = {
     token: access_token,
 
