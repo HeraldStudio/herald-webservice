@@ -10,6 +10,8 @@ const cheerio = require('cheerio')
  */
 exports.route = {
   async get({ term = 'next', schoolnum: querySchoolnum }) {
+    if (!term) term = 'next'
+    
     let cache = (this.user.isLogin ? this.userCache : this.publicCache).bind(this)
     return await cache('1h+', async () => {
       let schoolnum = querySchoolnum || this.user.schoolnum
@@ -25,7 +27,7 @@ exports.route = {
       let courseTaken = {}
 
       // 若为查下学期，计算下学期的学期号
-      if (!term || term === 'next') {
+      if (term === 'next') {
         let [startYear, endYear, semester] = currentTerm.split('-').map(Number)
         semester++
         if (semester > 3) {
