@@ -5,12 +5,14 @@ const cheerio = require('cheerio')
 /**
  * 必修、限选课统计信息的查询（课表预测）
  * 根据用户入学年份，通过给定的学期查询当前用户可能上到的课程
- * term 为空表示当前学期，为 'next' 表示下学期
+ * term      学期号如 17-18-3，不填表示下学期
+ * schoolnum 要查询的院系年级学号前五位，登录用户可不传，不传查自己的，传了就查别人的
  */
 exports.route = {
-  async get({ term }) {
-    return await this.userCache('1h+', async () => {
-      let { cardnum, schoolnum } = this.user
+  async get({ term = 'next', schoolnum: querySchoolnum }) {
+    let cache = (this.user.isLogin ? this.userCache : this.publicCache).bind(this)
+    return await cache('1h+', async () => {
+      let schoolnum = querySchoolnum || this.user.schoolnum
       
       let now = +moment()
       let currentTerm = Object.keys(config.term).find(k => {
@@ -20,11 +22,9 @@ exports.route = {
         return startDate <= now && endDate > now
       })
 
-      if (!term) {
-        term = currentTerm
-      }
-      
       let courseTaken = {}
+
+      // 若为查下学期，计算下学期的学期号
       if (term === 'next') {
         let [startYear, endYear, semester] = currentTerm.split('-').map(Number)
         semester++
@@ -34,7 +34,10 @@ exports.route = {
           endYear++
         }
         term = [startYear, endYear, semester].join('-')
+      }
 
+      // 如果是查自己的未来学期，自动过滤自己的已修课
+      if (this.user.isLogin && !querySchoolnum && term > currentTerm) {
         await this.useAuthCookie()
 
         // 获取用户已修课程的 id 用于过滤，遇到已修课程直接排除
@@ -48,10 +51,9 @@ exports.route = {
         taken.map(k => courseTaken[k] = true)
       }
 
-      let major = schoolnum.substr(0, 3)
-
-      // 入学年份后两位，必须在一卡通号里取，学号可能因为留级而变化
-      let entryYear = parseInt(cardnum.substr(3, 2))
+      // 解析院系专业和年级号
+      let major = schoolnum.substr(0, 3).toUpperCase()
+      let entryYear = parseInt(schoolnum.substr(3, 2))
 
       // 当前课程所在学期的年份后两位，取学期号前两位
       let semesterYear = parseInt(term.substr(0, 2))
