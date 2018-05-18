@@ -107,7 +107,8 @@ exports.route = {
           let href = k.attr('href')
           currentUrl = url.resolve(sites[site].infoUrl, href)
           return {
-            category: sites[site].name + ' - ' + ele[1],
+            site: sites[site].name,
+            category: ele[1],
             // 标题可能在 title 属性中，也可能并不在。
             title: k.attr('title') || k.text(),
             url: currentUrl,
@@ -123,7 +124,8 @@ exports.route = {
     // 小猴系统通知
     ret = ret.concat((await db.notice.find()).map(k => {
       return {
-        category: '小猴通知',
+        site: '小猴偷米',
+        category: '系统公告',
         title: k.title,
         nid: k.nid,
         time: k.publishTime,
