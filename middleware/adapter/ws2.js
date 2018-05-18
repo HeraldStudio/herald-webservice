@@ -195,7 +195,7 @@ module.exports = async (ctx, next) => {
         let content = {}
         ctx.body.map(k => {
           if (k.site !== '小猴偷米') {
-            k.category = k.site + ' - ' + k.category
+            k.category = k.site + ' - ' + (k.category || '通知公告')
             // App 只有名为「教务信息」的分类，才会显示在首页上
             let category = k.category === '教务处 - 教务信息' ? '教务信息' : k.category
             if (!content[category]) {

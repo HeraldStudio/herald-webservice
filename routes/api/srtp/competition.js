@@ -87,8 +87,7 @@ exports.route = {
       $ = cheerio.load(res.data)
       let content = $('.detail_body').html()
       content = content.replace(/(<\/?\s*)(table|tbody|tr)/g, '$1div')
-      content = content.replace(/(<\/?\s*)(td\s+class="tbtitle")/g, '$1h2')
-      content = content.replace(/(<\/?\s*)(td)/g, '$1p')
+      content = content.replace(/(<\/?\s*)(td)/g, '$1span')
 
       return new Europa({
         absolute: true,
