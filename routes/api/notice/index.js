@@ -1,6 +1,6 @@
 const cheerio = require('cheerio')
 const Europa = require('node-europa')
-const db = require('../../database/publicity')
+const db = require('../../../database/publicity')
 const url = require('url')
 
 const sites = {
@@ -26,7 +26,7 @@ const sites = {
     list: [['#wp_news_w3', '公告']],
     contentSelector: '[portletmode="simpleArticleContent"]' // 两个平台的正文选择器是一样的
   },
-  ...require('./notice/depts.json') // FIXME 各个学院网站不能保证都能获取到通知，需要测试
+  ...require('./depts.json') // FIXME 各个学院网站不能保证都能获取到通知，需要测试
 }
 
 const deptCodeFromSchoolNum = schoolnum => {
