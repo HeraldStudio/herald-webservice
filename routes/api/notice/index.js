@@ -23,7 +23,7 @@ const sites = {
     codes: ['96'],
     baseUrl: 'http://zwc.seu.edu.cn',
     infoUrl: 'http://zwc.seu.edu.cn/4297/list.htm',
-    list: [['#wp_news_w3', '公告']],
+    list: [['#wp_news_w3', '']],
     contentSelector: '[portletmode="simpleArticleContent"]' // 两个平台的正文选择器是一样的
   },
   ...require('./depts.json') // FIXME 各个学院网站不能保证都能获取到通知，需要测试
