@@ -53,32 +53,32 @@ class SpiderServer {
     sms.spiderToken(adminPhoneNumber, name, token)
 
     // 使用 slack 认证的部分
-    new slackMessage().send(`分布式硬件爬虫 ${name} 请求连接认证，请核实是否内部人员操作`, [
-        {
-          name: 'accept',
-          text: '接受',
-          style: 'primary',
-          response: `👌分布式硬件爬虫 ${name} 已连接`,
-          confirm: {
-            title: "⚠️警告",
-            text: "连接的爬虫会截获webservice3发起请求包含的所有数据，请务必确认该操作由内部人员操作以保证信息安全！",
-            ok_text: "确认连接",
-            dismiss_text: "容我思考下"
-          }
-        }, {
-          name: 'refuse',
-          text: '拒绝',
-          response: `❌已拒绝分布式硬件爬虫 ${name} 连接`
-        }
-      ]).then((tag) => {
-        try {
-          if (tag === 'accept') {
-            this.acceptSpider(connection)
-          } else {
-            this.rejectSpider(connection)
-          }
-        } catch (e) {}
-      })
+    // new slackMessage().send(`分布式硬件爬虫 ${name} 请求连接认证，请核实是否内部人员操作`, [
+    //     {
+    //       name: 'accept',
+    //       text: '接受',
+    //       style: 'primary',
+    //       response: `👌分布式硬件爬虫 ${name} 已连接`,
+    //       confirm: {
+    //         title: "⚠️警告",
+    //         text: "连接的爬虫会截获webservice3发起请求包含的所有数据，请务必确认该操作由内部人员操作以保证信息安全！",
+    //         ok_text: "确认连接",
+    //         dismiss_text: "容我思考下"
+    //       }
+    //     }, {
+    //       name: 'refuse',
+    //       text: '拒绝',
+    //       response: `❌已拒绝分布式硬件爬虫 ${name} 连接`
+    //     }
+    //   ]).then((tag) => {
+    //     try {
+    //       if (tag === 'accept') {
+    //         this.acceptSpider(connection)
+    //       } else {
+    //         this.rejectSpider(connection)
+    //       }
+    //     } catch (e) {}
+    //   })
 
     connection.token = token
     let message = {spiderName: name}
@@ -103,7 +103,7 @@ class SpiderServer {
         if (token in spiderSecret) {
           this.acceptSpider(connection)
           console.log(`爬虫 ${connection.spiderName} 主动认证成功`)
-          new slackMessage().send(`爬虫 ${connection.spiderName} 主动认证成功，身份标识 ${spiderSecret[token]}`)
+          // new slackMessage().send(`爬虫 ${connection.spiderName} 主动认证成功，身份标识 ${spiderSecret[token]}`)
         }
         
         // 新版运维登录 token 认证
@@ -115,7 +115,7 @@ class SpiderServer {
             let name = res.data.result.maintenance.name
             this.acceptSpider(connection)
             console.log(`爬虫 ${connection.spiderName} 运维认证成功，操作者${name}`)
-            new slackMessage().send(`爬虫 ${connection.spiderName} 运维认证成功，操作者${name}`)
+            // new slackMessage().send(`爬虫 ${connection.spiderName} 运维认证成功，操作者${name}`)
           } else {
             this.rejectSpider(connection)
           }
