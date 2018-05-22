@@ -508,13 +508,6 @@ module.exports = async (ctx, next) => {
     } else {
       await next()
     }
-  } catch (e) {
-    if (e instanceof Error) {
-      console.trace(e)
-    }
-    ctx.body = {
-      code: typeof e === 'number' ? e : 400
-    }
   } finally {
     ctx.path = originalPath
     ctx.method = originalMethod
