@@ -8,7 +8,7 @@ exports.route = {
   * @apiParam date     查询日期，格式 yyyy-M-d，不填为当日流水（带日期不能查当日流水）
   * @apiParam page     页码，不填为首页
   **/
-  async get({ date = '', page = 1 }) {
+  async get({ date = '' }) {
     // 懒缓存 1 分钟
     return await this.userCache('10m+', async () => {
       await this.useAuthCookie()
@@ -58,65 +58,68 @@ exports.route = {
       // 接口设计规范，能转换为数字/bool的数据尽量转换，不要都用字符串
       info.balance = parseFloat(balance.replace(/,/g, ''))
 
-      // 当天流水，直接查询
-      if (date === '') {
-        res = await this.post(
-          'http://allinonecard.seu.edu.cn/accounttodatTrjnObject.action',
-          {
+      // 由于此接口一次只查询一天，一般只有一到两页，遍历查询所有页对性能影响不大，且方便了接口调用，所以这里用遍历
+      let page = 1, pageCount = 1, detail = []
+      while (page <= pageCount) {
+        if (date) {
+          date = moment(date, 'YYYY-M-D')
+        }
+
+        // 当天流水，直接查询
+        // 这里要判断传入日期是否是今天，如果是今天则不能用历史流水查询的方式
+        if (!date || +date === +moment().startOf('day')) { 
+          res = await this.post('http://allinonecard.seu.edu.cn/accounttodatTrjnObject.action',{
             'pageVo.pageNum': page,
             account: info.account,
             inputObject: 'all'
-          }
-        )
+          })
+        } else {
+          // 转换成 YYYYMMDD 的格式
+          date = date.format('YYYYMMDD')
 
-      } else {
-        // 转换成 yyyyMMdd 的格式
-        date = date.split('-').map(k => parseInt(k)).reduce((a, b) => a * 100 + b, 0)
-
-        // 四个地址要按顺序请求，前两个地址用于服务端跳转判定，不请求会导致服务端判定不通过；
-        // 第三个地址只能查询第一页，无论 pageNum 值为多少，都只返回第一页；第四个地址可以查询任意页。
-        for (let address of [
-          'accounthisTrjn1.action',
-          'accounthisTrjn2.action',
-          'accounthisTrjn3.action',
-          'accountconsubBrows.action'
-        ]) {
-          // 真正要的是最后一个接口的数据
-          res = await this.post(
-            'http://allinonecard.seu.edu.cn/' + address,
-            {
+          // 四个地址要按顺序请求，前两个地址用于服务端跳转判定，不请求会导致服务端判定不通过；
+          // 第三个地址只能查询第一页，无论 pageNum 值为多少，都只返回第一页；第四个地址可以查询任意页。
+          for (let address of [
+            'accounthisTrjn1.action',
+            'accounthisTrjn2.action',
+            'accounthisTrjn3.action',
+            'accountconsubBrows.action'
+          ]) {
+            // 真正要的是最后一个接口的数据
+            res = await this.post('http://allinonecard.seu.edu.cn/' + address,{
               pageNum: page,
               account: info.account,
               inputObject: 'all',
               inputStartDate: date,
               inputEndDate: date
-            }
-          )
+            })
+          }
         }
+
+        // 直接上 jQuery
+        $ = cheerio.load(res.data)
+
+        detail = detail.concat($('#tables').children('tbody').children('tr').toArray().slice(1, -1).map(tr => {
+          let [time, cardnum, name, type, location, amount, balance, id, state, comment]
+            = $(tr).children('td').toArray().map(td => $(td).text().trim())
+
+          // 接口设计规范，一定是数字的字段尽量转成数字；表示日期时间的字段转成毫秒时间戳
+          return {
+            id: parseInt(id),
+            desc: location || type.replace(/扣款/g, '') || comment.replace(/^[\d-]+/, ''), // 地点或者交易性质
+            time: +moment(time, 'YYYY/MM/DD HH:mm:ss'),
+            amount: parseFloat(amount.replace(/,/g, '')),
+            balance: parseFloat(balance.replace(/,/g, '')),
+            state: state
+          }
+        }))
+
+        // 更新总页码，如果还有下一页，循环抓取下一页
+        pageCount = parseInt(/共(\d+)页/.exec(res.data)[1])
+        page++
       }
 
-      // 直接上 jQuery
-      $ = cheerio.load(res.data)
-
-      let detail = $('#tables').children('tbody').children('tr').toArray().slice(1, -1).map(tr => {
-        let [time, cardnum, name, type, location, amount, balance, id, state, comment]
-          = $(tr).children('td').toArray().map(td => $(td).text().trim())
-
-        // 接口设计规范，一定是数字的字段尽量转成数字；表示日期时间的字段转成毫秒时间戳
-        return {
-          id: parseInt(id),
-          desc: location || type.replace(/扣款/g, '') || comment.replace(/^[\d-]+/, ''), // 地点或者交易性质
-          time: +moment(time, 'YYYY/MM/DD HH:mm:ss'),
-          amount: parseFloat(amount.replace(/,/g, '')),
-          balance: parseFloat(balance.replace(/,/g, '')),
-          state: state
-        }
-      })
-
-      return {
-        info, detail, // 去掉首尾项
-        pageCount: parseInt(/共(\d+)页/.exec(res.data)[1]) // 返回总页数
-      }
+      return { info, detail }
     })
   },
 
