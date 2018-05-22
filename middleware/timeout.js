@@ -5,5 +5,5 @@
  */
 module.exports = async (ctx, next) => {
   let timeout = new Promise((resolve, reject) => setTimeout(() => reject(504), 20000))
-  await Promise.race(next(), timeout)
+  await Promise.race([next(), timeout])
 }
