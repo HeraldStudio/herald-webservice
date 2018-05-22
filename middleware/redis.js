@@ -244,6 +244,11 @@ async function internalCached (isPublic, ...args) {
   return cached
 }
 
+// 用于临时禁用某种 Cache 的装饰器
+async function disabled (...args) {
+  return await args.slice(-1)[0]()
+}
+
 // 当前脱离等待链的回源任务计数
 let detachedTaskCount = 0
 
