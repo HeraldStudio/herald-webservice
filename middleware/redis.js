@@ -168,7 +168,7 @@ async function internalCached (isPublic, ...args) {
   }
 
   let cacheKey = [
-    isPrivate ? this.user.token : '',
+    isPrivate ? this.user.identity : '',
     this.method,
     this.path,
     JSON.stringify(this.params),
@@ -253,8 +253,8 @@ module.exports = async (ctx, next) => {
 
   // 清空当前用户缓存
   ctx.clearUserCache = async () => {
-    let { token } = ctx.user
-    await client.batchDelete(token)
+    let { cardnum } = ctx.user
+    await client.batchDelete(cardnum)
   }
 
   // 清空所有 key 中包含某字符串的缓存，例如 clearCache('GET /api/gpa')；留空则清空所有缓存
