@@ -59,9 +59,9 @@ module.exports = async (ctx, next) => {
         let { timedelta } = ctx.params
 
         if (timedelta && timedelta > 1) {
-          ctx.params = { date: moment().subtract(1, 'days').format('YYYY-M-D') }
+          ctx.request.body = ctx.params = { date: moment().subtract(1, 'days').format('YYYY-M-D') }
         } else {
-          ctx.params = {}
+          ctx.request.body = ctx.params = {}
         }
 
         await next()
