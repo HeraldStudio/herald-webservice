@@ -167,7 +167,7 @@ const handler = {
     let { health } = this.body
     return [
       `🏓 最近一次体测成绩：`,
-      health.map(k => `${k.name}：${k.value}（${k.score}，${k.grade}）`).join('\n')
+      health.map(k => `${k.name}：${k.value}` + (k.grade && `（${k.score}，${k.grade}）`)).join('\n')
     ].filter(k => k).join('\n\n').padd()
   },
 
