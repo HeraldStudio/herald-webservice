@@ -98,27 +98,23 @@ exports.route = {
       // 直接上 jQuery
       $ = cheerio.load(res.data)
 
-      let rows = []
-      $('#tables').children('tbody').children('tr').each((i, tr) => {
-        let cells = []
-        $(tr).children('td').each((i, td) => {
-          cells.push($(td).text().trim())
-        })
+      let detail = $('#tables').children('tbody').children('tr').toArray().slice(1, -1).map(tr => {
+        let [time, cardnum, name, type, location, amount, balance, id, state, comment]
+          = $(tr).children('td').toArray().map(td => $(td).text().trim())
 
         // 接口设计规范，一定是数字的字段尽量转成数字；表示日期时间的字段转成毫秒时间戳
-        if (cells.length >= 10) rows.push({
-          id: parseInt(cells[7]),
-          desc: cells[4] || cells[3].replace(/扣款/g, '') || cells[9].replace(/^[\d-]+/, ''), // 地点或者交易性质
-          time: +moment(cells[0]),
-          amount: parseFloat(cells[5].replace(/,/g, '')),
-          balance: parseFloat(cells[6].replace(/,/g, '')),
-          state: cells[8]
-        })
+        return {
+          id: parseInt(id),
+          desc: location || type.replace(/扣款/g, '') || comment.replace(/^[\d-]+/, ''), // 地点或者交易性质
+          time: +moment(time, 'YYYY/MM/DD HH:mm:ss'),
+          amount: parseFloat(amount.replace(/,/g, '')),
+          balance: parseFloat(balance.replace(/,/g, '')),
+          state: state
+        }
       })
 
       return {
-        info,
-        detail: rows.slice(1, -1), // 去掉首尾项
+        info, detail, // 去掉首尾项
         pageCount: parseInt(/共(\d+)页/.exec(res.data)[1]) // 返回总页数
       }
     })
