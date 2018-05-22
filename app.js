@@ -4,6 +4,9 @@ const kf = require('kf-router')
 const fs = require('fs')
 const cors = require('kcors')
 
+// 设置所有 Promise 超时 20 秒，超过 20 秒自动 reject 并输出超时 Promise 所在位置
+require('./promise-timeout')(20000)
+
 // 将 moment 导出到全局作用域
 global.moment = require('moment')
 
@@ -59,8 +62,6 @@ app.use(require('./middleware/params'))
 app.use(require('./middleware/return'))
 // 3. 跨域中间件，定义允许访问本服务的第三方前端页面
 app.use(require('./middleware/cors'))
-// 4. 超时中间件，限制下游总处理时间不超过20秒，否则抛出504
-app.use(require('./middleware/timeout'))
 
 /**
   ## B1. 兼容性临时层
