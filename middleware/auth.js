@@ -264,8 +264,8 @@ module.exports = async (ctx, next) => {
       // 将身份识别码、解密后的一卡通号、密码和 Cookie、加解密接口暴露给下层中间件
       ctx.user = {
         isLogin: true,
-        encrypt: encrypt.bind(undefined, token),
-        decrypt: decrypt.bind(undefined, token),
+        encrypt: encrypt.bind(undefined, password),
+        decrypt: decrypt.bind(undefined, password),
         token: tokenHash,
         identity, cardnum, password, gpassword, name, schoolnum, platform
       }
