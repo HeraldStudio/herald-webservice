@@ -128,8 +128,7 @@ exports.route = {
         category: '系统公告',
         title: k.title,
         nid: k.nid,
-        time: k.publishTime,
-        isImportant: true
+        time: k.publishTime
       }
     }))
 
