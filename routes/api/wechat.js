@@ -60,7 +60,7 @@ exports.route = {
         .replace(/(<[^>]*)==([^>]*>)/img, '$1=$2')
 
         // 去除秀米垃圾
-        .replace(/ class="Powered-by-XIUMI V5"| powered-by="xiumi.us"/img, '')
+        .replace(/ class="Powered-by-XIUMI V5"| powered-by="xiumi\.us"/img, '')
 
       return { title, author, authorId, qrcode, html }
     })

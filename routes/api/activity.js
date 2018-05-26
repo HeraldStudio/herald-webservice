@@ -3,7 +3,7 @@ const db = require('../../database/publicity')
 exports.route = {
   async get ({ page = 1, pagesize = 10 }) {
     return await this.publicCache('1m', async () => {
-      return (await db.activity.find({ admittedBy: { $ne: '' }}, pagesize, (page - 1) * pagesize, 'endTime-'))
+      return (await db.activity.find({}, pagesize, (page - 1) * pagesize, 'endTime-'))
         // 这里删除 url 参数，强制要求前端在用户点击时通过 put 请求获取链接，以保证统计不遗漏
         .map(k => {
           k.hasUrl = !!k.url
