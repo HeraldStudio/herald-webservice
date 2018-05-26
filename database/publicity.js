@@ -31,8 +31,6 @@ db.activity = {
   url:              'text not null',    // 链接地址
   startTime:        'int not null',     // 有效期开始时间
   endTime:          'int not null',     // 有效期结束时间
-  committedBy:      'text not null',    // 发布者一卡通号
-  admittedBy:       'text not null'     // 审核人一卡通号，空串表示未审核
 }
 
 // 二元关系：「用户已点击活动」

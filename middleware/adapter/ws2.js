@@ -470,7 +470,7 @@ module.exports = async (ctx, next) => {
       if (type === 'hot') {
         ctx.body = { content: [], code: 200 }
       } else {
-        let acts = await pubdb.activity.find({ admittedBy: { $ne: '' }}, 10, (page - 1) * 10, 'startTime-')
+        let acts = await pubdb.activity.find({}, 10, (page - 1) * 10, 'startTime-')
         ctx.body = {
           content: acts.map(k => {
             let startTime = moment(k.startTime).format('YYYY-M-D')
