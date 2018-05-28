@@ -11,6 +11,10 @@ exports.route = {
   **/
   async get() {
     return await this.userCache('1h+', async () => {
+
+      // 先检查可用性，不可用直接抛异常或取缓存
+      this.guard('http://xk.urp.seu.edu.cn/studentService/system/showLogin.action')
+
       await this.useAuthCookie()
       let { cardnum, schoolnum } = this.user
 

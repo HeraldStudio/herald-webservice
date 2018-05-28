@@ -66,6 +66,8 @@ app.use(require('./middleware/cors'))
 /**
   ## B1. 兼容性临时层
   为了兼容使用旧版 webserv2 接口的前端，引入以下兼容性中间件，实现老接口的部分子集
+  目前 adapter 不仅用于老版本兼容性，任何需要非 RESTful 返回格式的平台均需要 adapter，
+  以防止不同风格代码的穿插，例如微信公众号的代码就是一个 adapter
 */
 app.use(require('./middleware/adapter/ws2'))
 app.use(require('./middleware/adapter/appserv'))
@@ -86,10 +88,13 @@ app.use(require('./middleware/auth'))
 // 5. 管理员权限，需要依赖身份认证
 app.use(require('./middleware/admin'))
 // 6. redis 缓存，为路由处理程序提供手动缓存
+//（开发环境下是假 redis，不需要安装redis）
 app.use(require('./middleware/redis'))
-// 7. Slack API
+// 7. guard 上游可用性预判断 API，需要依赖缓存中间件
+app.use(require('./middleware/guard'))
+// 8. Slack API
 app.use(require('./middleware/slack').middleware)
-// 8. 生产环境下验证码识别
+// 9. 生产环境下验证码识别
 if (process.env.NODE_ENV === 'production') {
   app.use(require('./middleware/captcha')({
     python: '/usr/local/bin/anaconda3/envs/captcha/bin/python'

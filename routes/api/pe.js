@@ -9,6 +9,10 @@ exports.route = {
   **/
   async get() {
     let { count, detail, health } = await this.userCache('1h+', async () => {
+      
+      // 先检查可用性，不可用直接抛异常或取缓存
+      this.guard('http://zccx.seu.edu.cn')
+
       // 取统一身份认证 Cookie，登录早操查询网站，拿到网站 Session Cookie
       await this.useAuthCookie()
       await this.get('http://zccx.seu.edu.cn')

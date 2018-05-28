@@ -53,6 +53,10 @@ exports.route = {
   **/
   async get({ term }) {
     return await this.userCache('1d+', async () => {
+
+      // 先检查可用性，不可用直接抛异常或取缓存
+      this.guard('http://xk.urp.seu.edu.cn/jw_service/service/lookCurriculum.action')
+
       let { cardnum } = this.user
       let curriculum = []
 
