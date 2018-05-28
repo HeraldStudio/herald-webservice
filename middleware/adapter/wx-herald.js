@@ -165,7 +165,9 @@ const handler = {
       await this.next()
       let { course, url } = this.body
       if (url) {
-        return `💌 <a href="${url}">查看体育理论考试题库 - ${course}</a>`
+        return `💌 <a href="${url}">查看体育理论考试题库 - ${course}</a>
+
+        提示：数据来自学校官方公开的「大学体育国家级资源共享课程」。`.padd()
       }
     } catch (e) {
       if (e === 404) {
