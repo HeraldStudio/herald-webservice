@@ -8,7 +8,7 @@ module.exports = timeout => {
     })
     return _Promise.race([timeoutPromise, originalPromise]).catch(e => {
       if (e === timeoutError) {
-        console.error('[Promise Timeout]', e.stack.split('\n')[2].trim())
+        console.error('[Promise Timeout]', e.stack)
       } else {
         throw e
       }
