@@ -208,12 +208,16 @@ async function internalCached (isPublic, ...args) {
           let task = func()
           if (allowObsolete) {
 
-            // 若允许过期缓存，则将回源任务限制在3秒之内
+            // 若允许过期缓存且有缓存，则将回源任务限制在3秒之内
             // 把超时归类为异常，然后统一在异常情况下返回缓存
             // 这样处理同时也使得回源函数中出现异常时，同样也返回缓存
             task = Promise.race([
               task, new Promise((_, r) => setTimeout(r, 3000))
-            ]).catch(e => cached)
+            ]).catch(e => {
+              // 回源函数出现任何异常，均返回 203，表示返回值无时效性
+              this.status = 203
+              return cached
+            })
           }
 
           let res = await task
