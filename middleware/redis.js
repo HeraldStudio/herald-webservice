@@ -196,7 +196,7 @@ async function internalCached (isPublic, ...args) {
   if (!cached || expired) {
 
     // 判断是否允许过期缓存
-    let allowObsolete = isLazy && cached
+    let allowStale = isLazy && cached
 
     // 无论是否需要 await，都检查任务是否存在
     // 如果不存在，创建一个
@@ -206,7 +206,7 @@ async function internalCached (isPublic, ...args) {
         try {
           detachedTaskCount++
           let task = func()
-          if (allowObsolete) {
+          if (allowStale) {
 
             // 若允许过期缓存且有缓存，则将回源任务限制在3秒之内
             // 把超时归类为异常，然后统一在异常情况下返回缓存
