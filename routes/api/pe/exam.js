@@ -13,7 +13,7 @@ exports.route = {
       return res.data.data.map(k => k.resList[0]).map(k => ({
         title: k.title,
         url: k.fullResUrl
-      }))
+      })).filter(k => k.title !== '身体素质')
     })
   }
 }
