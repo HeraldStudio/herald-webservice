@@ -147,7 +147,7 @@ const handler = {
     ].filter(k => k).join('\n\n').padd()
   },
 
-  async '体测|体育|體測|體育' () {
+  async '体测|體測' () {
     this.path = '/api/pe'
     this.method = 'GET'
     await this.next()
@@ -156,6 +156,21 @@ const handler = {
       `🏓 最近一次体测成绩：`,
       health.map(k => `${k.name}：${k.value}` + (k.grade && `（${k.score}，${k.grade}）`)).join('\n')
     ].filter(k => k).join('\n\n').padd()
+  },
+
+  async '体育|體育'() {
+    this.path = '/api/pe/exam'
+    this.method = 'GET'
+    try {
+      await this.next()
+      let { course, url } = this.body
+      return `💌 <a href="${url}">点击查看体育理论考试题库 - ${course}</a>`
+    } catch (e) {
+      if (e === 404) {
+        return `💌 你本学期似乎没有体育理论考试`
+      }
+      throw e
+    }
   },
 
   async '实验|實驗' () {
