@@ -222,8 +222,8 @@ async function internalCached (isPublic, ...args) {
 
           let res = await task
 
-          // 若需要缓存，将中间件返回值存入 redis
-          if (seconds && res) {
+          // 若需要缓存，且回源成功，将回源返回值存入 redis
+          if (seconds && res && this.status !== 203) {
             cached = JSON.stringify(res)
 
             // 同 [*]，这里利用 auth 的加解密函数，加密数据进行缓存
