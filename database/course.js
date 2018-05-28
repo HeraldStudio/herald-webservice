@@ -17,7 +17,9 @@ db.course = {
 }
 
 // 启动时清理六个月不更新的课
-db.course.remove({ updateTime: { $lt: +moment().subtract(6, 'months') }})
+setInterval(() => {
+  db.course.remove({ updateTime: { $lt: +moment().subtract(6, 'months') }})
+}, +moment.duration(1, 'day'))
 
 // 各课程的上课学期统计
 // 只计算首修
