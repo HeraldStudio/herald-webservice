@@ -11,8 +11,10 @@ db.stat = {
 }
 
 // 每次初始化时清理超过两年的日志
-setInterval(() => {
-  db.stat.remove({ time: { $lt: +moment().subtract(2, 'years') }})
-}, +moment.duration(1, 'day'))
+// 这里不能直接用 time 做条件，会导致遍历所有日志，导致启动时发生拥塞
+// 而是需要利用 time 的递增性，先查询第一个大于两年前的日志，然后删除所有这条日志之前的所有记录
+db`delete from stat where rowid < (
+  select rowid from stat where time > ${ +moment().subtract(2, 'years') } limit 1
+);`
 
 module.exports = db

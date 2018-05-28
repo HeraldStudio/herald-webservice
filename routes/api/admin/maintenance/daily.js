@@ -33,6 +33,8 @@ exports.route = {
 
     // 根据需求构造更快速的数据库查询
     // 按时间片、路由、方法、状态、请求数量分组，这几项都相同的进行累计
+    // 这里不能直接用 time 做条件，会导致遍历所有日志，导致发生拥塞
+    // 而是需要利用 time 的递增性，先查询最后一条昨天的日志，然后取所有这条日志之后的所有记录
     let dailyStat = await db`
       select
         cast(((time - ${yesterday}) % 86400000 / 1800000) as int) as period,
