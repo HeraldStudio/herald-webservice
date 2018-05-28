@@ -1,15 +1,20 @@
 {
   "button": [
     {
-      "name": "小程序",
-      "type": "miniprogram",
-      "url": "https://myseu.cn",
-      "appid": "wx3c1c058fd07462d0",
-      "pagepath": "pages/index/index"
+      "name": "PWA ⭐",
+      "type": "view",
+      "url": "https://myseu.cn"
     },
     {
-      "name": "小功能",
+      "name": "小程序",
       "sub_button": [
+        {
+          "name": "小程序",
+          "type": "miniprogram",
+          "url": "https://myseu.cn",
+          "appid": "wx3c1c058fd07462d0",
+          "pagepath": "pages/index/index"
+        },
         {
           "name": "一卡通充值",
           "type": "miniprogram",
@@ -30,7 +35,12 @@
           "url": "https://myseu.cn",
           "appid": "wx3c1c058fd07462d0",
           "pagepath": "pages/calculateGpa/calculateGpa"
-        },
+        }
+      ]
+    },
+    {
+      "name": "小服务",
+      "sub_button": [
         {
           "name": "校历查询",
           "type": "view",
@@ -40,21 +50,11 @@
           "name": "权益投诉",
           "type": "view",
           "url": "http://jinshuju.net/f/By3aTK"
-        }
-      ]
-    },
-    {
-      "name": "小惊喜",
-      "sub_button": [
+        },
         {
           "name": "👑王卡1元800M",
           "type": "view",
           "url": "http://shzx.js165.com/bcp-h5/#/popularize/jump?developerId=3407386309&sourceSystemId=0601&goodsId=90063345&ticket=gQE78DwAAAAAAAAAAS5odHRwOi8vd2VpeGluLnFxLmNvbS9xLzAyRmlVeWQwUkdicmUxVU1rUjFxY2MAAgQwB85aAwQAjScA"
-        },
-        {
-          "name": "小猴主页",
-          "type": "view",
-          "url": "https://myseu.cn"
         }
       ]
     }
