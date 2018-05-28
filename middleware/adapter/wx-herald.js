@@ -161,20 +161,12 @@ const handler = {
   async '体育|體育'() {
     this.path = '/api/pe/exam'
     this.method = 'GET'
-    try {
-      await this.next()
-      let { course, url } = this.body
-      if (url) {
-        return `💌 <a href="${url}">查看体育理论考试题库 - ${course}</a>
-
-        提示：数据来自学校官方公开的「大学体育国家级资源共享课程」。`.padd()
-      }
-    } catch (e) {
-      if (e === 404) {
-        return `💌 找不到适合你的体育理论考试题库`
-      }
-      throw e
-    }
+    await this.next()
+    return [
+      '💌 体育理论考试题库',
+      this.body.map(k => `<a href="${k.url}">${k.title}</a>`).join(' '),
+      '提示：数据来自学校官方公开的「大学体育国家级资源共享课程」。'
+    ].join('\n\n').padd()
   },
 
   async '实验|實驗' () {
