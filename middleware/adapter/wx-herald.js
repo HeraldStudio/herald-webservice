@@ -164,10 +164,12 @@ const handler = {
     try {
       await this.next()
       let { course, url } = this.body
-      return `💌 <a href="${url}">点击查看体育理论考试题库 - ${course}</a>`
+      if (url) {
+        return `💌 <a href="${url}">点击查看体育理论考试题库 - ${course}</a>`
+      }
     } catch (e) {
       if (e === 404) {
-        return `💌 你本学期似乎没有体育理论考试`
+        return `💌 找不到适合你的体育理论考试题库`
       }
       throw e
     }
