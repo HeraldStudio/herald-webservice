@@ -11,6 +11,8 @@ db.stat = {
 }
 
 // 每次初始化时清理超过两年的日志
-db.stat.remove({ time: { $lt: +moment().subtract(2, 'years') }})
+setInterval(() => {
+  db.stat.remove({ time: { $lt: +moment().subtract(2, 'years') }})
+}, +moment.duration(1, 'day'))
 
 module.exports = db

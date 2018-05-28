@@ -16,7 +16,7 @@ db.course = {
   updateTime:  'int not null',     // 最后更新时间
 }
 
-// 启动时清理六个月不更新的课
+// 每天清理六个月不更新的课
 setInterval(() => {
   db.course.remove({ updateTime: { $lt: +moment().subtract(6, 'months') }})
 }, +moment.duration(1, 'day'))
