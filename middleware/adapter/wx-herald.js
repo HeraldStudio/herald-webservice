@@ -165,7 +165,7 @@ const handler = {
       await this.next()
       let { course, url } = this.body
       if (url) {
-        return `💌 <a href="${url}">点击查看体育理论考试题库 - ${course}</a>`
+        return `💌 <a href="${url}">查看体育理论考试题库 - ${course}</a>`
       }
     } catch (e) {
       if (e === 404) {
