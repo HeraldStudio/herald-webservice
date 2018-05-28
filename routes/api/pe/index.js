@@ -1,5 +1,5 @@
 const cheerio = require('cheerio')
-const { config } = require('../../app')
+const { config } = require('../../../app')
 
 exports.route = {
 
