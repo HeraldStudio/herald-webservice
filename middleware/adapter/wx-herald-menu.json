@@ -1,12 +1,12 @@
 {
   "button": [
     {
-      "name": "PWA ⭐",
+      "name": "PWA 主页",
       "type": "view",
       "url": "https://myseu.cn"
     },
     {
-      "name": "小程序",
+      "name": "小功能",
       "sub_button": [
         {
           "name": "小程序",
@@ -17,24 +17,18 @@
         },
         {
           "name": "一卡通充值",
-          "type": "miniprogram",
-          "url": "https://myseu.cn",
-          "appid": "wx3c1c058fd07462d0",
-          "pagepath": "pages/cardCharge/cardCharge"
-        },
-        {
-          "name": "校车时刻",
-          "type": "miniprogram",
-          "url": "https://myseu.cn",
-          "appid": "wx3c1c058fd07462d0",
-          "pagepath": "pages/instantBus/instantBus"
+          "type": "view",
+          "url": "https://myseu.cn/#/card/charge"
         },
         {
           "name": "绩点估算",
-          "type": "miniprogram",
-          "url": "https://myseu.cn",
-          "appid": "wx3c1c058fd07462d0",
-          "pagepath": "pages/calculateGpa/calculateGpa"
+          "type": "view",
+          "url": "https://myseu.cn/#/grade"
+        },
+        {
+          "name": "课表预测",
+          "type": "view",
+          "url": "https://myseu.cn/#/course-stat"
         }
       ]
     },
