@@ -52,6 +52,7 @@ exports.route = {
   * 对于这类课表，我们需要在系统中将长学期开学日期向前推4周。
   **/
   async get({ term }) {
+    let now = +moment()
     let currentTerm = Object.keys(config.term).find(k => {
       let startMoment = moment(config.term[k], 'YYYY-M-D')
       let startDate = +startMoment
