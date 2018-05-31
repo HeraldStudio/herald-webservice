@@ -52,7 +52,15 @@ exports.route = {
   * 对于这类课表，我们需要在系统中将长学期开学日期向前推4周。
   **/
   async get({ term }) {
-    return await this.userCache('1d+', async () => {
+    let currentTerm = Object.keys(config.term).find(k => {
+      let startMoment = moment(config.term[k], 'YYYY-M-D')
+      let startDate = +startMoment
+      let endDate = +startMoment.add(/-1$/.test(k) ? 4 : 18, 'weeks')
+      return startDate <= now && endDate > now
+    })
+
+    // 若为查询未来学期，可能是在选课过程中，需要减少缓存时间
+    return await this.userCache(term && term > currentTerm ? '1m' : '1d+', async () => {
 
       // 先检查可用性，不可用直接抛异常或取缓存
       this.guard('http://xk.urp.seu.edu.cn/jw_service/service/lookCurriculum.action')
