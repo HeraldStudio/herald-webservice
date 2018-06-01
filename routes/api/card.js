@@ -132,7 +132,7 @@ exports.route = {
   * 一卡通在线预充值
   * @apiParam password   一卡通查询密码
   * @apiParam amount     充值金额，浮点数兼容
-  * @apiParam eacc       为1时充值到电子钱包
+  * @apiParam eacc       为真值时充值到电子钱包
   **/
   async put({ cardnum, password, amount, eacc }) {
     cardnum || ({ cardnum } = this.user)
@@ -148,7 +148,7 @@ exports.route = {
     let cardid = /&sum=(\d{6})"/.exec(res.data)[1]
     res = await this.get(
       'http://58.192.115.47:8088/WechatEcardInterfaces/wechatweb/chongzhi.html?jsoncallback=' +
-      `&value=${amount},${password}&cardno=${cardid}&acctype=${eacc === '1' ? '000' : '1'}`
+      `&value=${amount},${password}&cardno=${cardid}&acctype=${eacc ? '000' : '1'}`
     )
 
     let msg = JSON.parse(/callJson\s*\(\s*(\{[\s\S]*\})\s*\)/im.exec(res.data)[1]).errmsg.replace(/转账/g, '充值')
