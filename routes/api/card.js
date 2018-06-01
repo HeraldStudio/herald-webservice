@@ -57,10 +57,15 @@ exports.route = {
       applyTemplate(info, pairs)
 
       // 抓取余额
-      let balance = /([.,\d]+)元\s*[（(]卡余额[)）]/img.exec(info.balance)[1]
+      let balance = /([.,\d]+)元\s*[（(]卡余额[)）]/img.exec(info.balance)[1].trim()
 
       // 接口设计规范，能转换为数字/bool的数据尽量转换，不要都用字符串
       info.balance = parseFloat(balance.replace(/,/g, ''))
+
+      // 查询电子钱包余额
+      res = await this.get('http://allinonecard.seu.edu.cn/accounttranUser.action')
+      $ = cheerio.load(res.data)
+      info.eacc = parseFloat($('tr.listbg>td').eq(2).text().trim().replace(/,/g, ''))
 
       // 由于此接口一次只查询一天，一般只有一到两页，遍历查询所有页对性能影响不大，且方便了接口调用，所以这里用遍历
       let page = 1, pageCount = 1, detail = []
