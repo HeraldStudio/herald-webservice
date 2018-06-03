@@ -104,10 +104,12 @@ exports.route = {
                 k.date = parseInt(k[3])
                 return k
               })
+              // 过滤掉一看就不是日期的内容，比如「17-18-3」
+              // 一个标题: 我院召开17-18-3学期期中教学检查学生座谈会
               .filter(k =>
                       (!k.year || k.year >= 1000 || k.year < 100)
                       && k.month >= 1 && k.month <= 12
-                      && k.date >= 1 && k.date <= 31) // 过滤掉一看就不是日期的内容，比如「17-18-3」
+                      && k.date >= 1 && k.date <= 31)
               // FIXME 这里可能还存在着 bug。
               .map(k => k[1] // 有的网站上没有年份信息。
                    ? +moment(k[0])
