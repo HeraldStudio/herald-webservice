@@ -71,11 +71,13 @@ exports.route = {
   async get () {
     let now = +moment()
     // 调试环境下接受 site 参数用于单独获取某网站的通知
-    let keys = process.env.NODE_ENV === 'development'
-      ? (typeof this.params.site !== 'undefined' ? [this.params.site] : commonSites)
-      : commonSites
+    let argSite = process.env.NODE_ENV === 'development' ? this.params.site : undefined
+    delete this.params.site
 
-    if (this.user.isLogin
+    let keys = typeof argSite !== 'undefined' ? [argSite] : commonSites
+
+    if (typeof argSite === 'undefined'
+        && this.user.isLogin
         && /^21/.test(this.user.cardnum)) { // 只处理本科生，似乎研究生从学号无法获取学院信息
       keys = keys.concat(deptCodeFromSchoolNum(this.user.schoolnum))
     }
@@ -125,7 +127,7 @@ exports.route = {
             site: sites[site].name,
             category: ele[1],
             // 标题可能在 title 属性中，也可能并不在。
-            title: k.attr('title') || k.text(),
+            title: k.attr('title').trim() || k.text().trim(),
             url: currentUrl,
             isAttachment: ! /\.(html?$|aspx?|jsp|php)/.test(href),
             isImportant: !!k.find('font').length,
