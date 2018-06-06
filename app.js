@@ -29,16 +29,19 @@ process.on('SIGINT', () => process.exit())
 
 /**
   # WS3 框架中间件
-  以下中间件共分为四层，每层内部、层与层之间都严格按照依赖关系排序。
+  以下中间件共分为六层，每层内部、层与层之间都严格按照依赖关系排序。
 
-  ## A0. 兼容性解包层
-  对于兼容旧版 API 的兼容性接口，从兼容性临时层出来后被返回格式层进行封装，以便安全通过监控层，
-  然后在最外层进行解包，以便调用者能得到符合旧版 API 返回格式的结果。
+  ## A. 超监控层
+  不受监控、不受格式变换的一些高级操作
 */
+// 1. 跨域中间件，定义允许访问本服务的第三方前端页面
+app.use(require('./middleware/cors'))
+// 2. 对于兼容旧版 API 的兼容性接口，从兼容性临时层出来后被返回格式层进行封装，以便安全通过监控层，
+// 然后在最外层进行解包，以便调用者能得到符合旧版 API 返回格式的结果。
 app.use(require('./middleware/adapter/unpacker'))
 
 /**
-  ## A. 监控层
+  ## B. 监控层
   负责对服务运行状况进行监控，便于后台分析和交互，对服务本身不存在影响的中间件。
 */
 // 1. 如果是生产环境，显示请求计数器；此中间件在 module load 时，会对 console 的方法做修改
@@ -49,18 +52,16 @@ app.use(require('./middleware/logger'))
 app.use(require('./middleware/statistics'))
 
 /**
-  ## B. 接口层
+  ## C. 接口层
   为了方便双方通信，负责对服务收到的请求和发出的返回值做变换的中间件。
 */
-// 1. 跨域中间件，定义允许访问本服务的第三方前端页面
-app.use(require('./middleware/cors'))
 // 2. 参数格式化，对上游传入的 URL 参数和请求体参数进行合并
 app.use(require('./middleware/params'))
 // 3. 返回格式化，将下游返回内容包装一层JSON
 app.use(require('./middleware/return'))
 
 /**
-  ## B1. 兼容性临时层
+  ## D. 兼容性临时层
   为了兼容使用旧版 webserv2 接口的前端，引入以下兼容性中间件，实现老接口的部分子集
   目前 adapter 不仅用于老版本兼容性，任何需要非 RESTful 返回格式的平台均需要 adapter，
   以防止不同风格代码的穿插，例如微信公众号的代码就是一个 adapter
@@ -70,7 +71,7 @@ app.use(require('./middleware/adapter/appserv'))
 app.use(require('./middleware/adapter/wx-herald'))
 
 /**
-  ## C. API 层
+  ## E. API 层
   负责为路由处理程序提供 API 以便路由处理程序使用的中间件。
 */
 // 1. 接口之间相互介绍的 API
@@ -98,7 +99,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 /**
-  ## D. 路由层
+  ## F. 路由层
   负责调用路由处理程序执行处理的中间件。
 */
 app.use(kf())
