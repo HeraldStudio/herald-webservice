@@ -52,6 +52,7 @@ const deduceTimeFromUrl = url => {
   if (match !== null) {
     return +moment(match[1] + '-' + match[2] + '-' + match[3])
   }
+  return null
 }
 
 const commonSites = ['jwc', 'zwc']
@@ -70,11 +71,13 @@ exports.route = {
   async get () {
     let now = +moment()
     // 调试环境下接受 site 参数用于单独获取某网站的通知
-    let keys = process.env.NODE_ENV === 'development'
-      ? (typeof this.params.site !== 'undefined' ? [this.params.site] : commonSites)
-      : commonSites
+    let argSite = process.env.NODE_ENV === 'development' ? this.params.site : undefined
+    delete this.params.site
 
-    if (this.user.isLogin
+    let keys = typeof argSite !== 'undefined' ? [argSite] : commonSites
+
+    if (typeof argSite === 'undefined'
+        && this.user.isLogin
         && /^21/.test(this.user.cardnum)) { // 只处理本科生，似乎研究生从学号无法获取学院信息
       keys = keys.concat(deptCodeFromSchoolNum(this.user.schoolnum))
     }
@@ -95,7 +98,21 @@ exports.route = {
           ele => {
             timeList[ele[1]] =
               $(ele[0]).find(sites[site].dateSelector || 'div').toArray()
-              .map(k => /(\d+-)?\d+-\d+/.exec($(k).text())).filter(k => k)
+              .map(k => /(\d+-)?(\d+)-(\d+)/.exec($(k).text()))
+              .filter(k => k)
+              .map(k => {
+                k.year = parseInt(k[1])
+                k.month = parseInt(k[2])
+                k.date = parseInt(k[3])
+                return k
+              })
+              // 过滤掉一看就不是日期的内容，比如「17-18-3」
+              // 一个标题: 我院召开17-18-3学期期中教学检查学生座谈会
+              .filter(k =>
+                      (!k.year || k.year >= 1000 || k.year < 100)
+                      && k.month >= 1 && k.month <= 12
+                      && k.date >= 1 && k.date <= 31)
+              // FIXME 这里可能还存在着 bug。
               .map(k => k[1] // 有的网站上没有年份信息。
                    ? +moment(k[0])
                    : +autoMoment(k[0]))
@@ -110,12 +127,14 @@ exports.route = {
             site: sites[site].name,
             category: ele[1],
             // 标题可能在 title 属性中，也可能并不在。
-            title: k.attr('title') || k.text(),
+            title: k.attr('title').trim() || k.text().trim(),
             url: currentUrl,
             isAttachment: ! /\.(html?$|aspx?|jsp|php)/.test(href),
             isImportant: !!k.find('font').length,
             time: timeList[ele[1]][i]
-              || deduceTimeFromUrl(currentUrl) // 可能网页上没有日期信息
+              || deduceTimeFromUrl(currentUrl), // 可能网页上没有日期信息
+            // 记下其在本栏中出现的顺序，一般，序号越小，越新
+            index: i
           }
         })).reduce((a, b) => a.concat(b), [])
       }) // publicCache
@@ -133,7 +152,9 @@ exports.route = {
     }))
 
     return ret.reduce((a, b) => a.concat(b), [])
-      .sort((a, b) => b.time - a.time) // FIXME 改进排序，使得没有日期的项目保持稳定顺序
+      // 如果项目都有两个时间，就按时间排序，否则按在某一栏中出现的顺序排序
+      // 时间越大，或者序号越小，越新。
+      .sort((a, b) => (a.time && b.time) ? (b.time - a.time) : (a.index - b.index))
       // 按保留天数和条数过滤获取的信息
       .filter((k, i) => i < keepNum || now - k.time < keepTime)
   },
