@@ -4,9 +4,6 @@ const kf = require('kf-router')
 const fs = require('fs')
 const cors = require('kcors')
 
-// 设置所有 Promise 超时 20 秒，超过 20 秒自动 reject 并输出超时 Promise 所在位置
-require('./promise-timeout')(20000)
-
 // 将 moment 导出到全局作用域
 global.moment = require('moment')
 

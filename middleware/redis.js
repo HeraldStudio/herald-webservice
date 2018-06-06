@@ -134,6 +134,7 @@ async function internalCached (isPublic, ...args) {
   let [duration, func] = args.slice(-2)
   let keys = args.slice(0, -2).join(' ')
   let { isLazy, seconds } = parseDurationStr(duration)
+  let force = this.request.headers.cache === 'update'
 
   /**
     将 method、地址 (路由 + querystring)、伪 token、请求体四个元素进行序列化，作为缓存命中判断的依据
@@ -179,7 +180,7 @@ async function internalCached (isPublic, ...args) {
 
   // 1. 无论是否过期，首先解析缓存，准确判断缓存是否可用，以便在缓存不可用时进行回源
   // 此步骤结果保证：cached 成真 <=> 缓存可用，expired 成假 <=> 缓存未过期
-  if (cached) {
+  if (cached && !force) {
     try {
       // [*] 上游是 auth 中间件，若为已登录用户，auth 将完成解密并把加解密函数暴露出来
       // 这里利用 auth 的加解密函数，解密缓存数据
@@ -193,10 +194,10 @@ async function internalCached (isPublic, ...args) {
   }
 
   // 2. 若缓存不可用或已过期，先回源，准确判断回源是否成功，以便在回源不成功时回落到过期缓存
-  if (!cached || expired) {
+  if (!cached || expired || force) {
 
     // 判断是否允许过期缓存
-    let allowStale = isLazy && cached
+    let allowStale = isLazy && cached && !force
 
     // 无论是否需要 await，都检查任务是否存在
     // 如果不存在，创建一个
