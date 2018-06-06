@@ -52,12 +52,12 @@ app.use(require('./middleware/statistics'))
   ## B. 接口层
   为了方便双方通信，负责对服务收到的请求和发出的返回值做变换的中间件。
 */
-// 1. 参数格式化，对上游传入的 URL 参数和请求体参数进行合并
-app.use(require('./middleware/params'))
-// 2. 返回格式化，将下游返回内容包装一层JSON
-app.use(require('./middleware/return'))
-// 3. 跨域中间件，定义允许访问本服务的第三方前端页面
+// 1. 跨域中间件，定义允许访问本服务的第三方前端页面
 app.use(require('./middleware/cors'))
+// 2. 参数格式化，对上游传入的 URL 参数和请求体参数进行合并
+app.use(require('./middleware/params'))
+// 3. 返回格式化，将下游返回内容包装一层JSON
+app.use(require('./middleware/return'))
 
 /**
   ## B1. 兼容性临时层

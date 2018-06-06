@@ -19,6 +19,7 @@ module.exports = async (ctx, next) => {
       ctx.set('Access-Control-Allow-Methods', 'GET,HEAD,PUT,POST,DELETE,PATCH')
       ctx.set('Access-Control-Allow-Headers', 'Origin,X-Requested-With,Content-Type,Accept,token,cache')
     }
+    console.log(ctx.response.headers)
   }
   if (ctx.method.toUpperCase() === 'OPTIONS') {
     ctx.body = ''
