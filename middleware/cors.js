@@ -17,7 +17,7 @@ module.exports = async (ctx, next) => {
     if (domain && allowDomains.find(d => d.test(domain))) {
       ctx.set('Access-Control-Allow-Origin', origin)
       ctx.set('Access-Control-Allow-Methods', 'GET,HEAD,PUT,POST,DELETE,PATCH')
-      ctx.set('Access-Control-Allow-Headers', 'Origin,X-Requested-With,Content-Type,Accept,token')
+      ctx.set('Access-Control-Allow-Headers', 'Origin,X-Requested-With,Content-Type,Accept,token,cache')
     }
   }
   if (ctx.method.toUpperCase() === 'OPTIONS') {
