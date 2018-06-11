@@ -5,7 +5,7 @@ exports.route = {
     if (!this.admin || !this.admin.publicity) {
       throw 403
     }
-    return await Promise.all((await db.banner.find({}, pagesize, (page - 1) * pagesize, 'startTime-'))
+    return await Promise.all((await db.banner.find({}, pagesize, (page - 1) * pagesize, 'endTime-'))
       .map(async k => {
         k.clicks = await db.bannerClick.count({ bid: k.bid })
         return k
