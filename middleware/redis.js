@@ -18,12 +18,22 @@
   ctx.clearUserCache  async () => undefined
   ctx.clearAllCache   async () => undefined
  */
-let client
-
 // job pool，用于异步获取
 const jobPool = {}
 
-if (process.env.NODE_ENV === 'development') {
+const redis = require('redis')
+const bluebird = require('bluebird')
+bluebird.promisifyAll(redis.RedisClient.prototype)
+
+let client = redis.createClient()
+client.batchDelete = async (keyword) => {
+  await client.evalAsync(`for _,k in ipairs(redis.call('keys','*${keyword}*')) do redis.call('del',k) end`, '0')
+}
+
+client.on('error', e => {
+  client.quit()
+  console.log('Redis 引入失败，已使用临时 Object 代替缓存空间…')
+
   const chalk = require('chalk')
   const pool = {}
 
@@ -49,16 +59,7 @@ if (process.env.NODE_ENV === 'development') {
       Object.keys(pool).filter(k => ~k.indexOf(keyword)).map(k => { delete pool[key] })
     }
   }
-} else {
-  const redis = require('redis')
-  const bluebird = require('bluebird')
-  bluebird.promisifyAll(redis.RedisClient.prototype)
-
-  client = redis.createClient()
-  client.batchDelete = async (keyword) => {
-    await client.evalAsync(`for _,k in ipairs(redis.call('keys','*${keyword}*')) do redis.call('del',k) end`, '0')
-  }
-}
+})
 
 /**
   ## redis 缓存封装

@@ -38,7 +38,7 @@ const deptCodeFromSchoolNum = schoolnum => {
 const autoMoment = md => {
   const now = moment()
   const thisYear = now.year()
-  const date = moment(`${thisYear}-${md}`)
+  const date = moment(`${thisYear}-${md}`, 'YYYY-M-D')
   while (date > now) {
     date.subtract(1, 'year')
   }
@@ -114,7 +114,7 @@ exports.route = {
                       && k.date >= 1 && k.date <= 31)
               // FIXME 这里可能还存在着 bug。
               .map(k => k[1] // 有的网站上没有年份信息。
-                   ? +moment(k[0])
+                  ? +moment(k[0], 'YYYY-M-D')
                    : +autoMoment(k[0]))
           }
         )

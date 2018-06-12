@@ -32,7 +32,7 @@ exports.route = {
       let [state, usage, connections, devices] = $('table[width="450"]').toArray()
 
       state = $(state).find('td').eq(1).text().trim()
-      if (/已开通/.test(state)) {
+      if (/正常/.test(state)) {
         state = {
           service: 'active',
           due: +moment(/[\d\-]+/.exec(state)[0])

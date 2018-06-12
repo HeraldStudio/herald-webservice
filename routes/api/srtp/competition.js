@@ -56,8 +56,8 @@ exports.route = {
         .map(([id, name, startTime, endTime]) => ({
           id: id.text().trim(),
           name: name.text().trim(),
-          startTime: +moment(startTime.text().trim()),
-          endTime: +moment(endTime.text().trim())
+          startTime: +moment(startTime.text().trim(), 'YYYY-M-D H:mm:ss'),
+          endTime: +moment(endTime.text().trim(), 'YYYY-M-D H:mm:ss')
         }))
     })
   },
