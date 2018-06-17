@@ -14,8 +14,10 @@ exports.route = {
       return await Promise.all(Object.keys(shops).map(async area => {
         let machines = (await this.get(`http://haiyaxiyi.cn/Wash/GetMachineByShopId?shopId=${shops[area]}&machineTypeId=&page=1&pagesize=1000`)).data
         machines = machines.Data.map(k => {
-          let { MachineId: id, MachineName: name, SubTypeName: type, MachineState: state, remainMinutes } = k
-          let url = `http://haiyaxiyi.cn/MachineFunction/Index?machineId=${id}`
+          let { MachineId: id, MachineName: name, SubTypeName: type, MachineState: state, remainMinutes, payType } = k
+
+          // 此 URL 不能只带 machineId，必须带后面其它参数，而且 && 不能改成 &，否则打开的网页显示数据不对
+          let url = `http://haiyaxiyi.cn/MachineFunction/Index?machineId=${id}&&state=${state}&&payType=${payType}&confirmOrderType=2`
           type = type.match(/洗衣机|烘干机|洗鞋机/)[0]
           state = states[state - 1]
           return { id, name, type, state, remainMinutes, url }
