@@ -65,13 +65,12 @@ exports.route = {
         .map(k => moment(config.term[k], 'YYYY-M-D'))  // 转为学期开始时间戳
         // 去掉未开始和已结束的，留下一个学期，或者 undefined（没有符合条件的学期）
         .find(k => k <= now && k.clone().add(16, 'weeks') > now)
-        .hour(7).minute(20) // 调整为开学当天跑操结束时间
 
       return beginOfTerm ? (
         Array(16 * 7).fill() // 生成当前学期每一天的下标数组
           // 当前学期每一天的跑操结束时间戳
           // 注意这里要克隆一次，不能在原对象上直接操作
-          .map((_, i) => beginOfTerm.clone().add(i, 'days'))
+          .map((_, i) => beginOfTerm.clone().add(i, 'days').hour(7).minute(20))
           // 去掉已经过去的，转换成星期，去掉双休日，剩下的天数
           .filter(k => now < k).map(k => k.day()).filter(k => k >= 1 && k <= 5).length
       ) : 0
