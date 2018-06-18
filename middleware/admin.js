@@ -4,7 +4,7 @@ const db = require('../database/admin')
 
 // 程序启动时，生成超级管理员 Token
 // 为了防止与普通用户碰撞，此处字节数跟普通用户 token 字节数做区分，切勿轻易改成跟普通用户长度相同，否则会有问题
-const superToken = new Buffer(crypto.randomBytes(16)).toString('hex')
+const superToken = Buffer.from(crypto.randomBytes(16)).toString('hex')
 console.log('本次会话的超级管理员 Token 为：' + chalk.blue(superToken) + '，请妥善保管')
 
 // ctx.admin API
