@@ -17,7 +17,9 @@ exports.route = {
 
       res = await this.get(link)
       $ = cheerio.load(res.data)
-      link = url.resolve(link, $('[portletmode="simpleArticleContent"] img').attr('original-src'))
+      let el = $('[portletmode="simpleArticleContent"] img')
+      let path = el.attr('original-src') || el.attr('src')
+      link = url.resolve(link, path)
 
       // 对于前后端分离的严格 RESTful 系统，后端不允许重定向到文件、图片、网页，必须把链接直接返回
       // 需要重定向的情况，在 adapter 中实现
