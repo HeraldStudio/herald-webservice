@@ -8,7 +8,7 @@ const [scholarshipList, scholarshipApplied, stipendList, stipendApplied] = [
   'f|com.wiscom.portal.site.v2.impl.FragmentWindow|f3409|view|normal|action=appliedQuery', 
   'f|com.wiscom.portal.site.v2.impl.FragmentWindow|f2187|view|normal|action=list', 
   'f|com.wiscom.portal.site.v2.impl.FragmentWindow|f2187|view|normal|action=appliedQuery'
-].map(k => new Buffer(k).toString('base64').replace(/=/g, '_'))
+].map(k => Buffer.from(k).toString('base64').replace(/=/g, '_'))
 
 exports.route = {
   async get() {

@@ -76,7 +76,7 @@ const decrypt = (key, value) => {
 
 // 哈希算法，用于对 token 和密码进行摘要
 const hash = value => {
-  return new Buffer(crypto.createHash('md5').update(value).digest()).toString('base64')
+  return Buffer.from(crypto.createHash('md5').update(value).digest()).toString('base64')
 }
 
 // 在这里选择认证接口提供者
@@ -185,7 +185,7 @@ module.exports = async (ctx, next) => {
     let { name, schoolnum } = await auth(ctx, cardnum, password, gpassword)
 
     // 生成 32 字节 token 转为十六进制，及其哈希值
-    let token = customToken || new Buffer(crypto.randomBytes(20)).toString('hex')
+    let token = customToken || Buffer.from(crypto.randomBytes(20)).toString('hex')
     let tokenHash = hash(token)
     let passwordHash = hash(password)
 

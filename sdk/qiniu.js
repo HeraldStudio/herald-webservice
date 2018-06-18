@@ -4,7 +4,7 @@ const crypto = require('crypto')
 
 exports.getUptoken = () => {
   let { access, secret, bucket } = config.qiniu
-  let key = new Buffer(crypto.randomBytes(16)).toString('hex')
+  let key = Buffer.from(crypto.randomBytes(16)).toString('hex')
   let mac = new qiniu.auth.digest.Mac(access, secret)
   let uptoken = new qiniu.rs.PutPolicy({
     scope: bucket + ':' + key,

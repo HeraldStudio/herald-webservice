@@ -6,7 +6,7 @@ const axios = require('axios')
 
 // 哈希算法，用于对 token 和密码进行摘要
 const hash = value => {
-  return new Buffer(crypto.createHash('md5').update(value).digest()).toString('base64')
+  return Buffer.from(crypto.createHash('md5').update(value).digest()).toString('base64')
 }
 
 module.exports = async (ctx, next) => {

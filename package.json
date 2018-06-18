@@ -31,5 +31,9 @@
     "sqlongo": "^1.4.0",
     "tough-cookie": "^2.3.3",
     "ws": "^4.0.0"
+  },
+  "resolutions": {
+    "upath": "^1.0.5",
+    "nan": "^2.10.0"
   }
 }
