@@ -124,64 +124,53 @@ module.exports = async (ctx, next) => {
     // 自定义 token 可用于将微信 openid 作为 token，实现微信端账号的无明文绑定
     let { cardnum, password, gpassword, platform, customToken } = ctx.params
 
+    // 登录是高权限操作，需要对参数类型进行检查，防止通过 Object 注入数据库
+    // 例如 platform 若允许传入对象 { $neq: '' }，将会触发 Sqlongo 语法，导致在下面删除时把该用户在所有平台的记录都删掉
+    if (typeof cardnum !== 'string'
+      || typeof password !== 'string'
+      || typeof platform !== 'string'
+      || typeof gpassword !== 'string' && typeof gpassword !== 'undefined'
+      || typeof customToken !== 'string' && typeof customToken !== 'undefined')
+
     // 这里不用解构赋值的默认值，因为不仅需要给 undefined 设置默认值，也需要对空字符串进行容错
     gpassword = gpassword || password
 
     if (!platform) {
       throw '缺少参数 platform: 必须指定平台名'
+    } else if (!/^[0-9a-z\-]+$/.test(platform)) {
+      throw 'platform 只能由小写字母、数字和中划线组成' // 为了美观
     }
 
-    // 根据用户提供的凭据，尽可能查找当前用户已认证的可解密记录，以便免去统一身份认证流程、复用已有记录
-    // 无自定义 token 情况下，遵循同平台共用 token 原则，只需按平台查找用户
-    // 有自定义 token 情况下，需要按自定义 token 一起查找该用户，与该 token 不一致的无法复用
-    // 例如同一用户从多个微信登录，将出现同平台不同的自定 token，此时若覆盖老 token，将导致较早登录的微信被解绑 
-    let criteria = { cardnum, platform }
-    if (customToken) {
-      criteria.tokenHash = hash(customToken)
-    }
+    // 无自定义 token 情况下，遵循同平台共用 token 原则，需按平台查找用户，从而尽可能查找已认证记录，免去认证流程
+    // 有自定义 token 情况下，需要按自定义 token 查找该用户，与该 token 不一致的无法复用
+    // 这里的 criteria 不仅表示查找的条件，同时也是找到记录但需要删除旧记录时的删除条件，修改时请考虑下面删除的条件
+    let criteria = customToken ? { tokenHash: hash(customToken) } : { cardnum, platform }
     let existing = await db.auth.find(criteria, 1)
 
-    // 若找到已认证记录，比对密码，以便免去统一身份认证流程
-    // 该过程遵循 token 不变原则，禁止覆盖原有 token，防止原有的登录会话被丢失
+    // 若找到已认证记录，比对密码，全部正确则可以免去统一身份认证流程
     if (existing) {
-      let { passwordHash, gpasswordEncrypted, tokenEncrypted } = existing
+      let { passwordHash, tokenHash, tokenEncrypted, gpasswordEncrypted } = existing
+      let token
 
-      // 新认证数据库中，密码和 token 双向加密，用密码反向解密可以得到 token
-      // 解密成功即可返回
-      let token = decrypt(password, tokenEncrypted)
-      if (token) {
-        // 若两个密码有任何一个不同，可能是密码已变化，走认证
-        if (passwordHash !== hash(password)
-          || /^22/.test(cardnum) && gpassword !== decrypt(token, gpasswordEncrypted)) {
-
-          await auth(ctx, cardnum, password, gpassword)
-
-          // 未抛出异常说明新密码正确，更新数据库中密码
-          // 密码变化后，密文 token、两个密文密码、密码哈希均发生变化，都要修改
-          let passwordEncrypted = encrypt(token, password)
-          gpasswordEncrypted = /^22/.test(cardnum) ? encrypt(token, gpassword) : ''
-          tokenEncrypted = encrypt(password, token)
-          passwordHash = hash(password)
-
-          await db.auth.update({ cardnum, platform }, {
-            passwordEncrypted,
-            gpasswordEncrypted,
-            tokenEncrypted,
-            passwordHash
-          })
-        }
-
-        // 若密码相同，直接通过认证，不再进行统一身份认证
-        // 虽然这样可能会出现密码修改后误放行旧密码的问题，但需要 Cookie 的接口调用统一身份认证时就会 401
+      // 先判断密码正确
+      if (hash(password) === passwordHash               
+        // 然后用密码解密 tokenEncrypted 得到 token，判断 token 有效
+        && (token = decrypt(password, tokenEncrypted))
+        // 如果是研究生，再用 token 解密研究生密码，判断研究生密码不变
+        && (!/^22/.test(cardnum) || gpassword === decrypt(token, gpasswordEncrypted))) {
+        // 所有条件满足，直接通过认证，不再走统一身份认证接口
+        // 虽然这样可能会出现密码修改后误放行旧密码的问题，但之后使用中迟早会 401（取统一身份认证 Cookie 时密码错误会发生 401）
         ctx.body = token
         return
       }
+
+      // 运行到此说明数据库中存在记录，但密码与数据库中密码不一致，有两种情况：
+      // 1. 数据库中密码是正确的，但用户密码输错；
+      // 2. 用户改了密码，数据库中密码不是最新。
+      // 这两种情况统一穿透到下面进行，如果认证通过，说明是第二种情况，则会删除数据库已有记录。
     }
 
-    // 无已认证记录，则登录统一身份认证，有三个作用：
-    // 1. 验证密码正确性
-    // 2. 获得统一身份认证 Cookie 以便后续请求使用
-    // 3. 获得姓名和学号
+    // 登录统一身份认证，用于验证密码正确性、并同时获得姓名和学号
     let { name, schoolnum } = await auth(ctx, cardnum, password, gpassword)
 
     // 生成 32 字节 token 转为十六进制，及其哈希值
@@ -189,16 +178,12 @@ module.exports = async (ctx, next) => {
     let tokenHash = hash(token)
     let passwordHash = hash(password)
 
-    // 若存在自定义 token，删除相同 tokenHash 的原有记录。
-    // token 已存在有两种情况：
-    // 1. 非自定义 token 已存在，说明当前生成的 token 与其他用户发生哈希碰撞。该情况需要 let it crash，
-    //    让数据库发生插入冲突，让用户收到错误消息 400，用户再次登录将会生成新的 token，避开碰撞；
-    // 2. 自定义 token（openid）已存在，说明当前微信在当前微信公众平台下已经登录了用户；又因为上面的判断
-    //    已经排除了「已经登录同一用户」的情况，所以现在的情况是「当前微信在当前公众平台下已经登录其他用户」。
-    //    注：微信 openid 不仅用户唯一，且平台唯一，即一个 openid 对应 (一个微信用户 × 一个平台)。
-    //    这种情况下，应通过数据库删除操作将原绑定用户挤掉。
-    if (customToken) {
-      await db.auth.remove({ tokenHash })
+    // 认证通过，如果存在已有记录：
+    // 1. 如果是自定义 token（例如微信端），说明使用该 token（微信号）的用户想绑定新用户，需要删除旧记录
+    // 2. 如果是非自定义 token，说明新旧密码不同，且新密码正确，说明用户改了密码，此时为了信息安全，也需要删除所有旧记录
+    if (existing) {
+      // 这里 criteria 跟查找时的条件相同，自定义 token 按 tokenHash 删除，否则按一卡通号和平台删除
+      await db.auth.remove(criteria)
     }
 
     // 将 token 和密码互相加密
