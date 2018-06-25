@@ -8,7 +8,7 @@ module.exports = timeout => {
     })
     return _Promise.race([timeoutPromise, originalPromise]).catch(e => {
       if (e === timeoutError) {
-        console.error('[Promise Timeout]', e.stack)
+        console.error('[Promise Timeout]', e.stack.split('\n').map(k => k.trim()).filter(k => /:\d+:\d+\)$/.test(k))[1] || 'at unknown source')
       } else {
         throw e
       }
