@@ -1,6 +1,7 @@
 const cheerio = require('cheerio')
 const loginUrl = 'http://phylab.seu.edu.cn/plms/UserLogin.aspx?ReturnUrl=%2fplms%2fSelectLabSys%2fDefault.aspx'
 const courseUrl = 'http://phylab.seu.edu.cn/plms/SelectLabSys/StuViewCourse.aspx'
+const { config } = require('../../app')
 
 const headers = {
   'Cache-Control': 'no-cache',
@@ -115,7 +116,15 @@ exports.route = {
         }
       }))
 
-      return result.reduce((a, b) => a.concat(b), [])
+      let now = +moment()
+      let currentTerm = Object.keys(config.term).find(k => {
+        let startMoment = moment(config.term[k], 'YYYY-M-D')
+        let startDate = +startMoment
+        let endDate = +startMoment.add(/-1$/.test(k) ? 4 : 18, 'weeks')
+        return startDate <= now && endDate > now
+      })
+
+      return result.reduce((a, b) => a.concat(b), []).filter(k => k.startTime >= currentTerm.startDate)
     })
   }
 }
