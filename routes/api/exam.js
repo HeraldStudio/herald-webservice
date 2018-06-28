@@ -21,6 +21,8 @@ exports.route = {
       )
 
       let $ = cheerio.load(res.data)
+      let now = +moment()
+
       return $('#table2 tr').toArray().slice(1).map(tr => {
         let [semester, campus, courseName, courseType, teacherName, time, location, duration]
           = $(tr).find('td').toArray().slice(1).map(td => $(td).text().trim())
@@ -30,7 +32,7 @@ exports.route = {
         let endTime = +startMoment.add(duration, 'minutes')
 
         return {semester, campus, courseName, courseType, teacherName, startTime, endTime, location, duration}
-      })
+      }).filter(k => k.endTime > now) // 防止个别考生考试开始了还没找到考场🤔
     })
   }
 }
