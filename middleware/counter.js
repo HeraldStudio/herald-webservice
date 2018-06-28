@@ -12,7 +12,7 @@ const spinner = ora({
   }
 })
 
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'profile') {
   spinner.start()
 }
 
@@ -26,7 +26,7 @@ for (let key in console) {
   [console['_' + key], console[key]] = [console[key], function() {
     spinner.stop()
     console['_' + key].apply(undefined, arguments)
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'profile') {
       spinner.start()
     }
   }]
