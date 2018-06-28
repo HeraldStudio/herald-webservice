@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "yarn; NODE_ENV=development nodemon app.js",
-    "start": "yarn; NODE_ENV=production nodemon app.js"
+    "start": "yarn; NODE_ENV=production nodemon app.js",
+    "profile": "yarn; NODE_ENV=profile nodemon app.js"
   },
   "dependencies": {
     "axios": "^0.17.1",

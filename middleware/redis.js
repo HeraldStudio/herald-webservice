@@ -73,10 +73,24 @@ const cache = {
   async set(key, value) {
     let time = +moment().unix()
     client.set(key, JSON.stringify({ value, time }))
+    //Profile
+    if (process.env.NODE_ENV === 'profile') {
+      let profileEnd = +moment().unix()
+      console.log(`[Profile] 缓存写入 ${profileEnd - time} ms`)
+    }
   },
   async get(key, ttl) {
     if (key && ttl) {
+      // Profile
+      let profileStart = null
+      if (process.env.NODE_ENV === 'profile') {
+        profileStart = +moment().unix()
+      }
       let got = JSON.parse(await client.getAsync(key))
+      if (process.env.NODE_ENV === 'profile') {
+        let profileEnd = +moment().unix()
+        console.log(`[Profile] 缓存读取 ${profileEnd - profileStart} ms`)
+      }
       if (got) {
         let expired = +moment().unix() - got.time >= ttl
         return [got.value, expired]
