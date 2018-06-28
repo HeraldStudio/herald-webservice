@@ -72,11 +72,12 @@ client.on('error', e => {
 const cache = {
   async set(key, value) {
     let time = +moment().unix()
+    let profileStart = +moment()
     client.set(key, JSON.stringify({ value, time }))
     //Profile
     if (process.env.NODE_ENV === 'profile') {
-      let profileEnd = +moment().unix()
-      console.log(`[Profile] 缓存写入 ${profileEnd - time} ms`)
+      let profileEnd = +moment()
+      console.log(`[Profile] 缓存写入 ${profileEnd - profileStart} ms`)
     }
   },
   async get(key, ttl) {
@@ -84,11 +85,11 @@ const cache = {
       // Profile
       let profileStart = null
       if (process.env.NODE_ENV === 'profile') {
-        profileStart = +moment().unix()
+        profileStart = +moment()
       }
       let got = JSON.parse(await client.getAsync(key))
       if (process.env.NODE_ENV === 'profile') {
-        let profileEnd = +moment().unix()
+        let profileEnd = +moment()
         console.log(`[Profile] 缓存读取 ${profileEnd - profileStart} ms`)
       }
       if (got) {
