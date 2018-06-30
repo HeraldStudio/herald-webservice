@@ -25,7 +25,17 @@ const redis = require('redis')
 const bluebird = require('bluebird')
 bluebird.promisifyAll(redis.RedisClient.prototype)
 
-let client = redis.createClient()
+const client = (() => {
+  try {
+    let secret = require('./redis-secret.json')
+    let redisClient = redis.createClient(secret.port, secret.host)
+    redisClient.auth(secret.password)
+    return redisClient
+  } catch (e) {
+    return redis.createClient()
+  }
+})()
+
 client.batchDelete = async (keyword) => {
   await client.evalAsync(`for _,k in ipairs(redis.call('keys','*${keyword}*')) do redis.call('del',k) end`, '0')
 }
