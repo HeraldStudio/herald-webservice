@@ -31,7 +31,7 @@ exports.route = {
         let currentTerm = Object.keys(config.term).find(k => {
           let startMoment = moment(config.term[k], 'YYYY-M-D')
           let startDate = +startMoment
-          let endDate = +startMoment.add(/-1$/.test(k) ? 4 : 18, 'weeks')
+          let endDate = +startMoment.add(/-1$/.test(k) ? 4 : 24, 'weeks')
           return startDate <= now && endDate > now
         })
         let prevYearCurrentTerm = currentTerm.split('-').map(Number).map((k, i) => i < 2 ? k - 1 : k).join('-')
