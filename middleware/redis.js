@@ -25,7 +25,7 @@ const redis = require('redis')
 const bluebird = require('bluebird')
 bluebird.promisifyAll(redis.RedisClient.prototype)
 
-const client = (() => {
+let client = (() => {
   try {
     let secret = require('./redis-secret.json')
     let redisClient = redis.createClient(secret.port, secret.host)
