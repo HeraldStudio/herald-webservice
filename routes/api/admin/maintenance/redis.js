@@ -14,7 +14,8 @@ exports.route = {
     if (!this.admin || !this.admin.maintenance) {
       throw 403
     }
-    let { stdout } = await exec('redis-cli info')
+    let secret = require('./redis-secret.json')
+    let { stdout } = await exec(`redis-cli -h ${secret.host} -p ${secret.port} -a ${secret.password} info`)
     let result = {}
 
     // 将 redis 状态解析为对象
