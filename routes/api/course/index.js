@@ -18,7 +18,7 @@ exports.route = {
 
       // 若为查下学期，计算下学期的学期号
       if (term === 'next') {
-        term = this.term.next
+        term = this.term.next.name
       }
 
       // 如果是查自己的未来学期，自动过滤自己的已修课
