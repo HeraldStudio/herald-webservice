@@ -60,11 +60,7 @@ exports.route = {
     // 剩余天数单独缓存，防止受跑操上游故障影响
     let remainDays = await this.publicCache('remainDays', '1h', async () => {
       let now = moment()
-      let beginOfTerm = Object.keys(config.term)
-        .filter(k => /-[23]$/.test(k))     // 取两个长学期
-        .map(k => moment(config.term[k], 'YYYY-M-D'))  // 转为学期开始时间戳
-        // 去掉未开始和已结束的，留下一个学期，或者 undefined（没有符合条件的学期）
-        .find(k => k <= now && k.clone().add(16, 'weeks') > now)
+      let beginOfTerm = this.term.current && this.term.current.isLong && moment(this.term.current.startDate)
 
       return beginOfTerm ? (
         Array(16 * 7).fill() // 生成当前学期每一天的下标数组

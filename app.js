@@ -92,9 +92,11 @@ app.use(require('./middleware/admin'))
 app.use(require('./middleware/redis'))
 // 7. guard 上游可用性预判断 API，需要依赖缓存中间件
 app.use(require('./middleware/guard'))
-// 8. Slack API
+// 8. 学期信息 term API
+app.use(require('./middleware/term'))
+// 9. Slack API
 app.use(require('./middleware/slack').middleware)
-// 9. 生产环境下验证码识别
+// 10. 生产环境下验证码识别
 if (process.env.NODE_ENV === 'production') {
   app.use(require('./middleware/captcha')({
     python: '/usr/local/bin/anaconda3/envs/captcha/bin/python'
