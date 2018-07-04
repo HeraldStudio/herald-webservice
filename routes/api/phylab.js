@@ -116,15 +116,7 @@ exports.route = {
         }
       }))
 
-      let now = +moment()
-      let currentTerm = Object.keys(config.term).find(k => {
-        let startMoment = moment(config.term[k], 'YYYY-M-D')
-        let startDate = +startMoment
-        let endDate = +startMoment.add(/-1$/.test(k) ? 4 : 18, 'weeks')
-        return startDate <= now && endDate > now
-      })
-
-      return result.reduce((a, b) => a.concat(b), []).filter(k => k.startTime >= currentTerm.startDate)
+      return result.reduce((a, b) => a.concat(b), []).filter(k => k.startTime >= (this.term.current || this.term.prev).startDate)
     })
   }
 }

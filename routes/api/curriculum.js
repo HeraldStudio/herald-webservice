@@ -16,7 +16,7 @@ exports.route = {
   *
   * ## 返回格式举例：
   * {
-  *   term: { code, maxWeek, startDate? } // 查不到开学日期时只有前两个
+  *   term: { name, maxWeek, startDate?, endDate?, isCurrent?, isNext?, isPrev? } // 查不到开学日期时只有前两个
   *   user: { cardnum, schoolnum, name, collegeId, collegeName, majorId, majorName }
   *   curriculum: [
   *     { // 浮动课程只有前五个属性
@@ -53,12 +53,7 @@ exports.route = {
   **/
   async get({ term }) {
     let now = +moment()
-    let currentTerm = Object.keys(config.term).find(k => {
-      let startMoment = moment(config.term[k], 'YYYY-M-D')
-      let startDate = +startMoment
-      let endDate = +startMoment.add(/-1$/.test(k) ? 4 : 18, 'weeks')
-      return startDate <= now && endDate > now
-    })
+    let currentTerm = (this.term.current || this.term.next).name
 
     // 若为查询未来学期，可能是在选课过程中，需要减少缓存时间
     return await this.userCache(term && term > currentTerm ? '1m+' : '1d+', async () => {
@@ -98,10 +93,9 @@ exports.route = {
             term = /<font class="Context_title">[\s\S]*?(\d{2}-\d{2}-\d)[\s\S]*?<\/font>/im.exec(res.data)[1]
           } catch (e) { throw '解析失败' }
 
-          // 获取开学日期
-          term = {
-            code: term,
-            startDate: config.term[term] ? +moment(config.term[term], 'YYYY-M-D') : null
+          // 用 term 字符串从 term 中间件中拿到学期对象，这里 term 从字符串类型变成了 Object
+          term = this.term.list.find(k => k.name === term) || {
+            name: term
           }
 
           // 初始化侧边栏和课表解析结果
@@ -219,14 +213,14 @@ exports.route = {
           term.maxWeek = curriculum.map(k => k.endWeek).reduce((a, b) => a > b ? a : b, 0)
 
           // 为了兼容丁家桥表示法，本科生和教师碰到秋季学期超过 16 周的课表，将开学日期前推四周
-          if (term.maxWeek > 16 && !/^22/.test(cardnum) && /-2$/.test(term.code)) {
+          if (term.maxWeek > 16 && !/^22/.test(cardnum) && /-2$/.test(term.name)) {
             term.startDate -= moment.duration(4, 'weeks')
           }
 
         } while ( // 为了兼容丁家桥表示法
           !curriculum.length && // 如果没有课程
-          /-1$/.test(term.code) && // 而且当前查询的是短学期
-          (term = term.code.replace(/-1$/, '-2')) // 则改为查询秋季学期，重新执行
+          /-1$/.test(term.name) && // 而且当前查询的是短学期
+          (term = term.name.replace(/-1$/, '-2')) // 则改为查询秋季学期，重新执行
         )
       } else { // 研究生版
         await this.useAuthCookie()
@@ -245,10 +239,9 @@ exports.route = {
             .find(k => re.test(k.text()))
 
           if (!option) {
-            // 构造学期信息
-            term = {
-              code: term,
-              startDate: config.term[term] ? +moment(config.term[term], 'YYYY-M-D') : null
+            // 用 term 字符串从 term 中间件中拿到学期对象，这里 term 从字符串类型变成了 Object
+            term = this.term.list.find(k => k.name === term) || {
+              name: term
             }
             return { term, curriculum: [] }
           }
@@ -271,14 +264,13 @@ exports.route = {
         term = $('option[selected]').text().trim().replace(/\d{2}(\d{2})/g, '$1')
           .replace('秋学期', '-2').replace('春学期', '-3')
 
-        // 构造学期信息
-        term = {
-          code: term,
-          startDate: config.term[term] ? +moment(config.term[term], 'YYYY-M-D') : null
+        // 用 term 字符串从 term 中间件中拿到学期对象，这里 term 从字符串类型变成了 Object
+        term = this.term.list.find(k => k.name === term) || {
+          name: term
         }
 
         // 研究生无短学期，秋季学期提前两周开始
-        if (/-2$/.test(term.code)) {
+        if (/-2$/.test(term.name)) {
           term.startDate -= moment.duration(2, 'weeks')
         }
 

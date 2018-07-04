@@ -115,14 +115,14 @@ module.exports = async (ctx, next) => {
           day: startDate.date()
         }
 
-        ctx.body = { content, term: term.code, code: 200, sidebar }
+        ctx.body = { content, term: term.name, code: 200, sidebar }
 
       } else if (ctx.path === '/api/sidebar') {
         ctx.path = '/api/curriculum'
         await next()
         let sidebar = []
         let weekdays = 'Mon,Tue,Wed,Thu,Fri,Sat,Sun'.split(',')
-        let { term, curriculum } = ctx.body
+        let { curriculum } = ctx.body
         curriculum.map(k => {
           if (!sidebar.find(j =>
             j.lecturer === k.teacherName
@@ -409,7 +409,7 @@ module.exports = async (ctx, next) => {
 
       } else if (ctx.path === '/api/term') {
         await next()
-        let content = ctx.body.sort((a, b) => b.current - a.current).map(k => k.name)
+        let content = ctx.body.list.sort((a, b) => b.current - a.current).map(k => k.name)
         ctx.body = { content, code: 200 }
 
       } else if (ctx.path === '/api/user') {

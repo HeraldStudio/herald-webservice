@@ -15,31 +15,15 @@ exports.route = {
     let cache = (this.user.isLogin ? this.userCache : this.publicCache).bind(this)
     return await cache('1h+', async () => {
       let schoolnum = querySchoolnum || this.user.schoolnum
-      
-      let now = +moment()
-      let currentTerm = Object.keys(config.term).find(k => {
-        let startMoment = moment(config.term[k], 'YYYY-M-D')
-        let startDate = +startMoment
-        let endDate = +startMoment.add(/-1$/.test(k) ? 4 : 18, 'weeks')
-        return startDate <= now && endDate > now
-      })
-
-      let courseTaken = {}
 
       // 若为查下学期，计算下学期的学期号
       if (term === 'next') {
-        let [startYear, endYear, semester] = currentTerm.split('-').map(Number)
-        semester++
-        if (semester > 3) {
-          semester = 1
-          startYear++
-          endYear++
-        }
-        term = [startYear, endYear, semester].join('-')
+        term = this.term.next
       }
 
       // 如果是查自己的未来学期，自动过滤自己的已修课
-      if (this.user.isLogin && !querySchoolnum && term > currentTerm) {
+      let courseTaken = {}
+      if (this.user.isLogin && !querySchoolnum && term > (this.term.current || this.term.prev).name) {
         await this.useAuthCookie()
 
         // 获取用户已修课程的 id 用于过滤，遇到已修课程直接排除
