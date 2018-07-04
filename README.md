@@ -190,7 +190,7 @@ exports.route = {
 
 上述模块将对已登录用户和游客显示不同的信息。若不对 `this.user.isLogin` 进行判断，直接取 `this.user` 中的其它属性，系统将默认拒绝游客访问此功能。
 
-#### 获取学期
+### 获取学期
 
 通过 `this.term` 可以得到当前 `config` 中已知的所有学期列表 `this.term.list`，并可以直接获得当前学期 `this.term.current`、上一学期 `this.term.prev`、下一学期 `this.term.next`。
 
