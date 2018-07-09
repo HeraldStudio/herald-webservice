@@ -181,7 +181,7 @@ exports.route = {
         absolute: true,
         baseUri: typeObj.baseUrl,
         inline: true
-      }).convert($(typeObj.contentSelector).html()).replace(/\*\*/g, ' ** ')
+      }).convert($(typeObj.contentSelector || 'body').html()).replace(/\*\*/g, ' ** ')
     } else if (nid) {
       let notice = await db.notice.find({ nid }, 1)
       return `# ${notice.title}\n\n${notice.content}`
