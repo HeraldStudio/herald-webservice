@@ -104,8 +104,13 @@ exports.route = {
             }
           } catch (e) {}
           
-          // isFirstPassed 留给后面计算
-          return { cid, semester, courseName, courseType, credit, score, equivalentScore, isPassed, isFirstPassed: false, scoreType }
+          // isFirstPassed 和 isHighestPassed 留给后面计算
+          return {
+            cid, semester,
+            courseName, courseType, credit, score, equivalentScore,
+            isPassed, isFirstPassed: false, isHighestPassed: false,
+            scoreType
+          }
         })))
 
         let [gpa, gpaBeforeMakeup, year, calculationTime]
@@ -114,7 +119,7 @@ exports.route = {
         })
         
         // 计算各门课程是否首次通过
-        // 用于判断课程是否获得学分
+        // 用于判断课程是否获得学分，以及用于前端判断课程是否默认计入校内绩点估算
         // 注意 reverse 是变更方法，需要先 slice 出来防止改变原数组的顺序
         let courseHasPassed = {}
         let achievedCredits = 0
@@ -127,6 +132,16 @@ exports.route = {
             achievedCredits += k.credit
           }
         })
+
+        // 计算各门课程是否最高一次通过
+        // 用于前端判断课程是否默认计入出国绩点估算
+        let courseHighestPassed = {}
+        detail.map(k => {
+          if (k.isPassed && (!courseHighestPassed[k.cid] || k.equivalentScore > courseHighestPassed[k.cid].equivalentScore)) {
+            courseHighestPassed[k.cid] = k
+          }
+        })
+        Object.values(courseHighestPassed).map(k => k.isHighestPassed = true)
         
         // 按学期分组
         detail = detail.reduce((a, b) => {
