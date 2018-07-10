@@ -2,6 +2,22 @@ const cheerio = require('cheerio')
 const db = require('../../database/course')
 const { config } = require('../../app')
 
+// 折合百分制成绩（本科生用）
+const calculateEquivalentScore = score => {
+  if (/优/.test(score)) {
+    score = 95
+  } else if (/良/.test(score)) {
+    score = 85
+  } else if (/中/.test(score)) {
+    score = 75
+  } else if (/不及格/.test(score)) {
+    score = 0
+  } else if (/及格|通过/.test(score)) {
+    score = 60
+  }
+  return parseFloat(score) || 0
+}
+
 exports.route = {
 
   /**
@@ -37,27 +53,19 @@ exports.route = {
             = $(tr).find('td').toArray().slice(1).map(td => {
               return $(td).text().trim().replace(/&[0-9A-Za-z];/g, '')
             })
+            
+          // 折合百分制成绩
+          let equivalentScore = calculateEquivalentScore(score)
+          
+          // 是否通过
+          // 获得学分的条件是首次通过，这里先计算是否通过，留给最后一起计算是否首次通过
+          let isPassed = equivalentScore >= 60
 
-          // 学分解析为浮点数；成绩可能为中文，不作解析
+          // 学分解析为浮点数
           credit = parseFloat(credit)
 
           // 不早于去年当前学期的数据，进行课程统计
           if (semester >= prevYearCurrentTerm) try {
-            let numberScore = parseFloat(score) || 0
-            
-            if (!numberScore) {
-              if (/优/.test(score)) {
-                numberScore = 95
-              } else if (/良/.test(score)) {
-                numberScore = 85
-              } else if (/中/.test(score)) {
-                numberScore = 75
-              } else if (/不及格/.test(score)) {
-                numberScore = 0
-              } else if (/及格/.test(score)) {
-                numberScore = 60
-              }
-            }
             let course = await db.course.find({ cid }, 1)
             if (!course) {
               await db.course.insert(course = { cid, courseName, courseType, credit, avgScore: 0, sampleCount: 0, updateTime: 0 })
@@ -68,7 +76,7 @@ exports.route = {
             let sampleCount = course.sampleCount + 1
 
             // 三种情况：自己有分，原来也有均分，重新取平均；自己有分，原来没有均分，取自己的分；自己没分，不变
-            let avgScore = numberScore ? course.avgScore ? (course.avgScore * course.sampleCount + numberScore) / sampleCount : numberScore : course.avgScore
+            let avgScore = equivalentScore ? course.avgScore ? (course.avgScore * course.sampleCount + equivalentScore) / sampleCount : equivalentScore : course.avgScore
             await db.course.update({ cid }, { courseName, courseType, credit, avgScore, sampleCount, updateTime: +moment() })
 
             // 课程学期信息插入课程学期表关系表
@@ -95,9 +103,33 @@ exports.route = {
               }
             }
           } catch (e) {}
-          return { cid, semester, courseName, courseType, credit, score, scoreType }
+          
+          // isFirstPassed 留给后面计算
+          return { cid, semester, courseName, courseType, credit, score, equivalentScore, isPassed, isFirstPassed: false, scoreType }
+        })))
 
-        }))).reduce((a, b) => { // 按学期分组
+        let [gpa, gpaBeforeMakeup, year, calculationTime]
+          = $('#table4 tr').eq(1).find('td').toArray().map(td => {
+          return $(td).text().trim().replace(/&[0-9A-Za-z];/g, '')
+        })
+        
+        // 计算各门课程是否首次通过
+        // 用于判断课程是否获得学分
+        // 注意 reverse 是变更方法，需要先 slice 出来防止改变原数组的顺序
+        let courseHasPassed = {}
+        let achievedCredits = 0
+        detail.slice().reverse().map(k => {
+          // 赋值后判断如果是首次通过
+          if ((k.isFirstPassed = k.isPassed && !courseHasPassed[k.cid])) {
+            courseHasPassed[k.cid] = true
+            
+            // 更新已获得学分数
+            achievedCredits += k.credit
+          }
+        })
+        
+        // 按学期分组
+        detail = detail.reduce((a, b) => {
           let semester = b.semester
           delete b.semester
           if (!a.length || a.slice(-1)[0].semester !== semester) {
@@ -108,14 +140,9 @@ exports.route = {
           }
         }, [])
 
-        let [gpa, gpaBeforeMakeup, year, calculationTime]
-          = $('#table4 tr').eq(1).find('td').toArray().map(td => {
-          return $(td).text().trim().replace(/&[0-9A-Za-z];/g, '')
-        })
-
         // 时间解析为时间戳
         calculationTime = calculationTime ? +moment(calculationTime) : null
-        return { gpa, gpaBeforeMakeup, year, calculationTime, detail }
+        return { gpa, gpaBeforeMakeup, achievedCredits, year, calculationTime, detail }
 
       } else if (/^22/.test(cardnum)) { // 研究生
         let headers = { 'Referer': 'http://121.248.63.139/nstudent/index.aspx' }
