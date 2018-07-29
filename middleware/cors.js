@@ -1,5 +1,6 @@
 // 允许的第三方前端域名，精确匹配
 const allowDomains = [
+  /\.myseu\.cn$/,
   /^myseu\.cn$/,
   /^app\.heraldstudio\.com$/,
   /^www\.heraldstudio\.com$/,
