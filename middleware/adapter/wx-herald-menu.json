@@ -9,11 +9,9 @@
       "name": "小功能",
       "sub_button": [
         {
-          "name": "小程序",
-          "type": "miniprogram",
-          "url": "https://myseu.cn",
-          "appid": "wx3c1c058fd07462d0",
-          "pagepath": "pages/index/index"
+          "name": "新生指引",
+          "type": "view",
+          "url": "https://myseu.cn/#/intro"
         },
         {
           "name": "一卡通充值",
