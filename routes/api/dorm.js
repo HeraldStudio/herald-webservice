@@ -7,6 +7,7 @@ exports.route = {
     let res = await this.get(`http://hq.urp.seu.edu.cn/epstar/app/template.jsp?mainobj=SWMS/SSGLZXT/SSAP/V_SS_SSXXST&tfile=XSCKMB/BDTAG&filter=V_SS_SSXXST:XH='${this.user.cardnum}'`)
     let $ = cheerio.load(res.data)
     return {
+      campus: $('#XQ').text().trim(),
       area: $('#SSQ').text().trim(),
       building: $('#SSL').text().trim(),
       room: $('#FJH').text().trim(),

@@ -299,11 +299,7 @@ const handler = {
     if (building) {
       return [
         `🏠 你的宿舍：`,
-        ``,
-        `宿舍区：${area}`,
-        `宿舍楼：${building}`,
-        `房间号：${room}`,
-        `床位号：${bed}`
+        `${campus} ${building} ${room} ${bed}号床`
       ].join('\n').padd()
     }
     return `🏠 你暂时没有分配宿舍`
