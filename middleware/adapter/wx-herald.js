@@ -291,6 +291,17 @@ const handler = {
     ].filter(k => k).join('\n\n').padd()
   },
 
+  async '宿舍|寝室|公寓' () {
+    this.path = '/api/dorm'
+    this.method = 'GET'
+    await this.next()
+    let { building, room, bed } = this.body
+    if (building) {
+      return `🏠 你的宿舍：${building} ${room}，床位号：${bed}`
+    }
+    return `🏠 你暂时没有分配宿舍`
+  },
+
   default: `🤔 命令无法识别
 
     💡 回复 菜单 查看功能列表
