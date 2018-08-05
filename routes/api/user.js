@@ -21,6 +21,7 @@ exports.route = {
     if (/^23/.test(cardnum)) {
       identity = '博士生'
     }
+    // 快速判断是否是新生
     let isNewbie = moment().format('YYYY-MM') < `20${cardnum.substr(3, 2)}-09`
     return { name, cardnum, schoolnum, identity, isNewbie }
   }
