@@ -295,7 +295,7 @@ const handler = {
     this.path = '/api/dorm'
     this.method = 'GET'
     await this.next()
-    let { area, building, room, bed } = this.body
+    let { campus, area, building, room, bed } = this.body
     if (building) {
       return [
         `🏠 你的宿舍：`,
