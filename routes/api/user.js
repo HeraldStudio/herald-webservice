@@ -7,6 +7,7 @@ exports.route = {
   * 用户基本信息查询（静态版）
   **/
   async get () {
+    await this.useAuthCookie() // 更新相关信息
     let { name, cardnum, schoolnum } = this.user
     let identity
     if (/^1/.test(cardnum)) {
