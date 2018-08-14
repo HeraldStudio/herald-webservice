@@ -16,3 +16,6 @@ spider:
   enable:       true
   port:         49034
   heartCycle:   40000
+version:
+  hybrid-kernel: 1
+  andorid: 1
