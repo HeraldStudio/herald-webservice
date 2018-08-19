@@ -36,12 +36,22 @@ module.exports = async (ctx, cardnum, password) => {
   let schoolnum = ''
 
   // 解析学号（本科生 Only）
+
   if (/^21/.test(cardnum)) {
     schoolnum = /class="portlet-table-even">(.*)<\//im
-      .exec(res.data) || []
-    schoolnum = schoolnum[1] || ''
-    schoolnum = schoolnum.replace(/&[0-9a-zA-Z]+;/g, '')
+    .exec(res.data) || []
+  schoolnum = schoolnum[1] || ''
+  schoolnum = schoolnum.replace(/&[0-9a-zA-Z]+;/g, '')
   }
+
+  if (/^21318/.test(cardnum)) {
+    let res = await ctx.get('http://yx.urp.seu.edu.cn/alone.portal?.pen=pe48')
+    schoolnum = /<th>\s*学号\s*<\/th>\s*<td>\s*([0-9A-Za-z]+)/im.exec(res.data) || []
+    schoolnum = schoolnum[1] || ''
+  } 
+
+  
+
 
   // 截取学号（研/博 Only）
   if (/^22/.test(cardnum)) {

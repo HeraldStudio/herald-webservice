@@ -96,7 +96,7 @@ module.exports = async (ctx, next) => {
         ctx.body = { content, code: 200 }
       }
     } else if (ctx.path === '/download') {
-      ctx.redirect('http://herald-app.oss-cn-shanghai.aliyuncs.com/app-release.apk')
+      ctx.redirect('https://static.myseu.cn/herald-v1-final.apk')
     } else if (ctx.path.indexOf('/counter/') === 0) {
       ctx.body = ''
     } else if (ctx.path === '/charge') {
