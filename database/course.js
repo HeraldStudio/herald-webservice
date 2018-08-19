@@ -16,19 +16,22 @@ db.course = {
   updateTime:  'int not null',     // 最后更新时间
 }
 
-// 每天清理六个月不更新的课
+// 每天清理两个月不更新的课
 setInterval(() => {
-  db.course.remove({ updateTime: { $lt: +moment().subtract(6, 'months') }})
+  let criteria = { updateTime: { $lt: +moment().subtract(2, 'months') }}
+  db.course.remove(criteria)
+  db.courseSemester.remove(criteria)
 }, +moment.duration(1, 'day'))
 
 // 各课程的上课学期统计
 // 只计算首修
 // 注：由于转专业相关信息不足，可能存在转专业同学在转后专业产生了转前专业课程的情况，需要在查询时过滤样本容量低的数据
 db.courseSemester = {
-  cid:      'text not null',  // 课程编号
-  major:    'text not null',  // 上课专业号（学号前三位）
-  grade:    'int not null',   // 上课学年（1 大一 / 2 大二 / 3 大三 / 4 大四）
-  semester: 'int not null'    // 上课学期（1 短学期 / 2 秋学期 / 3 春学期）
+  cid:        'text not null',  // 课程编号
+  major:      'text not null',  // 上课专业号（学号前三位）
+  grade:      'int not null',   // 上课学年（1 大一 / 2 大二 / 3 大三 / 4 大四）
+  semester:   'int not null',   // 上课学期（1 短学期 / 2 秋学期 / 3 春学期）
+  updateTime: 'int not null'    // 最后更新时间
 }
 
 // 后三个字段一起加索引，通用性强一些

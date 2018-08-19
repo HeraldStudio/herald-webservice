@@ -99,7 +99,10 @@ exports.route = {
               let record = { cid, major, grade, semester: semesterIndex }
               let courseSemester = await db.courseSemester.find(record, 1)
               if (!courseSemester) {
-                await db.courseSemester.insert(record, 1)
+                record.updateTime = +moment()
+                await db.courseSemester.insert(record)
+              } else {
+                await db.courseSemester.update(record, { updateTime: +moment() })
               }
             }
           } catch (e) {}
