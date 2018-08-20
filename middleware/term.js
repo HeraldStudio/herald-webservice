@@ -18,24 +18,7 @@
         "isPrev": true,
         "isLong": true
       },
-      {
-        "name": "18-19-1",
-        "startDate": 1534694400000,
-        "endDate": 1537113600000,
-        "isCurrent": false,
-        "isNext": true,
-        "isPrev": false,
-        "isLong": false
-      },
-      {
-        "name": "18-19-2",
-        "startDate": 1537113600000,
-        "endDate": 1548000000000,
-        "isCurrent": false,
-        "isNext": false,
-        "isPrev": false,
-        "isLong": true
-      }
+      ...
     ],
     "next": {
       "name": "18-19-1",
@@ -81,10 +64,8 @@ module.exports = async (ctx, next) => {
       let term = {
         list: terms.map(k => {
 
-          // 将每一项变成原 terms 中项的原型链下游，防止对他们属性的改动影响到原 terms 中项的属性
-          // 去掉这一句，在路由处理程序中所有对学期对象的属性进行的修改都会污染 terms
-          // 使用这种方法代替深拷贝，同时也保证了 terms 不被修改
-          k = Object.create(k)
+          // 由于 k 中的属性的都是基本类型，这里可以用单层深拷贝代替深拷贝，将 k 中的属性复制一份到新对象，防止修改 k 的属性
+          k = Object.assign({}, k)
 
           k.isCurrent = k.startDate <= now && k.endDate > now
           if (k.isCurrent) {
