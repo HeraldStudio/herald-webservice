@@ -98,6 +98,11 @@ module.exports = async (ctx, next) => {
           return k
         })
       }
+      console.log('--------debug--------')
+      console.log('next', next)
+      console.log('prev', prev)
+      console.log('current', current)
+      console.log('--------!debug--------')
       next.isNext = true
       prev.isPrev = true
       term.next = next
