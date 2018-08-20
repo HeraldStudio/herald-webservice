@@ -61,6 +61,7 @@
 const { config } = require('../app')
 
 // 先算好静态的学期框架，然后在请求内部只计算跟当前时间有关的东西
+// 注意这个数组不能在运行时被修改，需要用一定的机制来保证，下面 get() 中会实现这种机制
 const terms = Object.keys(config.term).map(k => {
   let startMoment = moment(config.term[k], 'YYYY-M-D')
   let startDate = +startMoment
@@ -79,6 +80,12 @@ module.exports = async (ctx, next) => {
       // 注意，每次请求 ctx.term 时都会执行下面的计算，请务必注意全局 term 对象的可重用问题以及性能问题
       let term = {
         list: terms.map(k => {
+
+          // 将每一项变成原 terms 中项的原型链下游，防止对他们属性的改动影响到原 terms 中项的属性
+          // 去掉这一句，在路由处理程序中所有对学期对象的属性进行的修改都会污染 terms
+          // 使用这种方法代替深拷贝，同时也保证了 terms 不被修改
+          k = Object.create(k)
+
           k.isCurrent = k.startDate <= now && k.endDate > now
           if (k.isCurrent) {
             current = k
