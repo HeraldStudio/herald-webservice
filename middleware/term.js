@@ -87,15 +87,15 @@ module.exports = async (ctx, next) => {
         })
       }
       //！ hotfix
-      next = {
-        name: '18-19-2',
-        startDate: 1537113600000,
-        endDate: 1548000000000,
-        isCurrent: false,
-        isNext: false,
-        isPrev: false,
-        isLong: true
-      }
+      // next = {
+      //   name: '18-19-2',
+      //   startDate: 1537113600000,
+      //   endDate: 1548000000000,
+      //   isCurrent: false,
+      //   isNext: false,
+      //   isPrev: false,
+      //   isLong: true
+      // }
       next.isNext = true
       prev.isPrev = true
       term.next = next
