@@ -336,11 +336,19 @@ const handler = {
 
 // 分割用户指令并进入相应 handler 函数中
 const middleware = wechat(config).middleware(async (message, ctx) => {
-  let [cmd, ...args] = message.Content.trim().split(/\s+/g)
+  
+  let han
+
+  if (message.Content) {
+    let [cmd, ...args] = message.Content.trim().split(/\s+/g)
+    han = handler[Object.keys(handler).find(k => new RegExp(k, 'i').test(cmd)) || 'default']
+  } else {
+    han = 'default'
+  }
+
   ctx.request.headers.token = message.FromUserName
   ctx.message = message
-  
-  let han = handler[Object.keys(handler).find(k => new RegExp(k, 'i').test(cmd)) || 'default']
+
   if (han instanceof Function) {
     let originalPath = ctx.path
     let originalMethod = ctx.method
