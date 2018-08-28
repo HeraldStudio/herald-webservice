@@ -336,14 +336,15 @@ const handler = {
 
 // 分割用户指令并进入相应 handler 函数中
 const middleware = wechat(config).middleware(async (message, ctx) => {
-  
-  let han
 
+  let han, args
   if (message.Content) {
-    let [cmd, ...args] = message.Content.trim().split(/\s+/g)
+    let [cmd, ...tmpArgs] = message.Content.trim().split(/\s+/g)
     han = handler[Object.keys(handler).find(k => new RegExp(k, 'i').test(cmd)) || 'default']
+    args = tmpArgs
   } else {
     han = 'default'
+    args = []
   }
 
   ctx.request.headers.token = message.FromUserName
