@@ -68,6 +68,7 @@ exports.route = {
       // 新选课系统-目前使用18级本科生数据进行测试
       if (/^21318/.test(cardnum) && term === '18-19-2') {
         term = this.term.list.find( t => t.name === '18-19-2')
+        term.maxWeek = 16
         let attp = 0
         let token
         // 进行登录尝试，验证码有可能识别失败/识别错误。
