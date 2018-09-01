@@ -1,11 +1,12 @@
 const cheerio = require('cheerio')
 const { config } = require('../../app')
+const { recognizeCaptcha } = require('../../sdk/captcha')
 
 // 每节课的开始时间 (时 * 60 + 分)
 // 注：本科生和研究生的时间表完全一样。
 const courseStartTime
   = '8:00|8:50|9:50|10:40|11:30|14:00|14:50|15:50|16:40|17:30|18:30|19:20|20:10'
-  .split('|').map(k => k.split(':').map(Number).reduce((a, b) => a * 60 + b, 0))
+    .split('|').map(k => k.split(':').map(Number).reduce((a, b) => a * 60 + b, 0))
 
 exports.route = {
 
@@ -56,15 +57,60 @@ exports.route = {
     let currentTerm = (this.term.current || this.term.next).name
 
     // 若为查询未来学期，可能是在选课过程中，需要减少缓存时间
-    return await this.userCache(term && term > currentTerm ? '1m+' : '1d+', async () => {
+    return await this.userCache(term && term > currentTerm ? '1s+' : '1s+', async () => {
 
       // 先检查可用性，不可用直接抛异常或取缓存
       this.guard('http://xk.urp.seu.edu.cn/jw_service/service/lookCurriculum.action')
 
-      let { cardnum } = this.user
+      let { cardnum, password } = this.user
       let curriculum = []
 
-      // 本科生/教师版
+      // 18级本科生
+      // 新选课系统
+      if (/^21318/.test(cardnum)) {
+
+        let attp = 0
+        let token
+        if (attp >= 10) {
+          // 最大尝试次数10次若还不成功，放弃本次请求
+          return 400
+        }
+
+        // 进行登录尝试，验证码有可能识别失败/识别错误。
+        while (true) {
+          // 获取验证码vcode
+          attp++
+          let res = await this.get('http://newxk.urp.seu.edu.cn/xsxkapp/sys/xsxkapp/student/4/vcode.do', { timestamp: now })
+          let vtoken = res.data.data.token // vtoken后面登录的时候还要用
+          console.log(vtoken)
+          // 获取验证码
+          let headers = {
+            Accept: 'image/webp,image/apng,image/*,*/*;q=0.8',
+            Referer: 'http://newxk.urp.seu.edu.cn/xsxkapp/sys/xsxkapp/*default/index.do'
+          }
+          let captchaCode = await this.get('http://newxk.urp.seu.edu.cn/xsxkapp/sys/xsxkapp/student/vcode/image.do?vtoken=' + vtoken)
+          let vcode = await recognizeCaptcha(captchaCode.data, vtoken)
+          if (vcode) {
+            try {
+              let loginRes = await this.get(`http://newxk.urp.seu.edu.cn/xsxkapp/sys/xsxkapp/student/check/login.do?timestrap=${now}&loginName=${cardnum}&loginPwd=${password}&verifyCode=${vcode}&vtoken=${vtoken}`)
+              if (loginRes.data.msg === '登录成功') {
+                token = loginRes.data.data.token
+                break
+              }
+            } catch (e) { console.log(e) }
+          }
+        };
+        console.log('登录成功')
+        // 执行到此处即登录新选课系统成功，开始抓取课表数据
+        now = +moment()
+        let headers = { token }
+        let rawCurriculum = await this.get(`http://newxk.urp.seu.edu.cn/xsxkapp/sys/xsxkapp/elective/teachingTime.do?timestamp=${now}&studentCode=${cardnum}`,{ headers })
+        console.log(rawCurriculum)
+
+        
+      }
+
+      // 非18级本科生/教师版
       if (!/^22/.test(cardnum)) {
         // 为了兼容丁家桥格式，短学期没有课的时候需要自动查询长学期
         // 为此不得已使用了一个循环
@@ -118,7 +164,7 @@ exports.route = {
                 // 各个单元格是: (0)序号，(1)课程名称，(2)被注释掉的老师名称，(3)老师名称，(4)课程编号，(5)课程类型*，(6)考核*，(7)学分，(8)学时，(9)周次
                 // * 5 和 6 标题如此，但是内容事实上是 (5)考核 (6)课程类型。
                 // 这里我们取和学生课表相同的部分
-                courseData = [courseData[1],courseData[3],courseData[7],courseData[9]]
+                courseData = [courseData[1], courseData[3], courseData[7], courseData[9]]
               }
               let [courseName, teacherName, credit, weeks] = courseData.map(td => cheerio.load(td).text().trim())
               credit = parseFloat(credit || 0)
@@ -151,7 +197,7 @@ exports.route = {
                 [beginWeek, endWeek, beginPeriod, endPeriod] = [beginWeek, endWeek, beginPeriod, endPeriod].map(k => parseInt(k))
 
                 // 对于单双周，转换成标准键值
-                flip = {'(单)': 'odd', '(双)': 'even'}[flip] || 'none'
+                flip = { '(单)': 'odd', '(双)': 'even' }[flip] || 'none'
 
                 // 根据课程名和起止周次，拼接索引键，在侧栏表中查找对应的课程信息
                 let keyStart = courseName.trim() + '/'
@@ -160,28 +206,30 @@ exports.route = {
 
                 // 若在侧栏中找到该课程信息，取其教师名和学分数，并标记该侧栏课程已经使用
                 let ret =
-                    (sidebar.hasOwnProperty(key)
+                  (sidebar.hasOwnProperty(key)
                     ? [key]
                     : (Object.getOwnPropertyNames(sidebar)
-                        // 考虑每个课程由不同的老师教授的情况
-                        // 这时侧栏上的周次并不和表格中的一致
-                        // TODO 是否需要合并成一个课程?
-                        .filter(k => k.startsWith(keyStart))))
+                      // 考虑每个课程由不同的老师教授的情况
+                      // 这时侧栏上的周次并不和表格中的一致
+                      // TODO 是否需要合并成一个课程?
+                      .filter(k => k.startsWith(keyStart))))
                     .map(k => {
                       sidebar[k].used = true
-                      return { courseName,
-                              teacherName: sidebar[k].teacherName,
-                              credit: sidebar[k].credit,
-                              location,
-                              // 时间表里是总的周数
-                              // 侧栏里是每个老师分别的上课周数
-                              // 这里取侧栏
-                              beginWeek: sidebar[k].beginWeek,
-                              endWeek: sidebar[k].endWeek,
-                              dayOfWeek,
-                              beginPeriod,
-                              endPeriod,
-                              flip }
+                      return {
+                        courseName,
+                        teacherName: sidebar[k].teacherName,
+                        credit: sidebar[k].credit,
+                        location,
+                        // 时间表里是总的周数
+                        // 侧栏里是每个老师分别的上课周数
+                        // 这里取侧栏
+                        beginWeek: sidebar[k].beginWeek,
+                        endWeek: sidebar[k].endWeek,
+                        dayOfWeek,
+                        beginPeriod,
+                        endPeriod,
+                        flip
+                      }
                     })
 
                 // 返回课程名，教师名，学分，上课地点，起止周次，起止节数，单双周，交给 concat 拼接给对应星期的课程列表
