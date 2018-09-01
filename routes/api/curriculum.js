@@ -57,7 +57,7 @@ exports.route = {
     let currentTerm = (this.term.current || this.term.next).name
 
     // 若为查询未来学期，可能是在选课过程中，需要减少缓存时间
-    return await this.userCache(term && term > currentTerm ? '1s+' : '1s+', async () => {
+    return await this.userCache(term && term > currentTerm ? '1m+' : '1d+', async () => {
 
       // 先检查可用性，不可用直接抛异常或取缓存
       this.guard('http://xk.urp.seu.edu.cn/jw_service/service/lookCurriculum.action')
@@ -65,21 +65,19 @@ exports.route = {
       let { cardnum, password } = this.user
       let curriculum = []
 
-      // 18级本科生
-      // 新选课系统
-      if (/^21318/.test(cardnum)) {
-
+      // 新选课系统-目前使用18级本科生数据进行测试
+      if (/^21318/.test(cardnum) && term === '18-19-2') {
+        term = this.term.list.find( t => t.name === '18-19-2')
         let attp = 0
         let token
-        if (attp >= 10) {
-          // 最大尝试次数10次若还不成功，放弃本次请求
-          return 400
-        }
-
         // 进行登录尝试，验证码有可能识别失败/识别错误。
         while (true) {
           // 获取验证码vcode
           attp++
+          if (attp >= 10) {
+            // 最大尝试次数10次若还不成功，放弃本次请求
+            return 400
+          }
           let res = await this.get('http://newxk.urp.seu.edu.cn/xsxkapp/sys/xsxkapp/student/4/vcode.do', { timestamp: now })
           let vtoken = res.data.data.token // vtoken后面登录的时候还要用
           console.log(vtoken)
@@ -105,13 +103,36 @@ exports.route = {
         now = +moment()
         let headers = { token }
         let rawCurriculum = await this.get(`http://newxk.urp.seu.edu.cn/xsxkapp/sys/xsxkapp/elective/teachingTime.do?timestamp=${now}&studentCode=${cardnum}`,{ headers })
-        console.log(rawCurriculum)
+        let extraInfo = await this.get(`http://newxk.urp.seu.edu.cn/xsxkapp/sys/xsxkapp/elective/courseResult.do?timestamp=${now}&studentCode=${cardnum}`, { headers })
+        let extraInfoMap = {}
+        extraInfo.data.dataList.map((k, i, a) => {
+          extraInfoMap[k.courseNumber] = k
+        })
+        
+        rawCurriculum.data.dataList.map((k, i, a) => {
+          let course = {}
+          course.courseName = k.courseName
+          course.teacherName = k.teacherName
+          course.credit = parseFloat(extraInfoMap[k.courseNumber].credit)
+          course.beginWeek = k.week.indexOf('1') + 1
+          course.endWeek = k.week.lastIndexOf('1') + 1
+          course.dayOfWeek = parseInt(k.dayOfWeek)
+          if (k.week.startsWith('1010')) {
+            course.flip = 'odd'
+          } else if (k.week.startsWith('0101')){
+            course.flip = 'even'
+          } else {
+            course.flip = 'none'
+          }
+          course.beginPeriod = parseInt(k.beginSection)
+          course.endPeriod = parseInt(k.endSection)
+          course.location = k.teachingPlace
+          curriculum.push(course)
+        })
 
         
-      }
-
-      // 非18级本科生/教师版
-      if (!/^22/.test(cardnum)) {
+      } else if (!/^22/.test(cardnum)) {
+        // 非18级本科生/教师版
         // 为了兼容丁家桥格式，短学期没有课的时候需要自动查询长学期
         // 为此不得已使用了一个循环
         do {

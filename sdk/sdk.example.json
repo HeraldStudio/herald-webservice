@@ -22,5 +22,10 @@
       "appid": "",
       "appsecret": ""
     }
+  },
+  "captcha":{
+    "appId":"",
+    "secret":"",
+    "savePath":""
   }
 }
