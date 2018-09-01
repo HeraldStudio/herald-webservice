@@ -19,3 +19,4 @@ spider-secret.json
 redis-secret.json
 log
 *.db-journal
+newxk/
