@@ -76,7 +76,7 @@ exports.route = {
           attp++
           if (attp >= 10) {
             // 最大尝试次数10次若还不成功，放弃本次请求
-            return 400
+            throw 400
           }
           let res = await this.get('http://newxk.urp.seu.edu.cn/xsxkapp/sys/xsxkapp/student/4/vcode.do', { timestamp: now })
           let vtoken = res.data.data.token // vtoken后面登录的时候还要用
