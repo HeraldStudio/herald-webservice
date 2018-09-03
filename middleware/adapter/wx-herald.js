@@ -38,6 +38,7 @@ const handler = {
           课表 跑操 体测 一卡通
           实验 考试 成绩 SRTP
           图书 奖助 通知 讲座
+          App下载
 
           💡 回复关键词使用对应功能`.padd()
   },
@@ -303,6 +304,19 @@ const handler = {
       ].join('\n').padd()
     }
     return `🏠 你暂时没有分配宿舍`
+  },
+
+  async 'App|APP|下载'() {
+
+    return `🐵 小猴偷米 App 下载地址
+    
+    请复制到浏览器打开：
+    https://myseu.cn/#/download
+
+    注意：部分安卓商店提供早已过期的版本，
+    无法正常登录。
+    `.padd()
+
   },
 
   default: `🤔 命令无法识别
