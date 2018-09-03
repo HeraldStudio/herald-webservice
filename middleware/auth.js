@@ -80,7 +80,7 @@ const hash = value => {
 }
 
 // 在这里选择认证接口提供者
-const authProvider = require('./auth-provider/myold')
+const authProvider = require('./auth-provider/ids')
 const graduateAuthProvider = require('./auth-provider/graduate')
 
 // 认证接口带错误处理的封装
@@ -94,6 +94,7 @@ const auth = async (ctx, cardnum, password, gpassword) => {
       await graduateAuthProvider(ctx, RegExp.$1, gpassword)
     }
     let { schoolnum, name } = await authProvider(ctx, cardnum, password)
+    console.log(schoolnum, name)
     if (!schoolnum || !name) {
       throw '解析失败'
     }
