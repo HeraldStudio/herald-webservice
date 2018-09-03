@@ -38,17 +38,27 @@ module.exports = async (ctx, cardnum, password) => {
   // 解析学号（本科生 Only）
 
   if (/^21/.test(cardnum)) {
-    schoolnum = /class="portlet-table-even">(.*)<\//im
-    .exec(res.data) || []
-  schoolnum = schoolnum[1] || ''
-  schoolnum = schoolnum.replace(/&[0-9a-zA-Z]+;/g, '')
+  //   schoolnum = /class="portlet-table-even">(.*)<\//im
+  //   .exec(res.data) || []
+  // schoolnum = schoolnum[1] || ''
+  // schoolnum = schoolnum.replace(/&[0-9a-zA-Z]+;/g, '')
+  // 老信息门户出现问题，从课表查询获取学号
+    let schoolNumRes = await ctx.post(
+      'http://xk.urp.seu.edu.cn/jw_service/service/stuCurriculum.action',
+      {
+        queryStudentId: cardnum,
+        queryAcademicYear: undefined
+      }
+    )
+    schoolnum = /学号:([0-9A-Za-z]+)/im.exec(schoolNumRes.data) || []
+    schoolnum = schoolnum[1] || ''
   }
 
-  if (/^21318/.test(cardnum)) {
-    let res = await ctx.get('http://yx.urp.seu.edu.cn/alone.portal?.pen=pe48')
-    schoolnum = /<th>\s*学号\s*<\/th>\s*<td>\s*([0-9A-Za-z]+)/im.exec(res.data) || []
-    schoolnum = schoolnum[1] || ''
-  } 
+  // if (/^21318/.test(cardnum)) {
+  //   let res = await ctx.get('http://yx.urp.seu.edu.cn/alone.portal?.pen=pe48')
+  //   schoolnum = /<th>\s*学号\s*<\/th>\s*<td>\s*([0-9A-Za-z]+)/im.exec(res.data) || []
+  //   schoolnum = schoolnum[1] || ''
+  // } 
 
   
 
