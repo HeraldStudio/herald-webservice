@@ -32,7 +32,7 @@ exports.route = {
       this.guard('http://xk.urp.seu.edu.cn/studentService/system/showLogin.action')
 
       await this.useAuthCookie()
-      let { cardnum, schoolnum } = this.user
+      let { name, cardnum, schoolnum } = this.user
 
       // 本科生
       if (/^21/.test(cardnum)) {
@@ -160,6 +160,7 @@ exports.route = {
 
         // 时间解析为时间戳
         calculationTime = calculationTime ? +moment(calculationTime) : null
+        this.logMsg = `${name} (${cardnum}) - 查询绩点`
         return { gpa, gpaBeforeMakeup, achievedCredits, year, calculationTime, detail }
 
       } else if (/^22/.test(cardnum)) { // 研究生

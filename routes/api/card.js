@@ -127,7 +127,8 @@ exports.route = {
         pageCount = parseInt(/共(\d+)页/.exec(res.data)[1])
         page++
       }
-
+      let { name, cardnum, schoolnum } = this.user
+      this.logMsg = `${name} (${cardnum}) - 查询一卡通流水`
       return { info, detail }
     })
   },
@@ -140,7 +141,7 @@ exports.route = {
   * @apiParam eacc       为真值时充值到电子钱包
   **/
   async put({ cardnum, password, amount, eacc }) {
-    cardnum || ({ cardnum } = this.user)
+    cardnum || ({ cardnum, name } = this.user)
 
     let res = await this.post('http://58.192.115.47:8088/wechat-web/login/dologin.html', {
       cardno: cardnum, pwd: password
@@ -158,6 +159,7 @@ exports.route = {
 
     let msg = JSON.parse(/callJson\s*\(\s*(\{[\s\S]*\})\s*\)/im.exec(res.data)[1]).errmsg.replace(/转账/g, '充值')
     if (/成功/.test(msg)) {
+      this.logMsg = `${name} (${cardnum}) - 一卡通充值成功`
       return msg
     } else {
       throw msg

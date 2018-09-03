@@ -62,7 +62,7 @@ exports.route = {
       // 先检查可用性，不可用直接抛异常或取缓存
       this.guard('http://xk.urp.seu.edu.cn/jw_service/service/lookCurriculum.action')
 
-      let { cardnum, password } = this.user
+      let { name, cardnum, password } = this.user
       let curriculum = []
 
       // 新选课系统-目前使用18级本科生数据进行测试
@@ -386,6 +386,7 @@ exports.route = {
         }
       })
 
+      this.logMsg = `${name} (${cardnum}) - 查询课程表`
       return { term, curriculum }
     })
   }

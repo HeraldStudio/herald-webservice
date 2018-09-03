@@ -15,7 +15,7 @@ exports.route = {
 
       await this.useAuthCookie()
       // 经测试，使用老门户的 cookie，并不需要再登录教务处。
-
+      let { name, cardnum } = this.user
       res = await this.get(
         'http://xk.urp.seu.edu.cn/studentService/cs/stuServe/runQueryExamPlanAction.action'
       )
@@ -23,6 +23,7 @@ exports.route = {
       let $ = cheerio.load(res.data)
       let now = +moment()
 
+      this.logMsg = `${name} (${cardnum}) - 查询考试安排`
       return $('#table2 tr').toArray().slice(1).map(tr => {
         let [semester, campus, courseName, courseType, teacherName, time, location, duration]
           = $(tr).find('td').toArray().slice(1).map(td => $(td).text().trim())

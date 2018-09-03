@@ -94,7 +94,6 @@ const auth = async (ctx, cardnum, password, gpassword) => {
       await graduateAuthProvider(ctx, RegExp.$1, gpassword)
     }
     let { schoolnum, name } = await authProvider(ctx, cardnum, password)
-    console.log(schoolnum, name)
     if (!schoolnum || !name) {
       throw '解析失败'
     }
@@ -162,6 +161,7 @@ module.exports = async (ctx, next) => {
         // 所有条件满足，直接通过认证，不再走统一身份认证接口
         // 虽然这样可能会出现密码修改后误放行旧密码的问题，但之后使用中迟早会 401（取统一身份认证 Cookie 时密码错误会发生 401）
         ctx.body = token
+        ctx.logMsg = `${cardnum} - 身份认证成功 - 登录平台 ${platform}`
         return
       }
 
@@ -210,6 +210,7 @@ module.exports = async (ctx, next) => {
 
     // 返回 token
     ctx.body = token
+    ctx.logMsg = `${name} [${cardnum}] - 身份认证成功 - 登录平台 ${platform}`
     return
   } else if (ctx.request.headers.token) {
     // 对于其他请求，根据 token 的哈希值取出表项
