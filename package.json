@@ -16,6 +16,7 @@
     "cheerio": "^1.0.0-rc.2",
     "co-wechat": "^2.3.0",
     "cross-env": "^5.2.0",
+    "form-data": "^2.3.2",
     "iconv": "^2.3.0",
     "js-yaml": "^3.10.0",
     "kf-router": "^2.2.2",
