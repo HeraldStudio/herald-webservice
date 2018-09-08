@@ -88,19 +88,16 @@ WebService3 基于自研的 kf-router，可以根据 js 文件结构自动组织
 
 ### 开始开发
 
+需要安装 Yarn 代替 npm 作为包管理器。
+
 ```bash
 git clone https://github.com/heraldstudio/herald-webservice
 cd herald-webservice
 cp sdk/sdk.example.json sdk/sdk.json
-yarn          # 或 npm install
-yarn run dev  # 或 npm run dev
+yarn dev
 ```
 
-Windows 的仅供参考。
-```
-set NODE_ENV=development
-node app.js
-```
+Windows 用户须先阅读 [https://github.com/nodejs/node-gyp#installation](node-gyp 的安装指南) ，确保安装设置 Python 2.7 以避免编译错误。
 
 ### Hello World
 

@@ -39,13 +39,26 @@ module.exports = async (ctx, cardnum, password) => {
 
   // 解析学号（本科生 Only）
   if (/^21/.test(cardnum)) {
-    let infoUrl = /(pnull\.portal\?[^"]*)/.exec(res.data) || []
-    infoUrl = infoUrl[1] || ''
-    if (infoUrl) {
-      let res = await ctx.post('http://my.seu.edu.cn/' + infoUrl, 'itemId=239&childId=241')
-      schoolnum = /<th>\s*学籍号\s*<\/th>\s*<td colspan="1">\s*(\d+)\s*<\/td>/im.exec(res.data) || []
-      schoolnum = schoolnum[1] || ''
-    }
+
+    /*******************************
+     * 学号获取改为从课表获取
+     ******************************/
+    // let infoUrl = /(pnull\.portal\?[^"]*)/.exec(res.data) || []
+    // infoUrl = infoUrl[1] || ''
+    // if (infoUrl) {
+    //   let res = await ctx.post('http://my.seu.edu.cn/' + infoUrl, 'itemId=239&childId=241')
+    //   schoolnum = /<th>\s*学籍号\s*<\/th>\s*<td colspan="1">\s*(\d+)\s*<\/td>/im.exec(res.data) || []
+    //   schoolnum = schoolnum[1] || ''
+    // }
+    let schoolNumRes = await ctx.post(
+      'http://xk.urp.seu.edu.cn/jw_service/service/stuCurriculum.action',
+      {
+        queryStudentId: cardnum,
+        queryAcademicYear: undefined
+      }
+    )
+    schoolnum = /学号:([0-9A-Za-z]+)/im.exec(schoolNumRes.data) || []
+    schoolnum = schoolnum[1] || ''
   }
 
   // 截取学号（研/博 Only）

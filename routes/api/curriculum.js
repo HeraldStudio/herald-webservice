@@ -67,71 +67,116 @@ exports.route = {
 
       // 新选课系统-目前使用18级本科生数据进行测试
       if (/^21318/.test(cardnum) && term === '18-19-2') {
+        // 处理 term
         term = this.term.list.find( t => t.name === '18-19-2')
         term.maxWeek = 16
-        let attp = 0
-        let token
-        // 进行登录尝试，验证码有可能识别失败/识别错误。
-        while (true) {
-          // 获取验证码vcode
-          attp++
-          if (attp >= 10) {
-            // 最大尝试次数10次若还不成功，放弃本次请求
-            throw 400
-          }
-          let res = await this.get('http://newxk.urp.seu.edu.cn/xsxkapp/sys/xsxkapp/student/4/vcode.do', { timestamp: now })
-          let vtoken = res.data.data.token // vtoken后面登录的时候还要用
-          console.log(vtoken)
-          // 获取验证码
-          let headers = {
-            Accept: 'image/webp,image/apng,image/*,*/*;q=0.8',
-            Referer: 'http://newxk.urp.seu.edu.cn/xsxkapp/sys/xsxkapp/*default/index.do'
-          }
-          let captchaCode = await this.get('http://newxk.urp.seu.edu.cn/xsxkapp/sys/xsxkapp/student/vcode/image.do?vtoken=' + vtoken)
-          let vcode = await recognizeCaptcha(captchaCode.data, vtoken)
-          if (vcode) {
-            try {
-              let loginRes = await this.get(`http://newxk.urp.seu.edu.cn/xsxkapp/sys/xsxkapp/student/check/login.do?timestrap=${now}&loginName=${cardnum}&loginPwd=${password}&verifyCode=${vcode}&vtoken=${vtoken}`)
-              if (loginRes.data.msg === '登录成功') {
-                token = loginRes.data.data.token
-                break
-              }
-            } catch (e) { console.log(e) }
-          }
-        };
-        console.log('登录成功')
-        // 执行到此处即登录新选课系统成功，开始抓取课表数据
-        now = +moment()
-        let headers = { token }
-        let rawCurriculum = await this.get(`http://newxk.urp.seu.edu.cn/xsxkapp/sys/xsxkapp/elective/teachingTime.do?timestamp=${now}&studentCode=${cardnum}`,{ headers })
-        let extraInfo = await this.get(`http://newxk.urp.seu.edu.cn/xsxkapp/sys/xsxkapp/elective/courseResult.do?timestamp=${now}&studentCode=${cardnum}`, { headers })
-        let extraInfoMap = {}
-        extraInfo.data.dataList.map((k, i, a) => {
-          extraInfoMap[k.courseNumber] = k
-        })
-        
-        rawCurriculum.data.dataList.map((k, i, a) => {
-          let course = {}
-          course.courseName = k.courseName
-          course.teacherName = k.teacherName
-          course.credit = parseFloat(extraInfoMap[k.courseNumber].credit)
-          course.beginWeek = k.week.indexOf('1') + 1
-          course.endWeek = k.week.lastIndexOf('1') + 1
-          course.dayOfWeek = parseInt(k.dayOfWeek)
-          if (k.week.startsWith('1010')) {
-            course.flip = 'odd'
-          } else if (k.week.startsWith('0101')){
-            course.flip = 'even'
-          } else {
-            course.flip = 'none'
-          }
-          course.beginPeriod = parseInt(k.beginSection)
-          course.endPeriod = parseInt(k.endSection)
-          course.location = k.teachingPlace
-          curriculum.push(course)
-        })
 
-        
+        // 处理 curriculum
+        // 1. 登录到新平台 newids.seu.edu.cn
+        await this.useAuthCookie()
+
+        // 2. 获取下一步操作所需的 URL
+        const urlRes = await this.get('http://ehall.seu.edu.cn/appMultiGroupEntranceList?appId=4770397878132218&r_t=' + Date.now())
+
+        let url = '';
+        urlRes.data && urlRes.data.data && urlRes.data.data.groupList && urlRes.data.data.groupList[0] &&
+        (url = urlRes.data.data.groupList[0].targetUrl);
+        if (!url)
+          throw 400;
+
+        // 3. 访问一下上述 URL ，获取名为 _WEU 的 cookie
+        await this.get(url)
+
+        // 4. 获取课表
+        const curriculumRes = await this.post('http://ehall.seu.edu.cn/jwapp/sys/wdkb/modules/xskcb/xskcb.do', {
+          'XNXQDM': '2018-2019-2',
+        })
+        const rows = curriculumRes.data.datas.xskcb.rows;
+        rows.forEach(rawCourse => {
+          const course = {
+            courseName: rawCourse.KCM,
+            teacherName: rawCourse.SKJS,
+            beginWeek: rawCourse.SKZC.indexOf('1') + 1,
+            endWeek: rawCourse.SKZC.lastIndexOf('1') + 1,
+            dayOfWeek: parseInt(rawCourse.SKXQ),
+            flip: rawCourse.SKZC.startsWith('1010') ?
+                    'odd' :
+                    rawCourse.SKZC.startsWith('0101') ?
+                      'even':
+                      'none',
+            beginPeriod: parseInt(rawCourse.KSJC),
+            endPeriod: parseInt(rawCourse.JSJC),
+            location: rawCourse.JASMC,
+          };
+          curriculum.push(course);
+        });
+
+        //////////////////////////////////////////////////////////////
+        // term = this.term.list.find( t => t.name === '18-19-2')
+        // term.maxWeek = 16
+        // let attp = 0
+        // let token
+        // // 进行登录尝试，验证码有可能识别失败/识别错误。
+        // while (true) {
+        //   // 获取验证码vcode
+        //   attp++
+        //   if (attp >= 10) {
+        //     // 最大尝试次数10次若还不成功，放弃本次请求
+        //     throw 400
+        //   }
+        //   let res = await this.get('http://newxk.urp.seu.edu.cn/xsxkapp/sys/xsxkapp/student/4/vcode.do', { timestamp: now })
+        //   let vtoken = res.data.data.token // vtoken后面登录的时候还要用
+        //   console.log(vtoken)
+        //   // 获取验证码
+        //   let headers = {
+        //     Accept: 'image/webp,image/apng,image/*,*/*;q=0.8',
+        //     Referer: 'http://newxk.urp.seu.edu.cn/xsxkapp/sys/xsxkapp/*default/index.do'
+        //   }
+        //   let captchaCode = await this.get('http://newxk.urp.seu.edu.cn/xsxkapp/sys/xsxkapp/student/vcode/image.do?vtoken=' + vtoken)
+        //   let vcode = await recognizeCaptcha(captchaCode.data, vtoken)
+        //   if (vcode) {
+        //     try {
+        //       let loginRes = await this.get(`http://newxk.urp.seu.edu.cn/xsxkapp/sys/xsxkapp/student/check/login.do?timestrap=${now}&loginName=${cardnum}&loginPwd=${password}&verifyCode=${vcode}&vtoken=${vtoken}`)
+        //       if (loginRes.data.msg === '登录成功') {
+        //         token = loginRes.data.data.token
+        //         break
+        //       }
+        //     } catch (e) { console.log(e) }
+        //   }
+        // };
+        // console.log('登录成功')
+        // // 执行到此处即登录新选课系统成功，开始抓取课表数据
+        // now = +moment()
+        // let headers = { token }
+        // let rawCurriculum = await this.get(`http://newxk.urp.seu.edu.cn/xsxkapp/sys/xsxkapp/elective/teachingTime.do?timestamp=${now}&studentCode=${cardnum}`,{ headers })
+        // let extraInfo = await this.get(`http://newxk.urp.seu.edu.cn/xsxkapp/sys/xsxkapp/elective/courseResult.do?timestamp=${now}&studentCode=${cardnum}`, { headers })
+        // let extraInfoMap = {}
+        // extraInfo.data.dataList.map((k, i, a) => {
+        //   extraInfoMap[k.courseNumber] = k
+        // })
+
+        // rawCurriculum.data.dataList.map((k, i, a) => {
+        //   let course = {}
+        //   course.courseName = k.courseName
+        //   course.teacherName = k.teacherName
+        //   course.credit = parseFloat(extraInfoMap[k.courseNumber].credit)
+        //   course.beginWeek = k.week.indexOf('1') + 1
+        //   course.endWeek = k.week.lastIndexOf('1') + 1
+        //   course.dayOfWeek = parseInt(k.dayOfWeek)
+        //   if (k.week.startsWith('1010')) {
+        //     course.flip = 'odd'
+        //   } else if (k.week.startsWith('0101')){
+        //     course.flip = 'even'
+        //   } else {
+        //     course.flip = 'none'
+        //   }
+        //   course.beginPeriod = parseInt(k.beginSection)
+        //   course.endPeriod = parseInt(k.endSection)
+        //   course.location = k.teachingPlace
+        //   curriculum.push(course)
+        // })
+
+
       } else if (!/^22/.test(cardnum)) {
         // 非18级本科生/教师版
         // 为了兼容丁家桥格式，短学期没有课的时候需要自动查询长学期
