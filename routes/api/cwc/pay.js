@@ -162,6 +162,9 @@ exports.route = {
 
     // 到此为止，请求结束，从res6中获取密码
     let pwd = /\{"pwd":"([0-9A-Z]+)"\}/im.exec(res6.data)[1]
+
+    // 请求7:这个请求很重要不然付款不能到账
+    await this.get(`http://payment.seu.edu.cn/pay/deal_CCB_union.html?autoSubmit=Y&realPay=1&pwd=${pwd}`)
     return { pwd }
   }
 }
