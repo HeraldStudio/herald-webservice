@@ -5,8 +5,10 @@ const qs = require('querystring')
 exports.route = {
 
   /**
+  * 
   * GET /api/cwc/auth
-  * 获取登录用验证码和cookie
+  * 获取登录用验证码图片的base64形式和cookie
+  * 
   **/
   async get() {
     let res = await this.get('http://caiwuchu.seu.edu.cn/payment/randomAction.action')
@@ -16,8 +18,14 @@ exports.route = {
   },
 
   /**
+  * 
   * POST /api/cwc/auth
-  * 进行登录操作，返回token
+  * 将cookie进行登录认证
+  * @apiParam uid 一卡通
+  * @apiParam pwd 财务处密码（就那个默认是身份证后六位的）
+  * @apiParam chkcode 验证码
+  * @apiParam cookie 获取验证码时得到的cookie
+  * 
   **/
   async post({uid, pwd, chkcode, cookie}) {
     cookie = cookie[0].split(';')[0]
@@ -39,6 +47,16 @@ exports.route = {
     console.log(res.data)
     throw '与财务处网站通讯出现故障'
   },
+
+  /**
+  * 
+  * PUT /api/cwc/auth
+  * 重置财务处密码
+  * @apiParam cardnum 一卡通
+  * @apiParam idnum 身份证号
+  * 重置后的密码是身份证号后六位
+  * 
+  **/
 
   async put({cardnum, idnum}) {
     let req = {

@@ -6,7 +6,7 @@ exports.route = {
 
   /**
   * GET /api/cwc/detail
-  * 获取登录用验证码和cookie
+  * @apiParam cookie 登录 caiwuchu.seu.edu.cn 获取的 JSESSION
   **/
   async get({ cookie }) {
     let headers = { cookie }
