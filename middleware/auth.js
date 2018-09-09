@@ -80,7 +80,7 @@ const hash = value => {
 }
 
 // 在这里选择认证接口提供者
-const authProvider = require('./auth-provider/myold')
+const authProvider = require('./auth-provider/ids')
 const graduateAuthProvider = require('./auth-provider/graduate')
 
 // 认证接口带错误处理的封装
@@ -153,7 +153,7 @@ module.exports = async (ctx, next) => {
       let token
 
       // 先判断密码正确
-      if (hash(password) === passwordHash               
+      if (hash(password) === passwordHash
         // 然后用密码解密 tokenEncrypted 得到 token，判断 token 有效
         && (token = decrypt(password, tokenEncrypted))
         // 如果是研究生，再用 token 解密研究生密码，判断研究生密码不变
