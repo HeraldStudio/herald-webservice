@@ -171,7 +171,53 @@ exports.route = {
 
     // 请求7:到http://payment.seu.edu.cn/pay/deal_CCB_union.html?autoSubmit=Y&realPay=1&pwd=${pwd}的请求
     let res7 = await this.get(`http://payment.seu.edu.cn/pay/deal_CCB_union.html?autoSubmit=Y&realPay=1&pwd=${pwd}`)
-    let payUrl = `http://payment.seu.edu.cn/pay/deal_CCB_union.html?autoSubmit=Y&realPay=1&pwd=${pwd}`
-    return { payUrl }
+    
+    // 请求8:到http://payment.seu.edu.cn/pay/log_startPay.html?___dataType=data的请求
+    let body8 = {
+        pay_thirdPartyName:'CCB',
+        pay_id:/"rIdExt":"([0-9]+)"/im.exec(res7.data)[1],
+        pay_actionURL: 'https://ibsbjstar.ccb.com.cn/CCBIS/ccbMain?CCB_IBSVersion=V6',
+        pay_realURL: 'https://ibsbjstar.ccb.com.cn/CCBIS/ccbMain?CCB_IBSVersion=V6',
+        MAC:/"MAC":"([0-9a-z]+)"/im.exec(res7.data)[1],
+        TIMEOUT:"",
+        PAYMENT:/"PAYMENT":"([0-9.]+)"/im.exec(res7.data)[1],
+        REFERER:"payment.seu.edu.cn",
+        POSID:/"POSID":"([0-9]+)"/im.exec(res7.data)[1],
+        RETURNTYPE:"2",
+        ORDERID:/"ORDERID":"([0-9a-zA-Z_]+)"/im.exec(res7.data)[1],
+        MERCHANTID:/"MERCHANTID":"([0-9]+)"/im.exec(res7.data)[1],
+        CURCODE:/"CURCODE":"([0-9.]+)"/im.exec(res7.data)[1],
+        TXCODE:/"TXCODE":"([0-9.]+)"/im.exec(res7.data)[1],
+        REMARK2:"",
+        BRANCHID:/"BRANCHID":"([0-9.]+)"/im.exec(res7.data)[1],
+        REMARK1:/"REMARK1":"([0-9]+)\\\//im.exec(res7.data)[1]+"/"+body.userid
+    }
+    await this.post('http://payment.seu.edu.cn/pay/log_startPay.html?___dataType=data', qs.stringify(body8))
+
+
+    // 请求9:到建设银行的请求开始了
+    let body9 = {
+        MAC:/"MAC":"([0-9a-z]+)"/im.exec(res7.data)[1],
+        TIMEOUT:"",
+        PAYMENT:/"PAYMENT":"([0-9.]+)"/im.exec(res7.data)[1],
+        REFERER:"payment.seu.edu.cn",
+        POSID:/"POSID":"([0-9]+)"/im.exec(res7.data)[1],
+        RETURNTYPE:"2",
+        ORDERID:/"ORDERID":"([0-9a-zA-Z_]+)"/im.exec(res7.data)[1],
+        MERCHANTID:/"MERCHANTID":"([0-9]+)"/im.exec(res7.data)[1],
+        CURCODE:/"CURCODE":"([0-9.]+)"/im.exec(res7.data)[1],
+        TXCODE:/"TXCODE":"([0-9.]+)"/im.exec(res7.data)[1],
+        REMARK2:"",
+        BRANCHID:/"BRANCHID":"([0-9.]+)"/im.exec(res7.data)[1],
+        REMARK1:/"REMARK1":"([0-9]+)\\\//im.exec(res7.data)[1]+"/"+body.userid
+    }
+    let res9 = await this.post('https://ibsbjstar.ccb.com.cn/CCBIS/ccbMain?CCB_IBSVersion=V6', qs.stringify(body8))
+
+    //请求10:到建设银行的请求2
+    let url10 = /name="jhform" action='(.*?)'/im.exec(res9.data)[1]
+    await this.post(url10)
+
+    let payUrl = url10
+    return payUrl
   }
 }
