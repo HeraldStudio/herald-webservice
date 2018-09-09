@@ -15,8 +15,14 @@ exports.route = {
   * POST /api/cwc/pay
   * 获取登录用验证码和cookie
   **/
-  async post({ cookie, items }) {
-    let headers = { cookie }
+  async post({ Cookie, items }) {
+    let headers = { 
+        Cookie,
+        Origin:'http://caiwuchu.seu.edu.cn',
+        Connection:'keep-alive',
+        'Upgrade-Insecure-Requests':1,
+        'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0 Safari/605.1.15'
+     }
 
     // 请求1:到 http://caiwuchu.seu.edu.cn/payment/pay/userfee_submitBill.action 的请求
     let body = {
@@ -39,12 +45,12 @@ exports.route = {
         body.feeitemordall.push(k.feeitemdeford)
         if (k.checked) {
             body.feeitemdefords.push(k.feeitemdeford)
-            body.ords.push(k.feeitemdeford)
-            body.billamts.push(k.feeamt)
-            feeTotal += parseFloat(k.feeamt)
+            body.ords.push(k.feeord)
+            body.billamts.push(k.payamt)
+            feeTotal += parseFloat(k.payamt)
             body.counts.push(k.count)
             body.feeamts.push(k.feeamt)
-            body.unpaid.push(k.feeamt)
+            body.unpaid.push(k.payamt)
         }
     })
     body.feeTotal = feeTotal
@@ -74,8 +80,8 @@ exports.route = {
         'isbankrole':'JSJF',
         'jfbFlag':undefined
     }
-    let url2 = 'http://caiwuchu.seu.edu.cn/payment/pay/payment_selBank.action?' + qs.stringify(query)
-    let res2 = await this.get('http://caiwuchu.seu.edu.cn/payment/pay/payment_selBank.action?' + qs.stringify(query), { headers })
+    let url2 = 'http://caiwuchu.seu.edu.cn/payment/pay/payment_selBank.action?' + qs.stringify(query).replace(/%3A/g,':')
+    let res2 = await this.get('http://caiwuchu.seu.edu.cn/payment/pay/payment_selBank.action?' + qs.stringify(query).replace(/%3A/g,':'), { headers })
     
     // 请求3:到 http://caiwuchu.seu.edu.cn/payment/pay/payment_CheckBillno.action 的请求
     headers['Host'] = 'caiwuchu.seu.edu.cn'
@@ -105,17 +111,7 @@ exports.route = {
 				let subbankid = $("input[name='" + bankid + "id']:checked").val();
 				let cfcabankid = $("input[name='cfcabankid']:checked").val();
                 
-                if(bankid!='APAY'&&bankid!='CFCA'&&bankid!='PE'&&hassubbank=='F'){
-                    type="nothing";
-                }else if(bankid=='CFCA'){
-                    type="cfcabankid";
-                }else if(bankid=='PE'){
-                    type="alipaybankid";
-                }else if(hassubbank=='T'){
-                    type="subbankid";
-                }else{
-                    type="alipaybankid";
-                }
+                type='nothing'
 
                 body4 = {
                     billno:$("#billnoTd").text().trim(),
@@ -169,55 +165,58 @@ exports.route = {
     // 到此为止，请求结束，从res6中获取密码
     let pwd = /\{"pwd":"([0-9A-Z]+)"\}/im.exec(res6.data)[1]
 
-    // 请求7:到http://payment.seu.edu.cn/pay/deal_CCB_union.html?autoSubmit=Y&realPay=1&pwd=${pwd}的请求
-    let res7 = await this.get(`http://payment.seu.edu.cn/pay/deal_CCB_union.html?autoSubmit=Y&realPay=1&pwd=${pwd}`)
+    return `http://payment.seu.edu.cn/pay/deal_CCB_union.html?autoSubmit=Y&realPay=1&pwd=${pwd}`
+
+    // // 请求7:到http://payment.seu.edu.cn/pay/deal_CCB_union.html?autoSubmit=Y&realPay=1&pwd=${pwd}的请求
+    // let res7 = await this.get(`http://payment.seu.edu.cn/pay/deal_CCB_union.html?autoSubmit=Y&realPay=1&pwd=${pwd}`)
+    // console.log(res7)
     
-    // 请求8:到http://payment.seu.edu.cn/pay/log_startPay.html?___dataType=data的请求
-    let body8 = {
-        pay_thirdPartyName:'CCB',
-        pay_id:/"rIdExt":"([0-9]+)"/im.exec(res7.data)[1],
-        pay_actionURL: 'https://ibsbjstar.ccb.com.cn/CCBIS/ccbMain?CCB_IBSVersion=V6',
-        pay_realURL: 'https://ibsbjstar.ccb.com.cn/CCBIS/ccbMain?CCB_IBSVersion=V6',
-        MAC:/"MAC":"([0-9a-z]+)"/im.exec(res7.data)[1],
-        TIMEOUT:"",
-        PAYMENT:/"PAYMENT":"([0-9.]+)"/im.exec(res7.data)[1],
-        REFERER:"payment.seu.edu.cn",
-        POSID:/"POSID":"([0-9]+)"/im.exec(res7.data)[1],
-        RETURNTYPE:"2",
-        ORDERID:/"ORDERID":"([0-9a-zA-Z_]+)"/im.exec(res7.data)[1],
-        MERCHANTID:/"MERCHANTID":"([0-9]+)"/im.exec(res7.data)[1],
-        CURCODE:/"CURCODE":"([0-9.]+)"/im.exec(res7.data)[1],
-        TXCODE:/"TXCODE":"([0-9.]+)"/im.exec(res7.data)[1],
-        REMARK2:"",
-        BRANCHID:/"BRANCHID":"([0-9.]+)"/im.exec(res7.data)[1],
-        REMARK1:/"REMARK1":"([0-9]+)\\\//im.exec(res7.data)[1]+"/"+body.userid
-    }
-    await this.post('http://payment.seu.edu.cn/pay/log_startPay.html?___dataType=data', qs.stringify(body8))
+    // // 请求8:到http://payment.seu.edu.cn/pay/log_startPay.html?___dataType=data的请求
+    // let body8 = {
+    //     pay_thirdPartyName:'CCB',
+    //     pay_id:/"rIdExt":"([0-9]+)"/im.exec(res7.data)[1],
+    //     pay_actionURL: 'https://ibsbjstar.ccb.com.cn/CCBIS/ccbMain?CCB_IBSVersion=V6',
+    //     pay_realURL: 'https://ibsbjstar.ccb.com.cn/CCBIS/ccbMain?CCB_IBSVersion=V6',
+    //     MAC:/"MAC":"([0-9a-z]+)"/im.exec(res7.data)[1],
+    //     TIMEOUT:"",
+    //     PAYMENT:/"PAYMENT":"([0-9.]+)"/im.exec(res7.data)[1],
+    //     REFERER:"payment.seu.edu.cn",
+    //     POSID:/"POSID":"([0-9]+)"/im.exec(res7.data)[1],
+    //     RETURNTYPE:"2",
+    //     ORDERID:/"ORDERID":"([0-9a-zA-Z_]+)"/im.exec(res7.data)[1],
+    //     MERCHANTID:/"MERCHANTID":"([0-9]+)"/im.exec(res7.data)[1],
+    //     CURCODE:/"CURCODE":"([0-9.]+)"/im.exec(res7.data)[1],
+    //     TXCODE:/"TXCODE":"([0-9.]+)"/im.exec(res7.data)[1],
+    //     REMARK2:"",
+    //     BRANCHID:/"BRANCHID":"([0-9.]+)"/im.exec(res7.data)[1],
+    //     REMARK1:/"REMARK1":"([0-9]+)\\\//im.exec(res7.data)[1]+"/"+body.userid
+    // }
+    // await this.post('http://payment.seu.edu.cn/pay/log_startPay.html?___dataType=data', qs.stringify(body8))
 
 
-    // 请求9:到建设银行的请求开始了
-    let body9 = {
-        MAC:/"MAC":"([0-9a-z]+)"/im.exec(res7.data)[1],
-        TIMEOUT:"",
-        PAYMENT:/"PAYMENT":"([0-9.]+)"/im.exec(res7.data)[1],
-        REFERER:"payment.seu.edu.cn",
-        POSID:/"POSID":"([0-9]+)"/im.exec(res7.data)[1],
-        RETURNTYPE:"2",
-        ORDERID:/"ORDERID":"([0-9a-zA-Z_]+)"/im.exec(res7.data)[1],
-        MERCHANTID:/"MERCHANTID":"([0-9]+)"/im.exec(res7.data)[1],
-        CURCODE:/"CURCODE":"([0-9.]+)"/im.exec(res7.data)[1],
-        TXCODE:/"TXCODE":"([0-9.]+)"/im.exec(res7.data)[1],
-        REMARK2:"",
-        BRANCHID:/"BRANCHID":"([0-9.]+)"/im.exec(res7.data)[1],
-        REMARK1:/"REMARK1":"([0-9]+)\\\//im.exec(res7.data)[1]+"/"+body.userid
-    }
-    let res9 = await this.post('https://ibsbjstar.ccb.com.cn/CCBIS/ccbMain?CCB_IBSVersion=V6', qs.stringify(body8))
+    // // 请求9:到建设银行的请求开始了
+    // let body9 = {
+    //     MAC:/"MAC":"([0-9a-z]+)"/im.exec(res7.data)[1],
+    //     TIMEOUT:"",
+    //     PAYMENT:/"PAYMENT":"([0-9.]+)"/im.exec(res7.data)[1],
+    //     REFERER:"payment.seu.edu.cn",
+    //     POSID:/"POSID":"([0-9]+)"/im.exec(res7.data)[1],
+    //     RETURNTYPE:"2",
+    //     ORDERID:/"ORDERID":"([0-9a-zA-Z_]+)"/im.exec(res7.data)[1],
+    //     MERCHANTID:/"MERCHANTID":"([0-9]+)"/im.exec(res7.data)[1],
+    //     CURCODE:/"CURCODE":"([0-9.]+)"/im.exec(res7.data)[1],
+    //     TXCODE:/"TXCODE":"([0-9.]+)"/im.exec(res7.data)[1],
+    //     REMARK2:"",
+    //     BRANCHID:/"BRANCHID":"([0-9.]+)"/im.exec(res7.data)[1],
+    //     REMARK1:/"REMARK1":"([0-9]+)\\\//im.exec(res7.data)[1]+"/"+body.userid
+    // }
+    // let res9 = await this.post('https://ibsbjstar.ccb.com.cn/CCBIS/ccbMain?CCB_IBSVersion=V6', qs.stringify(body8))
 
-    //请求10:到建设银行的请求2
-    let url10 = /name="jhform" action='(.*?)'/im.exec(res9.data)[1]
-    await this.post(url10)
+    // //请求10:到建设银行的请求2
+    // let url10 = /name="jhform" action='(.*?)'/im.exec(res9.data)[1]
+    // await this.post(url10)
 
-    let payUrl = url10
-    return payUrl
+    // let payUrl = url10
+    // return payUrl
   }
 }
