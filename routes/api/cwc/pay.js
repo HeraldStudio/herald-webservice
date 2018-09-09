@@ -149,7 +149,7 @@ exports.route = {
         ticketTitle: $('#ticketTitle').val(),
         nothing: 'nodate'
     }
-    let res5 = await this.post('http://caiwuchu.seu.edu.cn/payment/pay/payment_ebankPay.action', qs.stringify(body5), {headers})
+    let res5 = await this.post('http://caiwuchu.seu.edu.cn/payment/pay/payment_ebankPay.action', qs.stringify(body5), { headers })
 
     // 请求6:到http://payment.seu.edu.cn/pay/itemDeal3.html的请求
     $ = cheerio.load(res5.data)
@@ -158,13 +158,20 @@ exports.route = {
     keys6.forEach(k => {
         body6[k] = $(`#${k}`).val()
     })
-    let res6 = await this.post('http://payment.seu.edu.cn/pay/itemDeal3.html', qs.stringify(body6))
-
+    let headers6 = {
+        Origin:'http://caiwuchu.seu.edu.cn',
+        Connection:'keep-alive',
+        'Upgrade-Insecure-Requests':1,
+        Referer:'http://caiwuchu.seu.edu.cn/payment/pay/payment_ebankPay.action',
+        'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0 Safari/605.1.15'
+    }
+    let res6 = await this.post('http://payment.seu.edu.cn/pay/itemDeal3.html', qs.stringify(body6), {headers:headers6})
     // 到此为止，请求结束，从res6中获取密码
     let pwd = /\{"pwd":"([0-9A-Z]+)"\}/im.exec(res6.data)[1]
 
-    // 请求7:这个请求很重要不然付款不能到账
-    await this.get(`http://payment.seu.edu.cn/pay/deal_CCB_union.html?autoSubmit=Y&realPay=1&pwd=${pwd}`)
-    return { pwd }
+    // 请求7:到http://payment.seu.edu.cn/pay/deal_CCB_union.html?autoSubmit=Y&realPay=1&pwd=${pwd}的请求
+    let res7 = await this.get(`http://payment.seu.edu.cn/pay/deal_CCB_union.html?autoSubmit=Y&realPay=1&pwd=${pwd}`)
+    let payUrl = `http://payment.seu.edu.cn/pay/deal_CCB_union.html?autoSubmit=Y&realPay=1&pwd=${pwd}`
+    return { payUrl }
   }
 }
