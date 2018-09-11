@@ -10,7 +10,7 @@ exports.route = {
   **/
   async get({ date = '' }) {
     // 懒缓存 1 分钟
-    return await this.userCache('10m+', async () => {
+    return await this.userCache('1s+', async () => {
 
       // 先检查可用性，不可用直接抛异常或取缓存
       this.guard('http://allinonecard.seu.edu.cn/homeLogin.action')

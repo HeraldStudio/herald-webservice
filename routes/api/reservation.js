@@ -57,20 +57,25 @@ exports.route = {
   /**
   * 场馆预约
   * GET /api/reservation
+  * 
   *   getDate: 获取场馆详情
   *   @Params:
   *     method='getDate'
+  * 
   *   myOrder: 我的预约记录
   *   @Params:
   *     method='myOrder'
+  * 
   *   getPhone: 获取本人手机号
   *   @Params:
   *     method='getPhone'
+  * 
   *   getFriendList: 获取被邀请人的UserId
   *   @Params:
   *     method='getFriendList'
   *     cardNo='213150183'  // 一卡通号码即可
-  *   new: 新的预约...
+  *   
+  * new: 新的预约...
   **/
 
   // FIXME: 这里代码有些看不懂...不知道对后面维护有什么影响，大概的API文档如上所示
