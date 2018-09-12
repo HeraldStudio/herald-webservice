@@ -31,12 +31,12 @@ module.exports = async (ctx, cardnum, password) => {
   res = await ctx.get('http://my.seu.edu.cn/index.portal?.pn=p1681')
 
   // 解析姓名
-  let name = /欢迎您：([^<]*)/.exec(res.data) || []
-  name = name[1] || ''
+  // let name = /欢迎您：([^<]*)/.exec(res.data) || []
+  // name = name[1] || ''
 
   // 初始化学号为空
   let schoolnum = ''
-
+  let name = ''
   // 解析学号（本科生 Only）
   if (/^21/.test(cardnum)) {
 
@@ -50,15 +50,17 @@ module.exports = async (ctx, cardnum, password) => {
     //   schoolnum = /<th>\s*学籍号\s*<\/th>\s*<td colspan="1">\s*(\d+)\s*<\/td>/im.exec(res.data) || []
     //   schoolnum = schoolnum[1] || ''
     // }
-    let schoolNumRes = await ctx.post(
+    let nameRes = await ctx.post(
       'http://xk.urp.seu.edu.cn/jw_service/service/stuCurriculum.action',
       {
         queryStudentId: cardnum,
         queryAcademicYear: undefined
       }
     )
-    schoolnum = /学号:([0-9A-Za-z]+)/im.exec(schoolNumRes.data) || []
+    schoolnum = /学号:([0-9A-Za-z]+)/im.exec(nameRes.data) || []
     schoolnum = schoolnum[1] || ''
+    name = /<td width="20%" align="left">姓名:(*+)<\/td >/im.exec(nameRes.data) || []
+    name = name[1] || ''
   }
 
   // 截取学号（研/博 Only）

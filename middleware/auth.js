@@ -94,7 +94,7 @@ const auth = async (ctx, cardnum, password, gpassword) => {
       await graduateAuthProvider(ctx, RegExp.$1, gpassword)
     }
     let { schoolnum, name } = await authProvider(ctx, cardnum, password)
-    console.log(`${schoolnum}-${name}`)
+    console.log(`\n${schoolnum}-${name}`)
     if (!schoolnum || !name) {
       throw '解析失败'
     }
