@@ -59,7 +59,7 @@ module.exports = async (ctx, cardnum, password) => {
     )
     schoolnum = /学号:([0-9A-Za-z]+)/im.exec(nameRes.data) || []
     schoolnum = schoolnum[1] || ''
-    name = /<td width="20%" align="left">姓名:(.*)<\/td >/im.exec(nameRes.data) || []
+    name = /姓名:(.*)</im.exec(nameRes.data) || []
     name = name[1] || ''
   }
 
