@@ -1,6 +1,6 @@
 const cheerio = require('cheerio')
 
-// 通过新信息门户认证，缺陷是请求较慢，而且验证码会有 IP 限额
+// 模拟新信息门户 (ids6) 认证，缺陷是请求较慢，而且同一个用户多次输错密码会对该用户触发验证码
 module.exports = async (ctx, cardnum, password) => {
   // IDS Server 认证地址
   const url = 'https://newids.seu.edu.cn/authserver/login?goto=http://my.seu.edu.cn/index.portal'

@@ -162,8 +162,6 @@ exports.route = {
     // 而 identity 是区分实体用户的标志，每个实体用户 identity 一定唯一，多用于用户行为分析等。
     let { token, identity } = this.user
 
-    // 原 cookie 由于过期太快已被改为 useAuthCookie() 方法，详见下文「自动 Cookie」
-
     return `Hello, ${cardnum}!`
   }
 }
@@ -212,7 +210,7 @@ exports.route = {
 
 1. 考虑到学校网站中 GBK 编码仍占有很大比例，我们对网络请求的返回结果进行了自动编码检测，并自动转换为 Node.js 原生支持的 UTF-8 编码，开发者无须再关心编码转换问题；
 2. 由于前后端不分离的环境下大多使用 `x-www-form-urlencoded` 格式进行 Body 编码，该编码方案已经被默认使用。若要临时采用 JSON 编码，可以手动执行 `JSON.stringify` 序列化；
-3. 这套网络请求 API 另外还自带了 CookieJar，可自动记录并使用当前会话内的 Cookie，详见下文「自动Cookie」；
+3. 这套网络请求 API 另外还自带了 CookieJar，可自动记录并使用当前会话内的 Cookie，详见下文「自动 Cookie」；
 4. 我们的中间件程序被设计为能够自动识别路由处理程序中直接抛出的网络请求异常，并对这些异常做一些预设的解读和转换，例如把 `401` 和 `403` 原样返回给用户，把超时转换为 `408`，其余错误转换为 `503`，在下面「通用返回格式 & 错误处理」中，这些错误码都将变成用户可读的、完整准确的错误提示。
 
 ### 自动 Cookie
@@ -231,6 +229,7 @@ exports.route = {
 async get() {
 
   // 显式声明需要用户登录，并带上统一身份认证 Cookie
+  // 默认是老信息门户 Cookie，如果需要新信息门户 Cookie，可以加参数 { ids6: true }（非常耗时）。
   await this.useAuthCookie()
 
   // 带着统一身份认证 Cookie 获取一卡通中心 Cookie

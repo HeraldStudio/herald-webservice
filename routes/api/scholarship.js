@@ -1,5 +1,4 @@
 const cheerio = require('cheerio')
-const ids = require('../../middleware/auth-provider/ids')
 
 // 可申请奖学金、已申请奖学金、可申请助学金、已申请助学金的 URL 参数
 // 原来为 base64 编码，此处解码书写，增加可读性
@@ -13,13 +12,8 @@ const [scholarshipList, scholarshipApplied, stipendList, stipendApplied] = [
 exports.route = {
   async get() {
     return await this.userCache('1h', async () => {
-      await this.useAuthCookie()
+      await this.useAuthCookie({ ids6: true })
       let { cardnum, password } = this.user
-      try {
-        await ids(this, cardnum, password)
-      } catch (e) {
-        throw '登录信息门户出现问题，请手动登录信息门户 (my.seu.edu.cn) 后再试'
-      }
 
       return Object.assign({}, ...await Promise.all(Object.entries({
         scholarshipList, scholarshipApplied, stipendList, stipendApplied

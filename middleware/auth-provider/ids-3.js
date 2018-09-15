@@ -1,4 +1,4 @@
-// 通过老信息门户认证，缺陷是得到的 Cookie 不能用于新信息门户
+// 模拟老信息门户 (ids3) 认证，缺陷是得到的 Cookie 不能用于新信息门户
 module.exports = async (ctx, cardnum, password) => {
   await ctx.get('http://myold.seu.edu.cn/login.portal')
   let res = await ctx.post('http://myold.seu.edu.cn/userPasswordValidate.portal', {

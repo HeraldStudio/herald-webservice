@@ -73,7 +73,7 @@ exports.route = {
 
         // 处理 curriculum
         // 1. 登录到新平台 newids.seu.edu.cn
-        await this.useAuthCookie()
+        await this.useAuthCookie({ ids6: true })
 
         // 2. 获取下一步操作所需的 URL
         const urlRes = await this.get('http://ehall.seu.edu.cn/appMultiGroupEntranceList?appId=4770397878132218&r_t=' + Date.now())

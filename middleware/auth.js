@@ -79,21 +79,31 @@ const hash = value => {
   return Buffer.from(crypto.createHash('md5').update(value).digest()).toString('base64')
 }
 
-// 在这里选择认证接口提供者
-const authProvider = require('./auth-provider/ids')
-const graduateAuthProvider = require('./auth-provider/graduate')
+/**
+ * 现在需要同时集成三种认证通道
+ * ids3 是模拟老信息门户认证，速度快，不会出验证码，但得到的 Cookie 适用范围不大
+ * ids6 是模拟新信息门户认证，速度慢，多次输错密码会对该用户出现验证码，得到的 Cookie 适用范围广
+ * 因此使用 ids3 作为登录校验，校验通过后，如果路由处理程序需要 ids6 Cookie，则走一遍 ids6
+ * 
+ * 具体：
+ * 1. 登录认证 => ids3 => 登录成功
+ * 2. 路由请求 => 路由需要 ids3 Cookie? => ids3 => 路由需要 ids6 Cookie? => ids6
+ */
+const ids3Auth = require('./auth-provider/ids-3')
+const ids6Auth = require('./auth-provider/ids-6')
+const graduateAuth = require('./auth-provider/graduate')
 
 // 认证接口带错误处理的封装
 // 此方法用于：
 // - 用户首次登录；
 // - 用户重复登录时，提供的密码哈希与数据库保存的值不一致；
-// - 需要获取统一身份认证 Cookie (useAuthCookie()) 调用时。
-const auth = async (ctx, cardnum, password, gpassword) => {
+// - 需要获取 ids3 Cookie (useAuthCookie()) 调用时。
+const ids3AuthCheck = async (ctx, cardnum, password, gpassword) => {
   try {
     if (/^22\d*(\d{6})$/.test(cardnum)) {
-      await graduateAuthProvider(ctx, RegExp.$1, gpassword)
+      await graduateAuth(ctx, RegExp.$1, gpassword)
     }
-    let { schoolnum, name } = await authProvider(ctx, cardnum, password)
+    let { schoolnum, name } = await ids3Auth(ctx, cardnum, password)
     console.log(`\n${schoolnum}-${name}`)
     if (!schoolnum || !name) {
       throw '解析失败'
@@ -172,8 +182,8 @@ module.exports = async (ctx, next) => {
       // 这两种情况统一穿透到下面进行，如果认证通过，说明是第二种情况，则会删除数据库已有记录。
     }
 
-    // 登录统一身份认证，用于验证密码正确性、并同时获得姓名和学号
-    let { name, schoolnum } = await auth(ctx, cardnum, password, gpassword)
+    // 登录 ids3 老门户认证，用于验证密码正确性、并同时获得姓名和学号
+    let { name, schoolnum } = await ids3AuthCheck(ctx, cardnum, password, gpassword)
 
     // 生成 32 字节 token 转为十六进制，及其哈希值
     let token = customToken || Buffer.from(crypto.randomBytes(20)).toString('hex')
@@ -239,13 +249,30 @@ module.exports = async (ctx, next) => {
 
       let identity = hash(cardnum + name)
 
-      // 将统一身份认证和研究生身份认证 Cookie 获取器暴露给模块
-      // 在获取 Cookie 的同时，也会对密码进行统一身份认证
-      // 另外还会更新用户的学号，以避免转系学生学号始终不变的问题
-      ctx.useAuthCookie = async () => {
-        let res = await auth(ctx, cardnum, password, gpassword)
+      // 将统一身份认证 Cookie 获取器暴露给模块
+      ctx.useAuthCookie = async ({ ids6 = false } = {}) => {
+
+        // 进行 ids3 认证，拿到 ids3 Cookie，如果密码错误，会抛出 401
+        let res = await ids3AuthCheck(ctx, cardnum, password, gpassword)
+
+        // 更新用户的学号，以避免转系学生学号始终不变的问题
         if (res.schoolnum !== schoolnum) {
           await db.auth.update({ tokenHash }, { schoolnum: res.schoolnum })
+        }
+
+        // 如果路由需要 ids6 Cookie，在通过 ids3 认证后再去请求 ids6
+        // 这种情况暂时不省略前面的 ids3 认证，之后可以根据情况考虑取舍
+        
+        // 极端情况是：
+        // 如果用户改了密码之后回到小猴，如果没有前面 ids3 请求的保护，
+        // 同时发生了多个 ids6 请求，导致 ids6 触发验证码并抛出 401，让用户掉登录
+        // 用户再次登录后，ids6 会因为有验证码而 400
+        // 这时候不会再让用户掉登录，但是会让用户短期内无法使用 ids6 相关功能
+
+        // 这种情况非常稀少，如果在乎这种情况下的用户体验，就不要在需要 ids6 情况下省略上面的 ids3
+        // 如果想牺牲这种极端情况的用户体验，降低所有依赖 ids6 的模块的认证压力，就可以省略上面 ids3
+        if (ids6) {
+          await ids6Auth(ctx, cardnum, password)
         }
       }
 
