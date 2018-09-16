@@ -104,7 +104,6 @@ const ids3AuthCheck = async (ctx, cardnum, password, gpassword) => {
       await graduateAuth(ctx, RegExp.$1, gpassword)
     }
     let { schoolnum, name } = await ids3Auth(ctx, cardnum, password)
-    console.log(`\n${schoolnum}-${name}`)
     if (!schoolnum || !name) {
       throw '解析失败'
     }
