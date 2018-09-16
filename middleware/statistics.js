@@ -19,7 +19,7 @@ module.exports = async (ctx, next) => {
       let record = { time, identity, platform, route, method, status, duration }
       // profile
       let profileStart = +moment()
-      await db.stat.insert(record)
+      //await db.stat.insert(record)
       if (process.env.NODE_ENV === 'profile') {
         let profileEnd = +moment()
         console.log(`[Profile] 写入日志 ${profileEnd - profileStart} ms`)
