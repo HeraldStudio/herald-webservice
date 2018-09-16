@@ -310,11 +310,14 @@ const handler = {
 
     return `🐵 小猴偷米 App 下载地址
     
-    请复制到浏览器打开：
-    https://myseu.cn/#/download
+    iOS用户请直接在应用商店搜索：小猴偷米
 
-    注意：部分安卓商店提供早已过期的版本，
-    无法正常登录。
+    Android用户新版下载地址：
+    https://hybrid.myseu.cn/herald-app-beta-1.apk
+    （请复制到浏览器打开）
+
+
+    注意：部分安卓商店提供早已过期的版本，无法正常登录。
     `.padd()
 
   },
