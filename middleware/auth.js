@@ -81,7 +81,7 @@ const hash = value => {
 
 /**
  * 现在需要同时集成三种认证通道
- * ids3 是模拟老信息门户认证，速度快，不会出验证码，但得到的 Cookie 适用范围不大
+ * ids3 是模拟老信息门户 + 东大 App 认证，速度快，不会出验证码，但得到的 Cookie 适用范围不大
  * ids6 是模拟新信息门户认证，速度慢，多次输错密码会对该用户出现验证码，得到的 Cookie 适用范围广
  * 因此使用 ids3 作为登录校验，校验通过后，如果路由处理程序需要 ids6 Cookie，则走一遍 ids6
  * 
@@ -105,7 +105,7 @@ const ids3AuthCheck = async (ctx, cardnum, password, gpassword) => {
     }
     let { schoolnum, name } = await ids3Auth(ctx, cardnum, password)
     if (!schoolnum || !name) {
-      throw '解析失败'
+      throw '身份完整性校验失败'
     }
     return { schoolnum, name }
   } catch (e) {

@@ -1,12 +1,36 @@
 // 模拟老信息门户 (ids3) 认证，缺陷是得到的 Cookie 不能用于新信息门户
 module.exports = async (ctx, cardnum, password) => {
-  await ctx.get('http://myold.seu.edu.cn/login.portal')
-  let res = await ctx.post('http://myold.seu.edu.cn/userPasswordValidate.portal', {
-    'Login.Token1': cardnum,
-    'Login.Token2': password
-  })
-  if (/用户不存在或密码错误/.test(res.data)) {
-    throw 401
+  try {
+    // 优先使用东大 App (ids-mobile) 认证，这种认证成功率比老信息门户 ids3 高，但对某些外籍学生不适用
+    let res = await ctx.post(
+      'http://mobile4.seu.edu.cn/_ids_mobile/login18_9',
+      { username: cardnum, password }
+    )
+    let cookie = res.headers['set-cookie']
+    if (Array.isArray(cookie)) {
+      cookie = cookie.filter(k => k.indexOf('JSESSIONID') + 1)[0]
+    }
+    cookie = /(JSESSIONID=[0-9A-F]+)\s*[;$]/.exec(cookie)[1]
+
+    let url = 'http://www.seu.edu.cn'
+    let { cookieName, cookieValue } = JSON.parse(res.headers.ssocookie)[0]
+    ctx.cookieJar.setCookieSync(`${cookieName}=${cookieValue}; Domain=.seu.edu.cn`, url, {})
+    ctx.cookieJar.setCookieSync(`${cookie}; Domain=.seu.edu.cn`, url, {})
+  } catch (e) {
+    // 当 ids-mobile 抛出 401，改用老门户 ids3 认证再次尝试
+    if (e.response && e.response.status === 401) {
+      await ctx.get('http://myold.seu.edu.cn/login.portal')
+      let res = await ctx.post('http://myold.seu.edu.cn/userPasswordValidate.portal', {
+        'Login.Token1': cardnum,
+        'Login.Token2': password
+      })
+      // 若老门户 ids3 认证仍失败，抛出 401
+      if (/用户不存在或密码错误/.test(res.data)) {
+        throw 401
+      }
+    } else {
+      throw e
+    }
   }
 
   // 获取用户附加信息（仅姓名和学号）
