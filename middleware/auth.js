@@ -89,7 +89,7 @@ const hash = value => {
  * 1. 登录认证 => ids3 => 登录成功
  * 2. 路由请求 => 路由需要 ids3 Cookie? => ids3 => 路由需要 ids6 Cookie? => ids6
  */
-const ids3Auth = require('./auth-provider/ids-6')
+const ids3Auth = require('./auth-provider/ids-3')
 const ids6Auth = require('./auth-provider/ids-6')
 const graduateAuth = require('./auth-provider/graduate')
 

@@ -185,7 +185,7 @@ exports.route = {
           // 老师的号码是1开头的九位数
           // 考虑到学号是八位数的情况
           let isStudent = !(/^1\d{8}$/.exec(cardnum))
-
+          console.log(term)
           // 抓取课表页面
           let res = await (isStudent ? this.post(
             'http://xk.urp.seu.edu.cn/jw_service/service/stuCurriculum.action',
