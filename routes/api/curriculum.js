@@ -66,7 +66,7 @@ exports.route = {
       let curriculum = []
 
       // 新选课系统-目前使用18级本科生数据进行测试
-      if (/^21318/.test(cardnum) && term === '18-19-2') {
+      if (/^21318/.test(cardnum)) {
         // 处理 term
         term = this.term.list.find( t => t.name === '18-19-2')
         term.maxWeek = 16
