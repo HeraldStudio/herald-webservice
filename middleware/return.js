@@ -79,6 +79,7 @@ module.exports = async (ctx, next) => {
   }
 
   if(ctx.path.indexOf('/adapter-wx-herald/') === 0) {
+    ctx.body = ''
     ctx.status = 200
   } else {
     ctx.body = json
