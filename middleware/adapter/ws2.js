@@ -93,12 +93,16 @@ module.exports = async (ctx, next) => {
         let { term, curriculum } = ctx.body
         curriculum.map(k => {
           if (!sidebar.find(j => j.lecturer === k.teacherName && j.course === k.courseName)) {
+            try {
             sidebar.push({
               lecturer: k.teacherName,
               course: k.courseName,
               week: `${k.beginWeek}-${k.endWeek}`,
               credit: k.credit.toString()
             })
+          } catch(e) {
+            console.log('ws2/curriculum', k)
+          }
           }
           if (k.dayOfWeek) {
             content[weekdays[k.dayOfWeek - 1]].push([
@@ -128,12 +132,16 @@ module.exports = async (ctx, next) => {
             j.lecturer === k.teacherName
             && j.course === k.courseName
             && j.week === `${k.beginWeek}-${k.endWeek}`)) {
+              try {
             sidebar.push({
               lecturer: k.teacherName,
               course: k.courseName,
               week: `${k.beginWeek}-${k.endWeek}`,
               credit: k.credit.toString()
             })
+          } catch (e) {
+              console.log('ws2/sidebar', k)
+          }
           }
         })
 
