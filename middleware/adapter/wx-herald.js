@@ -367,28 +367,44 @@ const middleware = wechat(config).middleware(async (message, ctx) => {
   ctx.request.headers.token = message.FromUserName
   ctx.message = message
 
-  if (han instanceof Function) {
-    let originalPath = ctx.path
-    let originalMethod = ctx.method
-    try {
-      return await han.call(ctx, ...args)
-    } catch (e) {
-      if (e instanceof Error && ~e.message.indexOf('timeout')) {
-        e = 'timeout'
-      }
-      let han = handler[e] || handler.defaultError(e)
+  let openid = message.FromUserName
+  new Promise((resolve, reject) => {
+    (async() => {
       if (han instanceof Function) {
-        return await han.call(ctx, ...args)
+        let originalPath = ctx.path
+        let originalMethod = ctx.method
+        try {
+          return await han.call(ctx, ...args)
+        } catch (e) {
+          if (e instanceof Error && ~e.message.indexOf('timeout')) {
+            e = 'timeout'
+          }
+          let han = handler[e] || handler.defaultError(e)
+          if (han instanceof Function) {
+            return await han.call(ctx, ...args)
+          } else {
+            return han
+          }
+        } finally {
+          ctx.path = originalPath
+          ctx.method = originalMethod
+        }
       } else {
         return han
       }
-    } finally {
-      ctx.path = originalPath
-      ctx.method = originalMethod
-    }
-  } else {
-    return han
-  }
+    })().then((msg) => {
+      api.post('/message/custom/send', {
+        "touser":openid,
+        "msgtype":"text",
+        "text":
+        {
+           "content":msg
+        }
+      })
+    })
+  })
+
+  return ''
 })
 
 module.exports = async (ctx, next) => {
