@@ -404,7 +404,7 @@ const middleware = wechat(config).middleware(async (message, ctx) => {
     })
   })
 
-  return ''
+  return 'success'
 })
 
 module.exports = async (ctx, next) => {
