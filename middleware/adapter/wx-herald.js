@@ -368,6 +368,7 @@ const middleware = wechat(config).middleware(async (message, ctx) => {
   ctx.message = message
 
   let openid = message.FromUserName
+  
   new Promise((resolve, reject) => {
     (async() => {
       if (han instanceof Function) {
@@ -404,7 +405,8 @@ const middleware = wechat(config).middleware(async (message, ctx) => {
     })
   })
 
-  return 'success'
+  return ''
+
 })
 
 module.exports = async (ctx, next) => {
