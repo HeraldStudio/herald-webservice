@@ -20,7 +20,7 @@ if (process.env.NODE_ENV === 'production') {
 
 // 各种功能的 handler 函数或对象
 const handler = {
-  async '菜单|功能|菜單|選單' () {
+  async '菜单|功能|菜單|選單'() {
     let user
     try {
       this.path = '/api/user'
@@ -43,7 +43,7 @@ const handler = {
           💡 回复关键词使用对应功能`.padd()
   },
 
-  async '绑定|登录|登陆|綁定|登錄' (cardnum, password, gpassword = '') {
+  async '绑定|登录|登陆|綁定|登錄'(cardnum, password, gpassword = '') {
     this.path = '/auth'
     this.method = 'POST'
     this.params = {
@@ -55,7 +55,7 @@ const handler = {
     return `🔗 绑定成功`.padd()
   },
 
-  async '一卡通|消费|余额|流水|消費|餘額' (date) {
+  async '一卡通|消费|余额|流水|消費|餘額'(date) {
     this.path = '/api/card'
     this.method = 'GET'
     this.query = this.params = { date }
@@ -64,7 +64,7 @@ const handler = {
     let total = (- detail.map(k => k.amount).filter(k => k < 0).reduce((a, b) => a + b, 0)).toFixed(2)
     return [
       `💳 一卡通余额 ${info.balance}`,
-      `${date || '今日'} 总支出 ${ total } 元`,
+      `${date || '今日'} 总支出 ${total} 元`,
       detail.map(k => {
         let time = moment(k.time).fromNow()
         let amount = k.amount.toFixed(2).replace(/^(?:\d)/, '+')
@@ -74,7 +74,7 @@ const handler = {
     ].filter(k => k).join('\n\n').padd()
   },
 
-  async '课|課' () {
+  async '课|課'() {
     this.path = '/api/curriculum'
     this.method = 'GET'
     await this.next()
@@ -93,7 +93,7 @@ const handler = {
     let currentCount = current.length
 
     return [
-      `🗓 本学期已上 ${endedCount} 课，还有 ${upcomingCount} 课`, 
+      `🗓 本学期已上 ${endedCount} 课，还有 ${upcomingCount} 课`,
       current.map(k => `正在上课：${k.courseName} @ ${k.location}\n`).join(''),
       upcoming.slice(0, 5).map(k => `${moment(k.startTime).fromNow()}
         ${k.courseName} @ ${k.location}`).join('\n\n'),
@@ -110,7 +110,7 @@ const handler = {
     let courses = this.body
 
     return courses.length ? [
-      `🗓 你下学期可能有 ${ courses.length } 门课`,
+      `🗓 你下学期可能有 ${courses.length} 门课`,
       courses.map(k => `
         ${k.courseName} (${k.credit} 学分)
         ${k.avgScore ? `平均参考成绩 ${k.avgScore} (样本容量 ${k.sampleCount})` : ''}
@@ -134,7 +134,7 @@ const handler = {
     ].filter(k => k).join('\n\n').padd()
   },
 
-  async '跑操|早操|锻炼|鍛煉' () {
+  async '跑操|早操|锻炼|鍛煉'() {
     this.path = '/api/pe'
     this.method = 'GET'
     await this.next()
@@ -148,7 +148,7 @@ const handler = {
     ].filter(k => k).join('\n\n').padd()
   },
 
-  async '体测|體測' () {
+  async '体测|體測'() {
     this.path = '/api/pe'
     this.method = 'GET'
     await this.next()
@@ -170,7 +170,7 @@ const handler = {
     ].join('\n\n').padd()
   },
 
-  async '实验|實驗' () {
+  async '实验|實驗'() {
     this.path = '/api/phylab'
     this.method = 'GET'
     await this.next()
@@ -190,7 +190,7 @@ const handler = {
     ].filter(k => k).join('\n\n').padd()
   },
 
-  async '考试|考試|測驗' () {
+  async '考试|考試|測驗'() {
     this.path = '/api/exam'
     this.method = 'GET'
     await this.next()
@@ -210,7 +210,7 @@ const handler = {
     ].filter(k => k).join('\n\n').padd()
   },
 
-  async '绩|績' () {
+  async '绩|績'() {
     this.path = '/api/gpa'
     this.method = 'GET'
     await this.next()
@@ -230,7 +230,7 @@ const handler = {
     ].filter(k => k).join('\n\n').padd()
   },
 
-  async '讲座|講座' () {
+  async '讲座|講座'() {
     this.path = '/api/lecture'
     this.method = 'GET'
     await this.next()
@@ -241,7 +241,7 @@ const handler = {
     ].filter(k => k).join('\n\n').padd()
   },
 
-  async '图书|圖書' () {
+  async '图书|圖書'() {
     this.path = '/api/library'
     this.method = 'GET'
     await this.next()
@@ -253,7 +253,7 @@ const handler = {
     ].filter(k => k).join('\n\n').padd()
   },
 
-  async '奖助|獎助' () {
+  async '奖助|獎助'() {
     this.path = '/api/scholarship'
     this.method = 'GET'
     await this.next()
@@ -268,7 +268,7 @@ const handler = {
     ].filter(k => k).join('\n\n').padd()
   },
 
-  async '通知|公告' () {
+  async '通知|公告'() {
     this.path = '/api/notice'
     this.method = 'GET'
     await this.next()
@@ -280,7 +280,7 @@ const handler = {
     ].filter(k => k).join('\n\n').padd()
   },
 
-  async 'srtp|研学|研學' () {
+  async 'srtp|研学|研學'() {
     this.path = '/api/srtp'
     this.method = 'GET'
     await this.next()
@@ -292,7 +292,7 @@ const handler = {
     ].filter(k => k).join('\n\n').padd()
   },
 
-  async '宿舍|寝室|公寓' () {
+  async '宿舍|寝室|公寓'() {
     this.path = '/api/dorm'
     this.method = 'GET'
     await this.next()
@@ -339,7 +339,7 @@ const handler = {
 
     💡 所有命令与参数之间均有空格
     🙈 密码及缓存经过交叉加密保护`.padd(),
-    
+
   timeout: '请求超时，学校服务又挂啦 🙁',
 
   defaultError: e => {
@@ -368,9 +368,9 @@ const middleware = wechat(config).middleware(async (message, ctx) => {
   ctx.message = message
 
   let openid = message.FromUserName
-  
+
   new Promise((resolve, reject) => {
-    (async() => {
+    (async () => {
       if (han instanceof Function) {
         let originalPath = ctx.path
         let originalMethod = ctx.method
@@ -394,14 +394,18 @@ const middleware = wechat(config).middleware(async (message, ctx) => {
         return han
       }
     })().then((msg) => {
-      api.post('/message/custom/send', {
-        "touser":openid,
-        "msgtype":"text",
-        "text":
-        {
-           "content":msg
-        }
-      })
+      try {
+        api.post('/message/custom/send', {
+          "touser": openid,
+          "msgtype": "text",
+          "text":
+          {
+            "content": msg
+          }
+        })
+      } catch (e) {
+        console.log('向微信服务器推送消息失败')
+      }
     })
   })
 
