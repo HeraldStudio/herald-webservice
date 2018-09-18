@@ -78,7 +78,7 @@ module.exports = async (ctx, next) => {
     }
   }
 
-  if(ctx.path.indexOf('/adapter-wx-herald/') === 0) {
+  if(ctx.wx) {
     console.log('微信')
     console.log(ctx.path)
     ctx.body = 'success'

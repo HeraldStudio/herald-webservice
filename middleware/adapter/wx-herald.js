@@ -413,6 +413,7 @@ module.exports = async (ctx, next) => {
   if (ctx.path.indexOf('/adapter-wx-herald/') === 0) {
     ctx.next = next
     await middleware.call(this, ctx, next)
+    ctx.wx = true
   } else {
     await next()
   }
