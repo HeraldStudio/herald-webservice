@@ -107,6 +107,7 @@ exports.route = {
             beginPeriod: parseInt(rawCourse.KSJC),
             endPeriod: parseInt(rawCourse.JSJC),
             location: rawCourse.JASMC,
+            credit: '学分未知'
           };
           curriculum.push(course);
         });
