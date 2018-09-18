@@ -98,7 +98,7 @@ module.exports = async (ctx, next) => {
               lecturer: k.teacherName,
               course: k.courseName,
               week: `${k.beginWeek}-${k.endWeek}`,
-              credit: k.credit.toString()
+              credit: k.credit ? k.credit.toString() : '获取失败'
             })
           } catch(e) {
             console.log('ws2/curriculum', k)
@@ -137,7 +137,7 @@ module.exports = async (ctx, next) => {
               lecturer: k.teacherName,
               course: k.courseName,
               week: `${k.beginWeek}-${k.endWeek}`,
-              credit: k.credit.toString()
+              credit: k.credit ? k.credit.toString() : '获取失败'
             })
           } catch (e) {
               console.log('ws2/sidebar', k)
