@@ -79,8 +79,6 @@ module.exports = async (ctx, next) => {
   }
 
   if(ctx.wx) {
-    console.log('微信')
-    console.log(ctx.path)
     ctx.body = 'success'
     ctx.status = 200
   } else {
