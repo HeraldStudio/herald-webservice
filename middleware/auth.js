@@ -49,7 +49,9 @@ const db = require('../database/auth')
 const tough = require('tough-cookie')
 const crypto = require('crypto')
 const { config } = require('../app')
+const { mongodb } = require('../database/mongodb')
 
+const authCollection = mongodb.collection('auth')
 // 对称加密算法，要求 value 是 String 或 Buffer，否则会报错
 const encrypt = (key, value) => {
   try {
