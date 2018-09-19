@@ -20,3 +20,4 @@ redis-secret.json
 log
 *.db-journal
 newxk/
+database/mongodb-secret.json

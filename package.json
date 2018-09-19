@@ -23,6 +23,7 @@
     "koa": "^2.4.1",
     "koa-bodyparser": "^4.2.0",
     "moment": "^2.22.1",
+    "mongodb": "^3.1.6",
     "node-europa": "^4.0.0",
     "nodemon": "^1.15.1",
     "ora": "^1.4.0",
