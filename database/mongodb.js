@@ -7,13 +7,16 @@ const password = encodeURIComponent(config.pwd);
 const authMechanism = 'DEFAULT';
 
 // Connection URL
-const url = `mongodb://${user}:${password}@${config.host}:${config.port}/?authMechanism=${authMechanism}`
+const url = `mongodb://${user}:${password}@${config.host}:${config.port}/webservice?authMechanism=${authMechanism}`
 let mongodb = null
-// Use connect method to connect to the Server
-MongoClient.connect(url, function (err, client) {
-  assert.equal(null, err);
-  console.log("数据库连接建立成功");
-  mongodb = client.db("webservice")
-});
 
-module.exports = { mongodb }
+const getCollection = async(col) => {
+  if (mongodb) {
+    return mongodb.collection(col)
+  } else {
+    mongodb = await MongoClient.connect(url, { useNewUrlParser: true })
+    mongodb = mongodb.db("webservice")
+    return mongodb.collection(col)
+  }
+}
+module.exports = getCollection

@@ -49,9 +49,8 @@ const db = require('../database/auth')
 const tough = require('tough-cookie')
 const crypto = require('crypto')
 const { config } = require('../app')
-const { mongodb } = require('../database/mongodb')
+const  mongodb  = require('../database/mongodb')
 
-const authCollection = mongodb.collection('auth')
 // 对称加密算法，要求 value 是 String 或 Buffer，否则会报错
 const encrypt = (key, value) => {
   try {
@@ -113,8 +112,10 @@ const ids3AuthCheck = async (ctx, cardnum, password, gpassword) => {
   } catch (e) {
     if (e === 401) {
       if (ctx.user && ctx.user.isLogin) {
+        let authCollection = await mongodb('herald_auth')
         let { token } = ctx.user
         await db.auth.remove({ tokenHash: token })
+        await authCollection.deleteMany({ tokenHash: token })
       }
     }
     throw e
@@ -123,10 +124,10 @@ const ids3AuthCheck = async (ctx, cardnum, password, gpassword) => {
 
 // 加密和解密过程
 module.exports = async (ctx, next) => {
-
+  let authCollection = await mongodb('herald_auth')
   // 对于 auth 路由的请求，直接截获，不交给 kf-router
   if (ctx.path === '/auth') {
-
+    
     // POST /auth 登录认证
     if (ctx.method.toUpperCase() !== 'POST') {
       throw 405
@@ -157,8 +158,21 @@ module.exports = async (ctx, next) => {
     // 有自定义 token 情况下，需要按自定义 token 查找该用户，与该 token 不一致的无法复用
     // 这里的 criteria 不仅表示查找的条件，同时也是找到记录但需要删除旧记录时的删除条件，修改时请考虑下面删除的条件
     let criteria = customToken ? { tokenHash: hash(customToken) } : { cardnum, platform }
-    let existing = await db.auth.find(criteria, 1)
-
+    
+    // mongodb迁移
+    let existing = await authCollection.findOne(criteria)
+    if (!existing) {
+      // mongodb 不存在记录
+      existing = await db.auth.find(criteria, 1)
+      // 从sqlite数据库找
+      if (existing) {
+        // 老数据库中找到了，插入到mongodb中去
+        console.log('>>>mongodb迁移<<<')
+        await authCollection.insertOne(existing)
+      }
+      // 运行到此处表示老数据库也没有，那就继续原来的逻辑
+    }
+    
     // 若找到已认证记录，比对密码，全部正确则可以免去统一身份认证流程
     if (existing) {
       let { passwordHash, tokenHash, tokenEncrypted, gpasswordEncrypted } = existing
@@ -197,6 +211,7 @@ module.exports = async (ctx, next) => {
     if (existing) {
       // 这里 criteria 跟查找时的条件相同，自定义 token 按 tokenHash 删除，否则按一卡通号和平台删除
       await db.auth.remove(criteria)
+      await authCollection.deleteMany(criteria)
     }
 
     // 将 token 和密码互相加密
@@ -208,16 +223,28 @@ module.exports = async (ctx, next) => {
     let now = new Date().getTime()
 
     // 插入用户数据
-    await db.auth.insert({
-      cardnum,
-      tokenHash,
-      tokenEncrypted,
-      passwordEncrypted,
-      passwordHash,
-      gpasswordEncrypted,
-      name, schoolnum, platform,
-      registered: now,
-      lastInvoked: now
+    // await db.auth.insert({
+    //   cardnum,
+    //   tokenHash,
+    //   tokenEncrypted,
+    //   passwordEncrypted,
+    //   passwordHash,
+    //   gpasswordEncrypted,
+    //   name, schoolnum, platform,
+    //   registered: now,
+    //   lastInvoked: now
+    // })
+    // 不再向老数据库插入记录，所有记录都插入新数据库
+    await authCollection.insertOne({
+        cardnum,
+        tokenHash,
+        tokenEncrypted,
+        passwordEncrypted,
+        passwordHash,
+        gpasswordEncrypted,
+        name, schoolnum, platform,
+        registered: now,
+        lastInvoked: now
     })
 
     // 返回 token
@@ -228,14 +255,23 @@ module.exports = async (ctx, next) => {
     // 对于其他请求，根据 token 的哈希值取出表项
     let token = ctx.request.headers.token
     let tokenHash = hash(token)
-    let record = await db.auth.find({ tokenHash }, 1)
-
+    let record = await authCollection.findOne({ tokenHash })
+    // mongodb 迁移
+    if (!record) {
+      record = await db.auth.find({ tokenHash }, 1)
+      if (record) {
+        console.log('>>>mongodb迁移<<<')
+        await authCollection.insertOne(record)
+      }
+    }
+    
+    // 运行到此处，mongodb中应该已经包含用户记录了，之后的更新操作全部对mongodb操作
     if (record) { // 若 token 失效，穿透到未登录的情况去
       let now = new Date().getTime()
 
       // 更新用户最近调用时间
-      await db.auth.update({ tokenHash }, { lastInvoked: now })
-
+      //await db.auth.update({ tokenHash }, { lastInvoked: now })
+      await authCollection.updateOne({ tokenHash }, { $set: { lastInvoked: now }})
       // 解密用户密码
       let {
         cardnum, name, schoolnum, platform,
@@ -258,7 +294,8 @@ module.exports = async (ctx, next) => {
 
         // 更新用户的学号，以避免转系学生学号始终不变的问题
         if (res.schoolnum !== schoolnum) {
-          await db.auth.update({ tokenHash }, { schoolnum: res.schoolnum })
+          //await db.auth.update({ tokenHash }, { schoolnum: res.schoolnum })
+          await authCollection.updateOne({ tokenHash }, { $set:{ schoolnum: res.schoolnum }})
         }
 
         // 如果路由需要 ids6 Cookie，在通过 ids3 认证后再去请求 ids6
