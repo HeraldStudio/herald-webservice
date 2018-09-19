@@ -161,6 +161,7 @@ module.exports = async (ctx, next) => {
     
     // mongodb迁移
     let existing = await authCollection.findOne(criteria)
+
     if (!existing) {
       // mongodb 不存在记录
       existing = await db.auth.find(criteria, 1)
@@ -222,18 +223,18 @@ module.exports = async (ctx, next) => {
     // 将新用户信息插入数据库
     let now = new Date().getTime()
 
-    // 插入用户数据
-    // await db.auth.insert({
-    //   cardnum,
-    //   tokenHash,
-    //   tokenEncrypted,
-    //   passwordEncrypted,
-    //   passwordHash,
-    //   gpasswordEncrypted,
-    //   name, schoolnum, platform,
-    //   registered: now,
-    //   lastInvoked: now
-    // })
+    // 老数据库仍然插入用户数据
+    await db.auth.insert({
+      cardnum,
+      tokenHash,
+      tokenEncrypted,
+      passwordEncrypted,
+      passwordHash,
+      gpasswordEncrypted,
+      name, schoolnum, platform,
+      registered: now,
+      lastInvoked: now
+    })
     // 不再向老数据库插入记录，所有记录都插入新数据库
     await authCollection.insertOne({
         cardnum,
@@ -256,12 +257,18 @@ module.exports = async (ctx, next) => {
     let token = ctx.request.headers.token
     let tokenHash = hash(token)
     let record = await authCollection.findOne({ tokenHash })
+    if (record) {
+      console.log("mongodb-token查询成功")
+    }
     // mongodb 迁移
     if (!record) {
       record = await db.auth.find({ tokenHash }, 1)
       if (record) {
         console.log('>>>mongodb迁移<<<')
-        await authCollection.insertOne(record)
+        let check = await authCollection.findOne({tokenHash: record.tokenHash})
+        if (!check) {
+          await authCollection.insertOne(record)
+        }
       }
     }
     
@@ -294,7 +301,7 @@ module.exports = async (ctx, next) => {
 
         // 更新用户的学号，以避免转系学生学号始终不变的问题
         if (res.schoolnum !== schoolnum) {
-          //await db.auth.update({ tokenHash }, { schoolnum: res.schoolnum })
+          await db.auth.update({ tokenHash }, { schoolnum: res.schoolnum })
           await authCollection.updateOne({ tokenHash }, { $set:{ schoolnum: res.schoolnum }})
         }
 
