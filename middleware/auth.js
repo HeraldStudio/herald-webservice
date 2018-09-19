@@ -267,6 +267,7 @@ module.exports = async (ctx, next) => {
         console.log('>>>mongodb迁移<<<')
         let check = await authCollection.findOne({tokenHash: record.tokenHash})
         if (!check) {
+          console.log(`mongodb-插入-${record.name}`)
           await authCollection.insertOne(record)
         }
       }
