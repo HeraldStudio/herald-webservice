@@ -52,15 +52,15 @@ const { config } = require('../app')
 const  mongodb  = require('../database/mongodb');
 
 // 数据库迁移代码
-(async() => {
-  console.log('正在迁移auth数据库')
-  let allUsers = await db.auth.find({}, -1)
-  let authCollection = await mongodb('herald_auth')
-  if (allUsers.length > 0) {
-  await authCollection.insertMany(allUsers)
-  }
-  console.log(`共迁移${allUsers.length}条记录`)
-})();
+// (async() => {
+//   console.log('正在迁移auth数据库')
+//   let allUsers = await db.auth.find({}, -1)
+//   let authCollection = await mongodb('herald_auth')
+//   if (allUsers.length > 0) {
+//   await authCollection.insertMany(allUsers)
+//   }
+//   console.log(`共迁移${allUsers.length}条记录`)
+// })();
 
 // 对称加密算法，要求 value 是 String 或 Buffer，否则会报错
 const encrypt = (key, value) => {
