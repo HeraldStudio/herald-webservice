@@ -72,6 +72,7 @@ module.exports = async (ctx, next) => {
         }
 
         let { schoolnum = '' } = ctx.params
+        console.log(ctx.params)
         let now = +moment()
         // content.sliderviews = (await pubdb.banner.find({
         //   startTime: { $lte: now },
