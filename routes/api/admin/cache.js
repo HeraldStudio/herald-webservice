@@ -8,7 +8,6 @@ exports.route = {
     throw 'Delete ONLY'
   },
   async delete ({ cacheName }) {
-    console.log(admin)
     if (!this.admin || !this.admin.maintenance) {
       throw 403
     }
