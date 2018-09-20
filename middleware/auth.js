@@ -303,6 +303,7 @@ module.exports = async (ctx, next) => {
       // 更新用户最近调用时间一天更新一次降低粒度
       if (now - lastInvoked >= 24 * 60 * 60 * 1000) {
         await authCollection.updateOne({ tokenHash }, { $set: { lastInvoked: now }})
+        record.lastInvoked = now
       }
       // 解密用户密码
       let {
