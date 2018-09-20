@@ -40,23 +40,23 @@ db.activityClick = {
 };
 
 // 数据库迁移代码
-(async() => {
-  console.log('正在迁移banner数据库')
-  let all = await db.banner.find({}, -1)
-  let collection = await mongodb('herald_banner')
-  if (all.length > 0) {
-  await collection.insertMany(all)
-  }
-  console.log(`共迁移${all.length}条记录`)
-})();
+// (async() => {
+//   console.log('正在迁移banner数据库')
+//   let all = await db.banner.find({}, -1)
+//   let collection = await mongodb('herald_banner')
+//   if (all.length > 0) {
+//   await collection.insertMany(all)
+//   }
+//   console.log(`共迁移${all.length}条记录`)
+// })();
 
-(async() => {
-  console.log('正在迁移bannerClick数据库')
-  let all = await db.bannerClick.find({}, -1)
-  let collection = await mongodb('herald_banner_click')
-  if (all.length > 0) {
-  await collection.insertMany(all)
-  }
-  console.log(`共迁移${all.length}条记录`)
-})();
+// (async() => {
+//   console.log('正在迁移bannerClick数据库')
+//   let all = await db.bannerClick.find({}, -1)
+//   let collection = await mongodb('herald_banner_click')
+//   if (all.length > 0) {
+//   await collection.insertMany(all)
+//   }
+//   console.log(`共迁移${all.length}条记录`)
+// })();
 module.exports = db
