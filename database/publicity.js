@@ -1,5 +1,5 @@
 const db = require('sqlongo')('publicity')
-
+const mongodb = require('./mongodb')
 db.banner = {
   bid:              'integer primary key',
   title:            'text not null',    // 标题
@@ -37,6 +37,26 @@ db.activity = {
 db.activityClick = {
   aid:              'int not null',
   identity:         'text not null'    // 数据库中要区分用户时务必用 identity
-}
+};
 
+// 数据库迁移代码
+(async() => {
+  console.log('正在迁移banner数据库')
+  let all = await db.banner.find({}, -1)
+  let collection = await mongodb('herald_banner')
+  if (all.length > 0) {
+  await collection.insertMany(all)
+  }
+  console.log(`共迁移${all.length}条记录`)
+})();
+
+(async() => {
+  console.log('正在迁移bannerClick数据库')
+  let all = await db.bannerClick.find({}, -1)
+  let collection = await mongodb('herald_banner_click')
+  if (all.length > 0) {
+  await collection.insertMany(all)
+  }
+  console.log(`共迁移${all.length}条记录`)
+})();
 module.exports = db
