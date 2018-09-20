@@ -51,6 +51,7 @@ const crypto = require('crypto')
 const { config } = require('../app')
 const  mongodb  = require('../database/mongodb');
 
+const tokenHashPool = {} // 用于缓存tokenHash，防止高峰期数据库爆炸💥
 // 数据库迁移代码
 // (async() => {
 //   console.log('正在迁移auth数据库')
@@ -127,6 +128,7 @@ const ids3AuthCheck = async (ctx, cardnum, password, gpassword) => {
         let { token } = ctx.user
         await db.auth.remove({ tokenHash: token })
         await authCollection.deleteMany({ tokenHash: token })
+        tokenHashPool[token] = undefined
       }
     }
     throw e
@@ -224,6 +226,7 @@ module.exports = async (ctx, next) => {
       // 这里 criteria 跟查找时的条件相同，自定义 token 按 tokenHash 删除，否则按一卡通号和平台删除
       await db.auth.remove(criteria)
       await authCollection.deleteMany(criteria)
+      tokenHashPool[tokenHash] = undefined
     }
 
     // 将 token 和密码互相加密
@@ -267,11 +270,19 @@ module.exports = async (ctx, next) => {
     // 对于其他请求，根据 token 的哈希值取出表项
     let token = ctx.request.headers.token
     let tokenHash = hash(token)
-    let record = await authCollection.findOne({ tokenHash })
-    if (record) {
-      console.log("mongodb-token查询成功")
+    // 第一步查缓存
+    let record = tokenHashPool[tokenHash]
+    if(record) {
+      console.log(">>>tokenHash缓存命中")
     }
-    // mongodb 迁移
+
+    if(!record) {
+      // Ooops！缓存没有命中
+      record = await authCollection.findOne({ tokenHash })
+      tokenHashPool[tokenHash] = record
+    }
+
+    // mongodb 防止mongodb没有命中，用老数据库做辅助（其实没用了）
     if (!record) {
       record = await db.auth.find({ tokenHash }, 1)
       if (record) {
@@ -285,12 +296,14 @@ module.exports = async (ctx, next) => {
     }
     
     // 运行到此处，mongodb中应该已经包含用户记录了，之后的更新操作全部对mongodb操作
+    // 缓存也一定已经包含tokenHash了
     if (record) { // 若 token 失效，穿透到未登录的情况去
-      let now = new Date().getTime()
-
-      // 更新用户最近调用时间
-      //await db.auth.update({ tokenHash }, { lastInvoked: now })
-      await authCollection.updateOne({ tokenHash }, { $set: { lastInvoked: now }})
+      let now = +moment()
+      let lastInvoked = record.lastInvoked
+      // 更新用户最近调用时间一天更新一次降低粒度
+      if (now - lastInvoked >= 24 * 60 * 60 * 1000) {
+        await authCollection.updateOne({ tokenHash }, { $set: { lastInvoked: now }})
+      }
       // 解密用户密码
       let {
         cardnum, name, schoolnum, platform,
