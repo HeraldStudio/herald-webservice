@@ -328,6 +328,7 @@ module.exports = async (ctx, next) => {
         if (res.schoolnum !== schoolnum) {
           await db.auth.update({ tokenHash }, { schoolnum: res.schoolnum })
           await authCollection.updateOne({ tokenHash }, { $set:{ schoolnum: res.schoolnum }})
+          tokenHashPool[tokenHash] = undefined
         }
 
         // 如果路由需要 ids6 Cookie，在通过 ids3 认证后再去请求 ids6
