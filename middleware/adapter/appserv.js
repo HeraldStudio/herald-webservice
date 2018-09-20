@@ -1,5 +1,6 @@
 const pubdb = require('../../database/publicity')
 const authdb = require('../../database/auth')
+const  mongodb  = require('../../database/mongodb');
 const { config } = require('../../app')
 const crypto = require('crypto')
 const axios = require('axios')
@@ -10,6 +11,7 @@ const hash = value => {
 }
 
 module.exports = async (ctx, next) => {
+  let authCollection = await mongodb('herald_auth')
   if (ctx.path.indexOf('/adapter-appserv/') !== 0) {
     return await next()
   }
@@ -27,10 +29,12 @@ module.exports = async (ctx, next) => {
 
         // 与 middleware/adapter/ws2.js:44 一致，快速更新用户的具体平台
         if (uuid && versiontype) {
-          let auth = await authdb.auth.find({ tokenHash: hash(uuid) }, 1)
+          //let auth = await authdb.auth.find({ tokenHash: hash(uuid) }, 1)
+          let auth = await authCollection.findOne({ tokenHash: hash(uuid) })
           if (auth && auth.platform === 'ws2') {
             let platform = 'ws2-' + versiontype.toLowerCase().replace('wxapp', 'mina')
-            await authdb.auth.update({ tokenHash: hash(uuid) }, { platform })
+            //await authdb.auth.update({ tokenHash: hash(uuid) }, { platform })
+            await authCollection.updateOne({ tokenHash: hash(uuid) }, { $set:{ platform }})
           }
         }
 
