@@ -12,7 +12,7 @@ exports.route = {
     //   startTime: { $lte: now },
     //   endTime: { $gt: now }
     // }, -1, 0, 'startTime-'))
-    await (bannerCollection.find({
+    (await bannerCollection.find({
          startTime: { $lte: now },
          endTime: { $gt: now }
        }).sort('startTime', -1).toArray())
