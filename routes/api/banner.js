@@ -24,7 +24,6 @@ exports.route = {
     // 这里删除 url 参数，强制要求前端在用户点击时通过 put 请求获取链接，以保证统计不遗漏
     // 将bid替换成_id
     .map(k => {
-      k.bid = k._id
       k.hasUrl = !!k.url
       delete k.url
       return k
@@ -42,7 +41,7 @@ exports.route = {
     let bannerCollection = await mongodb('herald_banner')
     let bannerClickCollection = await mongodb('herald_banner_click')
     //let banner = await db.banner.find({ bid }, 1)
-    let banner = await bannerCollection.findOne({_id:bid})
+    let banner = await bannerCollection.findOne({ bid })
     if (!banner) {
       throw 404
     }

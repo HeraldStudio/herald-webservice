@@ -14,7 +14,6 @@ exports.route = {
     //   }))
     return await Promise.all((await bannerCollection.find().sort('endTime', -1).skip((page - 1) * pagesize).limit(pagesize).toArray())
     .map(async k => {
-      k.bid = k._id
       k.clicks = await bannerClickCollection.countDocuments({ bid: k.bid })
       return k
     }))
@@ -25,6 +24,7 @@ exports.route = {
       throw 403
     }
     //await db.banner.insert(banner)
+    banner.bid = (await bannerCollection.find().sort('bid', -1).limit(1).toArray())[0].bid + 1
     await bannerCollection.insertOne(banner)
     return 'OK'
   },
@@ -34,7 +34,7 @@ exports.route = {
       throw 403
     }
     //await db.banner.update({ bid: banner.bid }, banner)
-    await bannerCollection.updateOne({_id: banner.bid}, {$set:banner})
+    await bannerCollection.updateOne({bid: banner.bid}, {$set:banner})
     return 'OK'
   },
   async delete ({ bid }) {
@@ -45,7 +45,7 @@ exports.route = {
     }
     //await db.banner.remove({ bid })
     //await db.bannerClick.remove({ bid })
-    await bannerCollection.deleteOne({ _id:bid })
+    await bannerCollection.deleteOne({ bid })
     await bannerClickCollection.deleteMany({ bid })
     return 'OK'
   }
