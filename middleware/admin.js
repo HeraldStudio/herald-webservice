@@ -4,15 +4,15 @@ const db = require('../database/admin')
 const mongodb = require('../database/mongodb');
 
 //数据库迁移代码
-(async() => {
-  console.log('正在迁移admin数据库')
-  let allAdmins = await db.admin.find({}, -1)
-  let adminCollection = await mongodb('herald_admin')
-  if (allAdmins.length > 0) {
-  await adminCollection.insertMany(allAdmins)
-  }
-  console.log(`共迁移${allAdmins.length}条记录`)
-})();
+// (async() => {
+//   console.log('正在迁移admin数据库')
+//   let allAdmins = await db.admin.find({}, -1)
+//   let adminCollection = await mongodb('herald_admin')
+//   if (allAdmins.length > 0) {
+//   await adminCollection.insertMany(allAdmins)
+//   }
+//   console.log(`共迁移${allAdmins.length}条记录`)
+// })();
 // (async() => {
 //   console.log('正在迁移domain数据库')
 //   let allDomains = await db.domain.find({}, -1)
