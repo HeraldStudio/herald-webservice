@@ -72,7 +72,6 @@ module.exports = async (ctx, next) => {
         }
 
         let { schoolnum = '' } = ctx.params
-        console.log(ctx.params)
         let now = +moment()
         // content.sliderviews = (await pubdb.banner.find({
         //   startTime: { $lte: now },
@@ -119,7 +118,7 @@ module.exports = async (ctx, next) => {
             url: k.url && `https://myseu.cn/ws3/adapter-ws2/click?bid=${k.bid}&token=[uuid]`
           }
         })
-        console.log(content)
+        
         ctx.body = { content, code: 200 }
       } catch (e) {
         console.error(e)
