@@ -119,6 +119,7 @@ module.exports = async (ctx, next) => {
             url: k.url && `https://myseu.cn/ws3/adapter-ws2/click?bid=${k.bid}&token=[uuid]`
           }
         })
+        console.log(content)
         ctx.body = { content, code: 200 }
       } catch (e) {
         console.error(e)

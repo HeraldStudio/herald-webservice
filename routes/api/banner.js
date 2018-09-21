@@ -41,6 +41,7 @@ exports.route = {
     let bannerCollection = await mongodb('herald_banner')
     let bannerClickCollection = await mongodb('herald_banner_click')
     //let banner = await db.banner.find({ bid }, 1)
+    bid = parseInt(bid)
     let banner = await bannerCollection.findOne({ bid })
     if (!banner) {
       throw 404
