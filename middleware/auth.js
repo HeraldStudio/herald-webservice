@@ -273,7 +273,6 @@ module.exports = async (ctx, next) => {
     // 第一步查缓存
     let record = tokenHashPool[tokenHash]
     if(record) {
-      console.log(">>>tokenHash缓存命中")
     }
 
     if(!record) {
