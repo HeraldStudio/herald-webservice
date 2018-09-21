@@ -394,7 +394,9 @@ const middleware = wechat(config).middleware(async (message, ctx) => {
         return han
       }
     })().then((msg) => {
-      console.log(msg)
+      if ( msg === 'default') {
+        return ''
+      }
       try {
         api.post('/message/custom/send', {
           "touser": openid,
