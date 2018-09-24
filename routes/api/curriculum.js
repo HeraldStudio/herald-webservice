@@ -57,7 +57,7 @@ exports.route = {
     let currentTerm = (this.term.current || this.term.next).name
 
     // 若为查询未来学期，可能是在选课过程中，需要减少缓存时间
-    return await this.userCache(term && term > currentTerm ? '1d+' : '1d+', async () => {
+    return await this.userCache(term && term > currentTerm ? '10m' : '10m', async () => {
 
       // 先检查可用性，不可用直接抛异常或取缓存
       this.guard('http://xk.urp.seu.edu.cn/jw_service/service/lookCurriculum.action')
@@ -327,6 +327,11 @@ exports.route = {
 
           // 确定最大周数
           term.maxWeek = curriculum.map(k => k.endWeek).reduce((a, b) => a > b ? a : b, 0)
+
+          // 针对一些辅修课程不显示学期
+          if (!term.maxWeek) {
+            term.maxWeek = term.isLong ? 16 : 4
+          }
 
           // 为了兼容丁家桥表示法，本科生和教师碰到秋季学期超过 16 周的课表，将开学日期前推四周
           if (term.maxWeek > 16 && !/^22/.test(cardnum) && /-2$/.test(term.name)) {
