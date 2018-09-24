@@ -437,6 +437,12 @@ exports.route = {
         }
       })
 
+      // 应对jwc完全没有时间的情况
+      curriculum.map(k => {
+        k.beginWeek = k.beginWeek ? k.beginWeek : 1
+        k.endWeek = k.endWeek ? k.endWeek : term.maxWeek
+      })
+
       this.logMsg = `${name} (${cardnum}) - 查询课程表`
       return { term, curriculum }
     })
