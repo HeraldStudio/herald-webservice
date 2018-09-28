@@ -45,6 +45,7 @@ exports.route = {
     }
     //await db.banner.remove({ bid })
     //await db.bannerClick.remove({ bid })
+    bid = parseInt(bid)
     await bannerCollection.deleteOne({ bid })
     await bannerClickCollection.deleteMany({ bid })
     return 'OK'
