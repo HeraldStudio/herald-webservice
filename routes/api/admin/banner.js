@@ -34,8 +34,7 @@ exports.route = {
       throw 403
     }
     //await db.banner.update({ bid: banner.bid }, banner)
-    banner._id = undefined
-    console.log(banner)
+    delete banner._id
     await bannerCollection.updateOne({bid: banner.bid}, {$set:banner})
     return 'OK'
   },
