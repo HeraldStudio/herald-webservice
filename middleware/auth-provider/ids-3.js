@@ -77,6 +77,7 @@ module.exports = async (ctx, cardnum, password) => {
     } 
 
     // 从课表更新学号
+    try {
     let schoolNumRes = await ctx.post(
       'http://xk.urp.seu.edu.cn/jw_service/service/stuCurriculum.action',
       {
@@ -86,7 +87,7 @@ module.exports = async (ctx, cardnum, password) => {
     )
     schoolnum = /学号:([0-9A-Za-z]+)/im.exec(schoolNumRes.data) || []
     schoolnum = schoolnum[1] || ''
-    
+    } catch(e) {}
   }
 
   // if (/^21318/.test(cardnum)) {
