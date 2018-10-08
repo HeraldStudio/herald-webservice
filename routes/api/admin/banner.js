@@ -34,6 +34,7 @@ exports.route = {
       throw 403
     }
     //await db.banner.update({ bid: banner.bid }, banner)
+    delete banner._id
     await bannerCollection.updateOne({bid: banner.bid}, {$set:banner})
     return 'OK'
   },
@@ -45,6 +46,7 @@ exports.route = {
     }
     //await db.banner.remove({ bid })
     //await db.bannerClick.remove({ bid })
+    bid = parseInt(bid)
     await bannerCollection.deleteOne({ bid })
     await bannerClickCollection.deleteMany({ bid })
     return 'OK'
