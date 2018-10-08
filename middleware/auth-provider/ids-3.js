@@ -1,4 +1,6 @@
 // 模拟老信息门户 (ids3) 认证，缺陷是得到的 Cookie 不能用于新信息门户
+const  mongodb  = require('../../database/mongodb');
+
 module.exports = async (ctx, cardnum, password) => {
   try {
     // 优先使用东大 App (ids-mobile) 认证，这种认证成功率比老信息门户 ids3 高，但对某些外籍学生不适用
@@ -62,11 +64,19 @@ module.exports = async (ctx, cardnum, password) => {
   // 解析学号（本科生 Only）
 
   if (/^21/.test(cardnum)) {
-  //   schoolnum = /class="portlet-table-even">(.*)<\//im
-  //   .exec(res.data) || []
-  // schoolnum = schoolnum[1] || ''
-  // schoolnum = schoolnum.replace(/&[0-9a-zA-Z]+;/g, '')
-  // 老信息门户出现问题，从课表查询获取学号
+    schoolnum = /class="portlet-table-even">(.*)<\//im.exec(res.data) || []
+    schoolnum = schoolnum[1] || ''
+    schoolnum = schoolnum.replace(/&[0-9a-zA-Z]+;/g, '')
+    // 查询认证数据库历史记录
+    let authCollection = await mongodb('herald_auth')
+    let historyInfo = await authCollection.findOne({ cardnum })
+    if ( historyInfo ) {
+      // 存在历史认证记录
+      name = historyInfo.name
+      schoolnum = historyInfo.schoolnum
+    } 
+
+    // 从课表更新学号
     let schoolNumRes = await ctx.post(
       'http://xk.urp.seu.edu.cn/jw_service/service/stuCurriculum.action',
       {
@@ -76,6 +86,7 @@ module.exports = async (ctx, cardnum, password) => {
     )
     schoolnum = /学号:([0-9A-Za-z]+)/im.exec(schoolNumRes.data) || []
     schoolnum = schoolnum[1] || ''
+    
   }
 
   // if (/^21318/.test(cardnum)) {
