@@ -69,11 +69,11 @@ module.exports = async (ctx, cardnum, password) => {
     schoolnum = schoolnum.replace(/&[0-9a-zA-Z]+;/g, '')
     // 查询认证数据库历史记录
     let authCollection = await mongodb('herald_auth')
-    let historyInfo = await authCollection.findOne({ cardnum })
+    let historyInfo = (await authCollection.find({ cardnum, name:{$ne:''} }).limit(1).sort({lastInvoked:-1}).toArray())[0]
     if ( historyInfo ) {
       // 存在历史认证记录
-      name = historyInfo.name
-      schoolnum = historyInfo.schoolnum
+      name = name ? name : historyInfo.name
+      schoolnum = schoolnum ? schoolnum : historyInfo.schoolnum
     } 
 
     // 从课表更新学号
