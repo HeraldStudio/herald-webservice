@@ -19,5 +19,5 @@ spider:
   heartCycle:   40000
 version:
   hybrid-kernel: 11
-  android: 3
-  androidApk: https://hybrid.myseu.cn/herald-app-beta-2.apk
+  android: 4
+  androidApk: https://hybrid.myseu.cn/herald-app-beta-3.apk
