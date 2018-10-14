@@ -7,7 +7,8 @@ const allowDomains = [
   /^localhost$/,
   /^127\./,
   /^172\./,
-  /^192\./
+  /^192\./,
+  /^223\.3\.107\.150$/
 ]
 
 module.exports = async (ctx, next) => {
