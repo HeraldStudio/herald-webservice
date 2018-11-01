@@ -1,6 +1,6 @@
-# WebService3
+# herald-webservice
 
-小猴偷米 2018 WebService3 后端试验品，使用 Node.js + Koa 构建。
+小猴偷米 2018 WebService3 后端，使用 Node.js + Koa 构建。
 
 ## 使用说明
 
@@ -372,7 +372,7 @@ GET /api => {
 
 ### 代码风格
 
-1. **使用二空格缩进；**
+1. 请使用 [JavaScript Standard 代码规范](https://standardjs.com/rules-zhcn.html#javascript-standard-style)；
 2. 使用 WebStorm / Atom / Sublime Text 等专业工具进行开发；
 3. 用 Promise 封装事件机制和回调机制的 API；Promise 封装尽可能精炼；用 `async/await` 代替 `then`；
 4. 关于分号有两种选择：① 不要分号，以 `[` 或 `(` 开头的行前补分号；② 按照标准，语句全部加分号。请根据自己的习惯选择合适的方案，两种方案不要混用；
