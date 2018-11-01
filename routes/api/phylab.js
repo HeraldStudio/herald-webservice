@@ -110,7 +110,9 @@ exports.route = {
             let startMoment = moment([y, M - 1, d, h, m])
             let startTime = +startMoment
             let endTime = +startMoment.add(3, 'hours')
-            labs.push({type, labName, teacherName, startTime, endTime, location, score})
+            let startDate = startTime
+            let endDate = endTime
+            labs.push({type, labName, teacherName, startTime, endTime, location, score, startDate, endDate})
           }
           return labs
         }

@@ -10,13 +10,18 @@ const states = [
 
 exports.route = {
   async get() {
-    return await this.publicCache('1m', async () => {
-      return await Promise.all(Object.keys(shops).map(async area => {
+     return await this.publicCache('1m', async () => {
+       return await Promise.all(Object.keys(shops).map(async area => {
         let machines = (await this.post('https://api.qiekj.com/user-api/machine/list', shops[area])).data.data
         machines = machines.items.map(k => {
           let { id: id, machineName: name, subTypeName: type, machineState: state, remainMinutes, payType } = k
           let url = `https://h5.qiekj.com/choosemode/${id}`
-          type = type.match(/洗衣机|烘干机|洗鞋机/)[0]
+          try {
+            type = type.match(/洗衣机|烘干机|洗鞋机|协议机/)[0]
+            type = type === '协议机' ? '洗衣机' : type
+          } catch(e) {
+            console.log(type)
+          }
           state = states[state - 1]
           return { id, name, type, state, remainMinutes, url }
         }).filter(k => k.type).sort((a, b) => a.name < b.name ? -1 : 1)
