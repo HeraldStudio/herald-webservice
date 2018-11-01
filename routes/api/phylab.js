@@ -116,7 +116,10 @@ exports.route = {
         }
       }))
 
-      return result.reduce((a, b) => a.concat(b), []).filter(k => k.startTime >= (this.term.current || this.term.prev).startDate)
+      return result
+        .reduce((a, b) => a.concat(b), [])
+        .filter(k => k.startTime >= (this.term.current || this.term.prev).startDate)
+        .sort((a, b) => a.startTime - b.startTime)
     })
   }
 }
