@@ -289,7 +289,7 @@ exports.route = {
 
                 // 对于这个课的每一周，到侧栏去找对应的授课老师和学分等信息
                 let ret = []
-                let courceNameTrim = courseName.trim()
+                let courseNameTrim = courseName.trim()
                 for (let week = beginWeek; week <= endWeek; week++) {
                   // 遇到单双周，跳过本次循环，这里是一个小 trick
                   // - 如果课程单周，当前双周，左 0 右 0，条件成立
@@ -299,7 +299,7 @@ exports.route = {
                     continue
                   }
 
-                  let sidebarObj = sidebarDict[courceNameTrim] && sidebarDict[courceNameTrim][week] || {}
+                  let sidebarObj = sidebarDict[courseNameTrim] && sidebarDict[courseNameTrim][week] || {}
                   sidebarObj.used = true
 
                   let { teacherName = '', credit = 0 } = sidebarObj
