@@ -213,7 +213,7 @@ exports.route = {
           }
 
           // 初始化侧边栏和课表解析结果
-          let sidebar = {};
+          let sidebarDict = {}, sidebarList = [];
 
           // 解析侧边栏，先搜索侧边栏所在的 table
           res.data.match(/class="tableline">([\s\S]*?)<\/table/img)[0]
@@ -241,9 +241,26 @@ exports.route = {
                 teacherName = teacherName.replace(/^\d+系 /, '')
               }
 
-              // 表格中有空行，忽略空行，将非空行的值加入哈希表进行索引，以课程名+周次为索引条件
+              // 表格中有空行，忽略空行，将非空行的值加入哈希表进行索引
+              // 这里做一个修正，因为侧栏的起止星期和课表详情中的起止星期可能用不同的表示，
+              // 比如侧栏中有 10-10 无线网络及安全、11-11 无线网络及安全、12-12 无线网络及安全，
+              // 但课表详情中有的课写着 10-12 周。所以这里需要把侧栏中的每一周拆出来，
               if (courseName || weeks) {
-                sidebar[courseName.trim() + '/' + weeks] = { courseName, teacherName, credit, beginWeek, endWeek }
+                // 这个 sidebarObj 会同时用在两个地方：
+                // 一方面用在 sidebarList 里面，用于记录侧栏里面哪些课没有用到；
+                // 另一方面用在 sidebarDict 里面，做一套索引，用于记录每一门课每一周的课的授课老师和学分
+                // 这两边一定要指向同一个对象，不要深拷贝，为了在后面操作 sidebarDict 的时候可以同时设置到 sidebarList 里面的课的 used 字段
+                let sidebarObj = { courseName, teacherName, credit, beginWeek, endWeek }
+                sidebarList.push(sidebarObj)
+
+                for (let i = beginWeek; i <= endWeek; i++) {
+                  if (!sidebarDict[courseName.trim()]) {
+                    sidebarDict[courseName.trim()] = []
+                  }
+                  // 由于侧栏的信息不够完整，这里只能假设某一周某一课固定由某个老师来上
+                  // 如果某一周某一课有多个老师和学分信息，暂且用后来的覆盖先来的，没有办法区分。
+                  sidebarDict[courseName.trim()][i] = sidebarObj
+                }
               }
             })
 
@@ -268,37 +285,46 @@ exports.route = {
                 flip = { '(单)': 'odd', '(双)': 'even' }[flip] || 'none'
 
                 // 根据课程名和起止周次，拼接索引键，在侧栏表中查找对应的课程信息
-                let keyStart = courseName.trim() + '/'
-                let key = keyStart + beginWeek + '-' + endWeek
                 let teacherName = '', credit = ''
 
-                // 若在侧栏中找到该课程信息，取其教师名和学分数，并标记该侧栏课程已经使用
-                let ret =
-                  (sidebar.hasOwnProperty(key)
-                    ? [key]
-                    : (Object.getOwnPropertyNames(sidebar)
-                      // 考虑每个课程由不同的老师教授的情况
-                      // 这时侧栏上的周次并不和表格中的一致
-                      // TODO 是否需要合并成一个课程?
-                      .filter(k => k.startsWith(keyStart))))
-                    .map(k => {
-                      sidebar[k].used = true
-                      return {
-                        courseName,
-                        teacherName: sidebar[k].teacherName,
-                        credit: sidebar[k].credit,
-                        location,
-                        // 时间表里是总的周数
-                        // 侧栏里是每个老师分别的上课周数
-                        // 这里取侧栏
-                        beginWeek: sidebar[k].beginWeek,
-                        endWeek: sidebar[k].endWeek,
-                        dayOfWeek,
-                        beginPeriod,
-                        endPeriod,
-                        flip
-                      }
+                // 对于这个课的每一周，到侧栏去找对应的授课老师和学分等信息
+                let ret = []
+                let courceNameTrim = courseName.trim()
+                for (let week = beginWeek; week <= endWeek; week++) {
+                  // 遇到单双周，跳过本次循环，这里是一个小 trick
+                  // - 如果课程单周，当前双周，左 0 右 0，条件成立
+                  // - 如果课程双周，当前单周，左 1 右 1，条件成立
+                  // - 如果课程不论单双周，右边 -1，条件始终不成立
+                  if (week % 2 === ['odd', 'even'].indexOf(flip)) {
+                    continue
+                  }
+
+                  let sidebarObj = sidebarDict[courceNameTrim] && sidebarDict[courceNameTrim][week] || {}
+                  sidebarObj.used = true
+
+                  let { teacherName = '', credit = 0 } = sidebarObj
+                  
+                  // 取到上一周这节课的信息，如果跟这一周这节课信息一致，则拓展上一周的
+                  let previous = ret.length && ret.slice(-1)[0]
+                  if (previous && teacherName === previous.teacherName && credit === previous.credit) {
+                    previous.endWeek = week // 这里不能 ++，因为单双周可能跨两周
+                  } else {
+                    // 否则，新增一个课，这个课暂时假设从本周开始，到本周结束
+                    // 如果下一周还是同一个老师同一个学分的课，循环到下一周的时候会给 endWeek 自增的
+                    ret.push({
+                      courseName,
+                      teacherName,
+                      credit,
+                      location,
+                      beginWeek: week,
+                      endWeek: week,
+                      dayOfWeek,
+                      beginPeriod,
+                      endPeriod,
+                      flip
                     })
+                  }
+                }
 
                 // 返回课程名，教师名，学分，上课地点，起止周次，起止节数，单双周，交给 concat 拼接给对应星期的课程列表
                 return ret
@@ -323,7 +349,7 @@ exports.route = {
           appendClasses(/>周日<\/td>[^<]*<td[^>]*>([\s\S]*?)<\/td>/img.exec(res.data)[1], 7)
 
           // 将侧栏中没有用过的剩余课程（浮动课程）放到 other 字段里
-          curriculum = curriculum.concat(Object.values(sidebar).filter(k => !k.used))
+          curriculum = curriculum.concat(Object.values(sidebarList).filter(k => !k.used))
 
           // 确定最大周数
           term.maxWeek = curriculum.map(k => k.endWeek).reduce((a, b) => a > b ? a : b, 0)
