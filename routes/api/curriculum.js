@@ -71,23 +71,9 @@ exports.route = {
         term = this.term.list.find( t => t.name === '18-19-2')
         term.maxWeek = 16
 
+        await this.useEHallAuth('4770397878132218')
         // 处理 curriculum
-        // 1. 登录到新平台 newids.seu.edu.cn
-        await this.useAuthCookie({ ids6: true })
-
-        // 2. 获取下一步操作所需的 URL
-        const urlRes = await this.get('http://ehall.seu.edu.cn/appMultiGroupEntranceList?appId=4770397878132218&r_t=' + Date.now())
-
-        let url = '';
-        urlRes.data && urlRes.data.data && urlRes.data.data.groupList && urlRes.data.data.groupList[0] &&
-        (url = urlRes.data.data.groupList[0].targetUrl);
-        if (!url)
-          throw 400;
-
-        // 3. 访问一下上述 URL ，获取名为 _WEU 的 cookie
-        await this.get(url)
-
-        // 4. 获取课表
+        // 获取课表
         const curriculumRes = await this.post('http://ehall.seu.edu.cn/jwapp/sys/wdkb/modules/xskcb/xskcb.do', {
           'XNXQDM': '2018-2019-2',
         })

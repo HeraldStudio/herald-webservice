@@ -346,6 +346,22 @@ module.exports = async (ctx, next) => {
           await ids6Auth(ctx, cardnum, password)
         }
       }
+      
+      // 新网上办事大厅身份认证，使用时传入 AppID
+      ctx.useEHallAuth = async ( appId ) => {
+        await ctx.useAuthCookie({ ids6: true })
+        // 获取下一步操作所需的 URL
+        const urlRes = await ctx.get(`http://ehall.seu.edu.cn/appMultiGroupEntranceList?appId=${appId}&r_t=${Date.now()}`)
+
+        let url = '';
+        urlRes.data && urlRes.data.data && urlRes.data.data.groupList && urlRes.data.data.groupList[0] &&
+        (url = urlRes.data.data.groupList[0].targetUrl);
+        if (!url)
+          throw 400;
+
+        // 访问一下上述 URL ，获取名为 _WEU 的 cookie
+        await ctx.get(url)
+      }
 
       // 将身份识别码、解密后的一卡通号、密码和 Cookie、加解密接口暴露给下层中间件
       ctx.user = {
