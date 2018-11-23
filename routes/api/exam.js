@@ -57,7 +57,7 @@ exports.route = {
             location:k.JASMC
           }
         })
-
+        this.logMsg = `${name} (${cardnum}) - 查询 2018 级考试安排`
         return examList
       }
 
