@@ -8,7 +8,7 @@ exports.route = {
   **/
 
   async get() {
-    return await this.userCache('10m+', async () => {
+    return await this.userCache('10m', async () => {
 
       let { name, cardnum } = this.user
 
