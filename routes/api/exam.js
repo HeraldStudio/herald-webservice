@@ -51,11 +51,14 @@ exports.route = {
             startTime,endTime,duration,
             semester:k.XNXQDM,
             campus:'-',
-            courseName:k.KCM,
+            courseName:k.KCM + ' ' + k.KSMC.split(' ')[1],
             courseType:k.KSMC,
             teacherName:k.ZJJSXM,
             location:k.JASMC
           }
+        })
+        examList.sort( (a, b) => {
+          return a.startTime - b.startTime
         })
         this.logMsg = `${name} (${cardnum}) - 查询 2018 级考试安排`
         return examList
