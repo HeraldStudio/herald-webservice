@@ -40,21 +40,30 @@ exports.route = {
         examData = examData.data.datas.wdksap.rows
         let examList = examData.map( k => {
           // 分析时间
-          let rawTime = k.KSSJMS
-          rawTime = rawTime.split('(')[0]
-          let date = rawTime.split(' ')[0]
-          let [startTime, endTime] = rawTime.split(' ')[1].split('-')
-          startTime = +moment(date+'-'+startTime, 'YYYY-MM-DD-HH:mm')
-          endTime = +moment(date+'-'+endTime, 'YYYY-MM-DD-HH:mm')
-          duration = (endTime - startTime) / 1000 / 60
-          return {
-            startTime,endTime,duration,
-            semester:k.XNXQDM,
-            campus:'-',
-            courseName:k.KCM + ' ' + k.KSMC.split(' ')[1],
-            courseType:k.KSMC,
-            teacherName:k.ZJJSXM,
-            location:k.JASMC
+          try{
+            let rawTime = k.KSSJMS
+            rawTime = rawTime.split('(')[0]
+            let date = rawTime.split(' ')[0]
+            let [startTime, endTime] = rawTime.split(' ')[1].split('-')
+            startTime = +moment(date+'-'+startTime, 'YYYY-MM-DD-HH:mm')
+            endTime = +moment(date+'-'+endTime, 'YYYY-MM-DD-HH:mm')
+            duration = (endTime - startTime) / 1000 / 60
+            try {
+              if ( k.KSMC.split(' ')[1] ) {
+                k.KCM = k.KCM + ' ' + k.KSMC.split(' ')[1]
+              }
+            } catch(e) {}
+            return {
+              startTime,endTime,duration,
+              semester:k.XNXQDM,
+              campus:'-',
+              courseName:k.KCM,
+              courseType:k.KSMC,
+              teacherName:k.ZJJSXM,
+              location:k.JASMC
+            }
+          } catch(e) {
+            console.log(k)
           }
         })
         examList.sort( (a, b) => {
