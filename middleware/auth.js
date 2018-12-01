@@ -38,7 +38,8 @@
   ctx.user.schoolnum  string?             用户学号（教师为空）
   ctx.user.platform   string?             用户登录时使用的平台识别符
   ctx.useAuthCookie   (() => Promise)?    在接下来的请求中自动使用用户统一身份认证 Cookie
-
+  ctx.useEHallAuth  ((appId) => Promise)? 使用AppID获取新网上办事大厅的身份认证凭据
+  
   注：
 
   以上接口除 isLogin 外，其他属性一旦被获取，将对用户进行鉴权，不允许游客使用；因此，若要定义用户和游客
@@ -345,6 +346,22 @@ module.exports = async (ctx, next) => {
         if (ids6) {
           await ids6Auth(ctx, cardnum, password)
         }
+      }
+      
+      // 新网上办事大厅身份认证，使用时传入 AppID
+      ctx.useEHallAuth = async ( appId ) => {
+        await ctx.useAuthCookie({ ids6: true })
+        // 获取下一步操作所需的 URL
+        const urlRes = await ctx.get(`http://ehall.seu.edu.cn/appMultiGroupEntranceList?appId=${appId}&r_t=${Date.now()}`)
+
+        let url = '';
+        urlRes.data && urlRes.data.data && urlRes.data.data.groupList && urlRes.data.data.groupList[0] &&
+        (url = urlRes.data.data.groupList[0].targetUrl);
+        if (!url)
+          throw 400;
+
+        // 访问一下上述 URL ，获取名为 _WEU 的 cookie
+        await ctx.get(url)
       }
 
       // 将身份识别码、解密后的一卡通号、密码和 Cookie、加解密接口暴露给下层中间件

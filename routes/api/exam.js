@@ -8,14 +8,64 @@ exports.route = {
   **/
 
   async get() {
-    return await this.userCache('1d+', async () => {
+    return await this.userCache('10m', async () => {
+
+      let { name, cardnum } = this.user
+
+      // 新考试安排系统-目前使用18级本科生数据进行测试
+      if (/^21318/.test(cardnum)) { 
+
+        await this.useEHallAuth('4768687067472349')
+
+        // 获取学期代号
+        let termRes = await this.post('http://ehall.seu.edu.cn/jwapp/sys/studentWdksapApp/modules/wdksap/dqxnxq.do')
+        let termCode = termRes.data.datas.dqxnxq.rows[0].DM
+
+        // 获取原始的考试安排数据
+        let examData = await this.post('http://ehall.seu.edu.cn/jwapp/sys/studentWdksapApp/modules/wdksap/wdksap.do', 
+                                      {XNXQDM: termCode,
+                                      '*order':' -KSRQ,-KSSJMS'})
+        examData = examData.data.datas.wdksap.rows
+        let examList = examData.map( k => {
+          // 分析时间
+          try{
+            let rawTime = k.KSSJMS
+            rawTime = rawTime.split('(')[0]
+            let date = rawTime.split(' ')[0]
+            let [startTime, endTime] = rawTime.split(' ')[1].split('-')
+            startTime = +moment(date+'-'+startTime, 'YYYY-MM-DD-HH:mm')
+            endTime = +moment(date+'-'+endTime, 'YYYY-MM-DD-HH:mm')
+            duration = (endTime - startTime) / 1000 / 60
+            try {
+              if ( k.KSMC.split(' ')[1] ) {
+                k.KCM = k.KCM + ' ' + k.KSMC.split(' ')[1]
+              }
+            } catch(e) {}
+            return {
+              startTime,endTime,duration,
+              semester:k.XNXQDM,
+              campus:'-',
+              courseName:k.KCM,
+              courseType:k.KSMC,
+              teacherName:k.ZJJSXM,
+              location:k.JASMC
+            }
+          } catch(e) {
+            console.log(k)
+          }
+        })
+        examList.sort( (a, b) => {
+          return a.startTime - b.startTime
+        })
+        this.logMsg = `${name} (${cardnum}) - 查询 2018 级考试安排`
+        return examList
+      }
 
       // 先检查可用性，不可用直接抛异常或取缓存
       this.guard('http://xk.urp.seu.edu.cn/studentService/system/showLogin.action')
 
       await this.useAuthCookie()
       // 经测试，使用老门户的 cookie，并不需要再登录教务处。
-      let { name, cardnum } = this.user
       res = await this.get(
         'http://xk.urp.seu.edu.cn/studentService/cs/stuServe/runQueryExamPlanAction.action'
       )
