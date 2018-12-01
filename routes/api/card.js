@@ -159,7 +159,7 @@ exports.route = {
 
     // 密码检验失败抛出异常
     if (parseInt(res.data.retcode) === 60005) {
-      throw '密码错误，请重试'
+      return '密码错误，请重试'
     }
 
     // 从密码检验结果中拿到六位账号进行充值
