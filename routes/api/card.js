@@ -174,11 +174,13 @@ exports.route = {
 
     // 解析结果
     let msg = res.data.errmsg.replace(/转账/g, '充值')
+
+    // 无论成功失败都 200，这样 PWA 可以显示错误信息
     if (parseInt(res.data.retcode) === 0) {
       this.logMsg = `${name} (${cardnum}) - 一卡通充值成功`
-      return msg
     } else {
-      throw msg
+      this.logMsg = `${name} (${cardnum}) - 一卡通充值失败`
     }
+    return msg
   }
 }
