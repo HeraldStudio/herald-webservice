@@ -62,11 +62,11 @@ exports.route = {
       // 先检查可用性，不可用直接抛异常或取缓存
       this.guard('http://xk.urp.seu.edu.cn/jw_service/service/lookCurriculum.action')
 
-      let { name, cardnum, password } = this.user
+      let { name, cardnum, password, schoolnum } = this.user
       let curriculum = []
 
       // 新选课系统-目前使用18级本科生数据进行测试
-      if (/^21318/.test(cardnum)) {
+      if (/^21318/.test(cardnum) || /^[0-9A-Z]{3}18/.test(schoolnum)) {
         // 处理 term
         term = this.term.list.find( t => t.name === '18-19-2')
         term.maxWeek = 16
