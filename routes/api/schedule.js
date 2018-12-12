@@ -9,7 +9,7 @@ exports.route = {
    */
   async get() {
     return await this.publicCache('1d', async () => {
-      let link = 'http://jwc.seu.edu.cn/10006/list.htm'
+      let link = 'http://jwc.seu.edu.cn/_t155/10006/list.htm'
 
       let res = await this.get(link)
       let $ = cheerio.load(res.data)
