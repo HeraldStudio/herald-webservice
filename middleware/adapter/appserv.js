@@ -43,7 +43,7 @@ module.exports = async (ctx, next) => {
           content.version={
             code:30,
             name:' Android v2.0.0 ',
-            des:'\n经过三个月线上测试，现全面推送新版小猴偷米。修复老版本身份认证失效/一卡通充值等系列问题，布局深度调整，有更多新功能等你发现～'}
+            des:'\n经过三个月线上测试，现全面推送新版小猴偷米。修复老版本身份认证失效/一卡通充值等系列问题，布局深度调整，有更多新功能等你发现～\n注意：本次更新安装将与老版本 App 并存，如有需要请手动卸载老版本'}
         }
 
         let notices = await pubdb.notice.find()
