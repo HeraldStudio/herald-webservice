@@ -132,6 +132,7 @@ module.exports = async (ctx, next) => {
         ctx.body = { content, code: 200 }
       }
     } else if (ctx.path === '/download') {
+      console.log('>>>🎉有人下载新版啦🎉<<<')
       ctx.redirect('https://hybrid.myseu.cn/herald-app-beta-5.apk')
       //ctx.redirect('https://static.myseu.cn/herald-v1-final.apk')
     } else if (ctx.path.indexOf('/counter/') === 0) {
