@@ -39,7 +39,12 @@ module.exports = async (ctx, next) => {
           }
         }
         // 推送安卓更新
-        console.log(ctx.params)
+        if(versiontype === 'Android'){
+          content.version={
+            code:30,
+            name:'New v2.0.0',
+            des:'小猴偷米新 Android App，经过三个月线上测试，现全面推送～ 修复老版本身份认证过期问题/一卡通充值问题；功能布局调整；更有新功能等你发现～'}
+        }
 
         let notices = await pubdb.notice.find()
 
