@@ -42,8 +42,8 @@ module.exports = async (ctx, next) => {
         if(versiontype === 'Android'){
           content.version={
             code:30,
-            name:'New v2.0.0',
-            des:'小猴偷米新 Android App，经过三个月线上测试，现全面推送～ 修复老版本身份认证过期问题/一卡通充值问题；功能布局调整；更有新功能等你发现～'}
+            name:' Android v2.0.0 ',
+            des:'\n经过三个月线上测试，现全面推送新版小猴偷米。修复老版本身份认证失效/一卡通充值等系列问题，布局深度调整，有更多新功能等你发现～'}
         }
 
         let notices = await pubdb.notice.find()
