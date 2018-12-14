@@ -27,7 +27,7 @@ module.exports = async (ctx, next) => {
       let content = { serverHealth: true }
       try {
         let { uuid, versiontype } = ctx.params
-
+        
         // 与 middleware/adapter/ws2.js:44 一致，快速更新用户的具体平台
         if (uuid && versiontype) {
           //let auth = await authdb.auth.find({ tokenHash: hash(uuid) }, 1)
@@ -38,6 +38,8 @@ module.exports = async (ctx, next) => {
             await authCollection.updateOne({ tokenHash: hash(uuid) }, { $set:{ platform }})
           }
         }
+        // 推送安卓更新
+        console.log(ctx.params)
 
         let notices = await pubdb.notice.find()
 
@@ -125,7 +127,8 @@ module.exports = async (ctx, next) => {
         ctx.body = { content, code: 200 }
       }
     } else if (ctx.path === '/download') {
-      ctx.redirect('https://static.myseu.cn/herald-v1-final.apk')
+      ctx.redirect('https://hybrid.myseu.cn/herald-app-beta-5.apk')
+      //ctx.redirect('https://static.myseu.cn/herald-v1-final.apk')
     } else if (ctx.path.indexOf('/counter/') === 0) {
       ctx.body = ''
     } else if (ctx.path === '/charge') {
