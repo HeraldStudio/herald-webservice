@@ -25,16 +25,16 @@ exports.route = {
                     await cetCollection.insertOne(cetInfo)
                     return cetInfo
                 } else {
-                    // 官网不存在，从数据库查询
-                    let cetInfo = await cetCollection.findOne({ cardnum })
-                    if (cetInfo) {
-                        cetInfo.store = true
-                        return cetInfo
-                    }
-                    // 数据库没有
-                    throw '没有CET考试信息'
+                    throw '无法查询'
                 }
             } catch (e) {
+                // 官网不存在，从数据库查询
+                let cetInfo = await cetCollection.findOne({ cardnum })
+                if (cetInfo) {
+                    cetInfo.store = true
+                    return cetInfo
+                }
+                // 数据库没有
                 throw '没有CET考试信息'
             }
         })
