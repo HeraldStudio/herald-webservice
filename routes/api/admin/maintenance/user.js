@@ -1,4 +1,5 @@
 const db = require('../../../../database/auth')
+const  mongodb  = require('../../../../database/mongodb');
 
 exports.route = {
   async get() {
@@ -9,21 +10,28 @@ exports.route = {
     let yesterday = +moment().subtract(1, 'day')
     let lastMonth = +moment().subtract(1, 'month')
 
+    let authCollection = await mongodb('herald_auth')
     // 并行查询
     let [
       userCount, realUserCount, dailyRegister,
       dailyInvoke, monthlyRegister, monthlyInvoke, platforms
     ] = await Promise.all([
-      db.auth.count(),
-      db.auth.count('cardnum'),
-      db.auth.count('cardnum', { registered: { $gte: yesterday }}),
-      db.auth.count('cardnum', { lastInvoked: { $gte: yesterday }}),
-      db.auth.count('cardnum', { registered: { $gte: lastMonth }}),
-      db.auth.count('cardnum', { lastInvoked: { $gte: lastMonth }}),
-      db.auth.distinct('platform')
+      authCollection.countDocuments({}),  // db.auth.count(),
+      authCollection.distinct('cardnum'),// db.auth.count('cardnum'),
+      authCollection.distinct('cardnum',{registered: { $gte: yesterday }}),// db.auth.count('cardnum', { registered: { $gte: yesterday }}),
+      authCollection.distinct('cardnum',{ lastInvoked: { $gte: yesterday }}),// db.auth.count('cardnum', { lastInvoked: { $gte: yesterday }}),
+      authCollection.distinct('cardnum',{ registered: { $gte: lastMonth }}),// db.auth.count('cardnum', { registered: { $gte: lastMonth }}),
+      authCollection.distinct('cardnum',{ lastInvoked: { $gte: lastMonth }}),// db.auth.count('cardnum', { lastInvoked: { $gte: lastMonth }}),
+      authCollection.distinct('platform')// db.auth.distinct('platform')
     ])
-
-    // 用户量统计
+    
+    realUserCount = realUserCount.length
+    dailyRegister = dailyRegister.length
+    dailyInvoke = dailyInvoke.length
+    monthlyRegister = monthlyRegister.length
+    monthlyInvoke = monthlyInvoke.length
+    
+    //用户量统计
     return {
       userCount, realUserCount, dailyRegister,
       dailyInvoke, monthlyRegister, monthlyInvoke,
@@ -32,13 +40,18 @@ exports.route = {
           userCount, realUserCount, dailyRegister,
           dailyInvoke, monthlyRegister, monthlyInvoke
         ] = await Promise.all([
-          db.auth.count({ platform }),
-          db.auth.count('cardnum', { platform }),
-          db.auth.count('cardnum', { registered: { $gte: yesterday }, platform }),
-          db.auth.count('cardnum', { lastInvoked: { $gte: yesterday }, platform }),
-          db.auth.count('cardnum', { registered: { $gte: lastMonth }, platform }),
-          db.auth.count('cardnum', { lastInvoked: { $gte: lastMonth }, platform })
+          authCollection.countDocuments({platform}),// db.auth.count({ platform }),
+          authCollection.distinct('cardnum', { platform }),
+          authCollection.distinct('cardnum', { registered: { $gte: yesterday }, platform }),
+          authCollection.distinct('cardnum', { lastInvoked: { $gte: yesterday }, platform }),
+          authCollection.distinct('cardnum', { registered: { $gte: lastMonth }, platform }),
+          authCollection.distinct('cardnum', { lastInvoked: { $gte: lastMonth }, platform })
         ])
+        realUserCount = realUserCount.length
+        dailyRegister = dailyRegister.length
+        dailyInvoke = dailyInvoke.length
+        monthlyRegister = monthlyRegister.length
+        monthlyInvoke = monthlyInvoke.length
         return {
           name: platform,
           userCount, realUserCount, dailyRegister,
