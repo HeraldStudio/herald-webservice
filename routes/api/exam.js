@@ -10,10 +10,10 @@ exports.route = {
   async get() {
     return await this.userCache('10m', async () => {
 
-      let { name, cardnum } = this.user
+      let { name, cardnum, schoolnum } = this.user
 
       // 新考试安排系统-目前使用18级本科生数据进行测试
-      if (/^21318/.test(cardnum)) { 
+      if (/^21318/.test(cardnum) || /^[0-9A-Z]{3}18/.test(schoolnum)) { 
 
         await this.useEHallAuth('4768687067472349')
 

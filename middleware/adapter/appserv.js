@@ -27,7 +27,7 @@ module.exports = async (ctx, next) => {
       let content = { serverHealth: true }
       try {
         let { uuid, versiontype } = ctx.params
-
+        
         // 与 middleware/adapter/ws2.js:44 一致，快速更新用户的具体平台
         if (uuid && versiontype) {
           //let auth = await authdb.auth.find({ tokenHash: hash(uuid) }, 1)
@@ -37,6 +37,13 @@ module.exports = async (ctx, next) => {
             //await authdb.auth.update({ tokenHash: hash(uuid) }, { platform })
             await authCollection.updateOne({ tokenHash: hash(uuid) }, { $set:{ platform }})
           }
+        }
+        // 推送安卓更新
+        if(versiontype === 'Android'){
+          content.version={
+            code:30,
+            name:' Android v2.0.0 ',
+            des:'\n经过三个月线上测试，现全面推送新版小猴偷米。修复老版本身份认证失效/一卡通充值等系列问题，布局深度调整，有更多新功能等你发现～\n\n【注意】本次更新安装将与老版本 App 并存，如有需要请手动卸载老版本'}
         }
 
         let notices = await pubdb.notice.find()
@@ -125,7 +132,9 @@ module.exports = async (ctx, next) => {
         ctx.body = { content, code: 200 }
       }
     } else if (ctx.path === '/download') {
-      ctx.redirect('https://static.myseu.cn/herald-v1-final.apk')
+      console.log('>>>🎉有人下载新版啦🎉<<<')
+      ctx.redirect('https://hybrid.myseu.cn/herald-app-beta-5.apk')
+      //ctx.redirect('https://static.myseu.cn/herald-v1-final.apk')
     } else if (ctx.path.indexOf('/counter/') === 0) {
       ctx.body = ''
     } else if (ctx.path === '/charge') {

@@ -16,7 +16,7 @@ const sites = {
       ['#wp_news_w8', "国际交流"],
       ['#wp_news_w9', "教学研究"]
     ],
-    contentSelector: '[portletmode="simpleArticleContent"]'
+    contentSelector: '.wp_articlecontent'
   },
   zwc: {
     name: '总务处',

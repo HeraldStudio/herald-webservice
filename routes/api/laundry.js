@@ -12,7 +12,7 @@ exports.route = {
   async get() {
      return await this.publicCache('1m', async () => {
        return await Promise.all(Object.keys(shops).map(async area => {
-        let machines = (await this.post('https://api.qiekj.com/user-api/machine/list', shops[area])).data.data
+         let machines = (await this.post('https://userapi.qiekj.com/machine/list', shops[area])).data.data
         machines = machines.items.map(k => {
           let { id: id, machineName: name, subTypeName: type, machineState: state, remainMinutes, payType } = k
           let url = `https://h5.qiekj.com/choosemode/${id}`
