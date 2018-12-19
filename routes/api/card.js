@@ -1,5 +1,7 @@
 const cheerio = require('cheerio')
 
+const delayPool = {} // 消抖用，防止操作过于频繁
+
 exports.route = {
 
   /**
@@ -160,6 +162,14 @@ exports.route = {
     // 密码检验失败抛出异常
     if (parseInt(res.data.retcode) === 60005) {
       return '密码错误，请重试'
+    }
+
+    // 密码校验通过，消抖
+    let now = +moment()
+    if (delayPool[cardnum] && now - delayPool[cardnum] < 3 * 60 * 1000) {
+      throw '受财务处接口限制，3分钟内只能操作一次'
+    } else {
+      delayPool[cardnum] = now
     }
 
     // 从密码检验结果中拿到六位账号进行充值
