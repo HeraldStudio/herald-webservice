@@ -141,6 +141,8 @@ exports.route = {
   * @apiParam eacc       为真值时充值到电子钱包
   **/
   async put({ cardnum, password, amount, eacc }) {
+    throw '由于上游接口故障，一卡通充值暂不开放，敬请谅解'
+    
     cardnum || ({ cardnum, name, token } = this.user)
     amount = parseFloat(amount)
 
