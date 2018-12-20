@@ -55,10 +55,10 @@ exports.route = {
   async get({ term }) {
     let now = +moment()
     let currentTerm = (this.term.current || this.term.next).name
-
     // 若为查询未来学期，可能是在选课过程中，需要减少缓存时间
-    return await this.userCache(term && term > currentTerm ? '10d' : '1d', async () => {
+    return await this.userCache(term && term > currentTerm ? '15m' : '1d', async () => {
 
+      
       // 先检查可用性，不可用直接抛异常或取缓存
       this.guard('http://xk.urp.seu.edu.cn/jw_service/service/lookCurriculum.action')
 
@@ -68,14 +68,18 @@ exports.route = {
       // 新选课系统-目前使用18级本科生数据进行测试
       if (/^21318/.test(cardnum) || /^[0-9A-Z]{3}18/.test(schoolnum)) {
         // 处理 term
-        term = this.term.list.find( t => t.name === '18-19-2')
+        term = this.term.list.find( t => t.name === term )
         term.maxWeek = 16
 
         await this.useEHallAuth('4770397878132218')
         // 处理 curriculum
         // 获取课表
+        let queryTerm = '2018-2019-2'
+        if (term.name === '18-19-3') {
+          queryTerm = '2018-2019-3'
+        }
         const curriculumRes = await this.post('http://ehall.seu.edu.cn/jwapp/sys/wdkb/modules/xskcb/xskcb.do', {
-          'XNXQDM': '2018-2019-2',
+          'XNXQDM': queryTerm,
         })
         const rows = curriculumRes.data.datas.xskcb.rows;
         rows.forEach(rawCourse => {

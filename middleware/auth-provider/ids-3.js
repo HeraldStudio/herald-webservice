@@ -90,11 +90,11 @@ module.exports = async (ctx, cardnum, password) => {
     } catch(e) {}
   }
 
-  // if (/^21318/.test(cardnum)) {
-  //   let res = await ctx.get('http://yx.urp.seu.edu.cn/alone.portal?.pen=pe48')
-  //   schoolnum = /<th>\s*学号\s*<\/th>\s*<td>\s*([0-9A-Za-z]+)/im.exec(res.data) || []
-  //   schoolnum = schoolnum[1] || ''
-  // } 
+  if (/^21318/.test(cardnum)) {
+    let res = await ctx.get('http://yx.urp.seu.edu.cn/alone.portal?.pen=pe48')
+    schoolnum = /<th>\s*学号\s*<\/th>\s*<td>\s*([0-9A-Za-z]+)/im.exec(res.data) || []
+    schoolnum = schoolnum[1] || ''
+  } 
 
   
 
