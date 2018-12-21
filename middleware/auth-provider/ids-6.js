@@ -1,4 +1,5 @@
 const cheerio = require('cheerio')
+const mongodb = require('../../database/mongodb');
 
 // 模拟新信息门户 (ids6) 认证，缺陷是请求较慢，而且同一个用户多次输错密码会对该用户触发验证码
 module.exports = async (ctx, cardnum, password) => {
@@ -31,36 +32,59 @@ module.exports = async (ctx, cardnum, password) => {
   res = await ctx.get('http://my.seu.edu.cn/index.portal?.pn=p1681')
 
   // 解析姓名
-  // let name = /欢迎您：([^<]*)/.exec(res.data) || []
-  // name = name[1] || ''
+  let name = /欢迎您：([^<]*)/.exec(res.data) || []
+  name = name[1] || ''
 
   // 初始化学号为空
   let schoolnum = ''
-  let name = ''
   // 解析学号（本科生 Only）
+  // 解析学号（本科生 Only）
+
   if (/^21/.test(cardnum)) {
 
-    /*******************************
-     * 学号获取改为从课表获取
-     ******************************/
-    // let infoUrl = /(pnull\.portal\?[^"]*)/.exec(res.data) || []
-    // infoUrl = infoUrl[1] || ''
-    // if (infoUrl) {
-    //   let res = await ctx.post('http://my.seu.edu.cn/' + infoUrl, 'itemId=239&childId=241')
-    //   schoolnum = /<th>\s*学籍号\s*<\/th>\s*<td colspan="1">\s*(\d+)\s*<\/td>/im.exec(res.data) || []
-    //   schoolnum = schoolnum[1] || ''
-    // }
-    let nameRes = await ctx.post(
-      'http://xk.urp.seu.edu.cn/jw_service/service/stuCurriculum.action',
-      {
-        queryStudentId: cardnum,
-        queryAcademicYear: undefined
+    try {
+      schoolnum = /class="portlet-table-even">(.*)<\//im.exec(res.data) || []
+      schoolnum = schoolnum[1] || ''
+      schoolnum = schoolnum.replace(/&[0-9a-zA-Z]+;/g, '')
+      if (!schoolnum) throw '无学号'
+    } catch (e) {
+      console.log(`myold.seu.edu.cn - 解析学号错误 - ${cardnum}`)
+      if (/^21318/.test(cardnum)) {
+        try {
+          let res = await ctx.get('http://yx.urp.seu.edu.cn/alone.portal?.pen=pe48')
+          schoolnum = /<th>\s*学号\s*<\/th>\s*<td>\s*([0-9A-Za-z]+)/im.exec(res.data) || []
+          schoolnum = schoolnum[1] || ''
+          if (!schoolnum) throw '无学号'
+        } catch (e) {
+          console.log(`yx.urp.seu.edu.cn - 解析18级学号错误 - ${cardnum}`)
+        }
+      } else {
+        // 从课表更新学号
+        try {
+          let schoolNumRes = await ctx.post(
+            'http://xk.urp.seu.edu.cn/jw_service/service/stuCurriculum.action',
+            {
+              queryStudentId: cardnum,
+              queryAcademicYear: undefined
+            }
+          )
+          schoolnum = /学号:([0-9A-Za-z]+)/im.exec(schoolNumRes.data) || []
+          schoolnum = schoolnum[1] || ''
+          if (!schoolnum) throw '无学号'
+        } catch (e) {
+          console.log(`xk.urp.seu.edu.cn - 解析学号错误- - ${cardnum}`)
+        }
       }
-    )
-    schoolnum = /学号:([0-9A-Za-z]+)/im.exec(nameRes.data) || []
-    schoolnum = schoolnum[1] || ''
-    name = /姓名:(.*)</im.exec(nameRes.data) || []
-    name = name[1] || ''
+    }
+
+    // 查询认证数据库历史记录，防止均无法获取学号
+    let authCollection = await mongodb('herald_auth')
+    let historyInfo = (await authCollection.find({ cardnum, name: { $ne: '' } }).limit(1).sort({ lastInvoked: -1 }).toArray())[0]
+    if (historyInfo) {
+      // 存在历史认证记录
+      name = name ? name : historyInfo.name
+      schoolnum = schoolnum ? schoolnum : historyInfo.schoolnum
+    }
   }
 
   // 截取学号（研/博 Only）
