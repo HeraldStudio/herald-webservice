@@ -56,7 +56,7 @@ exports.route = {
     let now = +moment()
     let currentTerm = (this.term.current || this.term.next).name
     // 若为查询未来学期，可能是在选课过程中，需要减少缓存时间
-    return await this.userCache(term && term > currentTerm ? '15m' : '1d', async () => {
+    return await this.userCache(term && term > currentTerm ? '15m+' : '10d+', async () => {
 
       
       // 先检查可用性，不可用直接抛异常或取缓存
