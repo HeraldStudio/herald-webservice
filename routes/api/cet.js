@@ -9,7 +9,7 @@ exports.route = {
 
     async get() {
         let cetCollection = await mongodb('herald_cet')
-        return await this.userCache('10m', async () => {
+        return await this.userCache('10h', async () => {
             let { name, cardnum, schoolnum } = this.user
             try {
                 await this.useEHallAuth('5226570836424975')
