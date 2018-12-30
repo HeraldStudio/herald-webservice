@@ -40,7 +40,10 @@ exports.route = {
               if ( k.KSMC.split(' ')[1] ) {
                 k.KCM = k.KCM + ' ' + k.KSMC.split(' ')[1]
               }
-            } catch(e) {}
+            } catch(e) {
+              console.log(e)
+              throw e
+            }
             return {
               startTime,endTime,duration,
               semester:k.XNXQDM,
@@ -58,7 +61,13 @@ exports.route = {
           return a.startTime - b.startTime
         })
         this.logMsg = `${name} (${cardnum}) - 查询 2018 级考试安排`
-        return examList
+        let finalList = []
+        examList.forEach(element => {
+          if(element){
+            finalList.push(element)
+          }
+        });
+        return finalList
       }
 
       // 先检查可用性，不可用直接抛异常或取缓存
