@@ -8,7 +8,7 @@ exports.route = {
   **/
 
   async get() {
-    return await this.userCache('10m', async () => {
+    let cacheResult = await this.userCache('12h', async () => {
 
       let { name, cardnum, schoolnum } = this.user
       let now = +moment()
@@ -41,7 +41,10 @@ exports.route = {
               if ( k.KSMC.split(' ')[1] ) {
                 k.KCM = k.KCM + ' ' + k.KSMC.split(' ')[1]
               }
-            } catch(e) {}
+            } catch(e) {
+              console.log(e)
+              throw e
+            }
             return {
               startTime,endTime,duration,
               semester:k.XNXQDM,
@@ -59,7 +62,13 @@ exports.route = {
           return a.startTime - b.startTime
         })
         this.logMsg = `${name} (${cardnum}) - 查询 2018 级考试安排`
-        return examList.filter(k => k.endTime > now)
+        let finalList = []
+        examList.forEach(element => {
+          if(element){
+            finalList.push(element)
+          }
+        });
+        return finalList.filter(k => k.endTime > now)
       }
 
       // 先检查可用性，不可用直接抛异常或取缓存
@@ -86,5 +95,15 @@ exports.route = {
         return {semester, campus, courseName, courseType, teacherName, startTime, endTime, location, duration}
       }).filter(k => k.endTime > now) // 防止个别考生考试开始了还没找到考场🤔
     })
+    let result = []
+    cacheResult.forEach(k => {
+      if(k){
+        result.push(k)
+      }
+    })
+    return result
+  
   }
+
+
 }
