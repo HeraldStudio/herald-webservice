@@ -11,9 +11,10 @@ exports.route = {
     return await this.userCache('10m', async () => {
 
       let { name, cardnum, schoolnum } = this.user
-
+      let now = +moment()
+      
       // 新考试安排系统-目前使用18级本科生数据进行测试
-      if (/^21318/.test(cardnum) || /^[0-9A-Z]{3}18/.test(schoolnum)) { 
+       if (/^21318/.test(cardnum) || /^[0-9A-Z]{3}18/.test(schoolnum)) { 
 
         await this.useEHallAuth('4768687067472349')
 
@@ -58,7 +59,7 @@ exports.route = {
           return a.startTime - b.startTime
         })
         this.logMsg = `${name} (${cardnum}) - 查询 2018 级考试安排`
-        return examList
+        return examList.filter(k => k.endTime > now)
       }
 
       // 先检查可用性，不可用直接抛异常或取缓存
@@ -71,7 +72,7 @@ exports.route = {
       )
 
       let $ = cheerio.load(res.data)
-      let now = +moment()
+      
 
       this.logMsg = `${name} (${cardnum}) - 查询考试安排`
       return $('#table2 tr').toArray().slice(1).map(tr => {
