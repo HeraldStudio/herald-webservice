@@ -83,23 +83,22 @@ module.exports = async (ctx, cardnum, password) => {
           console.log(`yx.urp.seu.edu.cn - 解析18级学号错误 - ${cardnum}`)
         }
       } else {
-        throw e
-        // // 从课表更新学号
-        // try {
-        //   // let schoolNumRes = await ctx.post(
-        //   //   'http://xk.urp.seu.edu.cn/jw_service/service/stuCurriculum.action',
-        //   //   {
-        //   //     queryStudentId: cardnum,
-        //   //     queryAcademicYear: undefined
-        //   //   }
-        //   // )
-        //   let schoolNumRes
-        //   schoolnum = /学号:([0-9A-Za-z]+)/im.exec(schoolNumRes.data) || []
-        //   schoolnum = schoolnum[1] || ''
-        //   if (!schoolnum) throw '无学号'
-        // } catch (e) {
-        //   console.log(`xk.urp.seu.edu.cn - 解析学号错误- - ${cardnum}`)
-        // }
+        // 从课表更新学号
+        try {
+          // let schoolNumRes = await ctx.post(
+          //   'http://xk.urp.seu.edu.cn/jw_service/service/stuCurriculum.action',
+          //   {
+          //     queryStudentId: cardnum,
+          //     queryAcademicYear: undefined
+          //   }
+          // )
+          let schoolNumRes
+          schoolnum = /学号:([0-9A-Za-z]+)/im.exec(schoolNumRes.data) || []
+          schoolnum = schoolnum[1] || ''
+          if (!schoolnum) throw '无学号'
+        } catch (e) {
+          console.log(`xk.urp.seu.edu.cn - 解析学号错误- - ${cardnum}`)
+        }
       }
     }
 
