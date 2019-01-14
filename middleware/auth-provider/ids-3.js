@@ -86,14 +86,14 @@ module.exports = async (ctx, cardnum, password) => {
       } else {
         // 从课表更新学号
         try {
-          throw '压力过大'
-          let schoolNumRes = await ctx.post(
-            'http://xk.urp.seu.edu.cn/jw_service/service/stuCurriculum.action',
-            {
-              queryStudentId: cardnum,
-              queryAcademicYear: undefined
-            }
-          )
+          // let schoolNumRes = await ctx.post(
+          //   'http://xk.urp.seu.edu.cn/jw_service/service/stuCurriculum.action',
+          //   {
+          //     queryStudentId: cardnum,
+          //     queryAcademicYear: undefined
+          //   }
+          // )
+          let schoolNumRes
           schoolnum = /学号:([0-9A-Za-z]+)/im.exec(schoolNumRes.data) || []
           schoolnum = schoolnum[1] || ''
           if (!schoolnum) throw '无学号'
