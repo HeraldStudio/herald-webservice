@@ -70,7 +70,6 @@ module.exports = async (ctx, cardnum, password) => {
       schoolnum = /class="portlet-table-even">(.*)<\//im.exec(res.data) || []
       schoolnum = schoolnum[1] || ''
       schoolnum = schoolnum.replace(/&[0-9a-zA-Z]+;/g, '')
-      console.log(schoolnum)
       if (!schoolnum) throw '无学号'
     } catch (e) {
       console.log(`myold.seu.edu.cn - 解析学号错误 - ${cardnum}`)
