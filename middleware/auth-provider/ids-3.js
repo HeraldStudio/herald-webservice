@@ -65,10 +65,12 @@ module.exports = async (ctx, cardnum, password) => {
 
   if (/^21/.test(cardnum)) {
 
+    // 更新学号
     try {
       schoolnum = /class="portlet-table-even">(.*)<\//im.exec(res.data) || []
       schoolnum = schoolnum[1] || ''
       schoolnum = schoolnum.replace(/&[0-9a-zA-Z]+;/g, '')
+      console.log(schoolnum)
       if (!schoolnum) throw '无学号'
     } catch (e) {
       console.log(`myold.seu.edu.cn - 解析学号错误 - ${cardnum}`)
@@ -84,6 +86,7 @@ module.exports = async (ctx, cardnum, password) => {
       } else {
         // 从课表更新学号
         try {
+          throw '压力过大'
           let schoolNumRes = await ctx.post(
             'http://xk.urp.seu.edu.cn/jw_service/service/stuCurriculum.action',
             {
