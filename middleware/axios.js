@@ -18,7 +18,7 @@ const axios = require('axios')
 const { config } = require('../app')
 const axiosCookieJarSupport = require('axios-cookiejar-support').default
 const tough = require('tough-cookie')
-const chardet = require('chardet')
+const chardet = require('jschardet-eastasia')
 const iconv = require('iconv')
 const qs = require('querystring')
 axiosCookieJarSupport(axios)
