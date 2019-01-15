@@ -3,8 +3,8 @@ const app = new koa()
 const kf = require('kf-router')
 const fs = require('fs')
 
-// 调试时打开，设置所有 Promise 超时 10 秒，超过 10 秒自动 reject 并输出超时 Promise 所在位置
-require('./promise-timeout')(10000)
+// 调试时打开，设置所有 Promise 超时 15 秒，超过 15 秒自动 reject 并输出超时 Promise 所在位置
+require('./promise-timeout')(15000)
 
 // 将 moment 导出到全局作用域
 global.moment = require('moment')
