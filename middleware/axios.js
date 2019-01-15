@@ -107,7 +107,7 @@ module.exports = async (ctx, next) => {
             return req
           };
           let transformResponse = (res) => {
-            let encoding = chardet.detect(res);
+            let { encoding } = chardet.detect(res);
             if (encoding === 'windows-1250' || encoding === 'windows-1252') {
               // 验证码类型，不做处理
               return res
