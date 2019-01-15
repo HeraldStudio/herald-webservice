@@ -8,10 +8,6 @@ exports.route = {
   **/
   async get({ password }) {
     return await this.userCache('1m+', async () => {
-
-      // 先检查可用性，不可用直接抛异常或取缓存
-      this.guard('http://www.libopac.seu.edu.cn:8080/reader/login.php')
-
       await this.useAuthCookie()
       await this.get('http://www.libopac.seu.edu.cn:8080/reader/hwthau.php')
 
