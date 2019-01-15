@@ -95,6 +95,7 @@ module.exports = async (ctx, next) => {
         throw 503
       }
 
+      let beginTime = +moment()
       try {
         if (config.spider.enable) {
           let transformRequest = (req) => {
@@ -128,7 +129,7 @@ module.exports = async (ctx, next) => {
         }
       } catch (e) {
         // 记录超时的请求，若一分钟内超过五次超时请求，这一分钟内不再请求该 URL
-        if (e.message && /^timeout of \d+ms exceeded$/.test(e.message)) {
+        if (e.message && /^timeout of \d+ms exceeded$/.test(e.message) || +moment() - beginTime > 10000) {
           healthStatusPool[url] = health - 1
           if (healthStatusPool[url] <= -5) {
             console.error('到', url, '的请求频繁超时，暂时阻断该类型请求……')
