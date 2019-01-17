@@ -18,7 +18,9 @@ const axios = require('axios')
 const { config } = require('../app')
 const axiosCookieJarSupport = require('axios-cookiejar-support').default
 const tough = require('tough-cookie')
-const chardet = require('chardet')
+const chardet = require('jschardet-eastasia')
+chardet.Constants.MINIMUM_THRESHOLD = 0
+
 const iconv = require('iconv')
 const qs = require('querystring')
 axiosCookieJarSupport(axios)
@@ -29,6 +31,8 @@ axiosCookieJarSupport(axios)
   由于学校部分 HTTPS 的上游服务器可能存在证书问题，这里需要关闭 SSL 安全验证。
  */
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+
+const healthStatusPool = {}
 
 module.exports = async (ctx, next) => {
 
@@ -66,13 +70,13 @@ module.exports = async (ctx, next) => {
     // 自动检测返回内容编码
     responseType: 'arraybuffer',
     transformResponse(res) {
-      let encoding = chardet.detect(res);
+      let { encoding } = chardet.detect(res);
       if (encoding === 'windows-1250' || encoding === 'windows-1252') {
         // 验证码类型，不做处理
         return res
       } else { // 若 chardet 返回 null，表示不是一个已知编码的字符串，就当做二进制，不做处理
         try {
-        res = new iconv.Iconv(encoding, 'UTF-8//TRANSLIT//IGNORE').convert(res).toString();
+          res = new iconv.Iconv(encoding, 'UTF-8//TRANSLIT//IGNORE').convert(res).toString()
         try { res = JSON.parse(res) } catch (e) {}
         } catch(e) {
           return res
@@ -85,36 +89,56 @@ module.exports = async (ctx, next) => {
   })
 
   ;['get','post','put','delete'].forEach(k => {
-    ctx[k] = async function () {
-      if (config.spider.enable){
-        let transformRequest = (req) => {
-          if (typeof req === 'object') {
-            return qs.stringify(req)
-          }
-          return req
-        };
-        let transformResponse = (res) => {
-          let encoding = chardet.detect(res);
-          if (encoding === 'windows-1250' || encoding === 'windows-1252') {
-            // 验证码类型，不做处理
-            return res
-          } else { // 若 chardet 返回 null，表示不是一个已知编码的字符串，就当做二进制，不做处理
-            try {
-              res = new iconv.Iconv(encoding, 'UTF-8//TRANSLIT//IGNORE').convert(res).toString();
-              try { res = JSON.parse(res) } catch (e) {}
-            } catch(e) {
-              return res
+    ctx[k] = async (...args) => {
+      // 先探测上游可用性，如果当前这个 url 上游一分钟之内超过五次超时，那直接 503，不再请求
+      let url = args[0].split('?')[0]
+      let health = healthStatusPool[url] || 0
+      if (health <= -5) {
+        throw 503
+      }
+
+      let beginTime = +moment()
+      try {
+        if (config.spider.enable) {
+          let transformRequest = (req) => {
+            if (typeof req === 'object') {
+              return qs.stringify(req)
             }
+            return req
+          };
+          let transformResponse = (res) => {
+            let { encoding } = chardet.detect(res);
+            if (encoding === 'windows-1250' || encoding === 'windows-1252') {
+              // 验证码类型，不做处理
+              return res
+            } else { // 若 chardet 返回 null，表示不是一个已知编码的字符串，就当做二进制，不做处理
+              try {
+                res = new iconv.Iconv(encoding, 'UTF-8//TRANSLIT//IGNORE').convert(res).toString();
+                try { res = JSON.parse(res) } catch (e) { }
+              } catch (e) {
+                return res
+              }
+            }
+            return res
+          };
+          try {
+            return await ctx.spiderServer.request(ctx, k, args, config.axios, transformRequest, transformResponse)
+          } catch (e) {
+            return await _axios[k](...args)
           }
-          return res
-        };
-        try {
-          return await ctx.spiderServer.request(ctx, k, arguments, config.axios, transformRequest, transformResponse)
-        } catch (e) {
-          return await _axios[k].apply(undefined, arguments)
+        } else {
+          return await _axios[k](...args)
         }
-      } else {
-        return await _axios[k].apply(undefined, arguments)
+      } catch (e) {
+        // 记录超时的请求，若一分钟内超过五次超时请求，这一分钟内不再请求该 URL
+        if (e.message && /^timeout of \d+ms exceeded$/.test(e.message) || +moment() - beginTime > 10000) {
+          healthStatusPool[url] = health - 1
+          if (healthStatusPool[url] <= -5) {
+            console.error('到', url, '的请求频繁超时，暂时阻断该类型请求……')
+          }
+          setTimeout(() => (healthStatusPool[url] = healthStatusPool[url] + 1), 60000)
+        }
+        throw e
       }
     }
   });

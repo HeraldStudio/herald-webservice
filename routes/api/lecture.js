@@ -12,10 +12,6 @@ exports.route = {
   **/
   async get() {
     return await this.userCache('1h+', async () => {
-
-      // 先检查可用性，不可用直接抛异常或取缓存
-      this.guard('http://allinonecard.seu.edu.cn/homeLogin.action')
-
       await this.useAuthCookie()
       await this.get('http://allinonecard.seu.edu.cn/ecard/dongnanportalHome.action')
 

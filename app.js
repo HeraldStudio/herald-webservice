@@ -3,8 +3,8 @@ const app = new koa()
 const kf = require('kf-router')
 const fs = require('fs')
 
-// 调试时打开，设置所有 Promise 超时 20 秒，超过 20 秒自动 reject 并输出超时 Promise 所在位置
-// require('./promise-timeout')(20000)
+// 调试时打开，设置所有 Promise 超时 15 秒，超过 15 秒自动 reject 并输出超时 Promise 所在位置
+require('./promise-timeout')(15000)
 
 // 将 moment 导出到全局作用域
 global.moment = require('moment')
@@ -90,13 +90,11 @@ app.use(require('./middleware/admin'))
 // 6. redis 缓存，为路由处理程序提供手动缓存
 //（开发环境下是假 redis，不需要安装redis）
 app.use(require('./middleware/redis'))
-// 7. guard 上游可用性预判断 API，需要依赖缓存中间件
-app.use(require('./middleware/guard'))
-// 8. 学期信息 term API
+// 7. 学期信息 term API
 app.use(require('./middleware/term'))
-// 9. Slack API
+// 8. Slack API
 app.use(require('./middleware/slack').middleware)
-// 10. 生产环境下验证码识别
+// 9. 生产环境下验证码识别
 if (process.env.NODE_ENV === 'production') {
   app.use(require('./middleware/captcha')({
     python: '/usr/local/bin/anaconda3/envs/captcha/bin/python'

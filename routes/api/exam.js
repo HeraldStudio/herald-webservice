@@ -71,9 +71,6 @@ exports.route = {
         return finalList.filter(k => k.endTime > now)
       }
 
-      // 先检查可用性，不可用直接抛异常或取缓存
-      this.guard('http://xk.urp.seu.edu.cn/studentService/system/showLogin.action')
-
       await this.useAuthCookie()
       // 经测试，使用老门户的 cookie，并不需要再登录教务处。
       res = await this.get(

@@ -8,10 +8,6 @@ exports.route = {
   **/
   async get() {
     return await this.userCache('1m+', async () => {
-
-      // 先检查可用性，不可用直接抛异常或取缓存
-      this.guard('https://selfservice.seu.edu.cn/selfservice/campus_login.php')
-
       let { cardnum, password } = this.user
       let username = cardnum
 
