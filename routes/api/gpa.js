@@ -34,6 +34,16 @@ exports.route = {
       await this.useAuthCookie()
       let { name, cardnum, schoolnum } = this.user
 
+      if(/^21318/.test(cardnum)) {
+        await this.useEHallAuth('4768574631264620')
+        let rawData = await this.post('http://ehall.seu.edu.cn/jwapp/sys/cjcx/modules/cjcx/xscjcx.do',
+        {querySetting: [],
+        '*order': '-XNXQDM,KCH,KXH',
+        pageSize: 1000,
+        pageNumber: 1})
+        console.log(rawData)
+        return 'success'
+      }
       // 本科生
       if (/^21/.test(cardnum)) {
         res = await this.get(
