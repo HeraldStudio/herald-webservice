@@ -39,6 +39,7 @@ exports.route = {
         pageNumber: 1})
         rawData = rawData.data
         return rawData
+        /*>>赵拯基看这里<<*/
       }
       // 本科生
       if (/^21/.test(cardnum)) {
