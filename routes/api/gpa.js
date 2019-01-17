@@ -267,7 +267,7 @@ exports.route = {
         let required = parseFloat($('#lblyxxf1').text()) // 应修总学分
         let credits = { degree, optional, total, required }
 
-        return { score, credits, detail }
+        return { graduated:true, score, credits, detail }
       }
     })
   }

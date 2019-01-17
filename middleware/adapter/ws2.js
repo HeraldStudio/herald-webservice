@@ -167,12 +167,12 @@ module.exports = async (ctx, next) => {
 
       } else if (ctx.path === '/api/gpa') {
         await next()
-        let { gpa, gpaBeforeMakeup, calculationTime, score, credits, detail } = ctx.body
-        let content = (gpa ? [
+        let { graduated, gpa, gpaBeforeMakeup, calculationTime, score, credits, detail } = ctx.body
+        let content = (!graduated ? [
           {
             'calculate time': calculationTime ? moment(calculationTime).format('YYYY-MM-DD HH:mm:ss') : '',
-            'gpa without revamp': gpaBeforeMakeup.toString(),
-            'gpa': gpa.toString()
+            'gpa without revamp': gpaBeforeMakeup?gpaBeforeMakeup.toString():'',
+            'gpa': gpa?gpa.toString():''
           }
         ] : [ // 研究生暂时做个兼容
             {
