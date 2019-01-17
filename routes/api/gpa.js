@@ -45,7 +45,7 @@ exports.route = {
             semester:semesterName,
             cid:k.XSKCH,
             courseName:k.XSKCM,
-            courseType:k.KCXZDM_DISPLAY,
+            courseType:k.KCXZDM_DISPLAY==='必修'?'':k.KCXZDM_DISPLAY,
             credit:k.XF,
             score:k.ZCJ,
             equivalentScore:calculateEquivalentScore(k.ZCJ),
