@@ -93,7 +93,7 @@ exports.route = {
         absolute: true,
         baseUri: baseUrl,
         inline: true
-      }).convert(content).replace(/\*\*/g, ' ** ')
+      }).convert(content)
     })
   }
 }
