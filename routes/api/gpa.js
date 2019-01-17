@@ -26,12 +26,24 @@ exports.route = {
   * 注意本科生和研究生返回结果格式略有不同
   **/
   async get() {
-    return await this.userCache('1h+', async () => {
-      await this.useAuthCookie()
+    return await this.userCache('1s+', async () => {
+      
       let { name, cardnum, schoolnum } = this.user
 
+      if(/^21318/.test(cardnum)) {
+        await this.useEHallAuth('4768574631264620')
+        let rawData = await this.post('http://ehall.seu.edu.cn/jwapp/sys/cjcx/modules/cjcx/xscjcx.do',
+        {querySetting: [],
+        '*order': '-XNXQDM,KCH,KXH',
+        pageSize: 1000,
+        pageNumber: 1})
+        rawData = rawData.data
+        return rawData
+        /*>>赵拯基看这里<<*/
+      }
       // 本科生
       if (/^21/.test(cardnum)) {
+        await this.useAuthCookie()
         res = await this.get(
           'http://xk.urp.seu.edu.cn/studentService/cs/stuServe/studentExamResultQuery.action'
         )
