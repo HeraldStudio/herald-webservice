@@ -26,8 +26,8 @@ exports.route = {
   * 注意本科生和研究生返回结果格式略有不同
   **/
   async get() {
-    return await this.userCache('1h+', async () => {
-      await this.useAuthCookie()
+    return await this.userCache('1s+', async () => {
+      
       let { name, cardnum, schoolnum } = this.user
 
       if(/^21318/.test(cardnum)) {
@@ -37,11 +37,12 @@ exports.route = {
         '*order': '-XNXQDM,KCH,KXH',
         pageSize: 1000,
         pageNumber: 1})
-        console.log(rawData)
-        return 'success'
+        rawData = rawData.data
+        return rawData
       }
       // 本科生
       if (/^21/.test(cardnum)) {
+        await this.useAuthCookie()
         res = await this.get(
           'http://xk.urp.seu.edu.cn/studentService/cs/stuServe/studentExamResultQuery.action'
         )
