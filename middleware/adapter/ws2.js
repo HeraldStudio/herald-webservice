@@ -170,9 +170,9 @@ module.exports = async (ctx, next) => {
         let { graduated, gpa, gpaBeforeMakeup, calculationTime, score, credits, detail } = ctx.body
         let content = (!graduated ? [
           {
-            'calculate time': calculationTime ? moment(calculationTime).format('YYYY-MM-DD HH:mm:ss') : '',
-            'gpa without revamp': gpaBeforeMakeup?gpaBeforeMakeup.toString():'',
-            'gpa': gpa?gpa.toString():''
+            'calculate time': calculationTime ? moment(calculationTime).format('YYYY-MM-DD HH:mm:ss') : '未计算',
+            'gpa without revamp': gpaBeforeMakeup?gpaBeforeMakeup.toString():'0.000',
+            'gpa': gpa?gpa.toString():'0.000'
           }
         ] : [ // 研究生暂时做个兼容
             {
