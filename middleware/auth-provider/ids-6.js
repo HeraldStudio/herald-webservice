@@ -88,7 +88,9 @@ module.exports = async (ctx, cardnum, password) => {
         }
         if(!record){
           // 若是无记录的情况，插入记录
-          await userInfoCollection.insertOne(studentInfo)
+          if(studentInfo.name && studentInfo.schoolnum) {
+            await userInfoCollection.insertOne(studentInfo)
+          }
         } else {
           // 更新记录
           await userInfoCollection.updateMany({cardnum}, {$set:studentInfo})
