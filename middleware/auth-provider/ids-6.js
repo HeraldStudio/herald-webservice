@@ -91,7 +91,7 @@ module.exports = async (ctx, cardnum, password) => {
           await userInfoCollection.insertOne(studentInfo)
         } else {
           // 更新记录
-          await userInfoCollection.updateOne({cardnum}, {$set:studentInfo})
+          await userInfoCollection.updateMany({cardnum}, {$set:studentInfo})
         }
       } else {
         // 记录存在且未过期，直接使用记录
