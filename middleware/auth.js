@@ -210,7 +210,8 @@ module.exports = async (ctx, next) => {
       // 运行到此处表示老数据库也没有，那就继续原来的逻辑
     }
 
-    let needCaptchaUrl = `https://newids.seu.edu.cn/authserver/needCaptcha.html?username=${cardnum}&pwdEncrypt2=pwdEncryptSalt&_=${now}`
+
+    let needCaptchaUrl = `https://newids.seu.edu.cn/authserver/needCaptcha.html?username=${cardnum}&pwdEncrypt2=pwdEncryptSalt&_=${+moment()}`
     let captchaRes = await ctx.get(needCaptchaUrl)
     // 若找到已认证记录，比对密码，全部正确则可以免去统一身份认证流程，确认不需要验证码
     if (!captchaRes.data && existing) {
