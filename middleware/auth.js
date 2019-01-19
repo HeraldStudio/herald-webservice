@@ -211,9 +211,9 @@ module.exports = async (ctx, next) => {
     }
 
     let needCaptchaUrl = `https://newids.seu.edu.cn/authserver/needCaptcha.html?username=${cardnum}&pwdEncrypt2=pwdEncryptSalt&_=${now}`
-    let res = await ctx.get(needCaptchaUrl)
+    let captchaRes = await ctx.get(needCaptchaUrl)
     // 若找到已认证记录，比对密码，全部正确则可以免去统一身份认证流程，确认不需要验证码
-    if (!res.data && existing) {
+    if (!captchaRes.data && existing) {
       let { passwordHash, tokenHash, tokenEncrypted, gpasswordEncrypted } = existing
       let token
       // 先判断密码正确
