@@ -303,7 +303,7 @@ module.exports = async (ctx, next) => {
       ctx.logMsg = `${name} [${cardnum}] - 身份认证成功 - 登录平台 ${platform}`
       return
     } else {
-      let verifyUrl = `https://newids.seu.edu.cn/authserver/login?service=http://auth.myseu.cn/verify/${platform}/${verifyToken}`
+      let verifyUrl = `https://newids.seu.edu.cn/authserver/logout?service=http://auth.myseu.cn/prepare/${platform}/${verifyToken}`
       ctx.status = 303
       ctx.body = {
         token,
