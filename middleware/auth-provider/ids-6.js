@@ -61,7 +61,6 @@ module.exports = async (ctx, cardnum, password) => {
     try {
       if (!record || 
         (record && now - record.updateTime > 2 * 7 * 24 * 60 * 60 * 1000)) {
-        console.log('更新基本信息')
         // 记录不存在或者过期
         // 从ehall.seu.edu.cn抓取新的信息
         const ehallUrlRes = await ctx.get(`http://ehall.seu.edu.cn/appMultiGroupEntranceList?appId=4585275700341858&r_t=${Date.now()}`)
@@ -73,7 +72,6 @@ module.exports = async (ctx, cardnum, password) => {
         }
         await ctx.get(ehallUrl)
         let studentInfo = await ctx.post('http://ehall.seu.edu.cn/xsfw/sys/jbxxapp/modules/infoStudent/getStuBatchInfo.do')
-        console.log(studentInfo.data)
         if (studentInfo && studentInfo.data && studentInfo.data.data) {
           studentInfo = studentInfo.data.data
           // 此处已对要返回的学号姓名进行赋值
