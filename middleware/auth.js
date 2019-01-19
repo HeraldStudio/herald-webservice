@@ -50,7 +50,7 @@ const db = require('../database/auth')
 const tough = require('tough-cookie')
 const crypto = require('crypto')
 const { config } = require('../app')
-const  mongodb  = require('../database/mongodb');
+const mongodb = require('../database/mongodb');
 
 const tokenHashPool = {} // 用于缓存tokenHash，防止高峰期数据库爆炸💥
 // 数据库迁移代码
@@ -136,12 +136,34 @@ const ids3AuthCheck = async (ctx, cardnum, password, gpassword) => {
   }
 }
 
+const ids6AuthCheck = async (ctx, cardnum, password, gpassword) => {
+  try {
+    if (/^22\d*(\d{6})$/.test(cardnum)) {
+      await graduateAuth(ctx, RegExp.$1, gpassword)
+    }
+    let { schoolnum, name } = await ids6Auth(ctx, cardnum, password)
+    if (!schoolnum || !name) {
+      throw '身份完整性校验失败'
+    }
+    return { schoolnum, name }
+  } catch (e) {
+    if (e === 401 || e === '验证码') {
+      if (ctx.user && ctx.user.isLogin) {
+        let authCollection = await mongodb('herald_auth')
+        let { token } = ctx.user
+        await authCollection.deleteMany({ tokenHash: token })
+        tokenHashPool[token] = undefined
+      }
+    }
+    throw e
+  }
+}
 // 加密和解密过程
 module.exports = async (ctx, next) => {
   let authCollection = await mongodb('herald_auth')
   // 对于 auth 路由的请求，直接截获，不交给 kf-router
   if (ctx.path === '/auth') {
-    
+
     // POST /auth 登录认证
     if (ctx.method.toUpperCase() !== 'POST') {
       throw 405
@@ -159,8 +181,8 @@ module.exports = async (ctx, next) => {
       || typeof gpassword !== 'string' && typeof gpassword !== 'undefined'
       || typeof customToken !== 'string' && typeof customToken !== 'undefined')
 
-    // 这里不用解构赋值的默认值，因为不仅需要给 undefined 设置默认值，也需要对空字符串进行容错
-    gpassword = gpassword || password
+      // 这里不用解构赋值的默认值，因为不仅需要给 undefined 设置默认值，也需要对空字符串进行容错
+      gpassword = gpassword || password
 
     if (!platform) {
       throw '缺少参数 platform: 必须指定平台名'
@@ -171,8 +193,8 @@ module.exports = async (ctx, next) => {
     // 无自定义 token 情况下，遵循同平台共用 token 原则，需按平台查找用户，从而尽可能查找已认证记录，免去认证流程
     // 有自定义 token 情况下，需要按自定义 token 查找该用户，与该 token 不一致的无法复用
     // 这里的 criteria 不仅表示查找的条件，同时也是找到记录但需要删除旧记录时的删除条件，修改时请考虑下面删除的条件
-    let criteria = customToken ? { tokenHash: hash(customToken) } : { cardnum, platform }
-    
+    let criteria = customToken ? { tokenHash: hash(customToken) } : { cardnum, platform, pending:false }
+
     // mongodb迁移
     let existing = await authCollection.findOne(criteria)
 
@@ -187,7 +209,7 @@ module.exports = async (ctx, next) => {
       }
       // 运行到此处表示老数据库也没有，那就继续原来的逻辑
     }
-    
+
     // 若找到已认证记录，比对密码，全部正确则可以免去统一身份认证流程
     if (existing) {
       let { passwordHash, tokenHash, tokenEncrypted, gpasswordEncrypted } = existing
@@ -212,8 +234,22 @@ module.exports = async (ctx, next) => {
       // 这两种情况统一穿透到下面进行，如果认证通过，说明是第二种情况，则会删除数据库已有记录。
     }
 
-    // 登录 ids3 老门户认证，用于验证密码正确性、并同时获得姓名和学号
-    let { name, schoolnum } = await ids3AuthCheck(ctx, cardnum, password, gpassword)
+    let name, schoolnum, pending = false
+
+    try {
+      // 登录信息门户认证，用于验证密码正确性、并同时获得姓名和学号
+      let idsResult = await ids6AuthCheck(ctx, cardnum, password, gpassword)
+      name = idsResult.name
+      schoolnum = idsResult.schoolnum
+    } catch (e) {
+      console.log(e)
+      if (e === '验证码') {
+        // 如果出现验证码的情况在此处标记，继续进行token生成的流程
+        pending = true
+      } else {
+        throw e
+      }
+    }
 
     // 生成 32 字节 token 转为十六进制，及其哈希值
     let token = customToken || Buffer.from(crypto.randomBytes(20)).toString('hex')
@@ -238,8 +274,13 @@ module.exports = async (ctx, next) => {
     // 将新用户信息插入数据库
     let now = new Date().getTime()
 
-    // 老数据库仍然插入用户数据
-    await db.auth.insert({
+    // 需要验证码则生成verifyToken
+    let verifyToken
+    if (pending) {
+      verifyToken = Buffer.from(crypto.randomBytes(20)).toString('hex')
+    }
+    // 不再向老数据库插入记录，所有记录都插入新数据库
+    await authCollection.insertOne({
       cardnum,
       tokenHash,
       tokenEncrypted,
@@ -248,24 +289,70 @@ module.exports = async (ctx, next) => {
       gpasswordEncrypted,
       name, schoolnum, platform,
       registered: now,
-      lastInvoked: now
-    })
-    // 不再向老数据库插入记录，所有记录都插入新数据库
-    await authCollection.insertOne({
-        cardnum,
-        tokenHash,
-        tokenEncrypted,
-        passwordEncrypted,
-        passwordHash,
-        gpasswordEncrypted,
-        name, schoolnum, platform,
-        registered: now,
-        lastInvoked: now
+      lastInvoked: now,
+      pending, // 标记该记录处于pending状态
+      verifyToken
     })
 
-    // 返回 token
-    ctx.body = token
-    ctx.logMsg = `${name} [${cardnum}] - 身份认证成功 - 登录平台 ${platform}`
+    if(!pending){
+      // 返回 token
+      ctx.body = token
+      ctx.logMsg = `${name} [${cardnum}] - 身份认证成功 - 登录平台 ${platform}`
+      return
+    } else {
+      let verifyUrl = `https://newids.seu.edu.cn/authserver/login?service=http://auth.myseu.cn/verify/${platform}/${verifyToken}`
+      ctx.status = 303
+      ctx.body = {
+        token,
+        verifyUrl
+      }
+      // 返回后开始计时，超过10分钟仍未完成认证则删除本条临时token
+      setTimeout(()=>{
+        authCollection.deleteMany({token, pending:true})
+      }, 600000)
+      return
+    }
+    
+  } else if (ctx.path === '/token/verify') {
+    // 检查token可用性
+    /**
+     * 若登录过程出现验证码，auth接口返回verifyUrl
+     * 客户端需要调起浏览器/WebView进行新信息门户OAuth认证
+     * 在此期间，已经发放的 token 处于 pending 状态，不可调用接口
+     * 该条件由客户端遵守
+     * 
+     * 客户端通过/token/verify接口确认token是否生效
+     * 
+     */
+
+    // POST /token/verify 验证token可用性
+    if (ctx.method.toUpperCase() !== 'POST') {
+      throw 405
+    }
+    let { token } = ctx.params
+    console.log(token)
+    let tokenHash = hash(token)
+    let verifyResult = await authCollection.findOne({tokenHash})
+    if(!verifyResult){
+      //该 token 无记录 - 原因可能是恶意伪造请求或由于pending超时被删除
+      throw 401
+    }
+    ctx.body = !verifyResult.pending
+    return
+  } else if (ctx.path === '/token/activate') {
+    // 激活token
+    if (ctx.method.toUpperCase() !== 'POST') {
+      throw 405
+    }
+    let { platform, verifyToken } = ctx.params
+    let criteria = {platform, verifyToken, pending:true}
+    let verifyRecord = await authCollection.findOne(criteria)
+    if (!verifyRecord) {
+      throw '无有效记录'
+    }
+    // 运行到此处说明存在有效记录，将其置为有效
+    await authCollection.updateOne(criteria, { $set: { pending: false } })
+    ctx.body = 'token已激活'
     return
   } else if (ctx.request.headers.token) {
     // 对于其他请求，根据 token 的哈希值取出表项
@@ -273,36 +360,21 @@ module.exports = async (ctx, next) => {
     let tokenHash = hash(token)
     // 第一步查缓存
     let record = tokenHashPool[tokenHash]
-    if(record) {
-    }
 
-    if(!record) {
-      // Ooops！缓存没有命中
+    if (!record) {
+      // 缓存没有命中
       record = await authCollection.findOne({ tokenHash })
       tokenHashPool[tokenHash] = record
     }
 
-    // mongodb 防止mongodb没有命中，用老数据库做辅助（其实没用了）
-    if (!record) {
-      record = await db.auth.find({ tokenHash }, 1)
-      if (record) {
-        console.log('>>>mongodb迁移<<<')
-        let check = await authCollection.findOne({tokenHash: record.tokenHash})
-        if (!check) {
-          console.log(`mongodb-插入-${record.name}`)
-          await authCollection.insertOne(record)
-        }
-      }
-    }
-    
     // 运行到此处，mongodb中应该已经包含用户记录了，之后的更新操作全部对mongodb操作
     // 缓存也一定已经包含tokenHash了
-    if (record) { // 若 token 失效，穿透到未登录的情况去
+    if (record && !record.pending) { // 若 token 失效，穿透到未登录的情况去
       let now = +moment()
       let lastInvoked = record.lastInvoked
       // 更新用户最近调用时间一天更新一次降低粒度
       if (now - lastInvoked >= 2 * 60 * 60 * 1000) {
-        await authCollection.updateOne({ tokenHash }, { $set: { lastInvoked: now }})
+        await authCollection.updateOne({ tokenHash }, { $set: { lastInvoked: now } })
         record.lastInvoked = now
       }
       // 解密用户密码
@@ -310,7 +382,6 @@ module.exports = async (ctx, next) => {
         cardnum, name, schoolnum, platform,
         passwordEncrypted, gpasswordEncrypted
       } = record
-
       let password = decrypt(token, passwordEncrypted)
       let gpassword = ''
       if (/^22/.test(cardnum)) {
@@ -320,43 +391,30 @@ module.exports = async (ctx, next) => {
       let identity = hash(cardnum + name)
 
       // 将统一身份认证 Cookie 获取器暴露给模块
-      ctx.useAuthCookie = async ({ ids6 = false } = {}) => {
+      ctx.useAuthCookie = async ({ ids6 = true } = {}) => {
 
-        // 进行 ids3 认证，拿到 ids3 Cookie，如果密码错误，会抛出 401
-        let res = await ids3AuthCheck(ctx, cardnum, password, gpassword)
-
-        // 更新用户的学号，以避免转系学生学号始终不变的问题
-        if (res.schoolnum !== schoolnum) {
-          await db.auth.update({ tokenHash }, { schoolnum: res.schoolnum })
-          await authCollection.updateOne({ tokenHash }, { $set:{ schoolnum: res.schoolnum }})
-          tokenHashPool[tokenHash] = undefined
+        // 进行 ids6 认证，拿到 ids6 Cookie，如果密码错误，会抛出 401
+        // 如果需要验证码，也转换成抛出401
+        try {
+          await ids6AuthCheck(ctx, cardnum, password, gpassword)
+        } catch(e) {
+          if(e === '验证码'){
+            e = 401
+          }
+          throw e
         }
 
-        // 如果路由需要 ids6 Cookie，在通过 ids3 认证后再去请求 ids6
-        // 这种情况暂时不省略前面的 ids3 认证，之后可以根据情况考虑取舍
-        
-        // 极端情况是：
-        // 如果用户改了密码之后回到小猴，如果没有前面 ids3 请求的保护，
-        // 同时发生了多个 ids6 请求，导致 ids6 触发验证码并抛出 401，让用户掉登录
-        // 用户再次登录后，ids6 会因为有验证码而 400
-        // 这时候不会再让用户掉登录，但是会让用户短期内无法使用 ids6 相关功能
-
-        // 这种情况非常稀少，如果在乎这种情况下的用户体验，就不要在需要 ids6 情况下省略上面的 ids3
-        // 如果想牺牲这种极端情况的用户体验，降低所有依赖 ids6 的模块的认证压力，就可以省略上面 ids3
-        if (ids6) {
-          await ids6Auth(ctx, cardnum, password)
-        }
       }
-      
+
       // 新网上办事大厅身份认证，使用时传入 AppID
-      ctx.useEHallAuth = async ( appId ) => {
-        await ctx.useAuthCookie({ ids6: true })
+      ctx.useEHallAuth = async (appId) => {
+        await ctx.useAuthCookie()
         // 获取下一步操作所需的 URL
         const urlRes = await ctx.get(`http://ehall.seu.edu.cn/appMultiGroupEntranceList?appId=${appId}&r_t=${Date.now()}`)
 
         let url = '';
         urlRes.data && urlRes.data.data && urlRes.data.data.groupList && urlRes.data.data.groupList[0] &&
-        (url = urlRes.data.data.groupList[0].targetUrl);
+          (url = urlRes.data.data.groupList[0].targetUrl);
         if (!url)
           throw 400;
 
@@ -376,6 +434,9 @@ module.exports = async (ctx, next) => {
       // 调用下游中间件
       await next()
       return
+    } else {
+      // 删除所有该token相关记录
+      authCollection.deleteMany({token})
     }
   }
 

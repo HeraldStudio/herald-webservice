@@ -3,11 +3,18 @@ const mongodb = require('../../database/mongodb');
 
 // 模拟新信息门户 (ids6) 认证，缺陷是请求较慢，而且同一个用户多次输错密码会对该用户触发验证码
 module.exports = async (ctx, cardnum, password) => {
+  // 检查是否需要验证码
+  let now = +moment()
+  let needCaptchaUrl = `https://newids.seu.edu.cn/authserver/needCaptcha.html?username=${cardnum}&pwdEncrypt2=pwdEncryptSalt&_=${now}`
+  let res = await ctx.get(needCaptchaUrl)
+  if(res.data){
+    throw '验证码'
+  }
   // IDS Server 认证地址
   const url = 'https://newids.seu.edu.cn/authserver/login?goto=http://my.seu.edu.cn/index.portal'
 
   // Step 1：获取登录页面表单，解析隐藏值
-  let res = await ctx.get(url)
+  res = await ctx.get(url)
   let $ = cheerio.load(res.data)
   let form = { username: cardnum, password }
   $('[tabid="01"] input[type="hidden"]').toArray().map(k => form[$(k).attr('name')] = $(k).attr('value'))
@@ -24,7 +31,6 @@ module.exports = async (ctx, cardnum, password) => {
   if (/您提供的用户名或者密码有误/.test(res.data) || res.status === 500) {
     throw 401
   }
-
   // 获取用户附加信息（仅姓名和学号）
   // 对于本科生，此页面可显示用户信息；对于其他角色（研究生和教师），此页面重定向至信息门户主页。
   // 但对于所有角色，无论是否重定向，右上角用户姓名都可抓取；又因为只有本科生需要通过查询的方式获取学号，
@@ -41,49 +47,62 @@ module.exports = async (ctx, cardnum, password) => {
   // 解析学号（本科生 Only）
 
   if (/^21/.test(cardnum)) {
-
+    /**
+     * 关于学号和姓名的更新策略
+     * 
+     * 使用ids6进行认证后，可以直接从网上办事大厅接口获取学号/姓名信息
+     * 该方案能稳定获取但是速度较慢
+     * 使用herald_userInfo集合进行缓存，更新粒度为2周
+     */
+    
+    let userInfoCollection = await mongodb('herald_userInfo')
+    let record = await userInfoCollection.findOne({cardnum})
+    let now = +moment()
     try {
-      schoolnum = /class="portlet-table-even">(.*)<\//im.exec(res.data) || []
-      schoolnum = schoolnum[1] || ''
-      schoolnum = schoolnum.replace(/&[0-9a-zA-Z]+;/g, '')
-      if (!schoolnum) throw '无学号'
-    } catch (e) {
-      console.log(`myold.seu.edu.cn - 解析学号错误 - ${cardnum}`)
-      if (/^21318/.test(cardnum)) {
-        try {
-          let res = await ctx.get('http://yx.urp.seu.edu.cn/alone.portal?.pen=pe48')
-          schoolnum = /<th>\s*学号\s*<\/th>\s*<td>\s*([0-9A-Za-z]+)/im.exec(res.data) || []
-          schoolnum = schoolnum[1] || ''
-          if (!schoolnum) throw '无学号'
-        } catch (e) {
-          console.log(`yx.urp.seu.edu.cn - 解析18级学号错误 - ${cardnum}`)
+      if (!record || 
+        (record && now - record.updateTime > 2 * 7 * 24 * 60 * 60 * 1000)) {
+        console.log('更新基本信息')
+        // 记录不存在或者过期
+        // 从ehall.seu.edu.cn抓取新的信息
+        const ehallUrlRes = await ctx.get(`http://ehall.seu.edu.cn/appMultiGroupEntranceList?appId=4585275700341858&r_t=${Date.now()}`)
+        let ehallUrl = '';
+        ehallUrlRes.data && ehallUrlRes.data.data && ehallUrlRes.data.data.groupList && ehallUrlRes.data.data.groupList[0] &&
+          (ehallUrl = ehallUrlRes.data.data.groupList[0].targetUrl);
+        if (!ehallUrl) {
+          throw 'ehall-fail';
+        }
+        await ctx.get(ehallUrl)
+        let studentInfo = await ctx.post('http://ehall.seu.edu.cn/xsfw/sys/jbxxapp/modules/infoStudent/getStuBatchInfo.do')
+        console.log(studentInfo.data)
+        if (studentInfo && studentInfo.data && studentInfo.data.data) {
+          studentInfo = studentInfo.data.data
+          // 此处已对要返回的学号姓名进行赋值
+          name = studentInfo.XM
+          schoolnum = studentInfo.XH
+          studentInfo = {
+            cardnum,
+            schoolnum:studentInfo.XH,
+            name:studentInfo.XM,
+            updateTime:now
+          }
+        } else {
+          throw 'ehall-fail';
+        }
+        if(!record){
+          // 若是无记录的情况，插入记录
+          await userInfoCollection.insertOne(studentInfo)
+        } else {
+          // 更新记录
+          await userInfoCollection.updateOne({cardnum}, {$set:studentInfo})
         }
       } else {
-        // 从课表更新学号
-        try {
-          let schoolNumRes = await ctx.post(
-            'http://xk.urp.seu.edu.cn/jw_service/service/stuCurriculum.action',
-            {
-              queryStudentId: cardnum,
-              queryAcademicYear: undefined
-            }
-          )
-          schoolnum = /学号:([0-9A-Za-z]+)/im.exec(schoolNumRes.data) || []
-          schoolnum = schoolnum[1] || ''
-          if (!schoolnum) throw '无学号'
-        } catch (e) {
-          console.log(`xk.urp.seu.edu.cn - 解析学号错误- - ${cardnum}`)
-        }
+        // 记录存在且未过期，直接使用记录
+        schoolnum = record.schoolnum
+        name = record.name
       }
-    }
-
-    // 查询认证数据库历史记录，防止均无法获取学号
-    let authCollection = await mongodb('herald_auth')
-    let historyInfo = (await authCollection.find({ cardnum, name: { $ne: '' } }).limit(1).sort({ lastInvoked: -1 }).toArray())[0]
-    if (historyInfo) {
-      // 存在历史认证记录
-      name = name ? name : historyInfo.name
-      schoolnum = schoolnum ? schoolnum : historyInfo.schoolnum
+    } catch(e) {
+      // 学号姓名信息更新失败
+      console.log(`${cardnum} - 学号/姓名信息更新失败`)
     }
   }
 
