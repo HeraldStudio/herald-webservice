@@ -210,11 +210,12 @@ module.exports = async (ctx, next) => {
       // 运行到此处表示老数据库也没有，那就继续原来的逻辑
     }
 
-    // 若找到已认证记录，比对密码，全部正确则可以免去统一身份认证流程
-    if (existing) {
+    let needCaptchaUrl = `https://newids.seu.edu.cn/authserver/needCaptcha.html?username=${cardnum}&pwdEncrypt2=pwdEncryptSalt&_=${now}`
+    let res = await ctx.get(needCaptchaUrl)
+    // 若找到已认证记录，比对密码，全部正确则可以免去统一身份认证流程，确认不需要验证码
+    if (!res.data && existing) {
       let { passwordHash, tokenHash, tokenEncrypted, gpasswordEncrypted } = existing
       let token
-
       // 先判断密码正确
       if (hash(password) === passwordHash
         // 然后用密码解密 tokenEncrypted 得到 token，判断 token 有效
@@ -231,6 +232,7 @@ module.exports = async (ctx, next) => {
       // 运行到此说明数据库中存在记录，但密码与数据库中密码不一致，有两种情况：
       // 1. 数据库中密码是正确的，但用户密码输错；
       // 2. 用户改了密码，数据库中密码不是最新。
+      // 3. 用户需要验证码
       // 这两种情况统一穿透到下面进行，如果认证通过，说明是第二种情况，则会删除数据库已有记录。
     }
 
