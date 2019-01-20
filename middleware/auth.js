@@ -190,6 +190,19 @@ module.exports = async (ctx, next) => {
       throw 'platform 只能由小写字母、数字和中划线组成' // 为了美观
     }
 
+    let needCaptchaUrl = `https://newids.seu.edu.cn/authserver/needCaptcha.html?username=${cardnum}&pwdEncrypt2=pwdEncryptSalt&_=${+moment()}`
+    let captchaRes = await ctx.get(needCaptchaUrl)
+    let needCaptcha = captchaRes.data
+
+    if(needCaptcha){
+      // 需要验证码
+      let verifyUrl = `https://newids.seu.edu.cn/authserver/logout?service=http://auth.myseu.cn/prepare/${platform}`
+      ctx.status = 303
+      ctx.body = {
+        verifyUrl
+      }
+      return // 都出验证码了，还要啥自行车啊，直接返回就行了
+    }
     // 无自定义 token 情况下，遵循同平台共用 token 原则，需按平台查找用户，从而尽可能查找已认证记录，免去认证流程
     // 有自定义 token 情况下，需要按自定义 token 查找该用户，与该 token 不一致的无法复用
     // 这里的 criteria 不仅表示查找的条件，同时也是找到记录但需要删除旧记录时的删除条件，修改时请考虑下面删除的条件
@@ -210,11 +223,8 @@ module.exports = async (ctx, next) => {
       // 运行到此处表示老数据库也没有，那就继续原来的逻辑
     }
 
-
-    let needCaptchaUrl = `https://newids.seu.edu.cn/authserver/needCaptcha.html?username=${cardnum}&pwdEncrypt2=pwdEncryptSalt&_=${+moment()}`
-    let captchaRes = await ctx.get(needCaptchaUrl)
     // 若找到已认证记录，比对密码，全部正确则可以免去统一身份认证流程，确认不需要验证码
-    if (!captchaRes.data && existing) {
+    if (existing) {
       let { passwordHash, tokenHash, tokenEncrypted, gpasswordEncrypted } = existing
       let token
       // 先判断密码正确
@@ -237,22 +247,12 @@ module.exports = async (ctx, next) => {
       // 这两种情况统一穿透到下面进行，如果认证通过，说明是第二种情况，则会删除数据库已有记录。
     }
 
-    let name, schoolnum, pending = false
+    let name, schoolnum
 
-    try {
-      // 登录信息门户认证，用于验证密码正确性、并同时获得姓名和学号
-      let idsResult = await ids6AuthCheck(ctx, cardnum, password, gpassword)
-      name = idsResult.name
-      schoolnum = idsResult.schoolnum
-    } catch (e) {
-      console.log(e)
-      if (e === '验证码') {
-        // 如果出现验证码的情况在此处标记，继续进行token生成的流程
-        pending = true
-      } else {
-        throw e
-      }
-    }
+    // 登录信息门户认证，用于验证密码正确性、并同时获得姓名和学号
+    let idsResult = await ids6AuthCheck(ctx, cardnum, password, gpassword)
+    name = idsResult.name
+    schoolnum = idsResult.schoolnum
 
     // 生成 32 字节 token 转为十六进制，及其哈希值
     let token = customToken || Buffer.from(crypto.randomBytes(20)).toString('hex')
@@ -275,13 +275,8 @@ module.exports = async (ctx, next) => {
     let gpasswordEncrypted = /^22/.test(cardnum) ? encrypt(token, gpassword) : ''
 
     // 将新用户信息插入数据库
-    let now = new Date().getTime()
+    let now = +moment()
 
-    // 需要验证码则生成verifyToken
-    let verifyToken
-    if (pending) {
-      verifyToken = Buffer.from(crypto.randomBytes(20)).toString('hex')
-    }
     // 不再向老数据库插入记录，所有记录都插入新数据库
     await authCollection.insertOne({
       cardnum,
@@ -293,70 +288,12 @@ module.exports = async (ctx, next) => {
       name, schoolnum, platform,
       registered: now,
       lastInvoked: now,
-      pending, // 标记该记录处于pending状态
-      verifyToken
     })
 
-    if(!pending){
-      // 返回 token
-      ctx.body = token
-      ctx.logMsg = `${name} [${cardnum}] - 身份认证成功 - 登录平台 ${platform}`
-      return
-    } else {
-      let verifyUrl = `https://newids.seu.edu.cn/authserver/logout?service=http://auth.myseu.cn/prepare/${platform}/${verifyToken}`
-      ctx.status = 303
-      ctx.body = {
-        token,
-        verifyUrl
-      }
-      // 返回后开始计时，超过10分钟仍未完成认证则删除本条临时token
-      setTimeout(()=>{
-        authCollection.deleteMany({token, pending:true})
-      }, 600000)
-      return
-    }
-    
-  } else if (ctx.path === '/token/verify') {
-    // 检查token可用性
-    /**
-     * 若登录过程出现验证码，auth接口返回verifyUrl
-     * 客户端需要调起浏览器/WebView进行新信息门户OAuth认证
-     * 在此期间，已经发放的 token 处于 pending 状态，不可调用接口
-     * 该条件由客户端遵守
-     * 
-     * 客户端通过/token/verify接口确认token是否生效
-     * 
-     */
-
-    // POST /token/verify 验证token可用性
-    if (ctx.method.toUpperCase() !== 'POST') {
-      throw 405
-    }
-    let { token } = ctx.params
-    console.log(token)
-    let tokenHash = hash(token)
-    let verifyResult = await authCollection.findOne({tokenHash})
-    if(!verifyResult){
-      //该 token 无记录 - 原因可能是恶意伪造请求或由于pending超时被删除
-      throw 401
-    }
-    ctx.body = !verifyResult.pending
+    ctx.body = token
+    ctx.logMsg = `${name} [${cardnum}] - 身份认证成功 - 登录平台 ${platform}`
     return
-  } else if (ctx.path === '/token/activate') {
-    // 激活token
-    if (ctx.method.toUpperCase() !== 'POST') {
-      throw 405
-    }
-    let { platform, verifyToken } = ctx.params
-    let criteria = {platform, verifyToken, pending:true}
-    let verifyRecord = await authCollection.findOne(criteria)
-    if (!verifyRecord) {
-      throw '无有效记录'
-    }
-    // 运行到此处说明存在有效记录，将其置为有效
-    await authCollection.updateOne(criteria, { $set: { pending: false } })
-    ctx.body = 'token已激活'
-    return
+  
   } else if (ctx.request.headers.token) {
     // 对于其他请求，根据 token 的哈希值取出表项
     let token = ctx.request.headers.token
@@ -371,7 +308,8 @@ module.exports = async (ctx, next) => {
     }
     // 运行到此处，mongodb中应该已经包含用户记录了，之后的更新操作全部对mongodb操作
     // 缓存也一定已经包含tokenHash了
-    if (record && !record.pending && record.name && record.schoolnum) { // 若 token 失效，穿透到未登录的情况去
+    // record必须包含姓名和学号，否则无效
+    if (record && record.name && record.schoolnum) { // 若 token 失效，穿透到未登录的情况去
       let now = +moment()
       let lastInvoked = record.lastInvoked
       // 更新用户最近调用时间一天更新一次降低粒度
@@ -438,7 +376,6 @@ module.exports = async (ctx, next) => {
       return
     } else {
       // 删除所有该token相关记录
-      console.log(tokenHash)
       authCollection.deleteMany({tokenHash})
     }
   }
