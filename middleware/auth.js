@@ -369,10 +369,9 @@ module.exports = async (ctx, next) => {
       record = await authCollection.findOne({ tokenHash })
       tokenHashPool[tokenHash] = record
     }
-
     // 运行到此处，mongodb中应该已经包含用户记录了，之后的更新操作全部对mongodb操作
     // 缓存也一定已经包含tokenHash了
-    if (record && !record.pending) { // 若 token 失效，穿透到未登录的情况去
+    if (record && !record.pending && record.name && record.schoolnum) { // 若 token 失效，穿透到未登录的情况去
       let now = +moment()
       let lastInvoked = record.lastInvoked
       // 更新用户最近调用时间一天更新一次降低粒度
@@ -439,7 +438,8 @@ module.exports = async (ctx, next) => {
       return
     } else {
       // 删除所有该token相关记录
-      authCollection.deleteMany({token})
+      console.log(tokenHash)
+      authCollection.deleteMany({tokenHash})
     }
   }
 
