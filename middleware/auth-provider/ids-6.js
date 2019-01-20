@@ -102,7 +102,14 @@ module.exports = async (ctx, cardnum, password) => {
       }
     } catch(e) {
       // 学号姓名信息更新失败
-      console.log(`${cardnum} - 学号/姓名信息更新失败`)
+      if(e === 'ehall-fail'){
+        console.log(`${cardnum} - 学号/姓名信息更新失败 - 由于ehall失效`)
+        if(record){
+          schoolnum = record.schoolnum
+          name = record.name
+          console.log(`已使用历史记录替代`)
+        }
+      }
     }
   }
 
