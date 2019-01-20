@@ -10,7 +10,7 @@ exports.getUptoken = () => {
     scope: bucket + ':' + key,
     saveKey: key,
     fsizeLimit: 1024 * 1024, // 限制1MB以内
-    returnBody: `{"url":"http://static.myseu.cn/${key}"}`
+    returnBody: `{"url":"https://static.myseu.cn/${key}"}`
   }).uploadToken(mac)
 
   return { key, uptoken }
