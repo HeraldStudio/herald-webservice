@@ -229,6 +229,9 @@ exports.route = {
         // 时间解析为时间戳
         calculationTime = calculationTime ? +moment(calculationTime) : null
         this.logMsg = `${name} (${cardnum}) - 查询绩点`
+        if(detail.length === 0) {
+          throw '教务处数据出错'
+        }
         return { gpa, gpaBeforeMakeup, achievedCredits, year, calculationTime, detail }
 
       } else if (/^22/.test(cardnum)) { // 研究生
