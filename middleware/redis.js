@@ -24,7 +24,7 @@ const jobPool = {}
 const redis = require('redis')
 const bluebird = require('bluebird')
 bluebird.promisifyAll(redis.RedisClient.prototype)
-
+const fs = require('fs')
 let client = (() => {
   try {
     let secret = require('./redis-secret.json')
@@ -42,6 +42,7 @@ client.batchDelete = async (keyword) => {
 
 client.on('error', e => {
   console.log(e)
+  fs.writeFileSync('/root/redis-error.txt', e)
   client.quit()
   console.log('Redis 引入失败，已使用临时 Object 代替缓存空间…')
 
