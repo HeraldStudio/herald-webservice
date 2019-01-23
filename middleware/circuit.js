@@ -10,33 +10,49 @@ const TIMEOUT = 10000
 const TIME_SPAN = 60000
 
 // 时间窗内连续多少次超时或失败触发熔断
-const MAX_FAIL_WITHIN_TIME_SPAN = 5
+const MAX_FAIL_WITHIN_TIME_SPAN = 3
 
 module.exports = async (ctx, next) => {
-  if (healthPool[ctx.path] <= -MAX_FAIL_WITHIN_TIME_SPAN) {
+  let startTime = +moment()
+  let failTimestamps = healthPool[ctx.path] || []
+  let oldLength = failTimestamps.length
+  failTimestamps = failTimestamps.filter(k => k >= startTime - TIME_SPAN)
+  let isDetecting = oldLength === MAX_FAIL_WITHIN_TIME_SPAN &&
+    failTimestamps.length === MAX_FAIL_WITHIN_TIME_SPAN - 1
+  if (isDetecting) {
+    console.log(`[circuit] 路由 ${ ctx.path } 可用性重新探测中…`)
+  }
+  healthPool[ctx.path] = failTimestamps
+
+  if (failTimestamps.length >= MAX_FAIL_WITHIN_TIME_SPAN) {
+    let nextRetry = Math.ceil((failTimestamps[0] + TIME_SPAN - startTime) / 1000)
+    console.log(`[circuit] 路由 ${ ctx.path } 处于熔断状态，${ nextRetry } 秒后开放下次探测…`)
     throw 503
   }
 
-  let startTime = +moment()
   try {
     await next()
+    // 一旦出现成功，清空失败状态池
+    healthPool[ctx.path] = []
+    if (isDetecting) {
+      console.log(`[circuit] 路由 ${ctx.path} 探测为恢复正常，解除熔断状态…`)
+    }
   } catch (e) {
+    let now = +moment()
     if (
       e.message && (
         /^Request failed with status code (\d+)$/.test(e.message) ||
         /^timeout of \d+ms exceeded$/.test(e.message)
-      ) || (+moment() - startTime >= TIMEOUT)
+      ) || (now - startTime >= TIMEOUT)
     ) {
-      healthPool[ctx.path] = (healthPool[ctx.path] || 0) - 1
-      if (healthPool[ctx.path] === 1 - MAX_FAIL_WITHIN_TIME_SPAN) {
-        console.log(`[circuit] 路由 ${ ctx.path } 失败或超时次数即将达到上限，准备熔断……`)
+      let failTimestamps = healthPool[ctx.path] || []
+      failTimestamps = failTimestamps.filter(k => k >= now - TIME_SPAN)
+      failTimestamps.push(now)
+      healthPool[ctx.path] = failTimestamps
+
+      if (!isDetecting && failTimestamps.length === MAX_FAIL_WITHIN_TIME_SPAN) {
+        console.log(`[circuit] 路由 ${ ctx.path } 频繁失败，已暂时熔断…`)
       }
-      setTimeout(() => {
-        healthPool[ctx.path]++
-        if (healthPool[ctx.path] === 2 - MAX_FAIL_WITHIN_TIME_SPAN) {
-          console.log(`[circuit] 路由 ${ctx.path} 恢复正常，已结束熔断`)
-        }
-      }, TIME_SPAN)
     }
   }
 }
