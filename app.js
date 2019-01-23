@@ -4,7 +4,7 @@ const kf = require('kf-router')
 const fs = require('fs')
 
 // 调试时打开，设置所有 Promise 超时 15 秒，超过 15 秒自动 reject 并输出超时 Promise 所在位置
-require('./promise-timeout')(15000)
+// require('./promise-timeout')(15000)
 
 // 将 moment 导出到全局作用域
 global.moment = require('moment')
@@ -58,9 +58,9 @@ app.use(require('./middleware/statistics'))
   ## C. 接口层
   为了方便双方通信，负责对服务收到的请求和发出的返回值做变换的中间件。
 */
-// 2. 参数格式化，对上游传入的 URL 参数和请求体参数进行合并
+// 1. 参数格式化，对上游传入的 URL 参数和请求体参数进行合并
 app.use(require('./middleware/params'))
-// 3. 返回格式化，将下游返回内容包装一层JSON
+// 2. 返回格式化，将下游返回内容包装一层JSON
 app.use(require('./middleware/return'))
 
 /**
@@ -77,24 +77,26 @@ app.use(require('./middleware/adapter/wx-herald'))
   ## E. API 层
   负责为路由处理程序提供 API 以便路由处理程序使用的中间件。
 */
-// 1. 接口之间相互介绍的 API
+// 1. 熔断器中间件，同一路由 1 分钟内超过 5 次超时或失败则暂时拒绝服务
+app.use(require('./middleware/circuit'))
+// 2. 接口之间相互介绍的 API
 app.use(require('./middleware/related'))
-// 2. 分布式硬件爬虫，为 axios 提供了底层依赖
+// 3. 分布式硬件爬虫，为 axios 提供了底层依赖
 app.use(require('./middleware/spider-server'))
-// 3. 网络请求，为身份认证和路由处理程序提供了网络请求 API
+// 4. 网络请求，为身份认证和路由处理程序提供了网络请求 API
 app.use(require('./middleware/axios'))
-// 4. 身份认证，为下面 redis 缓存提供了加解密函数
+// 5. 身份认证，为下面 redis 缓存提供了加解密函数
 app.use(require('./middleware/auth'))
-// 5. 管理员权限，需要依赖身份认证
+// 6. 管理员权限，需要依赖身份认证
 app.use(require('./middleware/admin'))
-// 6. redis 缓存，为路由处理程序提供手动缓存
+// 7. redis 缓存，为路由处理程序提供手动缓存
 //（开发环境下是假 redis，不需要安装redis）
 app.use(require('./middleware/redis'))
-// 7. 学期信息 term API
+// 8. 学期信息 term API
 app.use(require('./middleware/term'))
-// 8. Slack API
+// 9. Slack API
 app.use(require('./middleware/slack').middleware)
-// 9. 生产环境下验证码识别
+// 10. 生产环境下验证码识别
 if (process.env.NODE_ENV === 'production') {
   app.use(require('./middleware/captcha')({
     python: '/usr/local/bin/anaconda3/envs/captcha/bin/python'
