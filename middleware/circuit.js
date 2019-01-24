@@ -54,5 +54,6 @@ module.exports = async (ctx, next) => {
         console.log(`[circuit] 路由 ${ ctx.path } 频繁失败，已暂时熔断…`)
       }
     }
+    throw e
   }
 }
