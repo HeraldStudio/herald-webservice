@@ -26,7 +26,7 @@ const iconv = require('iconv')
 const qs = require('querystring')
 axiosCookieJarSupport(axios)
 
-const proxyOptions = `socks5://118.126.82.142:8000`;
+const proxyOptions = `socks5://127.0.0.1:8000`;
 const httpsAgent = new SocksProxyAgent(proxyOptions, true);
 const httpAgent = new SocksProxyAgent(proxyOptions);
 /**
