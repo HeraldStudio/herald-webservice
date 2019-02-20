@@ -54,8 +54,8 @@ module.exports = async (ctx, next) => {
  */
   let _axios = axios.create({
     // 传入代理
-    httpsAgent,
-    httpAgent,
+    httpsAgent:new SocksProxyAgent(proxyOptions),
+    httpAgent:new SocksProxyAgent(proxyOptions),
 
     // 使用当前会话的 CookieJar
     withCredentials: true,
