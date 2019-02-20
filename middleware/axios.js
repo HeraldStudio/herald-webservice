@@ -19,12 +19,16 @@ const { config } = require('../app')
 const axiosCookieJarSupport = require('axios-cookiejar-support').default
 const tough = require('tough-cookie')
 const chardet = require('jschardet-eastasia')
+const SocksProxyAgent = require('socks-proxy-agent')
 chardet.Constants.MINIMUM_THRESHOLD = 0
 
 const iconv = require('iconv')
 const qs = require('querystring')
 axiosCookieJarSupport(axios)
 
+const proxyOptions = `socks5://127.0.0.1:8000`;
+const httpsAgent = new SocksProxyAgent(proxyOptions);
+const httpAgent = new SocksProxyAgent(proxyOptions);
 /**
   ## 安全性
 
@@ -49,7 +53,9 @@ module.exports = async (ctx, next) => {
   支持 get/post/put/delete 四个方法
  */
   let _axios = axios.create({
-
+    // 传入代理
+    httpsAgent,
+    httpAgent,
     // 使用当前会话的 CookieJar
     withCredentials: true,
     jar: ctx.cookieJar,
@@ -88,7 +94,7 @@ module.exports = async (ctx, next) => {
 
   ;['get','post','put','delete'].forEach(k => {
     ctx[k] = async (...args) => {
-      if (config.spider.enable) {
+      if (false) {
         let transformRequest = (req) => {
           if (typeof req === 'object') {
             return qs.stringify(req)

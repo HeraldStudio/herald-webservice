@@ -32,6 +32,7 @@
     "redis": "^2.8.0",
     "repl.history": "^0.1.4",
     "showapi-sdk": "^1.0.4",
+    "socks-proxy-agent": "^4.0.1",
     "tough-cookie": "^2.3.3",
     "ws": "^4.0.0"
   },
