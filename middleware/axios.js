@@ -54,8 +54,8 @@ module.exports = async (ctx, next) => {
  */
   let _axios = axios.create({
     // 传入代理
-    httpsAgent:new SocksProxyAgent(proxyOptions, true),
-    httpAgent:new SocksProxyAgent(proxyOptions),
+    // httpsAgent:new SocksProxyAgent(proxyOptions, true),
+    // httpAgent:new SocksProxyAgent(proxyOptions),
 
     // 使用当前会话的 CookieJar
     withCredentials: true,
@@ -95,7 +95,7 @@ module.exports = async (ctx, next) => {
 
   ;['get','post','put','delete'].forEach(k => {
     ctx[k] = async (...args) => {
-      if (false) {
+      if (true) {
         let transformRequest = (req) => {
           if (typeof req === 'object') {
             return qs.stringify(req)
