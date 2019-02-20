@@ -10,7 +10,7 @@ exports.route = {
     let activityCollection = await mongodb('herald_activity')
     let activityClickCollection = await mongodb('herald_activity_click')
 
-    return await Promise.all((activityCollection.find({},{sort:{startTime:-1}}).toArray())
+    return await Promise.all((await activityCollection.find({},{sort:{startTime:-1}}).toArray())
       .map(async k => {
         k.clicks = await activityClickCollection.count({ aid: k.aid })
         return k
