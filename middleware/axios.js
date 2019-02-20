@@ -27,7 +27,7 @@ const qs = require('querystring')
 axiosCookieJarSupport(axios)
 
 const proxyOptions = `socks5://127.0.0.1:8000`;
-const httpsAgent = new SocksProxyAgent(proxyOptions);
+const httpsAgent = new SocksProxyAgent(proxyOptions, true);
 const httpAgent = new SocksProxyAgent(proxyOptions);
 /**
   ## 安全性
@@ -55,6 +55,7 @@ module.exports = async (ctx, next) => {
   let _axios = axios.create({
     // 传入代理
     httpsAgent,
+    httpAgent,
 
     // 使用当前会话的 CookieJar
     withCredentials: true,
