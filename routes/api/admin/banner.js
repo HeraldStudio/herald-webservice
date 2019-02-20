@@ -11,7 +11,7 @@ exports.route = {
     //     k.clicks = await db.bannerClick.count({ bid: k.bid })
     //     return k
     //   }))
-    return await Promise.all((await bannerCollection.find().sort('endTime', -1).skip((page - 1) * pagesize).limit(pagesize).toArray())
+    return await Promise.all((await bannerCollection.find().sort('endTime', -1).skip((page - 1) * pagesize).limit(parseInt(pagesize)).toArray())
     .map(async k => {
       k.clicks = await bannerClickCollection.countDocuments({ bid: k.bid })
       return k

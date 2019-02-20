@@ -5,7 +5,7 @@ exports.route = {
     let activityCollection = await mongodb('herald_activity')
     return await this.publicCache('1m', async () => {
       //return (await db.activity.find({}, pagesize, (page - 1) * pagesize, 'endTime-'))
-      return (await activityCollection.find().limit(pagesize).skip((page - 1)*pagesize).toArray())
+      return (await activityCollection.find().limit(parseInt(pagesize)).skip((page - 1)*pagesize).toArray())
         // 这里删除 url 参数，强制要求前端在用户点击时通过 put 请求获取链接，以保证统计不遗漏
         .map(k => {
           k.hasUrl = !!k.url
