@@ -1,4 +1,6 @@
-const db = require('sqlongo')('admin')
+//const db = require('sqlongo')('admin')
+const db = {}
+const mongodb = require('./mongodb')
 
 db.admin = {
   cardnum:    'text not null',  // 管理员一卡通号，一个人可以为多个管理员，所以可重复
@@ -17,15 +19,21 @@ db.domain = {
 }
 
 const define = async (domain, name, desc) => {
+  let adminDomainCollection = await mongodb('herald_admin_domain')
+
   if (domain === 'super') {
     throw 'super 为保留域'
   }
 
-  if (await db.domain.find({ domain }, 1)) {
+  // if (await db.domain.find({ domain }, 1)) {
+  //   return
+  // }
+
+  if ((await adminDomainCollection.countDocuments({domain})) === 1) {
     return
   }
 
-  await db.domain.insert({ domain, name, desc })
+  await adminDomainCollection.insertOne({ domain, name, desc })
 }
 
 require('./admin.json').map(k => {

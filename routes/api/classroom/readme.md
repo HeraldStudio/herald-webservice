@@ -1,5 +1,5 @@
 ## 空教室查询模块
-
+## 烂尾
 ## Introduction
 
 ### APIs

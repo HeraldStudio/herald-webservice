@@ -2,8 +2,7 @@ const crypto = require('crypto')
 const { config } = require('../../app')
 const axios = require('axios')
 const cheerio = require('cheerio')
-const pubdb = require('../../database/publicity')
-
+const mongodb = require('../../database/mongodb')
 module.exports = async (ctx, next) => {
   if (ctx.path.indexOf('/adapter-ws2/') !== 0) {
     return await next()
@@ -479,7 +478,9 @@ module.exports = async (ctx, next) => {
       if (type === 'hot') {
         ctx.body = { content: [], code: 200 }
       } else {
-        let acts = await pubdb.activity.find({}, 10, (page - 1) * 10, 'startTime-')
+        //let acts = await pubdb.activity.find({}, 10, (page - 1) * 10, 'startTime-')
+        let activityCollection = await mongodb('herald_activity')
+        let acts = await activityCollection.find().skip((page-1)*10).limit(10).sort({startTime:-1}).toArray()
         ctx.body = {
           content: acts.map(k => {
             let startTime = moment(k.startTime).format('YYYY-M-D')

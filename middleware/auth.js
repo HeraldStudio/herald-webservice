@@ -46,7 +46,6 @@
   均可使用的功能，需要先通过 isLogin 区分用户和游客，然后对用户按需获取其他属性，不能对游客获取用户属性，
   否则将抛出 401。
  */
-const db = require('../database/auth')
 const tough = require('tough-cookie')
 const crypto = require('crypto')
 const { config } = require('../app')
@@ -127,7 +126,6 @@ const ids3AuthCheck = async (ctx, cardnum, password, gpassword) => {
       if (ctx.user && ctx.user.isLogin) {
         let authCollection = await mongodb('herald_auth')
         let { token } = ctx.user
-        await db.auth.remove({ tokenHash: token })
         await authCollection.deleteMany({ tokenHash: token })
         tokenHashPool[token] = undefined
       }
@@ -211,18 +209,6 @@ module.exports = async (ctx, next) => {
     // mongodb迁移
     let existing = await authCollection.findOne(criteria)
 
-    if (!existing) {
-      // mongodb 不存在记录
-      existing = await db.auth.find(criteria, 1)
-      // 从sqlite数据库找
-      if (existing) {
-        // 老数据库中找到了，插入到mongodb中去
-        console.log('>>>mongodb迁移<<<')
-        await authCollection.insertOne(existing)
-      }
-      // 运行到此处表示老数据库也没有，那就继续原来的逻辑
-    }
-
     // 若找到已认证记录，比对密码，全部正确则可以免去统一身份认证流程，确认不需要验证码
     if (existing) {
       let { passwordHash, tokenHash, tokenEncrypted, gpasswordEncrypted } = existing
@@ -264,7 +250,6 @@ module.exports = async (ctx, next) => {
     // 2. 如果是非自定义 token，说明新旧密码不同，且新密码正确，说明用户改了密码，此时为了信息安全，也需要删除所有旧记录
     if (existing) {
       // 这里 criteria 跟查找时的条件相同，自定义 token 按 tokenHash 删除，否则按一卡通号和平台删除
-      await db.auth.remove(criteria)
       await authCollection.deleteMany(criteria)
       tokenHashPool[tokenHash] = undefined
     }

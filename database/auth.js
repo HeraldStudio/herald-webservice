@@ -1,5 +1,5 @@
-const db = require('sqlongo')('auth')
-
+//const db = require('sqlongo')('auth')
+const db = {}
 db.auth = {
   cardnum:            'text not null',    // 一卡通号
   tokenHash:          'text primary key', // 令牌哈希值 = Base64(MD5(token))，用于根据私钥找到用户
@@ -16,10 +16,10 @@ db.auth = {
 }
 
 // 定期清理过期授权，超过指定天数未使用的将会过期
-setInterval(() => {
-  db.auth.remove({
-    lastInvoked: { $lt: +moment().subtract(config.auth.expireDays, 'days') }
-  })
-}, +moment.duration(1, 'day'))
+// setInterval(() => {
+//   // db.auth.remove({
+//   //   lastInvoked: { $lt: +moment().subtract(config.auth.expireDays, 'days') }
+//   // })
+// }, +moment.duration(1, 'day'))
 
 module.exports = db

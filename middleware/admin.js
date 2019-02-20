@@ -1,6 +1,5 @@
 const chalk = require('chalk')
 const crypto = require('crypto')
-const db = require('../database/admin')
 const mongodb = require('../database/mongodb');
 
 //数据库迁移代码

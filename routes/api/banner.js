@@ -1,4 +1,3 @@
-const db = require('../../database/publicity')
 const mongodb = require('../../database/mongodb')
 
 exports.route = {

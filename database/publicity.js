@@ -1,4 +1,5 @@
-const db = require('sqlongo')('publicity')
+//const db = require('sqlongo')('publicity')
+const db = {}
 const mongodb = require('./mongodb')
 db.banner = {
   bid:              'integer primary key',

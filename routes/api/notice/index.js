@@ -1,6 +1,6 @@
 const cheerio = require('cheerio')
 const Europa = require('node-europa')
-const db = require('../../../database/publicity')
+const mongodb = require('../../../database/mongodb')
 const url = require('url')
 
 const sites = {
@@ -141,7 +141,9 @@ exports.route = {
     )) // Promise.all
 
     // 小猴系统通知
-    ret = ret.concat((await db.notice.find()).map(k => {
+    let noticeCollection = await mongodb('herald_notice')
+    //ret = ret.concat((await db.notice.find()).map(k => {
+    ret = ret.concat((await noticeCollection.find().toArray()).map(k => { 
       return {
         site: '小猴偷米',
         category: '系统公告',
@@ -183,7 +185,9 @@ exports.route = {
         inline: true
       }).convert($(typeObj.contentSelector || 'body').html())
     } else if (nid) {
-      let notice = await db.notice.find({ nid }, 1)
+      let noticeCollection = await mongodb('herald_notice')
+      //let notice = await db.notice.find({ nid }, 1)
+      let notice = await noticeCollection.findOne({ nid })
       return `# ${notice.title}\n\n${notice.content}`
     } else {
       throw 400

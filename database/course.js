@@ -3,8 +3,8 @@
  * 根据成绩查询的结果，统计全校开课信息，记录课程上课的院系年级，以备课表预测等高级功能使用。
  */
 
-const db = require('sqlongo')('course')
-
+//const db = require('sqlongo')('course')
+const db = {}
 // 各课程信息
 db.course = {
   cid:         'text primary key', // 课程编号
@@ -17,11 +17,11 @@ db.course = {
 }
 
 // 每天清理两个月不更新的课
-setInterval(() => {
-  let criteria = { updateTime: { $lt: +moment().subtract(2, 'months') }}
-  db.course.remove(criteria)
-  db.courseSemester.remove(criteria)
-}, +moment.duration(1, 'day'))
+// setInterval(() => {
+//   let criteria = { updateTime: { $lt: +moment().subtract(2, 'months') }}
+//   db.course.remove(criteria)
+//   db.courseSemester.remove(criteria)
+// }, +moment.duration(1, 'day'))
 
 // 各课程的上课学期统计
 // 只计算首修
@@ -35,5 +35,5 @@ db.courseSemester = {
 }
 
 // 后三个字段一起加索引，通用性强一些
-db`create index if not exists courseSemesterIndex on courseSemester(major, grade, semester)`
+//db`create index if not exists courseSemesterIndex on courseSemester(major, grade, semester)`
 module.exports = db

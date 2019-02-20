@@ -1,5 +1,5 @@
 const cheerio = require('cheerio')
-const db = require('../../database/course')
+//const db = require('../../database/course')
 const { config } = require('../../app')
 
 // 折合百分制成绩（本科生用）

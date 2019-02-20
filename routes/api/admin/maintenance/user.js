@@ -1,4 +1,3 @@
-const db = require('../../../../database/auth')
 const  mongodb  = require('../../../../database/mongodb');
 
 exports.route = {

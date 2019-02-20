@@ -1,5 +1,3 @@
-const pubdb = require('../../database/publicity')
-const authdb = require('../../database/auth')
 const  mongodb  = require('../../database/mongodb');
 const { config } = require('../../app')
 const crypto = require('crypto')
@@ -13,6 +11,7 @@ const hash = value => {
 module.exports = async (ctx, next) => {
   let authCollection = await mongodb('herald_auth')
   let bannerCollection = await mongodb('herald_banner')
+  let noticeCollection = await mongodb('herald_notice')
   if (ctx.path.indexOf('/adapter-appserv/') !== 0) {
     return await next()
   }
@@ -46,7 +45,8 @@ module.exports = async (ctx, next) => {
             des:'\n经过三个月线上测试，现全面推送新版小猴偷米。修复老版本身份认证失效/一卡通充值等系列问题，布局深度调整，有更多新功能等你发现～\n\n【注意】本次更新安装将与老版本 App 并存，如有需要请手动卸载老版本'}
         }
 
-        let notices = await pubdb.notice.find()
+        //let notices = await pubdb.notice.find()
+        let notices = await noticeCollection.find().toArray()
 
         // 每条系统通知对应转换为小程序的一条通知
         // 内容直接用 Markdown 代码

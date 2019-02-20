@@ -13,9 +13,9 @@ global.moment = require('moment')
 const config = require('js-yaml').load(fs.readFileSync('./config.yml'))
 exports.config = config
 
-// 为 Sqlongo ORM 设置默认路径
-const sqlongo = require('sqlongo')
-sqlongo.defaults.path = 'database'
+// Goodbye, sqlongo!
+//const sqlongo = null
+//sqlongo.defaults.path = 'database'
 
 // 为 Moment 设置默认语言
 moment.locale('zh-cn')

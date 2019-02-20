@@ -2,8 +2,8 @@
  * 竞赛组队数据库
  */
 
-const db = require('sqlongo')('team')
-
+//const db = require('sqlongo')('team')
+const db = {}
 // 队伍信息
 db.team = {
   tid:         'text primary key', // 团队唯一id
@@ -16,7 +16,7 @@ db.team = {
 }
 
 // 对更新时间进行索引
-db`create index if not exists teamIndex on team(updateTime)`
+//db`create index if not exists teamIndex on team(updateTime)`
 
 // 报名信息
 db.registration = {

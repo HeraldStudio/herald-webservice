@@ -1,12 +1,12 @@
-const models = require("./models")
+// //const models = require("./models")
 
-exports.route = {
+// exports.route = {
 
-  /**
-  * GET /api/classroom/course
-  * @remark （蹭课必备：根据课名搜教室）
-  **/
-  async get() {
-    // FLAG: TODO
-  }
-}
+//   /**
+//   * GET /api/classroom/course
+//   * @remark （蹭课必备：根据课名搜教室）
+//   **/
+//   async get() {
+//     // FLAG: TODO
+//   }
+// }

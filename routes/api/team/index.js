@@ -1,5 +1,5 @@
 const { config } = require('../../../app')
-const db = require('../../../database/team')
+//const db = require('../../../database/team')
 const crypto = require('crypto')
 
 /**
@@ -8,7 +8,7 @@ const crypto = require('crypto')
 exports.route = {
 
   async get({ page = 1, pagesize = 10, own = false }) {
-    
+    throw '服务升级中'
     let now = +moment()
     let amount = await db.team.count('*', { expireTime: {$lt: now} }) // 获取当前未过期的队伍总数
     let { cardnum } = this.user
