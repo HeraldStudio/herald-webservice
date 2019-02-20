@@ -26,7 +26,7 @@ const iconv = require('iconv')
 const qs = require('querystring')
 axiosCookieJarSupport(axios)
 
-const proxyOptions = `socks5://127.0.0.1:8000`;
+const proxyOptions = `socks5://118.126.82.142:8000`;
 const httpsAgent = new SocksProxyAgent(proxyOptions, true);
 const httpAgent = new SocksProxyAgent(proxyOptions);
 /**
@@ -54,8 +54,8 @@ module.exports = async (ctx, next) => {
  */
   let _axios = axios.create({
     // 传入代理
-    //httpsAgent:new SocksProxyAgent(proxyOptions),
-    //httpAgent:new SocksProxyAgent(proxyOptions),
+    httpsAgent:httpsAgent,
+    httpAgent:httpAgent,
 
     // 使用当前会话的 CookieJar
     withCredentials: true,
@@ -95,7 +95,7 @@ module.exports = async (ctx, next) => {
 
   ;['get','post','put','delete'].forEach(k => {
     ctx[k] = async (...args) => {
-      if (true) {
+      if (false) {
         let transformRequest = (req) => {
           if (typeof req === 'object') {
             return qs.stringify(req)
