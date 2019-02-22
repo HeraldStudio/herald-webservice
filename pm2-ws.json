@@ -1,0 +1,52 @@
+{"apps":[{
+    "name":"herald-webservice-1",
+    "script":"./app.js",
+    "watch":false,
+    "args":" --mode=production --port=3000",
+    "instances":1,
+    "out_file":"/tmp/ws-1.log",
+    "autorestart":true,
+    "max_restarts":50,
+    "restart_delay":10000,
+    "combine_logs":true,
+    "exec_mode":"fork"
+  },
+  {
+    "name":"herald-webservice-2",
+    "script":"./app.js",
+    "watch":false,
+    "args":" --mode=production --port=3001",
+    "instances":1,
+    "out_file":"/tmp/ws-2.log",
+    "autorestart":true,
+    "max_restarts":50,
+    "restart_delay":10000,
+    "combine_logs":true,
+    "exec_mode":"fork"
+  },
+  {
+    "name":"herald-webservice-3",
+    "script":"./app.js",
+    "watch":false,
+    "args":" --mode=production --port=3002",
+    "instances":1,
+    "out_file":"/tmp/ws-3.log",
+    "autorestart":true,
+    "max_restarts":50,
+    "restart_delay":10000,
+    "combine_logs":true,
+    "exec_mode":"fork"
+  },
+  {
+    "name":"herald-webservice-4",
+    "script":"./app.js",
+    "watch":false,
+    "args":" --mode=production --port=3003",
+    "instances":1,
+    "out_file":"/tmp/ws-4.log",
+    "autorestart":true,
+    "max_restarts":50,
+    "restart_delay":10000,
+    "combine_logs":true,
+    "exec_mode":"fork"
+  }]}

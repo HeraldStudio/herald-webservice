@@ -11,7 +11,7 @@ String.prototype.padd = function () {
 }
 
 // 生产环境更新自定义菜单
-if (process.env.NODE_ENV === 'production') {
+if (program.mode === 'production') {
   const menu = require('./wx-herald-menu.json')
   api.post('/menu/create', menu).then(res => {
     console.log(chalk.blue('[wx-herald] 自定义菜单 ') + res.data.errmsg)

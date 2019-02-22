@@ -32,7 +32,7 @@ class SpiderServer {
     let that = this
     this.connectionPool = {}  // 连接池
     this.requestPool = {}  // 请求池
-    this.socketServer = new ws.Server({port: config.spider.port})
+    this.socketServer = new ws.Server({port: program.port + 1000})
     this.socketServer.on('connection', (connection) => {
       this.handleConnection(connection)
     })

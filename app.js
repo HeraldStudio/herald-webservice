@@ -2,12 +2,20 @@ const koa = require('koa')
 const app = new koa()
 const kf = require('kf-router')
 const fs = require('fs')
-
+const program = require('commander');
 // 调试时打开，设置所有 Promise 超时 15 秒，超过 15 秒自动 reject 并输出超时 Promise 所在位置
 // require('./promise-timeout')(15000)
 
+program
+  .version('1.0.0')
+  .option('-m --mode <mode>', '执行模式 <production|development|profile>')
+  .option('-p, --port <port>', '监听端口（爬虫服务监听port+1000端口）',parseInt)
+  .parse(process.argv);
+
 // 将 moment 导出到全局作用域
 global.moment = require('moment')
+// 运行参数导出到全局
+global.program = program
 
 // 解析 YAML 配置文件
 const config = require('js-yaml').load(fs.readFileSync('./config.yml'))
@@ -96,11 +104,11 @@ app.use(require('./middleware/redis'))
 app.use(require('./middleware/term'))
 // 9. Slack API
 app.use(require('./middleware/slack').middleware)
-// 10. 生产环境下验证码识别
-if (process.env.NODE_ENV === 'production') {
-  app.use(require('./middleware/captcha')({
-    python: '/usr/local/bin/anaconda3/envs/captcha/bin/python'
-  }))
+// 10. 生产环境下验证码识别(算了)
+if (program.mode === 'production') {
+  // app.use(require('./middleware/captcha')({
+  //   python: '/usr/local/bin/anaconda3/envs/captcha/bin/python'
+  // }))
 }
 
 /**
@@ -108,9 +116,9 @@ if (process.env.NODE_ENV === 'production') {
   负责调用路由处理程序执行处理的中间件。
 */
 app.use(kf())
-app.listen(config.port)
+app.listen(program.port)
 
 // 开发环境下，启动 REPL
-if (process.env.NODE_ENV === 'development') {
+if (program.mode === 'development') {
   require('./repl').start()
 }

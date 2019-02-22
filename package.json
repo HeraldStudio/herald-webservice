@@ -1,11 +1,11 @@
 {
   "name": "herald-ws3",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "yarn && cross-env NODE_ENV=development nodemon app.js",
-    "start": "yarn && cross-env NODE_ENV=production nodemon app.js",
-    "profile": "yarn && cross-env NODE_ENV=profile nodemon app.js"
+    "dev": "yarn && cross-env NODE_ENV=development nodemon app.js --mode=development --port=3000",
+    "start": "yarn && cross-env NODE_ENV=production nodemon app.js --mode=production --port=3000",
+    "profile": "yarn && cross-env NODE_ENV=profile nodemon app.js --mode=profile --port=3000"
   },
   "dependencies": {
     "axios": "^0.17.1",
@@ -14,6 +14,7 @@
     "chalk": "^2.3.0",
     "cheerio": "^1.0.0-rc.2",
     "co-wechat": "^2.3.0",
+    "commander": "^2.19.0",
     "cross-env": "^5.2.0",
     "form-data": "^2.3.2",
     "iconv": "^2.3.0",

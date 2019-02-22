@@ -86,7 +86,7 @@ const cache = {
     let profileStart = +moment()
     client.set(key, JSON.stringify({ value, time }))
     //Profile
-    if (process.env.NODE_ENV === 'profile') {
+    if (program.mode === 'profile') {
       let profileEnd = +moment()
       console.log(`[Profile] 缓存写入 ${profileEnd - profileStart} ms`)
     }
@@ -95,11 +95,11 @@ const cache = {
     if (key && ttl) {
       // Profile
       let profileStart = null
-      if (process.env.NODE_ENV === 'profile') {
+      if (program.mode === 'profile') {
         profileStart = +moment()
       }
       let got = JSON.parse(await client.getAsync(key))
-      if (process.env.NODE_ENV === 'profile') {
+      if (program.mode === 'profile') {
         let profileEnd = +moment()
         console.log(`[Profile] 缓存读取 ${profileEnd - profileStart} ms`)
       }
