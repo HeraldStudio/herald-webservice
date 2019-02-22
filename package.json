@@ -5,7 +5,10 @@
   "scripts": {
     "dev": "yarn && cross-env NODE_ENV=development nodemon app.js --mode=development --port=3000",
     "start": "yarn && cross-env NODE_ENV=production nodemon app.js --mode=production --port=3000",
-    "profile": "yarn && cross-env NODE_ENV=profile nodemon app.js --mode=profile --port=3000"
+    "profile": "yarn && cross-env NODE_ENV=profile nodemon app.js --mode=profile --port=3000",
+    "log":"pm2 log",
+    "cluster-start":"yarn && pm2 start ./pm2-ws.json",
+    "cluster-stop":"pm2 delete herald-webservice-1 && pm2 delete herald-webservice-2 && pm2 delete herald-webservice-3 && pm2 delete herald-webservice-4"
   },
   "dependencies": {
     "axios": "^0.17.1",
