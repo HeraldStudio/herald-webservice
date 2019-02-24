@@ -71,9 +71,9 @@ exports.route = {
         await this.useEHallAuth('4770397878132218')
         // 处理 curriculum
         // 获取课表
-        let queryTerm = '2018-2019-2'
-        if (term.name === '18-19-3') {
-          queryTerm = '2018-2019-3'
+        let queryTerm = '2018-2019-3'
+        if (term.name === '18-19-2') {
+          queryTerm = '2018-2019-2'
         }
         const curriculumRes = await this.post('http://ehall.seu.edu.cn/jwapp/sys/wdkb/modules/xskcb/xskcb.do', {
           'XNXQDM': queryTerm,
