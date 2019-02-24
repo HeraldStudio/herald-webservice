@@ -86,15 +86,6 @@ module.exports = async (ctx, next) => {
           return k
         })
       }
-      next = {
-        name:      "18-19-3",
-        startDate: 1551024000000,
-        endDate:   1561910400000,
-        isCurrent: false,
-        isNext:    true,
-        isPrev:    false,
-        isLong:    true
-      }
       next.isNext = true
       prev.isPrev = true
       term.next = next
