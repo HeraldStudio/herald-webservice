@@ -3,7 +3,7 @@
 
   代替 koa 的日志中间件，为了解析 return.js 中间件返回的 JSON 状态码，并且为了好看。
  */
-const chalk = require('chalk')
+
 
 module.exports = async (ctx, next) => {
   let begin = moment()
@@ -20,10 +20,10 @@ module.exports = async (ctx, next) => {
 
   console.log(
     '  ' + time +
-    ' | ' + (status < 400 ? chalk.green(status) : chalk.red(status)) +
+    ' | ' + (status < 400 ? chalkColored.green(status) : chalkColored.red(status)) +
     ' ' + ctx.method +
-    ' ' + chalk.blue(ctx.path) +
+    ' ' + chalkColored.blue(ctx.path) +
     ' ' + duration + 'ms' +
-    (logMsg ? ' | ' + chalk.yellow(logMsg) : '')
+    (logMsg ? ' | ' + chalkColored.yellow(logMsg) : '')
   )
 }

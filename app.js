@@ -3,6 +3,7 @@ const app = new koa()
 const kf = require('kf-router')
 const fs = require('fs')
 const program = require('commander');
+const chalk = require('chalk');
 // 调试时打开，设置所有 Promise 超时 15 秒，超过 15 秒自动 reject 并输出超时 Promise 所在位置
 // require('./promise-timeout')(15000)
 
@@ -16,6 +17,8 @@ program
 global.moment = require('moment')
 // 运行参数导出到全局
 global.program = program
+
+global.chalkColored = new chalk.constructor({level: 2});
 
 // 解析 YAML 配置文件
 const config = require('js-yaml').load(fs.readFileSync('./config.yml'))

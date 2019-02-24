@@ -45,7 +45,6 @@ client.on('error', e => {
   client.quit()
   console.log('Redis 引入失败，已使用临时 Object 代替缓存空间…')
 
-  const chalk = require('chalk')
   const pool = {}
 
   const summarize = (obj, length) => {
@@ -59,11 +58,11 @@ client.on('error', e => {
   client = {
     set (key, value) {
       pool[key] = value
-      console.log('dev-fake-redis [set]', chalk.cyan(key), summarize(value, 32))
+      console.log('dev-fake-redis [set]', chalkColored.cyan(key), summarize(value, 32))
     },
     async getAsync (key) {
       let value = pool[key] || 'null'
-      console.log('dev-fake-redis [get]', chalk.cyan(key), summarize(value, 32))
+      console.log('dev-fake-redis [get]', chalkColored.cyan(key), summarize(value, 32))
       return value
     },
     batchDelete (keyword) {

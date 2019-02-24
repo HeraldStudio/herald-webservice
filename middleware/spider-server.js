@@ -8,7 +8,6 @@ const { config } = require('../app')
 const chardet = require('jschardet-eastasia')
 const axios = require('axios')
 const tough = require('tough-cookie')
-const chalk = require('chalk')
 const sms = require('../sdk/yunpian')
 const slackMessage = require('./slack').SlackMessage
 const spiderSecret = (() => {
@@ -40,7 +39,7 @@ class SpiderServer {
       error.errCode = SERVER_ERROR;
       console.log(error)
     })
-    console.log(chalk.green('[+] 分布式硬件爬虫服务正在运行...'))
+    console.log(chalkColored.green('[+] 分布式硬件爬虫服务正在运行...'))
   }
 
   handleConnection(connection) {
@@ -49,7 +48,7 @@ class SpiderServer {
     this.connectionPool[name] = connection
     connection.active = false
     let token = this.generateToken()
-    console.log(`[I] 硬件爬虫 ${chalk.blue(`<${name}>`)} 连接建立，请使用口令 ${chalk.blue(`<${token}>`)} 完成配对`)
+    console.log(`[I] 硬件爬虫 ${chalkColored.blue(`<${name}>`)} 连接建立，请使用口令 ${chalkColored.blue(`<${token}>`)} 完成配对`)
     sms.spiderToken(adminPhoneNumber, name, token)
 
     // 使用 slack 认证的部分
@@ -133,7 +132,7 @@ class SpiderServer {
 
     connection.on("error", (error) => {
 
-      console.log(chalk.red(`[W]硬件爬虫 <${connection.spiderName}> 连接出错, 错误信息：`))
+      console.log(chalkColored.red(`[W]硬件爬虫 <${connection.spiderName}> 连接出错, 错误信息：`))
       console.log(error.message)
 
       delete this.connectionPool[connection.spiderName]
@@ -142,12 +141,12 @@ class SpiderServer {
 
   acceptSpider(connection) {
     connection.active = true
-    console.log(`[I] 硬件爬虫 <${connection.spiderName}> ${chalk.green('认证成功')}`)
+    console.log(`[I] 硬件爬虫 <${connection.spiderName}> ${chalkColored.green('认证成功')}`)
     connection.send('Auth_Success')
   }
 
   rejectSpider(connection) {
-    console.log(`[W] 硬件爬虫 <${connection.spiderName}> ${chalk.red('认证失败')}`)
+    console.log(`[W] 硬件爬虫 <${connection.spiderName}> ${chalkColored.red('认证失败')}`)
     delete this.connectionPool[connection.spiderName]
     connection.send('Auth_Fail')
     connection.terminate()

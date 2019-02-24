@@ -1,4 +1,3 @@
-const chalk = require('chalk')
 const crypto = require('crypto')
 const mongodb = require('../database/mongodb');
 
@@ -25,7 +24,7 @@ const mongodb = require('../database/mongodb');
 // 程序启动时，生成超级管理员 Token
 // 为了防止与普通用户碰撞，此处字节数跟普通用户 token 字节数做区分，切勿轻易改成跟普通用户长度相同，否则会有问题
 const superToken = Buffer.from(crypto.randomBytes(16)).toString('hex')
-console.log('本次会话的超级管理员 Token 为：' + chalk.blue(superToken) + '，请妥善保管')
+console.log('本次会话的超级管理员 Token 为：' + chalkColored.blue(superToken) + '，请妥善保管')
 
 // ctx.admin API
 // 对于非管理员，ctx.admin 为 null

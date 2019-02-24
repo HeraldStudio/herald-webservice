@@ -1,7 +1,6 @@
 /**
  * wx-herald 小猴偷米微信公众号中间件
  */
-const chalk = require('chalk')
 const wechat = require('co-wechat')
 const config = require('../../sdk/sdk.json').wechat['wx-herald']
 const api = require('../../sdk/wechat').getAxios('wx-herald')
@@ -14,7 +13,7 @@ String.prototype.padd = function () {
 if (program.mode === 'production') {
   const menu = require('./wx-herald-menu.json')
   api.post('/menu/create', menu).then(res => {
-    console.log(chalk.blue('[wx-herald] 自定义菜单 ') + res.data.errmsg)
+    console.log(chalkColored.blue('[wx-herald] 自定义菜单 ') + res.data.errmsg)
   })
 }
 
