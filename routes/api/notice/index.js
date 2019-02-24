@@ -10,11 +10,11 @@ const sites = {
     baseUrl: 'http://jwc.seu.edu.cn',
     infoUrl: 'http://jwc.seu.edu.cn',
     list: [
-      ['#wp_news_w5', "教务信息"],
-      ['#wp_news_w6', "学籍管理"],
-      ['#wp_news_w7', "实践教学"],
-      ['#wp_news_w8', "国际交流"],
-      ['#wp_news_w9', "教学研究"]
+      ['#wp_news_w6', "教务信息"],
+      ['#wp_news_w7', "学籍管理"],
+      ['#wp_news_w9', "实践教学"],
+      ['#wp_news_w10', "国际交流"],
+      ['#wp_news_w8', "教学研究"]
     ],
     contentSelector: '.wp_articlecontent'
   },
@@ -127,7 +127,7 @@ exports.route = {
             site: sites[site].name,
             category: ele[1],
             // 标题可能在 title 属性中，也可能并不在。
-            title: k.attr('title').trim() || k.text().trim(),
+            title: k.attr('title') && k.attr('title').trim() || k.text().trim(),
             url: currentUrl,
             isAttachment: ! /\.(html?$|aspx?|jsp|php)/.test(href),
             isImportant: !!k.find('font').length,
@@ -136,7 +136,8 @@ exports.route = {
             // 记下其在本栏中出现的顺序，一般，序号越小，越新
             index: i
           }
-        })).reduce((a, b) => a.concat(b), [])
+        }).reduce((arr, news) => {if(news.title){arr.push(news)}; return arr}, [])
+        ).reduce((a, b) => a.concat(b), [])
       }) // publicCache
     )) // Promise.all
 
