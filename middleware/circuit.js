@@ -12,6 +12,9 @@ const TIME_SPAN = 60000
 // 时间窗内连续多少次超时或失败触发熔断
 const MAX_FAIL_WITHIN_TIME_SPAN = 3
 
+// 关键路由不允许熔断
+const exclude = ['/api/user']
+
 module.exports = async (ctx, next) => {
   let startTime = +moment()
   let failTimestamps = healthPool[ctx.path] || []
@@ -24,7 +27,7 @@ module.exports = async (ctx, next) => {
   }
   healthPool[ctx.path] = failTimestamps
 
-  if (failTimestamps.length >= MAX_FAIL_WITHIN_TIME_SPAN) {
+  if (exclude.join(' ').indexOf(ctx.path) === -1 && failTimestamps.length >= MAX_FAIL_WITHIN_TIME_SPAN) {
     let nextRetry = Math.ceil((failTimestamps[0] + TIME_SPAN - startTime) / 1000)
     console.log(`[circuit] 路由 ${ ctx.path } 处于熔断状态，${ nextRetry } 秒后开放下次探测…`)
     throw 503
