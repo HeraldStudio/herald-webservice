@@ -60,7 +60,7 @@ module.exports = async (ctx, cardnum, password) => {
     let now = +moment()
     try {
       if (!record || 
-        (record && now - record.updateTime > 2 * 7 * 24 * 60 * 60 * 1000)) {
+        (record && now - record.updateTime > 90 * 24 * 60 * 60 * 1000)) {
         // 记录不存在或者过期
         // 从ehall.seu.edu.cn抓取新的信息
         const ehallUrlRes = await ctx.get(`http://ehall.seu.edu.cn/appMultiGroupEntranceList?appId=4585275700341858&r_t=${Date.now()}`)
