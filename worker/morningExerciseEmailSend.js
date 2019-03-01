@@ -38,7 +38,6 @@ const job = schedule.scheduleJob('*/30 * * * * *',function(){
             `跑操取消请点击：https://myseu.cn/ws3/api/pe/setMorningExercise?sessionKey=${sessionKey}&state=cancel`,
             ].join('\n\n') // plain text body 
                 })
-        await morningExerciseCollection.insertOne({date, sessionKeyMd5, state:'pending'})
     }
     }, (Math.random()+1)*3*1000)
 });
