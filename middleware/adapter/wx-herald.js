@@ -321,6 +321,18 @@ const handler = {
 
   },
 
+  async '设置跑操提醒'() {
+
+    return this.openid
+
+  },
+
+  async '取消跑操提醒'() {
+
+    return this.openid
+
+  },
+
   // 测试统一身份认证小程序
   async 'IDS认证'() {
     return '<a href="https://myseu.cn" data-miniprogram-appid="wxaef6d2413690047f" data-miniprogram-path="pages/index?IDS_SESSION=herald_fake_ids_session&FORCE=1&APPID=wxf71117988eadfed0">统一身份认证登录</a>'
@@ -372,6 +384,7 @@ const middleware = wechat(config).middleware(async (message, ctx) => {
   ctx.message = message
 
   let openid = message.FromUserName
+  ctx.openid = openid
 
   new Promise((resolve, reject) => {
     (async () => {
