@@ -27,5 +27,13 @@
     "appId":"",
     "secret":"",
     "savePath":""
+  },
+  "email":{
+    "morningExercise":{
+      "auth": {
+        "user": "",
+        "pass": ""
+      }
+    }
   }
 }
