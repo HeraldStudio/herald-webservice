@@ -16,8 +16,9 @@ const uuid = require('uuid/v4')
 const schedule = require('node-schedule');
 const crypto = require('crypto')
 
-const job = schedule.scheduleJob('*/30 * * * * *',async function(){
-    let morningExerciseCollection = await mongodb('herald_morning_exercise')
+const job = schedule.scheduleJob('*/30 * * * * *',function(){
+    setTimeout(async()=>{
+        let morningExerciseCollection = await mongodb('herald_morning_exercise')
     let md5 = crypto.createHash('md5');
     let sessionKey = uuid()
     let sessionKeyMd5 = md5.update(sessionKey).digest('hex');
@@ -39,7 +40,7 @@ const job = schedule.scheduleJob('*/30 * * * * *',async function(){
                 })
         await morningExerciseCollection.insertOne({date, sessionKeyMd5, state:'pending'})
     }
-    
+    }, (Math.random()+1)*3*1000)
 });
 
 module.exports = {job}
