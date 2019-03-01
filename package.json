@@ -6,9 +6,9 @@
     "dev": "yarn && cross-env NODE_ENV=development nodemon app.js --mode=development --port=3000",
     "start": "yarn && cross-env NODE_ENV=production nodemon app.js --mode=production --port=3000",
     "profile": "yarn && cross-env NODE_ENV=profile nodemon app.js --mode=profile --port=3000",
-    "log":"pm2 log",
-    "cluster-start":"yarn && pm2 start ./pm2-ws.json",
-    "cluster-stop":"pm2 delete herald-webservice-1 && pm2 delete herald-webservice-2 && pm2 delete herald-webservice-3 && pm2 delete herald-webservice-4"
+    "log": "pm2 log",
+    "cluster-start": "yarn && pm2 start ./pm2-ws.json",
+    "cluster-stop": "pm2 delete herald-webservice-1 && pm2 delete herald-webservice-2 && pm2 delete herald-webservice-3 && pm2 delete herald-webservice-4"
   },
   "dependencies": {
     "axios": "^0.17.1",
@@ -29,6 +29,10 @@
     "moment": "^2.22.1",
     "mongodb": "^3.1.6",
     "node-europa": "^4.0.0",
+    "node-schedule": "^1.3.2",
+    "nodemailer": "^5.1.1",
+    "nodemailer-smtp-transport": "^2.7.4",
+    "nodemailer-wellknown": "^0.2.3",
     "nodemon": "^1.15.1",
     "ora": "^1.4.0",
     "prettyjson": "^1.2.1",

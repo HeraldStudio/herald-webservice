@@ -7,6 +7,8 @@ const chalk = require('chalk');
 // 调试时打开，设置所有 Promise 超时 15 秒，超过 15 秒自动 reject 并输出超时 Promise 所在位置
 // require('./promise-timeout')(15000)
 
+const morningExerciseEmailJob = require('./worker/morningExerciseEmailSend')
+
 program
   .version('1.0.0')
   .option('-m --mode <mode>', '执行模式 <production|development|profile>')
