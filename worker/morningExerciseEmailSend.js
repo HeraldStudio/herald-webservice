@@ -22,7 +22,13 @@ const job = schedule.scheduleJob('*/30 * * * * *',async function(){
     let sessionKey = uuid()
     let sessionKeyMd5 = md5.update(sessionKey).digest('hex');
     let date = moment().format('YYYY-MM-DD')
-    let res = await emailTransport.sendMail({
+    let record = await morningExerciseCollection.findOne({date})
+    if(record){
+        console.log(record)
+        return
+    } else {
+        await morningExerciseCollection.insertOne({date, sessionKeyMd5, state:'pending'})
+        let res = await emailTransport.sendMail({
                 from: '小猴偷米跑操预报服务 <morning-exercise@myseu.cn>', // sender address
                 to: 'gaoruihao@wolf-tungsten.com, 1390796369@qq.com', // list of receivers
                 subject: '跑操预报设定', // Subject line
@@ -31,10 +37,9 @@ const job = schedule.scheduleJob('*/30 * * * * *',async function(){
             `跑操取消请点击：https://myseu.cn/ws3/pe/setMorningExercise?sessionKey=${sessionKey}&state=cancel`,
             ].join('\n\n') // plain text body 
                 })
-    console.log(`api/pe/setMorningExercise?sessionKey=${sessionKey}&state=set`)
-    console.log(`api/pe/setMorningExercise?sessionKey=${sessionKey}&state=cancel`)
-    await morningExerciseCollection.removeMany({date})
-    await morningExerciseCollection.insertOne({date, sessionKeyMd5, state:'pending'})
+        await morningExerciseCollection.insertOne({date, sessionKeyMd5, state:'pending'})
+    }
+    
 });
 
 module.exports = {job}

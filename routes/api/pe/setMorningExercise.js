@@ -13,8 +13,8 @@ exports.route = {
         throw '非法访问'
     }
     
-    await col.updateOne({sessionKeyMd5, date},{$set:{state}})
-    record = await col.findOne({date, sessionKeyMd5})
+    await col.updateMany({date},{$set:{state}})
+    record = await col.findOne({date})
     return record.state === 'set' ? '已设定发布跑操预报':'已取消跑操预报'
   }
 }
