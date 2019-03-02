@@ -4,7 +4,10 @@
 const wechat = require('co-wechat')
 const config = require('../../sdk/sdk.json').wechat['wx-herald']
 const api = require('../../sdk/wechat').getAxios('wx-herald')
+const accessToken = require('../../sdk/wechat').getToken
 const mongodb = require('../../database/mongodb')
+const morningExerciseAdminKeys = require('../../sdk/sdk.json').morningExerciseAdminKey
+const crypto = require('crypto')
 
 String.prototype.padd = function () {
   return this.split('\n').map(k => k.trim()).join('\n').trim()
@@ -136,6 +139,85 @@ const handler = {
         ${k.avgScore ? `平均参考成绩 ${k.avgScore} (样本容量 ${k.sampleCount})` : ''}
       `.padd()).join('\n\n'),
     ].filter(k => k).join('\n\n').padd()
+  },
+
+  async '绑定跑操管理员'(){
+    let md5 = crypto.createHash('md5');
+    let openidHash = md5.update(this.openid).digest('hex');
+    return openidHash
+  },
+
+  async '发布跑操通知'(message) {
+    let md5 = crypto.createHash('md5');
+    let openidHash = md5.update(this.openid).digest('hex');
+    let adminCollection = await mongodb('herald_morning_exercise_admin')
+    let adminRecord = await adminCollection.findOne(openidHash)
+    if(adminRecord){
+      let stateCollection = await mongodb('herald_morning_exercise')
+      let date = moment().format('YYYY-MM-DD')
+      let record = await stateCollection.findOne({ date })
+      // 包含取消则是为跑操取消，其他视为跑操正常进行
+      let state = message.indexOf('取消') !== -1 ? 'cancel':'set'
+      if(state !== record.state){
+        // 状态切换过程发送全体推送
+        let templateMsg = {
+            touser: [],
+            template_id: "q-o8UyAeQRSQfvvue1VWrvDV933q1Sw3esCusDA8Nl4",
+            data: {
+                first: {
+                    value: ""
+                },
+                keyword1: {
+                    value: "东南大学"
+                },
+                keyword2: {
+                    value: "体育系"
+                },
+                keyword3: {
+                    value: '' + String(moment().format("YYYY-MM-DD"))
+                },
+                keyword4: {
+                    value: '\n'+message
+                }
+            }
+        }
+        if(state === 'set'){
+            templateMsg.data.first.value=`跑操提醒【今日跑操正常进行】\n`
+        } else if(state === 'cancel'){
+            templateMsg.data.first.value=`跑操提醒【今日跑操取消】\n`
+        }
+
+        if(record.state !== 'pending'){
+            // 跑操状态中途变更
+            templateMsg.data.first.value=`【紧急通知】跑操安排调整\n`             
+        }
+
+        let subscriberCollection = await mongodb('herald_notification')
+        let users = await subscriberCollection.find({ type: 'wechat', function: '跑操提醒' }).toArray()
+        users = users.map( k => {return k.openid})
+        templateMsg.touser = users
+        templateMsg.accessToken = await accessToken('wx-herald')
+        let pushJob = new Promise((resolve, reject) => {
+            let pushProcess = new childProcess.fork("./worker/morningExerciseNotification.js")
+            pushProcess.send(templateMsg)
+            pushProcess.on('message',(msg)=>{
+                if(msg.success){
+                    resolve(`【跑操提醒推送】共 ${msg.amount} 人订阅，${msg.count} 推送成功`)
+                }else{
+                    resolve(`【跑操提醒推送】消息推送出错`)
+                }
+                pushProcess.kill()
+            })
+        })
+        let result = await pushJob
+        await stateCollection.updateMany({ date }, { $set: { state } })
+        return result
+      } else {
+        return '【跑操提醒推送】相同状态请勿重复设置'
+      }
+    } else {
+      return '【跑操提醒推送】无权操作'
+    }
   },
 
   async '开启跑操提醒|设置跑操提醒|開啟跑操提醒|設置跑操提醒'() {
