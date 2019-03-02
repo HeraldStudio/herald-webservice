@@ -183,9 +183,9 @@ const handler = {
             }
         }
         if(state === 'set'){
-            templateMsg.data.first.value=`跑操提醒【今日跑操正常进行】\n`
+            templateMsg.data.first.value=`跑操安排提醒【今日跑操正常进行】\n`
         } else if(state === 'cancel'){
-            templateMsg.data.first.value=`跑操提醒【今日跑操取消】\n`
+            templateMsg.data.first.value=`跑操安排提醒【今日跑操取消】\n`
         }
 
         if(record.state !== 'pending'){
