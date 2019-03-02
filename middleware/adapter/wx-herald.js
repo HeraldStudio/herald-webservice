@@ -8,6 +8,7 @@ const accessToken = require('../../sdk/wechat').getToken
 const mongodb = require('../../database/mongodb')
 const morningExerciseAdminKeys = require('../../sdk/sdk.json').morningExerciseAdminKey
 const crypto = require('crypto')
+const childProcess = require('child_process');
 
 String.prototype.padd = function () {
   return this.split('\n').map(k => k.trim()).join('\n').trim()
