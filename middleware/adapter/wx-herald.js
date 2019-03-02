@@ -42,7 +42,7 @@ const handler = {
           ----------------
           【跑操提醒服务】
           - 开启跑操提醒
-          - 取消跑操提醒
+          - 关闭跑操提醒
 
           💡 回复关键词使用对应功能`.padd()
   },
@@ -138,7 +138,7 @@ const handler = {
     ].filter(k => k).join('\n\n').padd()
   },
 
-  async '开启跑操提醒'() {
+  async '开启跑操提醒|设置跑操提醒'() {
 
     let openid = this.openid
     console.log(openid)
@@ -154,7 +154,7 @@ const handler = {
         template_id:"q-o8UyAeQRSQfvvue1VWrvDV933q1Sw3esCusDA8Nl4",
         data: {
           first:{
-            value: "✅跑操提醒服务开启成功\n"
+            value: "✅ 跑操提醒服务开启成功\n"
           },
           keyword1: {
             value: "东南大学"
@@ -174,7 +174,7 @@ const handler = {
     
   },
 
-  async '取消跑操提醒'() {
+  async '关闭跑操提醒|取消跑操提醒'() {
 
 
     let openid = this.openid
@@ -190,7 +190,7 @@ const handler = {
         template_id: "q-o8UyAeQRSQfvvue1VWrvDV933q1Sw3esCusDA8Nl4",
         data: {
           first: {
-            value: "⛔️跑操提醒服务已关闭\n"
+            value: "⛔️ 跑操提醒服务已关闭\n"
           },
           keyword1: {
             value: "东南大学"
