@@ -16,7 +16,8 @@ const uuid = require('uuid/v4')
 const schedule = require('node-schedule');
 const crypto = require('crypto')
 
-const job = schedule.scheduleJob('*/30 * * * * *',function(){
+// 0点1分发送链接邮件
+const job = schedule.scheduleJob('* 1 0 * * *',function(){
     setTimeout(async()=>{
         let morningExerciseCollection = await mongodb('herald_morning_exercise')
     let md5 = crypto.createHash('md5');
@@ -30,7 +31,7 @@ const job = schedule.scheduleJob('*/30 * * * * *',function(){
         await morningExerciseCollection.insertOne({date, sessionKeyMd5, state:'pending'})
         let res = await emailTransport.sendMail({
                 from: '小猴偷米跑操预报服务 <morning-exercise@myseu.cn>', // sender address
-                to: 'gaoruihao@wolf-tungsten.com, 1390796369@qq.com', // list of receivers
+                to: 'gaoruihao@wolf-tungsten.com, 3084772927@qq.com', // list of receivers
                 subject: '跑操预报设定', // Subject line
                 text: [`请设定 ${moment().format('YYYY年MM月DD日')} 的跑操预报：`,
             `正常跑操请点击：https://myseu.cn/ws3/api/pe/setMorningExercise?sessionKey=${sessionKey}&state=set`,
