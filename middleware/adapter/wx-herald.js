@@ -160,7 +160,7 @@ const handler = {
             value: "小猴偷米"
           },
           keyword3: {
-            value: moment().format("YYYY-MM-DD")
+            value: ''+moment().format("YYYY-MM-DD")
           },
           keyword4: {
             value: "已开启小猴偷米跑操提醒服务，每日跑操预报信息发布时您将会收到提醒。如需关闭提醒，请前往小猴偷米公众号发送关键字【取消跑操提醒】。"
