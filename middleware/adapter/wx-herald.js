@@ -6,7 +6,7 @@ const config = require('../../sdk/sdk.json').wechat['wx-herald']
 const api = require('../../sdk/wechat').getAxios('wx-herald')
 const accessToken = require('../../sdk/wechat').getToken
 const mongodb = require('../../database/mongodb')
-const morningExerciseAdminKeys = require('../../sdk/sdk.json').morningExerciseAdminKey
+
 const crypto = require('crypto')
 const childProcess = require('child_process');
 
@@ -178,7 +178,7 @@ const handler = {
                     value: '' + String(moment().format("YYYY-MM-DD"))
                 },
                 keyword4: {
-                    value: '\n'+message
+                    value: '\n\n'+message
                 }
             }
         }

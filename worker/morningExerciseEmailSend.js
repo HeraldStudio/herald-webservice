@@ -16,7 +16,7 @@ const uuid = require('uuid/v4')
 const schedule = require('node-schedule');
 const crypto = require('crypto')
 
-const job = schedule.scheduleJob('*/5 * * * * *',function(){
+const job = schedule.scheduleJob('*/30 * * * * *',function(){
     setTimeout(async()=>{
         let morningExerciseCollection = await mongodb('herald_morning_exercise')
     let md5 = crypto.createHash('md5');
@@ -25,7 +25,6 @@ const job = schedule.scheduleJob('*/5 * * * * *',function(){
     let date = moment().format('YYYY-MM-DD')
     let record = await morningExerciseCollection.findOne({date})
     if(record){
-        console.log(record)
         return
     } else {
         await morningExerciseCollection.insertOne({date, sessionKeyMd5, state:'pending'})
