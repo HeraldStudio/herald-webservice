@@ -4,6 +4,7 @@
 const wechat = require('co-wechat')
 const config = require('../../sdk/sdk.json').wechat['wx-herald']
 const api = require('../../sdk/wechat').getAxios('wx-herald')
+const mongodb = require('../../database/mongodb')
 
 String.prototype.padd = function () {
   return this.split('\n').map(k => k.trim()).join('\n').trim()
@@ -38,6 +39,9 @@ const handler = {
           实验 考试 成绩 SRTP
           图书 奖助 通知 讲座
           App下载
+          ----------------
+          【跑操提醒服务】
+          设置跑操提醒 取消跑操提醒
 
           💡 回复关键词使用对应功能`.padd()
   },
@@ -135,8 +139,34 @@ const handler = {
 
   async '设置跑操提醒'() {
 
-    return this.openid
-
+    let openid = this.openid
+    let collection = await mongodb('herald_notification')
+    // 防止重复发送，清除已有记录
+    await collection.deleteMany({type:'wechat', function:'跑操提醒', openid})
+    await collection.insertOne({ type:'wechat', function: '跑操提醒', openid })
+    // 检查是否设置成功
+    let record = await collection.find({ type: 'wechat', function: '跑操提醒', openid }).toArray()
+    if(record.length === 1){
+      await api.post(`message/template/send`,{
+        touser:openid,
+        template_id:"q-o8UyAeQRSQfvvue1VWrvDV933q1Sw3esCusDA8Nl4",
+        data: {
+          first:{
+            value: "跑操提醒服务开启成功"
+          },
+          keyword2: {
+            value: "小猴偷米"
+          },
+          keyword3: {
+            value: moment().format("YYYY-MM-DD")
+          },
+          keyword4: {
+            value: "已开启小猴偷米跑操提醒服务，每日跑操预报信息发布时您将会收到提醒。如需关闭提醒，请前往小猴偷米公众号发送关键字【取消跑操提醒】。"
+          }
+        },
+        emphasis_keyword: "first.DATA"
+      })
+    }
   },
 
   async '取消跑操提醒'() {
