@@ -138,7 +138,7 @@ const handler = {
     ].filter(k => k).join('\n\n').padd()
   },
 
-  async '开启跑操提醒|设置跑操提醒'() {
+  async '开启跑操提醒|设置跑操提醒|開啟跑操提醒|設置跑操提醒'() {
 
     let openid = this.openid
     console.log(openid)
@@ -174,7 +174,7 @@ const handler = {
     
   },
 
-  async '关闭跑操提醒|取消跑操提醒'() {
+  async '关闭跑操提醒|取消跑操提醒|關閉跑操提醒|取消跑操提醒'() {
 
 
     let openid = this.openid
