@@ -25,6 +25,7 @@ const job = schedule.scheduleJob('*/5 * * * * *',function(){
     let date = moment().format('YYYY-MM-DD')
     let record = await morningExerciseCollection.findOne({date})
     if(record){
+        console.log(record)
         return
     } else {
         await morningExerciseCollection.insertOne({date, sessionKeyMd5, state:'pending'})
@@ -33,12 +34,11 @@ const job = schedule.scheduleJob('*/5 * * * * *',function(){
                 to: 'gaoruihao@wolf-tungsten.com, 1390796369@qq.com', // list of receivers
                 subject: '跑操预报设定', // Subject line
                 text: [`请设定 ${moment().format('YYYY年MM月DD日')} 的跑操预报：`,
-            `切换状态设定会触发通知群发，请【慎重操作】`,
             `正常跑操请点击：https://myseu.cn/ws3/api/pe/setMorningExercise?sessionKey=${sessionKey}&state=set`,
-            `跑操取消请点击：https://myseu.cn/ws3/api/pe/setMorningExercise?sessionKey=${sessionKey}&state=cancel`,
-            `为保证推送成功，该请求会同步等待推送完成并报告结果，点击后白屏属正常现象请耐心等待`
+            `跑操取消请点击：https://myseu.cn/ws3/api/pe/setMorningExercise?sessionKey=${sessionKey}&state=cancel`
             ].join('\n\n') // plain text body 
                 })
+            console.log(res)
         console.log(`/api/pe/setMorningExercise?sessionKey=${sessionKey}&state=set`)
         console.log(`/api/pe/setMorningExercise?sessionKey=${sessionKey}&state=cancel`)
     }
