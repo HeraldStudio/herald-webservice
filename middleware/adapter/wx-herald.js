@@ -168,8 +168,9 @@ const handler = {
         },
         emphasis_keyword: "first.DATA"
       })
+      console.log(res.data)
     }
-    console.log(res.data)
+    
   },
 
   async '取消跑操提醒'() {
