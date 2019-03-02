@@ -142,13 +142,13 @@ const handler = {
     ].filter(k => k).join('\n\n').padd()
   },
 
-  async '设置跑操管理员'(){
+  async '跑操管理员'(){
     let md5 = crypto.createHash('md5');
     let openidHash = md5.update(this.openid).digest('hex');
     return openidHash
   },
 
-  async '发布跑操通知'(message) {
+  async '跑操通知'(message) {
     let md5 = crypto.createHash('md5');
     let openidHash = md5.update(this.openid).digest('hex');
     let adminCollection = await mongodb('herald_morning_exercise_admin')
