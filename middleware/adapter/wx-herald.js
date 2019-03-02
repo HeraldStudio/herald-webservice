@@ -141,7 +141,7 @@ const handler = {
     ].filter(k => k).join('\n\n').padd()
   },
 
-  async '绑定跑操管理员'(){
+  async '设置跑操管理员'(){
     let md5 = crypto.createHash('md5');
     let openidHash = md5.update(this.openid).digest('hex');
     return openidHash
