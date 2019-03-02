@@ -42,6 +42,7 @@
     "showapi-sdk": "^1.0.4",
     "socks-proxy-agent": "^4.0.1",
     "tough-cookie": "^2.3.3",
+    "worker-threads": "^1.0.0",
     "ws": "^4.0.0"
   },
   "resolutions": {
