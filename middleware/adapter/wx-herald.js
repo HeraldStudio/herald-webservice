@@ -151,7 +151,7 @@ const handler = {
     let md5 = crypto.createHash('md5');
     let openidHash = md5.update(this.openid).digest('hex');
     let adminCollection = await mongodb('herald_morning_exercise_admin')
-    let adminRecord = await adminCollection.findOne(openidHash)
+    let adminRecord = await adminCollection.findOne({openidHash})
     if(adminRecord){
       let stateCollection = await mongodb('herald_morning_exercise')
       let date = moment().format('YYYY-MM-DD')
