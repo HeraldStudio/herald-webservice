@@ -27,7 +27,7 @@ exports.route = {
                         value: "东南大学"
                     },
                     keyword2: {
-                        value: "小猴偷米"
+                        value: "校学生会体育部"
                     },
                     keyword3: {
                         value: '' + String(moment().format("YYYY-MM-DD"))
@@ -38,18 +38,18 @@ exports.route = {
                 }
             }
             if(state === 'set'){
-                templateMsg.data.first.value=`跑操提醒【今日跑操正常进行】✅\n`
-                templateMsg.data.keyword4.value=`\n今日跑操正常进行，请按时参加`
+                templateMsg.data.first.value=`跑操提醒【今日跑操正常进行】\n`
+                templateMsg.data.keyword4.value=`\n\n今日跑操正常进行，请按时参加`
             } else if(state === 'cancel'){
-                templateMsg.data.first.value=`跑操提醒【今日跑操取消】⛔️\n`
-                templateMsg.data.keyword4.value=`\n受天气状况影响，今日跑操取消`
+                templateMsg.data.first.value=`跑操提醒【今日跑操取消】\n`
+                templateMsg.data.keyword4.value=`\n\n受天气状况影响，今日跑操取消`
             } else {
                 throw '非法调用'
             }
 
             if(record.state !== 'pending'){
                 // 跑操状态中途变更
-                templateMsg.data.first.value=`⚠️【紧急通知】跑操安排调整\n`             
+                templateMsg.data.first.value=`【紧急通知】跑操安排调整\n`             
             }
 
             let subscriberCollection = await mongodb('herald_notification')
