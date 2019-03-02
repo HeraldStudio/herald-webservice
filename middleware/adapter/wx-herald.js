@@ -140,14 +140,16 @@ const handler = {
   async '设置跑操提醒'() {
 
     let openid = this.openid
+    console.log(openid)
     let collection = await mongodb('herald_notification')
     // 防止重复发送，清除已有记录
     await collection.deleteMany({type:'wechat', function:'跑操提醒', openid})
     await collection.insertOne({ type:'wechat', function: '跑操提醒', openid })
     // 检查是否设置成功
     let record = await collection.find({ type: 'wechat', function: '跑操提醒', openid }).toArray()
+    console.log(record)
     if(record.length === 1){
-      await api.post(`message/template/send`,{
+      let res = await api.post(`message/template/send`,{
         touser:openid,
         template_id:"q-o8UyAeQRSQfvvue1VWrvDV933q1Sw3esCusDA8Nl4",
         data: {
@@ -167,6 +169,7 @@ const handler = {
         emphasis_keyword: "first.DATA"
       })
     }
+    return res
   },
 
   async '取消跑操提醒'() {
