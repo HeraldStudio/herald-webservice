@@ -154,7 +154,7 @@ const handler = {
         template_id:"q-o8UyAeQRSQfvvue1VWrvDV933q1Sw3esCusDA8Nl4",
         data: {
           first:{
-            value: "跑操提醒服务开启成功\n\n"
+            value: "✅跑操提醒服务开启成功\n"
           },
           keyword1: {
             value: "东南大学"
@@ -190,7 +190,7 @@ const handler = {
         template_id: "q-o8UyAeQRSQfvvue1VWrvDV933q1Sw3esCusDA8Nl4",
         data: {
           first: {
-            value: "跑操提醒服务已关闭\n\n"
+            value: "⛔️跑操提醒服务已关闭\n"
           },
           keyword1: {
             value: "东南大学"
