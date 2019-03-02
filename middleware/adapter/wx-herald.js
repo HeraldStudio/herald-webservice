@@ -133,6 +133,18 @@ const handler = {
     ].filter(k => k).join('\n\n').padd()
   },
 
+  async '设置跑操提醒'() {
+
+    return this.openid
+
+  },
+
+  async '取消跑操提醒'() {
+
+    return this.openid
+
+  },
+
   async '跑操|早操|锻炼|鍛煉'() {
     this.path = '/api/pe'
     this.method = 'GET'
@@ -321,17 +333,6 @@ const handler = {
 
   },
 
-  async '设置跑操提醒'() {
-
-    return this.openid
-
-  },
-
-  async '取消跑操提醒'() {
-
-    return this.openid
-
-  },
 
   // 测试统一身份认证小程序
   async 'IDS认证'() {
