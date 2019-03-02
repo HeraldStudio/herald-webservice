@@ -41,7 +41,8 @@ const handler = {
           App下载
           ----------------
           【跑操提醒服务】
-          设置跑操提醒 取消跑操提醒
+          - 开启跑操提醒
+          - 取消跑操提醒
 
           💡 回复关键词使用对应功能`.padd()
   },
@@ -137,7 +138,7 @@ const handler = {
     ].filter(k => k).join('\n\n').padd()
   },
 
-  async '设置跑操提醒'() {
+  async '开启跑操提醒'() {
 
     let openid = this.openid
     console.log(openid)
@@ -147,7 +148,6 @@ const handler = {
     await collection.insertOne({ type:'wechat', function: '跑操提醒', openid })
     // 检查是否设置成功
     let record = await collection.find({ type: 'wechat', function: '跑操提醒', openid }).toArray()
-    console.log(record)
     if(record.length === 1){
       let res = await api.post(`message/template/send`,{
         touser:openid,
@@ -156,6 +156,9 @@ const handler = {
           first:{
             value: "跑操提醒服务开启成功"
           },
+          keyword1: {
+            value: "东南大学"
+          },
           keyword2: {
             value: "小猴偷米"
           },
@@ -163,18 +166,48 @@ const handler = {
             value: ''+String(moment().format("YYYY-MM-DD"))
           },
           keyword4: {
-            value: "已开启小猴偷米跑操提醒服务，每日跑操预报信息发布时您将会收到提醒。如需关闭提醒，请前往小猴偷米公众号发送关键字【取消跑操提醒】。"
+            value: "已开启小猴偷米跑操提醒服务，每日跑操预报信息发布时您将会收到提醒。 \n 如需关闭提醒，请前往小猴偷米公众号发送关键字【取消跑操提醒】。"
           }
         }
       })
-      console.log(res.data)
     }
     
   },
 
   async '取消跑操提醒'() {
 
-    return this.openid
+
+    let openid = this.openid
+    console.log(openid)
+    let collection = await mongodb('herald_notification')
+    // 清除已有记录
+    await collection.deleteMany({ type: 'wechat', function: '跑操提醒', openid })
+    // 检查是否删除成功
+    let record = await collection.find({ type: 'wechat', function: '跑操提醒', openid }).toArray()
+    if (record.length === 0) {
+      let res = await api.post(`message/template/send`, {
+        touser: openid,
+        template_id: "q-o8UyAeQRSQfvvue1VWrvDV933q1Sw3esCusDA8Nl4",
+        data: {
+          first: {
+            value: "跑操提醒服务已关闭"
+          },
+          keyword1: {
+            value: "东南大学"
+          },
+          keyword2: {
+            value: "小猴偷米"
+          },
+          keyword3: {
+            value: '' + String(moment().format("YYYY-MM-DD"))
+          },
+          keyword4: {
+            value: "\n 已关闭小猴偷米跑操提醒服务。 \n 如需再次，请前往小猴偷米公众号发送关键字【开启跑操提醒】。"
+          }
+        }
+      })
+    }
+
 
   },
 
