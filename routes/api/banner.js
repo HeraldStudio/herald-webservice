@@ -52,7 +52,7 @@ exports.route = {
       // if (!await db.bannerClick.find({ bid, identity }, 1)) {
       //   await db.bannerClick.insert({ bid, identity })
       // }
-      if (!await bannerClickCollection.findOne({ bid })) {
+      if (!await bannerClickCollection.findOne({ bid, identity })) {
         await bannerClickCollection.insertOne({ bid, identity })
       }
     }
