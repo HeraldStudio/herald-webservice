@@ -17,7 +17,7 @@ const schedule = require('node-schedule');
 const crypto = require('crypto')
 
 // 0点1分发送链接邮件
-const job = schedule.scheduleJob('* 1 0 * * *',function(){
+const job = schedule.scheduleJob('* 2 0 * * *',function(){
     setTimeout(async()=>{
         let morningExerciseCollection = await mongodb('herald_morning_exercise')
     let md5 = crypto.createHash('md5');
