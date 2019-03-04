@@ -80,6 +80,6 @@ exports.route = {
             return result
         }
 
-        return '相同状态请勿重复设定'
+        return '跑操提醒状态设置成功'
     }
 }

@@ -203,7 +203,7 @@ const handler = {
             pushProcess.send(templateMsg)
             pushProcess.on('message',(msg)=>{
                 if(msg.success){
-                    resolve(`【跑操提醒推送】共 ${msg.amount} 人订阅，${msg.count} 推送成功`)
+                    resolve(`【跑操提醒推送】共 ${msg.amount} 人订阅，${msg.count} 推送成功，跑操状态设置成功`)
                 }else{
                     resolve(`【跑操提醒推送】消息推送出错`)
                 }
@@ -214,7 +214,7 @@ const handler = {
         await stateCollection.updateMany({ date }, { $set: { state } })
         return result
       } else {
-        return '【跑操提醒推送】相同状态请勿重复设置'
+        return '【跑操提醒推送】跑操状态设置成功'
       }
     } else {
       return '【跑操提醒推送】无权操作'
