@@ -21,9 +21,11 @@ module.exports = async (ctx, next) => {
 
   if(ctx.request.headers.token){
     // 当请求中包含token，就可以向日志输出用户非敏感信息，以便于分析业务情况
-    cardnum = ctx.user.cardnum
-    name = ctx.user.name
-    platform = ctx.user.platform
+    try{
+      cardnum = ctx.user.cardnum
+      name = ctx.user.name
+      platform = ctx.user.platform
+    } catch(e){}
   }
 
   // 考虑到某些情况（如重定向）时，返回中没有 JSON 格式的 body，只有 status
