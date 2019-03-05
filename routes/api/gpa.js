@@ -26,6 +26,8 @@ exports.route = {
   * 注意本科生和研究生返回结果格式略有不同
   **/
   async get() {
+
+    
     return await this.userCache('10m+', async () => {
       
       let { name, cardnum, schoolnum } = this.user
