@@ -64,7 +64,6 @@ exports.route = {
       if (/^21318/.test(cardnum) || /^[0-9A-Z]{3}18/.test(schoolnum)) {
         // 处理 term
         if(!term){term='18-19-2'}
-        console.log(this.term.list)
         term = this.term.list.find( t => t.name === term )
         term.maxWeek = 16
 
@@ -173,7 +172,6 @@ exports.route = {
           // 老师的号码是1开头的九位数
           // 考虑到学号是八位数的情况
           let isStudent = !(/^1\d{8}$/.exec(cardnum))
-          console.log(term)
           // 抓取课表页面
           let res = await (isStudent ? this.post(
             'http://xk.urp.seu.edu.cn/jw_service/service/stuCurriculum.action',
