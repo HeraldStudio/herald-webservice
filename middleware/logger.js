@@ -6,7 +6,7 @@
 const { send, Auth } = require('pandora-nodejs-sdk')
 const { qiniuLog } =require('../sdk/sdk.json')
 
-const qiniuAuth = new Auth( qiniuLog.access, qiniuLog.secret)
+let qiniuAuth = new Auth( qiniuLog.access, qiniuLog.secret)
 
 module.exports = async (ctx, next) => {
   let begin = moment()
@@ -42,6 +42,11 @@ module.exports = async (ctx, next) => {
     (logMsg ? ' | ' + chalkColored.yellow(logMsg) : '')
   )
 
-  send(qiniuAuth, qiniuLog.accessRepo, [{cardnum, username:name, status, method:ctx.method, path:ctx.path, duration, msg: logMsg ? logMsg : '', platform}])
+  try{
+    send(qiniuAuth, qiniuLog.accessRepo, [{cardnum, username:name, status, method:ctx.method, path:ctx.path, duration, msg: logMsg ? logMsg : '', platform}])
+  } catch(e){
+    console.log(e)
+    qiniuAuth = new Auth( qiniuLog.access, qiniuLog.secret)
+  }
 
 }
