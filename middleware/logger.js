@@ -43,10 +43,15 @@ module.exports = async (ctx, next) => {
   )
 
   try{
-    send(qiniuAuth, qiniuLog.accessRepo, [{cardnum, username:name, status, method:ctx.method, path:ctx.path, duration, msg: logMsg ? logMsg : '', platform}])
-  } catch(e){
+    try{
+      send(qiniuAuth, qiniuLog.accessRepo, [{cardnum, username:name, status, method:ctx.method, path:ctx.path, duration, msg: logMsg ? logMsg : '', platform}])
+    } catch(e){
+      console.log(e)
+      qiniuAuth = new Auth( qiniuLog.access, qiniuLog.secret)
+    }
+  } catch(e) {
     console.log(e)
-    qiniuAuth = new Auth( qiniuLog.access, qiniuLog.secret)
   }
+  
 
 }
