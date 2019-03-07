@@ -47,7 +47,7 @@ module.exports = async (ctx, next) => {
     qiniuAuth = new Auth( qiniuLog.access, qiniuLog.secret)
   }).catch( e=> {
     console.log(e)
-  }
+  })
   
   
 
