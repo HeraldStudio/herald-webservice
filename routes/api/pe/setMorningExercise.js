@@ -73,13 +73,11 @@ exports.route = {
                     pushProcess.kill()
                 })
             })
-
-            let result = await pushJob
+            // let result = await pushJob
+            // 设置后立刻返回，防止多次点击
             await col.updateMany({ date }, { $set: { state } })
             record = await col.findOne({ date })
-            return result
         }
-
         return '跑操提醒状态设置成功'
     }
 }
