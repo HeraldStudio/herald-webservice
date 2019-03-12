@@ -12,7 +12,7 @@ exports.route = {
 
     async post({ sessionKey, state }) {
         let hours = +(moment().format('H'))
-        
+
         if(hours > 8) {
             throw '当前时段不允许推送跑操通知'
         }
@@ -28,6 +28,7 @@ exports.route = {
         }
 
         if(state !== record.state){
+            await col.updateMany({ date }, { $set: { state } })
             // 状态切换过程发送全体推送
             let templateMsg = {
                 touser: [],
@@ -84,8 +85,6 @@ exports.route = {
             })
 
             let result = await pushJob
-            await col.updateMany({ date }, { $set: { state } })
-            record = await col.findOne({ date })
             return result
         }
 
