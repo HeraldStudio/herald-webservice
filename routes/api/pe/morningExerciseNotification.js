@@ -12,9 +12,11 @@ exports.route = {
 
     async post({ sessionKey, state }) {
         let hours = +(moment().format('H'))
+        
         if(hours > 8) {
             throw '当前时段不允许推送跑操通知'
         }
+
         let col = await mongodb('herald_morning_exercise')
         let md5 = crypto.createHash('md5');
         let sessionKeyMd5 = md5.update(sessionKey).digest('hex');
