@@ -4,7 +4,7 @@ const childProcess = require('child_process');
 const accessToken = require('../../../sdk/wechat').getToken
 exports.route = {
     async get({ sessionKey, state }) {
-        let hours = +(moment().format('hh'))
+        let hours = +(moment().format('H'))
         if(hours > 8) {
             throw '当前时段不允许推送跑操通知'
         }
