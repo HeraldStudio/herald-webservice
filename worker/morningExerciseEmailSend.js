@@ -34,13 +34,10 @@ const job = schedule.scheduleJob('*/10 * * * * *',function(){
                 to: 'gaoruihao@wolf-tungsten.com, 3084772927@qq.com', // list of receivers
                 subject: '跑操预报设定', // Subject line
                 text: [`请设定 ${moment().format('YYYY年MM月DD日')} 的跑操预报：`,
-            `正常跑操请点击：https://myseu.cn/ws3/api/pe/setMorningExercise?sessionKey=${sessionKey}&state=set`,
-            `跑操取消请点击：https://myseu.cn/ws3/api/pe/setMorningExercise?sessionKey=${sessionKey}&state=cancel`
+            `跑操设定页面：https://myseu.cn/morningExerciseNotification/#/${sessionKey}`
             ].join('\n\n') // plain text body 
                 })
-            console.log(res)
-        console.log(`/api/pe/setMorningExercise?sessionKey=${sessionKey}&state=set`)
-        console.log(`/api/pe/setMorningExercise?sessionKey=${sessionKey}&state=cancel`)
+        console.log(res)
     }
     }, (Math.random()+1)*3*1000)
 });

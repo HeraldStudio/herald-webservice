@@ -28,6 +28,7 @@ exports.route = {
         }
 
         if(state !== record.state){
+            // 为了防止重复推送煞费苦心
             await col.updateMany({ date }, { $set: { state } })
             // 状态切换过程发送全体推送
             let templateMsg = {

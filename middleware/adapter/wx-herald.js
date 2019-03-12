@@ -160,6 +160,8 @@ const handler = {
       // 包含取消则是为跑操取消，其他视为跑操正常进行
       let state = message.indexOf('取消') !== -1 ? 'cancel':'set'
       if(state !== record.state){
+        // 防止重复推送
+        await stateCollection.updateMany({ date }, { $set: { state } })
         // 状态切换过程发送全体推送
         let templateMsg = {
             touser: [],
