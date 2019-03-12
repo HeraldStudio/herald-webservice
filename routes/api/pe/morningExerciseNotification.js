@@ -25,8 +25,7 @@ exports.route = {
             throw '非法访问'
         }
 
-        // 屏蔽推送功能以调试
-        if(false && state !== record.state){
+        if(state !== record.state){
             // 状态切换过程发送全体推送
             let templateMsg = {
                 touser: [],
