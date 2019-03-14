@@ -38,7 +38,9 @@ let client = (() => {
 
 client.batchDelete = async (keyword) => {
   //await client.evalAsync(`for _,k in ipairs(redis.call("keys","*${keyword}*")) do redis.call("del",k) end`, '0')
-  await client.delAsync(`*${keyword}*`)
+  let keys = await client.keysAsync(`*${keyword}*`)
+  console.log(keys)
+  //await client.delAsync(`*${keyword}*`)
 }
 
 client.on('error', e => {
