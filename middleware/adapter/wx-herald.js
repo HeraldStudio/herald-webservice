@@ -127,8 +127,8 @@ const handler = {
   },
 
   async '空教室|教室'() {
-    let hour = +moment.format("HH")
-    let minute = +moment.format("mm")
+    let hour = +moment().format("HH")
+    let minute = +moment().format("mm")
     
     if(hour >= 21 || (hour >= 20 && minute >= 55)) {
       return `🙈 已经没有教室在上课啦！不过小猴提醒你还是要早点休息哦～`
