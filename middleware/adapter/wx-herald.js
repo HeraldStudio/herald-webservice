@@ -139,12 +139,13 @@ const handler = {
     await this.next()
 
     let result = this.body
-
+    console.log(result)
     result.forNext = result.forNext ? result.forNext : []
     result.nextTimeDesc = result.nextTimeDesc ? result.nextTimeDesc : ''
-
+    console.log(result)
     result.forCurrent = result.forCurrent.map( k => `🙉 ${k}`)
     result.forNext = result.forNext.map( k => `🙉 ${k}`)
+    console.log(result)
     return [
       `📚小猴偷米空教室查询\n`,
       `${result.currentTimeDesc}\n`,
