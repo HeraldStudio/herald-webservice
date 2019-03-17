@@ -127,6 +127,13 @@ const handler = {
   },
 
   async '空教室|教室'() {
+    let hour = +moment.format("HH")
+    let minute = +moment.format("mm")
+    
+    if(hour >= 21 || (hour >= 20 && minute >= 55)) {
+      return `🙈 已经没有教室在上课啦！不过小猴提醒你还是要早点休息哦～`
+    }
+
     this.path = '/api/classroom/current'
     this.method = 'GET'
     await this.next()
@@ -135,12 +142,14 @@ const handler = {
 
     result.forNext = result.forNext ? result.forNext : []
     result.nextTimeDesc = result.nextTimeDesc ? result.nextTimeDesc : ''
-    
+
+    result.forCurrent = result.forCurrent.map( k => `🙉 ${k}`)
+    result.forNext = result.forNext.map( k => `🙉 ${k}`)
     return [
       `📚小猴偷米空教室查询\n`,
-      `${result.currentTimeDesc}`,
+      `${result.currentTimeDesc}\n`,
       ...result.forCurrent,
-      `\n${result.nextTimeDesc}`,
+      `\n${result.nextTimeDesc}\n`,
       ...result.forNext
     ].join('\n')
   },
