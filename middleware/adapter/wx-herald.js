@@ -126,7 +126,7 @@ const handler = {
     ].filter(k => k).join('\n\n').padd() : '🗓 你所在的院系年级样本不足，暂无记录'
   },
 
-  async '空教室|教室'() {
+  async '空教室|教室'(building = '') {
     let hour = +moment().format("HH")
     let minute = +moment().format("mm")
     
@@ -165,16 +165,31 @@ const handler = {
     result.forNext = []
     result.forCurrent = []
 
-    Object.keys(currentMap).forEach( k => {
-      result.forCurrent.push(
-        `${k}：\n${currentMap[k].join('，')}`
-      )
+    let buildings = ['教一', '教二','教三','教四',
+    '教五','教六','教七', '教八']
+
+    if(buildings.indexOf(building) != -1){
+      buildings = [building]
+    } else {
+      if(building != ''){
+        return '正确示例：“空教室 教一”'
+      }
+    }
+    
+    buildings.forEach( k => {
+      if(currentMap[k]){
+        result.forCurrent.push(
+          `${k}：\n${currentMap[k].join('，')}`
+        )
+      }
     })
 
-    Object.keys(nextMap).forEach( k => {
-      result.forNext.push(
-        `${k}：\n${nextMap[k].join('，')}`
-      )
+    buildings.forEach( k => {
+      if(nextMap[k]){
+        result.forNext.push(
+          `${k}：\n${nextMap[k].join('，')}`
+        )
+      }
     })
 
     return [
