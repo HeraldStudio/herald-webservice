@@ -133,6 +133,9 @@ const handler = {
 
     let result = this.body
 
+    result.forNext = result.forNext ? result.forNext : []
+    result.nextTimeDesc = result.nextTimeDesc ? result.nextTimeDesc : ''
+    
     return [
       `📚小猴偷米空教室查询\n`,
       `${result.currentTimeDesc}`,
