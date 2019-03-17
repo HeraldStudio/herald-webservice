@@ -4,12 +4,6 @@ const childProcess = require('child_process');
 const accessToken = require('../../../sdk/wechat').getToken
 exports.route = {
     async get() {
-        return {
-            "_id": "5c8e6f0372e5ee53dea5a121",
-            "date": "2019-03-18",
-            "sessionKeyMd5": "2fc16f026f25feb274bc3f559d39faba",
-            "state": "cancel"
-        }
         let col = await mongodb('herald_morning_exercise')
         let date = moment().format('YYYY-MM-DD')
         let record = await col.findOne({ date })
