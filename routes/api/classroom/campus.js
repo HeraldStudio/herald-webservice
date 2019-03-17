@@ -5,4 +5,5 @@ exports.route = {
         let rawData = await this.get(`http://58.192.114.179/classroom/common/getenabledcampuslistex?_=${now}`)
         return rawData.data
     }
+
 }

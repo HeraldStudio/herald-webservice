@@ -42,7 +42,7 @@ const handler = {
           课表 跑操 体测 一卡通
           实验 考试 成绩 SRTP
           图书 奖助 通知 讲座
-          App下载
+          空教室 App下载 
           ----------------
           【跑操提醒服务】
           - 开启跑操提醒
@@ -124,6 +124,22 @@ const handler = {
         ${k.avgScore ? `平均参考成绩 ${k.avgScore} (样本容量 ${k.sampleCount})` : ''}
       `.padd()).join('\n\n'),
     ].filter(k => k).join('\n\n').padd() : '🗓 你所在的院系年级样本不足，暂无记录'
+  },
+
+  async '空教室|教室'() {
+    this.path = '/api/classroom/current'
+    this.method = 'GET'
+    await this.next()
+
+    let result = this.body
+
+    return [
+      `📚小猴偷米空教室查询\n`,
+      `${result.currentTimeDesc}`,
+      ...result.forCurrent,
+      `\n${result.nextTimeDesc}`,
+      ...result.forNext
+    ].join('\n')
   },
 
   async '选修|選修'() {
