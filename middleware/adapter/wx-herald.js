@@ -137,22 +137,53 @@ const handler = {
     this.path = '/api/classroom/current'
     this.method = 'GET'
     await this.next()
+    
+    let currentMap = {}
+    let nextMap = {}
 
     let result = this.body
-    console.log(result)
+    
     result.forNext = result.forNext ? result.forNext : []
     result.nextTimeDesc = result.nextTimeDesc ? result.nextTimeDesc : ''
-    console.log(result)
-    result.forCurrent = result.forCurrent.map( k => `🙉 ${k}`)
-    result.forNext = result.forNext.map( k => `🙉 ${k}`)
-    console.log(result)
+    
+    result.forCurrent.forEach( k => {
+      k = k.split('-')
+      if(!currentMap[k[0]]){
+        currentMap[k[0]] = []
+      }
+      currentMap[k[0]].push(k[1])
+    })
+
+    result.forNext.forEach( k => {
+      k = k.split('-')
+      if(!nextMap[k[0]]){
+        nextMap[k[0]] = []
+      }
+      nextMap[k[0]].push(k[1])
+    })
+
+    result.forNext = []
+    result.forCurrent = []
+
+    Object.keys(currentMap).forEach( k => {
+      result.forCurrent.push(
+        `${k}：\n${currentMap[k].join('，')}`
+      )
+    })
+
+    Object.keys(nextMap).forEach( k => {
+      result.forNext.push(
+        `${k}：\n${nextMap[k].join('，')}`
+      )
+    })
+
     return [
-      `📚小猴偷米空教室查询\n`,
-      `${result.currentTimeDesc}\n`,
+      `📚小猴偷米空教室查询`,
+      `${result.currentTimeDesc}`,
       ...result.forCurrent,
-      `\n${result.nextTimeDesc}\n`,
+      `${result.nextTimeDesc}`,
       ...result.forNext
-    ].join('\n')
+    ].join('\n\n')
   },
 
   async '选修|選修'() {
