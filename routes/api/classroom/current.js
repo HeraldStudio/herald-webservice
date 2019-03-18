@@ -4,13 +4,13 @@ function laterThan(time1, time2) {
 }
 
 const weekdayMap = {
-    "1":"星期一",
-    "2":"星期二",
-    "3":"星期三",
-    "4":"星期四",
-    "5":"星期五",
-    "6":"星期六",
-    "7":"星期日"
+    "1": "星期一",
+    "2": "星期二",
+    "3": "星期三",
+    "4": "星期四",
+    "5": "星期五",
+    "6": "星期六",
+    "7": "星期日"
 }
 const sequenceTimeMap = [
     { sequence: 1, start: "00:00", end: "08:45" },
@@ -78,26 +78,25 @@ exports.route = {
             nextSequence = 13
         }
 
-        // console.log('termId:' + termId)
-        // console.log('startWeek:' + startWeek)
-        // console.log('endWeek:' + endWeek)
-        // console.log('dayOfWeek:' + dayOfWeek)
-        // console.log('currentSequence:' + currentSequence)
-        // console.log('nextSequence:' + nextSequence)
-        //现在的空教室
-        let forCurrent = (await this.get(`https://myseu.cn/ws3/api/classroom/index?startWeek=${startWeek}&endWeek=${endWeek}&dayOfWeek=${dayOfWeek}&startSequence=${currentSequence}&endSequence=${currentSequence}&termId=${termId}`)).data.result
-        //下一节课的空教室
-        let forNext = (await this.get(`https://myseu.cn/ws3/api/classroom/index?startWeek=${startWeek}&endWeek=${endWeek}&dayOfWeek=${dayOfWeek}&startSequence=${nextSequence}&endSequence=${nextSequence}&termId=${termId}`)).data.result
- 
-        forCurrent = forCurrent.map( k => k.name )
-        forNext = forNext.map( k => k.name )
+        let cacheKey = [ startWeek, endWeek, dayOfWeek, currentSequence, nextSequence, termId]
+        cacheKey = cacheKey.join('-')
+        return await this.publicCache(cacheKey, '2h+', async () => {
+            //现在的空教室
+            let forCurrent = (await this.get(`https://myseu.cn/ws3/api/classroom/index?startWeek=${startWeek}&endWeek=${endWeek}&dayOfWeek=${dayOfWeek}&startSequence=${currentSequence}&endSequence=${currentSequence}&termId=${termId}`)).data.result
+            //下一节课的空教室
+            let forNext = (await this.get(`https://myseu.cn/ws3/api/classroom/index?startWeek=${startWeek}&endWeek=${endWeek}&dayOfWeek=${dayOfWeek}&startSequence=${nextSequence}&endSequence=${nextSequence}&termId=${termId}`)).data.result
 
-        let currentTimeDesc = `${termName}学期 - 第${startWeek}周 - ${weekdayMap[""+dayOfWeek]} - 第${currentSequence}节`
-        let nextTimeDesc = `${termName}学期 - 第${startWeek}周 - ${weekdayMap[""+dayOfWeek]} - 第${nextSequence}节`
-        if(currentSequence === nextSequence){
-            return { forCurrent, currentTimeDesc }
-        }
+            forCurrent = forCurrent.map(k => k.name)
+            forNext = forNext.map(k => k.name)
 
-        return { forCurrent, forNext , currentTimeDesc, nextTimeDesc}
+            let currentTimeDesc = `${termName}学期 - 第${startWeek}周 - ${weekdayMap["" + dayOfWeek]} - 第${currentSequence}节`
+            let nextTimeDesc = `${termName}学期 - 第${startWeek}周 - ${weekdayMap["" + dayOfWeek]} - 第${nextSequence}节`
+            if (currentSequence === nextSequence) {
+                return { forCurrent, currentTimeDesc }
+            }
+
+            return { forCurrent, forNext, currentTimeDesc, nextTimeDesc }
+        })
     }
+
 }
