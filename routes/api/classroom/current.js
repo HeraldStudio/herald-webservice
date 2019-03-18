@@ -1,6 +1,6 @@
 
 function laterThan(time1, time2) {
-    return +moment(time1, "HH:mm") > +moment(time2, "HH:mm")
+    return +moment(time1, "HH:mm") >= +moment(time2, "HH:mm")
 }
 
 const weekdayMap = {
@@ -16,8 +16,8 @@ const sequenceTimeMap = [
     { sequence: 1, start: "00:00", end: "08:45" },
     { sequence: 2, start: "08:46", end: "09:35" },
     { sequence: 3, start: "09:36", end: "10:35" },
-    { sequence: 4, strat: "10:36", end: "11:25" },
-    { sequence: 5, strat: "11:26", end: "12:15" },
+    { sequence: 4, start: "10:36", end: "11:25" },
+    { sequence: 5, start: "11:26", end: "12:15" },
     { sequence: 6, start: "12:16", end: "14:45" },
     { sequence: 7, start: "14:46", end: "15:35" },
     { sequence: 8, start: "15:36", end: "16:45" },
@@ -66,7 +66,8 @@ exports.route = {
         let currentSequence
         let nextSequence
         let nowTime = moment().format("HH:mm")
-        for (let i = 0; i < +13; i++) {
+    
+        for (let i = 0; i < 13; i++) {
             if (laterThan(nowTime, sequenceTimeMap[i]['start']) && laterThan(sequenceTimeMap[i]['end'], nowTime)) {
                 currentSequence = sequenceTimeMap[i]['sequence']
                 break
@@ -96,6 +97,7 @@ exports.route = {
             }
 
             return { forCurrent, forNext, currentTimeDesc, nextTimeDesc }
+            
         })
     }
 
