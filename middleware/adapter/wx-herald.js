@@ -176,9 +176,10 @@ const handler = {
     }
     
     console.log(building)
+
     Object.keys(buildingInNum).forEach( k =>{
       if(building.indexOf(k)!==-1){
-        building=buildingInNum[building]
+        building=buildingInNum[k]
       }
     })
     
