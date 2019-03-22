@@ -175,6 +175,7 @@ const handler = {
       '8':'教八'
     }
     
+    console.log(building)
     Object.keys(buildingInNum).forEach( k =>{
       if(building.indexOf(k)!==-1){
         building=buildingInNum[building]
