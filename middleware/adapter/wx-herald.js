@@ -192,13 +192,19 @@ const handler = {
       }
     })
 
-    return [
+    result = [
       `📚小猴偷米空教室查询`,
       `${result.currentTimeDesc}`,
       ...result.forCurrent,
       `${result.nextTimeDesc}`,
       ...result.forNext
     ].join('\n\n')
+
+    if(result.length>1000){
+      return "🤔现在的空教室太多了，请按教学楼查询吧～ 例如【空教室 教一】"
+    }
+
+    return result
   },
 
   async '选修|選修'() {

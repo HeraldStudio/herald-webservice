@@ -96,7 +96,9 @@ exports.route = {
                 return { forCurrent, currentTimeDesc }
             }
 
-            return { forCurrent, forNext, currentTimeDesc, nextTimeDesc }
+            console.log(forCurrent.join("").length+forNext.join("").length+currentTimeDesc.length+nextTimeDesc.length)
+
+            //return { forCurrent, forNext, currentTimeDesc, nextTimeDesc }
             
         })
     }
