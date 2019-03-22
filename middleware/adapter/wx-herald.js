@@ -165,8 +165,24 @@ const handler = {
     result.forNext = []
     result.forCurrent = []
 
-    let buildings = ['教一', '教二','教三','教四',
-    '教五','教六','教七', '教八']
+    let buildingInNum={
+      '1':'教一',
+      '2':'教二',
+      '3':'教三',
+      '4':'教四',
+      '6':'教六',
+      '7':'教七',
+      '8':'教八'
+    }
+    
+    Object.keys(buildingInNum).forEach( k =>{
+      if(building.indexOf(k)!==-1){
+        building=buildingInNum[building]
+      }
+    })
+    
+
+    let buildings = ['教一', '教二','教三','教四','教六','教七', '教八']
 
     if(buildings.indexOf(building) != -1){
       buildings = [building]
