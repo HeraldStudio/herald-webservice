@@ -11,10 +11,13 @@ exports.route = {
     },
 
     async post({ sessionKey, state }) {
-        let hours = +(moment().format('hh'))
-        if(hours > 8) {
+        let hours = +(moment().format('H'))
+        let minutes = +(moment().format('mm'))
+
+        if(hours < 6 || hours > 8 || (hours == 7 && minutes > 20)) {
             throw '当前时段不允许推送跑操通知'
         }
+
         let col = await mongodb('herald_morning_exercise')
         let md5 = crypto.createHash('md5');
         let sessionKeyMd5 = md5.update(sessionKey).digest('hex');
@@ -26,6 +29,8 @@ exports.route = {
         }
 
         if(state !== record.state){
+            // 为了防止重复推送煞费苦心
+            await col.updateMany({ date }, { $set: { state } })
             // 状态切换过程发送全体推送
             let templateMsg = {
                 touser: [],
@@ -82,8 +87,6 @@ exports.route = {
             })
 
             let result = await pushJob
-            await col.updateMany({ date }, { $set: { state } })
-            record = await col.findOne({ date })
             return result
         }
 

@@ -14,7 +14,9 @@ exports.route = {
     if (!cacheName) {
       throw '只允许清理指定路由'
     }
+
     await this.clearAllCache(cacheName)
+    
     return 'OK'
   }
 }

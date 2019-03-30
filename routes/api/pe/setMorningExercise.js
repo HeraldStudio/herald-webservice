@@ -4,7 +4,7 @@ const childProcess = require('child_process');
 const accessToken = require('../../../sdk/wechat').getToken
 exports.route = {
     async get({ sessionKey, state }) {
-        let hours = +(moment().format('hh'))
+        let hours = +(moment().format('H'))
         if(hours > 8) {
             throw '当前时段不允许推送跑操通知'
         }
@@ -73,13 +73,11 @@ exports.route = {
                     pushProcess.kill()
                 })
             })
-
-            let result = await pushJob
+            // let result = await pushJob
+            // 设置后立刻返回，防止多次点击
             await col.updateMany({ date }, { $set: { state } })
             record = await col.findOne({ date })
-            return result
         }
-
         return '跑操提醒状态设置成功'
     }
 }

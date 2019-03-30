@@ -42,7 +42,7 @@ const handler = {
           课表 跑操 体测 一卡通
           实验 考试 成绩 SRTP
           图书 奖助 通知 讲座
-          App下载
+          空教室 App下载 
           ----------------
           【跑操提醒服务】
           - 开启跑操提醒
@@ -126,6 +126,105 @@ const handler = {
     ].filter(k => k).join('\n\n').padd() : '🗓 你所在的院系年级样本不足，暂无记录'
   },
 
+  async '空教室|教室'(building = '') {
+    let hour = +moment().format("HH")
+    let minute = +moment().format("mm")
+    
+    if(hour >= 21 || (hour >= 20 && minute >= 55)) {
+      return `🙈 已经没有教室在上课啦！不过小猴提醒你还是要早点休息哦～`
+    }
+
+    this.path = '/api/classroom/current'
+    this.method = 'GET'
+    await this.next()
+    
+    let currentMap = {}
+    let nextMap = {}
+
+    let result = this.body
+    
+    result.forNext = result.forNext ? result.forNext : []
+    result.nextTimeDesc = result.nextTimeDesc ? result.nextTimeDesc : ''
+    
+    result.forCurrent.forEach( k => {
+      k = k.split('-')
+      if(!currentMap[k[0]]){
+        currentMap[k[0]] = []
+      }
+      currentMap[k[0]].push(k[1])
+    })
+
+    result.forNext.forEach( k => {
+      k = k.split('-')
+      if(!nextMap[k[0]]){
+        nextMap[k[0]] = []
+      }
+      nextMap[k[0]].push(k[1])
+    })
+
+    result.forNext = []
+    result.forCurrent = []
+
+    let buildingInNum={
+      '1':'教一',
+      '2':'教二',
+      '3':'教三',
+      '4':'教四',
+      '6':'教六',
+      '7':'教七',
+      '8':'教八'
+    }
+    
+    console.log(building)
+
+    Object.keys(buildingInNum).forEach( k =>{
+      if(building.indexOf(k)!==-1){
+        building=buildingInNum[k]
+      }
+    })
+    
+
+    let buildings = ['教一', '教二','教三','教四','教六','教七', '教八']
+
+    if(buildings.indexOf(building) != -1){
+      buildings = [building]
+    } else {
+      if(building != ''){
+        return '正确示例：“空教室 教一”'
+      }
+    }
+    
+    buildings.forEach( k => {
+      if(currentMap[k]){
+        result.forCurrent.push(
+          `${k}：\n${currentMap[k].join('，')}`
+        )
+      }
+    })
+
+    buildings.forEach( k => {
+      if(nextMap[k]){
+        result.forNext.push(
+          `${k}：\n${nextMap[k].join('，')}`
+        )
+      }
+    })
+
+    result = [
+      `📚小猴偷米空教室查询`,
+      `${result.currentTimeDesc}`,
+      ...result.forCurrent,
+      `${result.nextTimeDesc}`,
+      ...result.forNext
+    ].join('\n\n')
+
+    if(result.length>1000){
+      return "🤔现在的空教室太多了，请按教学楼查询吧～ 例如【空教室 教一】"
+    }
+
+    return result
+  },
+
   async '选修|選修'() {
     this.path = '/api/course/optional'
     this.method = 'GET'
@@ -160,6 +259,8 @@ const handler = {
       // 包含取消则是为跑操取消，其他视为跑操正常进行
       let state = message.indexOf('取消') !== -1 ? 'cancel':'set'
       if(state !== record.state){
+        // 防止重复推送
+        await stateCollection.updateMany({ date }, { $set: { state } })
         // 状态切换过程发送全体推送
         let templateMsg = {
             touser: [],

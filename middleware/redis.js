@@ -37,7 +37,14 @@ let client = (() => {
 })()
 
 client.batchDelete = async (keyword) => {
-  await client.evalAsync(`for _,k in ipairs(redis.call("keys","*${keyword}*")) do redis.call("del",k) end`, '0')
+  //await client.evalAsync(`for _,k in ipairs(redis.call("keys","*${keyword}*")) do redis.call("del",k) end`, '0')
+  let keys = await client.keysAsync(`*${keyword}*`)
+  console.log(keys)
+  let deleteTasks = keys.map( key => {
+    return client.delAsync(key)
+  })
+  await Promise.all(deleteTasks)
+  //await client.delAsync(`*${keyword}*`)
 }
 
 client.on('error', e => {
@@ -239,7 +246,7 @@ async function internalCached (isPublic, ...args) {
             // 把超时归类为异常，然后统一在异常情况下返回缓存
             // 这样处理同时也使得回源函数中出现异常时，同样也返回缓存
             task = Promise.race([
-              task, new Promise((_, r) => setTimeout(r, 10000))
+              task, new Promise((_, r) => setTimeout(r, 15000))
             ]).catch(e => {
               // 回源函数出现任何异常，均返回 203，表示返回值无时效性
               this.status = 203
