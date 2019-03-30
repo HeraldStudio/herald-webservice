@@ -11,7 +11,7 @@ exports.route = {
   * 人文讲座信息查询
   **/
   async get() {
-    return await this.userCache('1h+', async () => {
+    // return await this.userCache('1h+', async () => {
       await this.useAuthCookie()
       await this.get('http://allinonecard.seu.edu.cn/ecard/dongnanportalHome.action')
 
@@ -53,6 +53,6 @@ exports.route = {
           || Math.abs(arr[i - 1].time - k.time) > 60 * 1000)
         // 转换为时间和地点名称
         .map(k => ({ time: k.time, location: locations[k.machineId] }))
-    })
+    // })
   }
 }
