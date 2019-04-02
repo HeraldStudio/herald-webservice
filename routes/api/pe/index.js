@@ -55,8 +55,6 @@ exports.route = {
         return {name, value, score, grade}
       })
 
-      //愚人节特供，当晚删除。
-      count =  65
 
       return { count, detail, health }
     })
