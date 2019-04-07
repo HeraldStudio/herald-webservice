@@ -21,6 +21,7 @@
     "cross-env": "^5.2.0",
     "form-data": "^2.3.2",
     "iconv": "^2.3.0",
+    "iconv-lite": "^0.4.24",
     "js-yaml": "^3.10.0",
     "jschardet-eastasia": "^1.4.1",
     "kf-router": "^2.2.2",
@@ -44,7 +45,8 @@
     "socks-proxy-agent": "^4.0.1",
     "tough-cookie": "^2.3.3",
     "worker-threads": "^1.0.0",
-    "ws": "^4.0.0"
+    "ws": "^4.0.0",
+    "xml-js": "^1.6.11"
   },
   "resolutions": {
     "upath": "^1.0.5",
