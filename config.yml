@@ -19,6 +19,6 @@ spider:
   port:         49034
   heartCycle:   40000
 version:
-  hybrid-kernel: 17
+  hybrid-kernel: 18
   android: 5
   androidApk: https://hybrid.myseu.cn/herald-app-beta-5.apk

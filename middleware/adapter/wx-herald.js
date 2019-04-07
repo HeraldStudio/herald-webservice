@@ -165,8 +165,26 @@ const handler = {
     result.forNext = []
     result.forCurrent = []
 
-    let buildings = ['教一', '教二','教三','教四',
-    '教五','教六','教七', '教八']
+    let buildingInNum={
+      '1':'教一',
+      '2':'教二',
+      '3':'教三',
+      '4':'教四',
+      '6':'教六',
+      '7':'教七',
+      '8':'教八'
+    }
+    
+    console.log(building)
+
+    Object.keys(buildingInNum).forEach( k =>{
+      if(building.indexOf(k)!==-1){
+        building=buildingInNum[k]
+      }
+    })
+    
+
+    let buildings = ['教一', '教二','教三','教四','教六','教七', '教八']
 
     if(buildings.indexOf(building) != -1){
       buildings = [building]
@@ -192,13 +210,19 @@ const handler = {
       }
     })
 
-    return [
+    result = [
       `📚小猴偷米空教室查询`,
       `${result.currentTimeDesc}`,
       ...result.forCurrent,
       `${result.nextTimeDesc}`,
       ...result.forNext
     ].join('\n\n')
+
+    if(result.length>1000){
+      return "🤔现在的空教室太多了，请按教学楼查询吧～ 例如【空教室 教一】"
+    }
+
+    return result
   },
 
   async '选修|選修'() {

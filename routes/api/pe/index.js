@@ -13,6 +13,7 @@ exports.route = {
   **/
   async get() {
     let { count, detail, health } = await this.userCache('1h+', async () => {
+
       // 取统一身份认证 Cookie，登录早操查询网站，拿到网站 Session Cookie
       await this.useAuthCookie()
       await this.get('http://zccx.seu.edu.cn')
@@ -53,6 +54,7 @@ exports.route = {
         score = parseFloat(score)
         return {name, value, score, grade}
       })
+
 
       return { count, detail, health }
     })

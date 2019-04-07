@@ -12,8 +12,9 @@ exports.route = {
 
     async post({ sessionKey, state }) {
         let hours = +(moment().format('H'))
+        let minutes = +(moment().format('mm'))
 
-        if(hours > 8) {
+        if(hours < 6 || hours > 8 || (hours == 7 && minutes > 20)) {
             throw '当前时段不允许推送跑操通知'
         }
 
