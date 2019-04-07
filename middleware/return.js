@@ -28,7 +28,7 @@ module.exports = async (ctx, next) => {
       ctx.status = 408
     } else {
       console.trace(e)
-      ctx.logMsg = e.name + e.message
+      ctx.logMsg = e.name + ':' + e.message
       ctx.status = 400
     }
   }
