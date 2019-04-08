@@ -16,7 +16,6 @@ exports.route = {
         let result = []
         let rawResult = await this.post(`https://lecture.myseu.cn/api/query`, JSON.stringify(query), { headers: { 'Content-Type': 'application/json' } })
         rawResult.data.result.forEach(k => {
-            console.log(k[""])
             result.push(
                 {
                     "location": k["location"],
