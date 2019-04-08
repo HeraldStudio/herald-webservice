@@ -499,7 +499,7 @@ const handler = {
     let lectures = this.body
     return [
       `🎬 已听讲座次数：${lectures.length}`,
-      lectures.map(k => `${moment(k.time).format('YYYY-M-D')}（${k.location}）${k.lectureTitle ? '\n讲座主题：'+k.lectureTitle : ''} ${k.lectureTitle ? '\n讲座详情：'+k.lectureUrl : ''}`).join('\n')
+      lectures.map(k => `${moment(k.time).format('YYYY-M-D')}（${k.location}）${k.lectureTitle ? '\n讲座主题：'+k.lectureTitle : ''} ${k.lectureUrl ? '\n讲座详情：'+k.lectureUrl : ''}`).join('\n\n')
     ].filter(k => k).join('\n\n').padd()
   },
 
