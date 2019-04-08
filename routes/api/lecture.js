@@ -19,7 +19,7 @@ exports.route = {
             result.push(
                 {
                     "location": k["location"],
-                    "time": moment(k["dateStr"],"YYYY-MM-DD").valueOf(),
+                    "time": moment(k["dateStr"],"YYYY-MM-DD").valueOf() + (18 * 60 + 30)*60*1000,
                     "lectureTitle":k["lectureTitle"],
                     "lectureUrl":k["lectureUrl"]
                 }
