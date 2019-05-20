@@ -8,7 +8,7 @@ exports.route = {
   **/
 
   async get() {
-    let cacheResult = await this.userCache('12h', async () => {
+    return await this.userCache('12h', async () => {
 
       let { name, cardnum, schoolnum } = this.user
       let now = +moment()
@@ -78,10 +78,9 @@ exports.route = {
       )
 
       let $ = cheerio.load(res.data)
-      
 
       this.logMsg = `${name} (${cardnum}) - 查询考试安排`
-      return $('#table2 tr').toArray().slice(1).map(tr => {
+      let result = $('#table2 tr').toArray().slice(1).map(tr => {
         let [semester, campus, courseName, courseType, teacherName, time, location, duration]
           = $(tr).find('td').toArray().slice(1).map(td => $(td).text().trim())
 
@@ -91,14 +90,13 @@ exports.route = {
 
         return {semester, campus, courseName, courseType, teacherName, startTime, endTime, location, duration}
       }).filter(k => k.endTime > now) // 防止个别考生考试开始了还没找到考场🤔
-    })
-    let result = []
-    cacheResult.forEach(k => {
-      if(k){
-        result.push(k)
+      
+      
+      if (result.length === 0) {
+        throw '上游数据出错'
       }
+      return result
     })
-    return result
   
   }
 
