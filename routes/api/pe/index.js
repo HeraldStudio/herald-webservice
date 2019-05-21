@@ -55,7 +55,9 @@ exports.route = {
         return {name, value, score, grade}
       })
 
-
+      if (count === 0) {
+        throw '上游数据失效'
+      }
       return { count, detail, health }
     })
 

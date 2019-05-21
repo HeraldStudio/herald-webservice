@@ -1,5 +1,6 @@
 const cheerio = require('cheerio')
 const mongodb = require('../../../database/mongodb')
+const { pushApnByCardnum } = require('../../../sdk/apn')
 exports.route = {
 
     /**
@@ -8,7 +9,7 @@ exports.route = {
     **/
 
     async get() {
-        throw "POST ONLY"
+        //return await pushApnByCardnum('213163355', 'Tonight rain and wind go,', ' Sleep can\'t kill the alcohol')
     },
 
     async post({deviceToken}){

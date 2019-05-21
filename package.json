@@ -11,6 +11,7 @@
     "cluster-stop": "pm2 delete herald-webservice-1 && pm2 delete herald-webservice-2 && pm2 delete herald-webservice-3 && pm2 delete herald-webservice-4"
   },
   "dependencies": {
+    "apn": "^2.2.0",
     "axios": "^0.17.1",
     "axios-cookiejar-support": "^0.3.2",
     "bluebird": "^3.5.1",
