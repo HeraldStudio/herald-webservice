@@ -48,7 +48,7 @@ module.exports = async (ctx, next) => {
         if(/ios/i.test(versiontype)){
           content.version={
             code:64,
-            name:' iOS v2.0.0 ',
+            name:' v2.0.0 ',
             des:'\n【！非常重要！】如果提示“项目不可用”，是由于您错过了上一个版本的更新，您需要在 AppStore 手动搜索“小猴偷米”以进行更新\n\n 期待已久的新小猴偷米 iOS App 终于来啦！布局深度调整，纠正一直以来存在的数据不同步问题，更多新功能等你发现～'}
         }
 
