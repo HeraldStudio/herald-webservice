@@ -104,10 +104,31 @@ module.exports = async (ctx, cardnum, password) => {
       // 学号姓名信息更新失败
       if(e === 'ehall-fail'){
         console.log(`${cardnum} - 学号/姓名信息更新失败 - 由于ehall失效`)
-        if(record){
-          schoolnum = record.schoolnum
-          name = record.name
-          console.log(`已使用历史记录替代`)
+        // 对于留学生的情况，从新信息门户获取
+        try{
+          console.log(`${cardnum} - 尝试从新信息门户获取学号`)
+          let res = await ctx.get('http://my.seu.edu.cn/index.portal?.pn=p1681')
+          let infoUrl = /(pnull\.portal\?[^"]*)/.exec(res.data) || []
+          infoUrl = infoUrl[1] || ''
+          if (infoUrl) {
+            res = await ctx.post('http://my.seu.edu.cn/' + infoUrl, 'itemId=239&childId=241')
+            schoolnum = /<th>\s*学籍号\s*<\/th>\s*<td colspan="1">\s*(\d+)\s*<\/td>/im.exec(res.data) || []
+            schoolnum = schoolnum[1] || ''
+            if(schoolnum){
+              console.log(`${cardnum} - 新信息门户获取学号成功`)
+            } else {
+              throw 'ids6-failed'
+            }
+          } else {
+            throw 'ids6-failed'
+          }
+        } catch(e) {
+          console.log(`${cardnum} - 学号/姓名信息更新失败 - 由于新信息门户失效`)
+          if(record){
+            schoolnum = record.schoolnum
+            name = record.name
+            console.log(`已使用历史记录替代`)
+          }
         }
       }
     }
