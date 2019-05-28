@@ -116,7 +116,7 @@ module.exports = async (ctx, cardnum, password) => {
           infoUrl = infoUrl[1] || ''
           if (infoUrl) {
             res = await ctx.post('http://my.seu.edu.cn/' + infoUrl, 'itemId=239&childId=241')
-            schoolnum = /<th>\s*学籍号\s*<\/th>\s*<td colspan="1">\s*(\d+)\s*<\/td>/im.exec(res.data) || []
+            schoolnum = /<th>\s*学籍号\s*<\/th>\s*<td colspan="1">\s*([0-9A-Z]+)\s*<\/td>/im.exec(res.data) || []
             schoolnum = schoolnum[1] || ''
             if(schoolnum){
               console.log(`${cardnum} - 新信息门户获取学号成功`)
