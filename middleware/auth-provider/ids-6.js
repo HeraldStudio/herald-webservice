@@ -72,8 +72,12 @@ module.exports = async (ctx, cardnum, password) => {
         }
         await ctx.get(ehallUrl)
         let studentInfo = await ctx.post('http://ehall.seu.edu.cn/xsfw/sys/jbxxapp/modules/infoStudent/getStuBatchInfo.do')
+
         if (studentInfo && studentInfo.data && studentInfo.data.data) {
           studentInfo = studentInfo.data.data
+          if(!studentInfo.XH){
+            throw 'ehall-fail'
+          }
           // 此处已对要返回的学号姓名进行赋值
           name = studentInfo.XM
           schoolnum = studentInfo.XH
