@@ -51,7 +51,7 @@ $ redis-cli
 用户登录时，需要向后端发送登录请求：
 
 ```bash
-curl -X POST http://myseu.cn/ws3/auth -d cardnum=一卡通号 -d password=统一身份认证密码 platform=平台标识符
+curl -X POST http://myseu.cn/ws3/auth -d cardnum=一卡通号 -d password=统一身份认证密码 -d platform=平台标识符
 ```
 
 其中，**平台标识符** 为一个字符串，推荐格式为小写字母和短横线的组合，例如 `android`/`ios`/`react-native` 等。
