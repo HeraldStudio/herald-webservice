@@ -91,7 +91,6 @@ exports.route = {
         return {semester, campus, courseName, courseType, teacherName, startTime, endTime, location, duration}
       }).filter(k => k.endTime > now) // 防止个别考生考试开始了还没找到考场🤔
       
-      
       if (result.length === 0) {
         throw '上游数据出错'
       }
