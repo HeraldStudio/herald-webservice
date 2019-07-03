@@ -39,9 +39,12 @@ exports.route = {
         '*order': '-XNXQDM,KCH,KXH',
         pageSize: 1000,
         pageNumber: 1})
+        //原始数据中有重复数据
         rawData = rawData.data.datas.xscjcx.rows
-        let detail = rawData.map(k=>{
+        
+        let rawDetail = rawData.map(k=>{
           let semesterName = k.XNXQDM.split('-')
+          
           semesterName = `${semesterName[0].slice(2)}-${semesterName[1].slice(2)}-${semesterName[2]}`
           return{
             semester:semesterName,
@@ -58,6 +61,22 @@ exports.route = {
           }
         })
 
+        //对数据rawDetail进行去重，依靠课程代码进行去重
+        //及格重修的课程代码与首修课程代码相同，将来可能会产生bug，希望以后可以不用数据去重
+        let cidList = {}
+        let indexList = []
+        rawDetail.forEach((currentTerm,index)=>{
+          if(cidList[currentTerm.cid] !== true){
+            cidList[currentTerm.cid] = true
+            indexList.push(index)
+          }
+        })
+        let detail = []
+        indexList.forEach((detailIndex)=>{
+          detail.push(rawDetail[detailIndex])
+        })
+        //去重结束
+
         let courseHasPassed = {}
         let achievedCredits = 0
         detail.slice().reverse().map(k => {
@@ -70,6 +89,7 @@ exports.route = {
           }
         })
 
+        
         // 计算各门课程是否最高一次通过
         // 用于前端判断课程是否默认计入出国绩点估算
         let courseHighestPassed = {}
@@ -101,7 +121,7 @@ exports.route = {
         this.logMsg = `${name} (${cardnum}) - 查询绩点`
         return { gpa, gpaBeforeMakeup, achievedCredits, year, calculationTime, detail }
 
-        /*>>赵拯基超可爱<<*/
+       
       }
       // 本科生
       if (/^21/.test(cardnum)) {
