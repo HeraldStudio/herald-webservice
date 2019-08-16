@@ -61,19 +61,20 @@ exports.route = {
       let curriculum = []
 
       // 新选课系统-目前使用18级本科生数据进行测试
-      if (/^21318/.test(cardnum) || /^[0-9A-Z]{3}18/.test(schoolnum)) {
+      if (/^21318/.test(cardnum) || /^[0-9A-Z]{3}18/.test(schoolnum)||/^21319/.test(cardnum)) {
         // 处理 term
-        if(!term){term='18-19-2'}
+        if(!term){term='19-20-1'}
         term = this.term.list.find( t => t.name === term )
         term.maxWeek = 16
 
         await this.useEHallAuth('4770397878132218')
         // 处理 curriculum
         // 获取课表
-        let queryTerm = '2018-2019-3'
-        if (term.name === '18-19-2') {
-          queryTerm = '2018-2019-2'
+        let queryTerm = '2019-2020-1'
+        if (term.name === '19-20-1') {
+          queryTerm = '2019-2020-1'
         }
+        console.log(queryTerm)
         const curriculumRes = await this.post('http://ehall.seu.edu.cn/jwapp/sys/wdkb/modules/xskcb/xskcb.do', {
           'XNXQDM': queryTerm,
         })

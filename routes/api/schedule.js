@@ -14,6 +14,8 @@ exports.route = {
       let res = await this.get(link)
       let $ = cheerio.load(res.data)
       link = url.resolve(link, $('#wp_news_w3 a').eq(0).attr('href'))
+      
+  
 
       res = await this.get(link)
       $ = cheerio.load(res.data)
