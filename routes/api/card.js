@@ -37,7 +37,7 @@ exports.route = {
       }
 
       // 匹配的模式串
-      const columnReg = /[\r\n]([^：\r\n])+：[\s]*([^：]+)(?=[\r\n])/img
+      const columnReg = /[\r\n]([^：\r\n])+：[\s]*([^：]+)(?=[\r\n])/img  //这个匹配可能会出现小问题
 
       // 返回数据的模板，键值要跟网页中找到的栏目名一致，比如「帐号」不能写成「账号」
       let info = {
@@ -58,7 +58,7 @@ exports.route = {
         pairs = pairs.map(k => k.replace(/\s+/g, '').split('：', 2)).filter(k => k.length === 2)
         //console.log(pairs)
       }else{
-        throw 'pairs为空'
+        throw 'columnReg匹配失败，pairs为空'
       }
       
       // 将对应的 [字段名, 内容] 二元组列表传入 applyTemplate 工具函数，替换 template 中对应键值
