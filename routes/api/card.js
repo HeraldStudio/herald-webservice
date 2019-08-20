@@ -18,6 +18,7 @@ exports.route = {
       await this.get('http://allinonecard.seu.edu.cn/ecard/dongnanportalHome.action')
       let res = await this.get('http://allinonecard.seu.edu.cn/accountcardUser.action')
       // 一卡通基本信息
+     
 
       // 模板应用器
       function applyTemplate(template, pairs) {
@@ -45,7 +46,11 @@ exports.route = {
         balance: '余额',
       }
 
+      
       // 直接转文字，根据冒号分隔的固定模式匹配字段名和内容
+      if(res === null){
+        throw new Error('无查询结果')
+      }
       let $ = cheerio.load(res.data)
       let pairs = $('.neiwen').text().match(columnReg)
         .map(k => k.replace(/\s+/g, '').split('：', 2))
