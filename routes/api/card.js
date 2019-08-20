@@ -48,14 +48,17 @@ exports.route = {
 
       
       // 直接转文字，根据冒号分隔的固定模式匹配字段名和内容
-      if(res === null){
-        throw new Error('无查询结果')
+      if(!res){
+        throw '无查询结果'
       }
       let $ = cheerio.load(res.data)
       let pairs = $('.neiwen').text().match(columnReg)
-        .map(k => k.replace(/\s+/g, '').split('：', 2))
-        .filter(k => k.length === 2)
-
+      if(pairs){
+        pairs = pairs.map(k => k.replace(/\s+/g, '').split('：', 2)).filter(k => k.length === 2)
+      }else{
+        throw 'pairs为空'
+      }
+      
       // 将对应的 [字段名, 内容] 二元组列表传入 applyTemplate 工具函数，替换 template 中对应键值
       applyTemplate(info, pairs)
 
