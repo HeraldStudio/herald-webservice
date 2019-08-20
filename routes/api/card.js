@@ -48,13 +48,15 @@ exports.route = {
 
       
       // 直接转文字，根据冒号分隔的固定模式匹配字段名和内容
-      if(!res){
+      if(!res.data){
         throw '无查询结果'
       }
       let $ = cheerio.load(res.data)
+      //console.log($('.neiwen').text().match(columnReg))
       let pairs = $('.neiwen').text().match(columnReg)
       if(pairs){
         pairs = pairs.map(k => k.replace(/\s+/g, '').split('：', 2)).filter(k => k.length === 2)
+        //console.log(pairs)
       }else{
         throw 'pairs为空'
       }
