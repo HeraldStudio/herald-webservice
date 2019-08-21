@@ -9,6 +9,7 @@ exports.route = {
    */
   async get() {
     return await this.publicCache('1d', async () => {
+      /*
       let link = 'http://jwc.seu.edu.cn/_t155/10006/list.htm'
 
       let res = await this.get(link)
@@ -25,7 +26,9 @@ exports.route = {
 
       // 对于前后端分离的严格 RESTful 系统，后端不允许重定向到文件、图片、网页，必须把链接直接返回
       // 需要重定向的情况，在 adapter 中实现
-      return link
+      */
+      // 将校历图片上传到七牛云，直接返回七牛云中的图片连接
+      return 'https://static.myseu.cn/schedule_2019.jpg'
     })
   }
 }
