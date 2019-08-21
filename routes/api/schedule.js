@@ -8,7 +8,6 @@ exports.route = {
    * 获取校历（图片地址）
    */
   async get() {
-    return await this.publicCache('1d', async () => {
       /*
       let link = 'http://jwc.seu.edu.cn/_t155/10006/list.htm'
 
@@ -29,6 +28,5 @@ exports.route = {
       */
       // 将校历图片上传到七牛云，直接返回七牛云中图片连接
       return 'https://static.myseu.cn/schedule_2019.jpg'
-    })
   }
 }
