@@ -2,9 +2,9 @@ const qiniu = require('qiniu')
 const config = require('./sdk.json')
 const crypto = require('crypto')
 
-exports.getUptoken = () => {
+exports.getUptoken = (prefix='') => {
   let { access, secret, bucket } = config.qiniu
-  let key = Buffer.from(crypto.randomBytes(16)).toString('hex')
+  let key = prefix + (prefix ? '-' : '') +Buffer.from(crypto.randomBytes(16)).toString('hex')
   let mac = new qiniu.auth.digest.Mac(access, secret)
   let uptoken = new qiniu.rs.PutPolicy({
     scope: bucket + ':' + key,
