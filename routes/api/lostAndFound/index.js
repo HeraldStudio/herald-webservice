@@ -89,7 +89,7 @@ exports.route = {
         await lostAndFoundCollection.updateOne({_id:id}, {$set:{
             title: title ? title : oldRecord.title,
             describe: describe ? describe : oldRecord.describe,
-            imageUrl: imageUrl ? imageUrl : oldRecord.imageUrl,
+            imageUrl: imageUrl,
             lastModifiedTime:+moment()
         }})
         return '修改成功'
@@ -101,7 +101,7 @@ exports.route = {
         let lostAndFoundCollection = await mongodb("herald_lost_and_found")
         let record = await lostAndFoundCollection.findOne({_id})
         // 管理员可以删除所有
-        if([record.cardnum, ...adminList].indexOf(cardnum) === -1){
+        if([record.creator, ...adminList].indexOf(cardnum) === -1){
             throw 401
         }
         if(!record){

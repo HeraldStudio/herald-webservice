@@ -8,7 +8,7 @@ exports.route = {
         let {cardnum} = this.user
         let lostAndFoundCollection = await mongodb("herald_lost_and_found")
         let record = await lostAndFoundCollection.findOne({_id})
-        if([record.cardnum, ...adminList].indexOf(cardnum) === -1){
+        if([record.creator, ...adminList].indexOf(cardnum) === -1){
             throw 401
         }
         await lostAndFoundCollection.updateOne({_id}, {$set:{isFinished:true}})
