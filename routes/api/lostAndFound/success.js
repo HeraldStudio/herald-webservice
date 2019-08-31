@@ -3,18 +3,15 @@ const ObjectId = require('mongodb').ObjectId
 const {adminList} = require('./admin.json')
 
 exports.route = {
-    async post({id, pass}){
+    async post({id}){
         let _id = ObjectId(id)
         let {cardnum} = this.user
         let lostAndFoundCollection = await mongodb("herald_lost_and_found")
-        if(adminList.indexOf(cardnum) === -1) {
+        let record = await lostAndFoundCollection.findOne({_id})
+        if([record.cardnum, ...adminList].indexOf(cardnum) === -1){
             throw 401
         }
-        if(pass){
-            await lostAndFoundCollection.updateOne({_id}, {$set:{isAudit:true, isFinished:false}})
-        } else {
-            await lostAndFoundCollection.updateOne({_id},{$set:{isAudit:false, isFinished:true}})
-        }
+        await lostAndFoundCollection.updateOne({_id}, {$set:{isFinished:true}})
         return 'success'
     }
 }
