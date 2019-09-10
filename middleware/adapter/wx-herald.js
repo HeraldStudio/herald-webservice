@@ -52,15 +52,16 @@ const handler = {
   },
 
   async '绑定|登录|登陆|綁定|登錄'(cardnum, password, gpassword = '') {
-    this.path = '/auth'
-    this.method = 'POST'
-    this.params = {
-      cardnum, password, gpassword,
-      customToken: this.message.FromUserName,
-      platform: 'wx-herald'
-    }
-    await this.next()
-    return `🔗 绑定成功`.padd()
+    // this.path = '/auth'
+    // this.method = 'POST'
+    // this.params = {
+    //   cardnum, password, gpassword,
+    //   customToken: this.message.FromUserName,
+    //   platform: 'wx-herald'
+    // }
+    // await this.next()
+    // return `🔗 绑定功能`
+    return `绑定功能暂时关闭`
   },
 
   async '一卡通|消费|余额|流水|消費|餘額'(date) {
