@@ -65,8 +65,15 @@ exports.route = {
         // 处理 term
         if(!term){term='19-20-2'}
         term = this.term.list.find( t => t.name === term )
-        term.maxWeek = 16
-        //console.log(term)
+        
+        if(term.name.endsWith('1')){
+          term.maxWeek = 4
+        }
+        if(term.name.endsWith('2')||term.name.endsWith('3')){
+          term.maxWeek = 16
+        }
+      
+        console.log(term)
         await this.useEHallAuth('4770397878132218')
         // 处理 curriculum
         // 获取课表
