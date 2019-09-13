@@ -14,7 +14,7 @@ exports.route = {
       let now = +moment()
       
       // 新考试安排系统-目前使用18级本科生数据进行测试
-       if (/^21318/.test(cardnum) || /^[0-9A-Z]{3}18/.test(schoolnum)) { 
+       if (/^21318/.test(cardnum) || /^[0-9A-Z]{3}18/.test(schoolnum)||/^21319/.test(cardnum) || /^[0-9A-Z]{3}19/.test(schoolnum)) { 
 
         await this.useEHallAuth('4768687067472349')
 
