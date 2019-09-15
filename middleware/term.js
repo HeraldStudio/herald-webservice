@@ -86,6 +86,7 @@ module.exports = async (ctx, next) => {
           return k
         })
       }
+      
       next.isNext = true
       prev.isPrev = true
       term.next = next
