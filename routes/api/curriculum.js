@@ -73,7 +73,7 @@ exports.route = {
           term.maxWeek = 16
         }
       
-        console.log(term)
+        
         await this.useEHallAuth('4770397878132218')
         // 处理 curriculum
         // 获取课表
