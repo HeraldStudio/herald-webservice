@@ -12,9 +12,9 @@ exports.route = {
 
       let { name, cardnum, schoolnum } = this.user
       let now = +moment()
-      
+
       // 新考试安排系统-目前使用18级本科生数据进行测试
-       if (/^21318/.test(cardnum) || /^[0-9A-Z]{3}18/.test(schoolnum)||/^21319/.test(cardnum) || /^[0-9A-Z]{3}19/.test(schoolnum)) { 
+      if (/^21318/.test(cardnum) || /^[0-9A-Z]{3}18/.test(schoolnum) || /^21319/.test(cardnum) || /^[0-9A-Z]{3}19/.test(schoolnum)) {
 
         await this.useEHallAuth('4768687067472349')
 
@@ -23,48 +23,50 @@ exports.route = {
         let termCode = termRes.data.datas.dqxnxq.rows[0].DM
 
         // 获取原始的考试安排数据
-        let examData = await this.post('http://ehall.seu.edu.cn/jwapp/sys/studentWdksapApp/modules/wdksap/wdksap.do', 
-                                      {XNXQDM: termCode,
-                                      '*order':' -KSRQ,-KSSJMS'})
+        let examData = await this.post('http://ehall.seu.edu.cn/jwapp/sys/studentWdksapApp/modules/wdksap/wdksap.do',
+          {
+            XNXQDM: termCode,
+            '*order': ' -KSRQ,-KSSJMS'
+          })
         examData = examData.data.datas.wdksap.rows
-        let examList = examData.map( k => {
+        let examList = examData.map(k => {
           // 分析时间
-          try{
+          try {
             let rawTime = k.KSSJMS
             rawTime = rawTime.split('(')[0]
             let date = rawTime.split(' ')[0]
             let [startTime, endTime] = rawTime.split(' ')[1].split('-')
-            startTime = +moment(date+'-'+startTime, 'YYYY-MM-DD-HH:mm')
-            endTime = +moment(date+'-'+endTime, 'YYYY-MM-DD-HH:mm')
+            startTime = +moment(date + '-' + startTime, 'YYYY-MM-DD-HH:mm')
+            endTime = +moment(date + '-' + endTime, 'YYYY-MM-DD-HH:mm')
             duration = (endTime - startTime) / 1000 / 60
             try {
-              if ( k.KSMC.split(' ')[1] ) {
+              if (k.KSMC.split(' ')[1]) {
                 k.KCM = k.KCM + ' ' + k.KSMC.split(' ')[1]
               }
-            } catch(e) {
+            } catch (e) {
               console.log(e)
               throw e
             }
             return {
-              startTime,endTime,duration,
-              semester:k.XNXQDM,
-              campus:'-',
-              courseName:k.KCM,
-              courseType:k.KSMC,
-              teacherName:k.ZJJSXM,
-              location:k.JASMC
+              startTime, endTime, duration,
+              semester: k.XNXQDM,
+              campus: '-',
+              courseName: k.KCM,
+              courseType: k.KSMC,
+              teacherName: k.ZJJSXM,
+              location: k.JASMC
             }
-          } catch(e) {
+          } catch (e) {
             console.log(k)
           }
         })
-        examList.sort( (a, b) => {
+        examList.sort((a, b) => {
           return a.startTime - b.startTime
         })
         this.logMsg = `${name} (${cardnum}) - 查询 2018 级考试安排`
         let finalList = []
         examList.forEach(element => {
-          if(element){
+          if (element) {
             finalList.push(element)
           }
         });
@@ -88,15 +90,16 @@ exports.route = {
         let startTime = +startMoment
         let endTime = +startMoment.add(duration, 'minutes')
 
-        return {semester, campus, courseName, courseType, teacherName, startTime, endTime, location, duration}
+        return { semester, campus, courseName, courseType, teacherName, startTime, endTime, location, duration }
       }).filter(k => k.endTime > now) // 防止个别考生考试开始了还没找到考场🤔
-      
-      if (result.length === 0) {
+
+      // 在考试周的时候强制缓存 12月 1月
+      if (result.length === 0 && (moment().format('MMM') === '12月' || moment().format('MMM') === '1月')) {
         throw '上游数据出错'
       }
       return result
     })
-  
+
   }
 
 
