@@ -52,14 +52,17 @@ exports.route = {
         let [name, value, score, grade] = $(k).children('td').toArray().map(k => $(k).text().trim())
         value = parseFloat(value)
         score = parseFloat(score)
-        return {name, value, score, grade}
+        return { name, value, score, grade }
       })
 
-      if (count === 0) {
+      //对于 17 16 级即使跑操的数据统计为0 也不算上游数据失效
+      if (count === 0 && !/2131[67]\d{4}/.test('213161610')) {
         throw '上游数据失效'
       }
       return { count, detail, health }
     })
+
+
 
     // 剩余天数单独缓存，防止受跑操上游故障影响
     let remainDays = await this.publicCache('remainDays', '1h', async () => {
@@ -76,6 +79,6 @@ exports.route = {
       ) : 0
     })
 
-    return { count, detail, health, remainDays , hint:hintTable[0]}
+    return { count, detail, health, remainDays, hint: hintTable[0] }
   }
 }
