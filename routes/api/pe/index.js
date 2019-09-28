@@ -56,7 +56,7 @@ exports.route = {
       })
 
       //对于 17 16 级即使跑操的数据统计为0 也不算上游数据失效
-      if (count === 0 && !/2131[67]\d{4}/.test('213161610')) {
+      if (count === 0 && !/2131[67]\d{4}/.test(this.user.cardnum)) {
         throw '上游数据失效'
       }
       return { count, detail, health }
