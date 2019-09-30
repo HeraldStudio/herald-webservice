@@ -85,17 +85,7 @@ const handler = {
     //   }
     // })
 
-    return `
-    <xml>
-    <ToUserName><![CDATA[${this.openid}]]></ToUserName>
-    <FromUserName><![CDATA[]]></FromUserName>
-    <CreateTime>12345678</CreateTime>
-    <MsgType><![CDATA[image]]></MsgType>
-    <Image>
-      <MediaId><![CDATA[2I0dYjppWa3k885Si0RcPAmHkIM_vB3md6jr4oT-8FDu6QWV_1YEGPuNj-8dEB-_]]></MediaId>
-    </Image>
-    </xml>
-    `
+    return `测试`
 
   },
 
