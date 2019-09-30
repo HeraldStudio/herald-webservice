@@ -66,7 +66,11 @@ const handler = {
   },
 
   async '手机卡'() {
-    console.log(fs.createReadStream('ad.jpeg'))
+    fs.createReadStream('ad.jpeg').then(resolve => {
+      console.log(resolve)
+    }).catch(reject => {
+      console.log(reject)
+    })
     let form = {
       media: fs.createReadStream('ad.jpeg')
     }
@@ -80,7 +84,7 @@ const handler = {
       }
     })
 
-    
+
   },
 
   async '一卡通|消费|余额|流水|消費|餘額'(date) {
