@@ -9,6 +9,8 @@ const mongodb = require('../../database/mongodb')
 
 const crypto = require('crypto')
 const childProcess = require('child_process')
+const fs = require('fs')
+const axios = require('axios')
 
 
 
@@ -72,6 +74,22 @@ const handler = {
     let token = await accessToken('wx-herald')
     console.log(token)
 
+    // let data = new FormData()
+    // fd.append('media', fs.createReadStream('./ad.jpeg'))
+    // let config = {
+    //   headers: {
+    //     'Content-Type': 'multipart/form-data'
+    //   }
+    // }
+    // axios.post(`http://file.api.weixin.qq.com/cgi-bin/media/upload?access_token=${accessToken}&&type=image`, data, config)
+    // .then(resolve => {
+    //   console.log(resolve)
+    // })
+    // .catch(reject => {
+    //   console.log(reject)
+    // })
+
+
     // api.post(`/media/upload?access_token=${accessToken}&type=image`,).then(res => {
     //   console.log(res)
     //   return {
@@ -82,7 +100,8 @@ const handler = {
     //   }
     // })
 
-    return {type: "text", content: 'Hello world!'};
+    //图片链接
+    return { type: "image", content: 'V0B7CYkN4lHoVoFrs63HZTbLCIHsvi-YgZgrctk4kU0' };
 
   },
 
@@ -690,14 +709,26 @@ const middleware = wechat(config).middleware(async (message, ctx) => {
         return ''
       }
       try {
-        api.post('/message/custom/send', {
-          "touser": openid,
-          "msgtype": "text",
-          "text":
-          {
-            "content": msg
-          }
-        })
+        if(msg.type === "image"){
+          api.post('/message/custom/send', {
+            "touser": openid,
+            "msgtype": "image",
+            "image":
+            {
+              "media_id": msg.content
+            }
+          })
+        }
+        else{
+          api.post('/message/custom/send', {
+            "touser": openid,
+            "msgtype": "text",
+            "text":
+            {
+              "content": msg
+            }
+          })
+        }
       } catch (e) {
         console.log('向微信服务器推送消息失败')
       }
