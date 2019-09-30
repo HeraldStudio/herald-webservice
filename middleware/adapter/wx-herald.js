@@ -61,7 +61,7 @@ const handler = {
     //   customToken: this.message.FromUserName,
     //   platform: 'wx-herald'
     // }
-    // await this.next()
+    await this.next()
     // return `🔗 绑定功能`
     return `绑定功能暂时关闭`
   },
