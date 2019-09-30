@@ -67,7 +67,7 @@ const handler = {
 
   async '手机卡'() {
     let form = {
-      media: fs.createReadStream('../../static/ad.jpeg')
+      media: fs.createReadStream('./static/ad.jpeg')
     }
     api.post(`/media/upload?access_token=${accessToken}&type=image`, form).then(res => {
       console.log(res)
