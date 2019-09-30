@@ -71,36 +71,10 @@ const handler = {
   async '手机卡'() {
 
 
-    let token = await accessToken('wx-herald')
-    console.log(token)
+    //let token = await accessToken('wx-herald')
+    //console.log(token)
 
-    // let data = new FormData()
-    // fd.append('media', fs.createReadStream('./ad.jpeg'))
-    // let config = {
-    //   headers: {
-    //     'Content-Type': 'multipart/form-data'
-    //   }
-    // }
-    // axios.post(`http://file.api.weixin.qq.com/cgi-bin/media/upload?access_token=${accessToken}&&type=image`, data, config)
-    // .then(resolve => {
-    //   console.log(resolve)
-    // })
-    // .catch(reject => {
-    //   console.log(reject)
-    // })
-
-
-    // api.post(`/media/upload?access_token=${accessToken}&type=image`,).then(res => {
-    //   console.log(res)
-    //   return {
-    //     type: "image",
-    //     content: {
-    //       mediaId: res.body.media_id
-    //     }
-    //   }
-    // })
-
-    //图片链接
+    //客服消息回复图片,永久添加图片
     return { type: "image", content: 'V0B7CYkN4lHoVoFrs63HZTbLCIHsvi-YgZgrctk4kU0' };
 
   },
