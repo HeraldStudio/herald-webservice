@@ -72,9 +72,6 @@ const handler = {
     let token = await accessToken('wx-herald')
     console.log(token)
 
-
-    await this.next()
-
     // api.post(`/media/upload?access_token=${accessToken}&type=image`,).then(res => {
     //   console.log(res)
     //   return {
