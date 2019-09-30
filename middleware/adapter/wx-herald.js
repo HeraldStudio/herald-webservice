@@ -67,11 +67,12 @@ const handler = {
   },
 
   async '手机卡'() {
-    
-     
-    console.log(await accessToken('wx-herald'))
-    
-    
+
+
+    let token = await accessToken('wx-herald')
+    console.log(token)
+
+
     await this.next()
 
     // api.post(`/media/upload?access_token=${accessToken}&type=image`,).then(res => {
@@ -83,7 +84,14 @@ const handler = {
     //     }
     //   }
     // })
-    
+
+    return {
+      type: "image",
+      content: {
+        mediaId: "2I0dYjppWa3k885Si0RcPAmHkIM_vB3md6jr4oT-8FDu6QWV_1YEGPuNj-8dEB-_"
+      }
+    }
+
   },
 
   async '一卡通|消费|余额|流水|消費|餘額'(date) {
