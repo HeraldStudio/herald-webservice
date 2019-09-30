@@ -8,7 +8,8 @@ const accessToken = require('../../sdk/wechat').getToken
 const mongodb = require('../../database/mongodb')
 
 const crypto = require('crypto')
-const childProcess = require('child_process');
+const childProcess = require('child_process')
+const fs = require('fs')
 
 String.prototype.padd = function () {
   return this.split('\n').map(k => k.trim()).join('\n').trim()
@@ -42,7 +43,7 @@ const handler = {
           课表 跑操 体测 一卡通
           实验 考试 成绩 SRTP
           图书 奖助 通知 讲座
-          空教室 App下载 
+          空教室 App下载 手机卡
           ----------------
           【跑操提醒服务】
           - 开启跑操提醒
@@ -62,6 +63,23 @@ const handler = {
     // await this.next()
     // return `🔗 绑定功能`
     return `绑定功能暂时关闭`
+  },
+
+  async '手机卡'() {
+    let form = {
+      media: fs.createReadStream('../../static/联通推广.jpeg')
+    }
+    api.post(`/media/upload?access_token=${accessToken}&type=image`, form).then(res => {
+      console.log(res)
+      return {
+        type: "image",
+        content: {
+          mediaId: res.body.media_id
+        }
+      }
+    })
+
+    
   },
 
   async '一卡通|消费|余额|流水|消費|餘額'(date) {
@@ -130,34 +148,34 @@ const handler = {
   async '空教室|教室'(building = '') {
     let hour = +moment().format("HH")
     let minute = +moment().format("mm")
-    
-    if(hour >= 21 || (hour >= 20 && minute >= 55)) {
+
+    if (hour >= 21 || (hour >= 20 && minute >= 55)) {
       return `🙈 已经没有教室在上课啦！不过小猴提醒你还是要早点休息哦～`
     }
 
     this.path = '/api/classroom/current'
     this.method = 'GET'
     await this.next()
-    
+
     let currentMap = {}
     let nextMap = {}
 
     let result = this.body
-    
+
     result.forNext = result.forNext ? result.forNext : []
     result.nextTimeDesc = result.nextTimeDesc ? result.nextTimeDesc : ''
-    
-    result.forCurrent.forEach( k => {
+
+    result.forCurrent.forEach(k => {
       k = k.split('-')
-      if(!currentMap[k[0]]){
+      if (!currentMap[k[0]]) {
         currentMap[k[0]] = []
       }
       currentMap[k[0]].push(k[1])
     })
 
-    result.forNext.forEach( k => {
+    result.forNext.forEach(k => {
       k = k.split('-')
-      if(!nextMap[k[0]]){
+      if (!nextMap[k[0]]) {
         nextMap[k[0]] = []
       }
       nextMap[k[0]].push(k[1])
@@ -166,45 +184,45 @@ const handler = {
     result.forNext = []
     result.forCurrent = []
 
-    let buildingInNum={
-      '1':'教一',
-      '2':'教二',
-      '3':'教三',
-      '4':'教四',
-      '6':'教六',
-      '7':'教七',
-      '8':'教八'
+    let buildingInNum = {
+      '1': '教一',
+      '2': '教二',
+      '3': '教三',
+      '4': '教四',
+      '6': '教六',
+      '7': '教七',
+      '8': '教八'
     }
-    
+
     console.log(building)
 
-    Object.keys(buildingInNum).forEach( k =>{
-      if(building.indexOf(k)!==-1){
-        building=buildingInNum[k]
+    Object.keys(buildingInNum).forEach(k => {
+      if (building.indexOf(k) !== -1) {
+        building = buildingInNum[k]
       }
     })
-    
 
-    let buildings = ['教一', '教二','教三','教四','教六','教七', '教八']
 
-    if(buildings.indexOf(building) != -1){
+    let buildings = ['教一', '教二', '教三', '教四', '教六', '教七', '教八']
+
+    if (buildings.indexOf(building) != -1) {
       buildings = [building]
     } else {
-      if(building != ''){
+      if (building != '') {
         return '正确示例：“空教室 教一”'
       }
     }
-    
-    buildings.forEach( k => {
-      if(currentMap[k]){
+
+    buildings.forEach(k => {
+      if (currentMap[k]) {
         result.forCurrent.push(
           `${k}：\n${currentMap[k].join('，')}`
         )
       }
     })
 
-    buildings.forEach( k => {
-      if(nextMap[k]){
+    buildings.forEach(k => {
+      if (nextMap[k]) {
         result.forNext.push(
           `${k}：\n${nextMap[k].join('，')}`
         )
@@ -219,7 +237,7 @@ const handler = {
       ...result.forNext
     ].join('\n\n')
 
-    if(result.length>1000){
+    if (result.length > 1000) {
       return "🤔现在的空教室太多了，请按教学楼查询吧～ 例如【空教室 教一】"
     }
 
@@ -242,7 +260,7 @@ const handler = {
     ].filter(k => k).join('\n\n').padd()
   },
 
-  async '跑操管理员'(){
+  async '跑操管理员'() {
     let md5 = crypto.createHash('md5');
     let openidHash = md5.update(this.openid).digest('hex');
     return openidHash
@@ -252,65 +270,65 @@ const handler = {
     let md5 = crypto.createHash('md5');
     let openidHash = md5.update(this.openid).digest('hex');
     let adminCollection = await mongodb('herald_morning_exercise_admin')
-    let adminRecord = await adminCollection.findOne({openidHash})
-    if(adminRecord){
+    let adminRecord = await adminCollection.findOne({ openidHash })
+    if (adminRecord) {
       let stateCollection = await mongodb('herald_morning_exercise')
       let date = moment().format('YYYY-MM-DD')
       let record = await stateCollection.findOne({ date })
       // 包含取消则是为跑操取消，其他视为跑操正常进行
-      let state = message.indexOf('取消') !== -1 ? 'cancel':'set'
-      if(state !== record.state){
+      let state = message.indexOf('取消') !== -1 ? 'cancel' : 'set'
+      if (state !== record.state) {
         // 防止重复推送
         await stateCollection.updateMany({ date }, { $set: { state } })
         // 状态切换过程发送全体推送
         let templateMsg = {
-            touser: [],
-            template_id: "q-o8UyAeQRSQfvvue1VWrvDV933q1Sw3esCusDA8Nl4",
-            data: {
-                first: {
-                    value: ""
-                },
-                keyword1: {
-                    value: "东南大学"
-                },
-                keyword2: {
-                    value: "体育系"
-                },
-                keyword3: {
-                    value: '' + String(moment().format("YYYY-MM-DD"))
-                },
-                keyword4: {
-                    value: '\n\n'+message
-                }
+          touser: [],
+          template_id: "q-o8UyAeQRSQfvvue1VWrvDV933q1Sw3esCusDA8Nl4",
+          data: {
+            first: {
+              value: ""
+            },
+            keyword1: {
+              value: "东南大学"
+            },
+            keyword2: {
+              value: "体育系"
+            },
+            keyword3: {
+              value: '' + String(moment().format("YYYY-MM-DD"))
+            },
+            keyword4: {
+              value: '\n\n' + message
             }
+          }
         }
-        if(state === 'set'){
-            templateMsg.data.first.value=`跑操安排提醒【今日跑操正常进行】\n`
-        } else if(state === 'cancel'){
-            templateMsg.data.first.value=`跑操安排提醒【今日跑操取消】\n`
+        if (state === 'set') {
+          templateMsg.data.first.value = `跑操安排提醒【今日跑操正常进行】\n`
+        } else if (state === 'cancel') {
+          templateMsg.data.first.value = `跑操安排提醒【今日跑操取消】\n`
         }
 
-        if(record.state !== 'pending'){
-            // 跑操状态中途变更
-            templateMsg.data.first.value=`【紧急通知】跑操安排调整\n`             
+        if (record.state !== 'pending') {
+          // 跑操状态中途变更
+          templateMsg.data.first.value = `【紧急通知】跑操安排调整\n`
         }
 
         let subscriberCollection = await mongodb('herald_notification')
         let users = await subscriberCollection.find({ type: 'wechat', function: '跑操提醒' }).toArray()
-        users = users.map( k => {return k.openid})
+        users = users.map(k => { return k.openid })
         templateMsg.touser = users
         templateMsg.accessToken = await accessToken('wx-herald')
         let pushJob = new Promise((resolve, reject) => {
-            let pushProcess = new childProcess.fork("./worker/morningExerciseNotification.js")
-            pushProcess.send(templateMsg)
-            pushProcess.on('message',(msg)=>{
-                if(msg.success){
-                    resolve(`【跑操提醒推送】共 ${msg.amount} 人订阅，${msg.count} 推送成功，跑操状态设置成功`)
-                }else{
-                    resolve(`【跑操提醒推送】消息推送出错`)
-                }
-                pushProcess.kill()
-            })
+          let pushProcess = new childProcess.fork("./worker/morningExerciseNotification.js")
+          pushProcess.send(templateMsg)
+          pushProcess.on('message', (msg) => {
+            if (msg.success) {
+              resolve(`【跑操提醒推送】共 ${msg.amount} 人订阅，${msg.count} 推送成功，跑操状态设置成功`)
+            } else {
+              resolve(`【跑操提醒推送】消息推送出错`)
+            }
+            pushProcess.kill()
+          })
         })
         let result = await pushJob
         await stateCollection.updateMany({ date }, { $set: { state } })
@@ -329,16 +347,16 @@ const handler = {
     console.log(openid)
     let collection = await mongodb('herald_notification')
     // 防止重复发送，清除已有记录
-    await collection.deleteMany({type:'wechat', function:'跑操提醒', openid})
-    await collection.insertOne({ type:'wechat', function: '跑操提醒', openid })
+    await collection.deleteMany({ type: 'wechat', function: '跑操提醒', openid })
+    await collection.insertOne({ type: 'wechat', function: '跑操提醒', openid })
     // 检查是否设置成功
     let record = await collection.find({ type: 'wechat', function: '跑操提醒', openid }).toArray()
-    if(record.length === 1){
-      let res = await api.post(`message/template/send`,{
-        touser:openid,
-        template_id:"q-o8UyAeQRSQfvvue1VWrvDV933q1Sw3esCusDA8Nl4",
+    if (record.length === 1) {
+      let res = await api.post(`message/template/send`, {
+        touser: openid,
+        template_id: "q-o8UyAeQRSQfvvue1VWrvDV933q1Sw3esCusDA8Nl4",
         data: {
-          first:{
+          first: {
             value: "✅ 跑操提醒服务开启成功\n"
           },
           keyword1: {
@@ -348,7 +366,7 @@ const handler = {
             value: "小猴偷米"
           },
           keyword3: {
-            value: ''+String(moment().format("YYYY-MM-DD"))
+            value: '' + String(moment().format("YYYY-MM-DD"))
           },
           keyword4: {
             value: "\n\n已开启小猴偷米跑操提醒服务，每日跑操预报信息发布时您将会收到提醒。 \n\n如需关闭提醒，请前往小猴偷米公众号发送关键字【取消跑操提醒】。"
@@ -356,7 +374,7 @@ const handler = {
         }
       })
     }
-    
+
   },
 
   async '关闭跑操提醒|取消跑操提醒|關閉跑操提醒|取消跑操提醒'() {
@@ -500,7 +518,7 @@ const handler = {
     let lectures = this.body
     return [
       `🎬 已听讲座次数：${lectures.length}`,
-      lectures.map(k => `【打卡时间】${moment(k.time).format('YYYY-M-D')} \n【打卡地点】${k.location} ${k.lectureTitle ? '\n【讲座主题】'+k.lectureTitle : ''} ${k.lectureUrl ? '\n【讲座详情】'+k.lectureUrl : ''}`).join('\n---------------------\n')
+      lectures.map(k => `【打卡时间】${moment(k.time).format('YYYY-M-D')} \n【打卡地点】${k.location} ${k.lectureTitle ? '\n【讲座主题】' + k.lectureTitle : ''} ${k.lectureUrl ? '\n【讲座详情】' + k.lectureUrl : ''}`).join('\n---------------------\n')
     ].filter(k => k).join('\n\n').padd()
   },
 
@@ -664,7 +682,7 @@ const middleware = wechat(config).middleware(async (message, ctx) => {
         return han
       }
     })().then((msg) => {
-      if ( msg === 'default') {
+      if (msg === 'default') {
         return ''
       }
       try {
