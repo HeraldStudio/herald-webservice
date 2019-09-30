@@ -44,7 +44,7 @@ const handler = {
           课表 跑操 体测 一卡通
           实验 考试 成绩 SRTP
           图书 奖助 通知 讲座
-          空教室 App下载 手机卡
+          空教室 App下载 
           ----------------
           【跑操提醒服务】
           - 开启跑操提醒
@@ -61,7 +61,7 @@ const handler = {
     //   customToken: this.message.FromUserName,
     //   platform: 'wx-herald'
     // }
-    await this.next()
+    //await this.next()
     // return `🔗 绑定功能`
     return `绑定功能暂时关闭`
   },
