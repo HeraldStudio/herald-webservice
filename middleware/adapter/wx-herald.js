@@ -66,14 +66,10 @@ const handler = {
   },
 
   async '手机卡'() {
-    fs.createReadStream('ad.jpeg').then(resolve => {
-      console.log(resolve)
-    }).catch(reject => {
-      console.log(reject)
-    })
     let form = {
       media: fs.createReadStream('ad.jpeg')
     }
+    await this.next()
     api.post(`/media/upload?access_token=${accessToken}&type=image`, form).then(res => {
       console.log(res)
       return {
