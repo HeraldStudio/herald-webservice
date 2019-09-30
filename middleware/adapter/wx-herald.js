@@ -68,18 +68,20 @@ const handler = {
 
   async '手机卡'() {
     
+    let accessToken = await accessToken();
     console.log(accessToken)
+    
     await this.next()
 
-    api.post(`/media/upload?access_token=${accessToken}&type=image`,).then(res => {
-      console.log(res)
-      return {
-        type: "image",
-        content: {
-          mediaId: res.body.media_id
-        }
-      }
-    })
+    // api.post(`/media/upload?access_token=${accessToken}&type=image`,).then(res => {
+    //   console.log(res)
+    //   return {
+    //     type: "image",
+    //     content: {
+    //       mediaId: res.body.media_id
+    //     }
+    //   }
+    // })
     
   },
 
