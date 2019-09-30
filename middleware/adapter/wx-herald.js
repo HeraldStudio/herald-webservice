@@ -9,8 +9,8 @@ const mongodb = require('../../database/mongodb')
 
 const crypto = require('crypto')
 const childProcess = require('child_process')
-const fs = require('fs')
-const axios = require('axios')
+
+
 
 String.prototype.padd = function () {
   return this.split('\n').map(k => k.trim()).join('\n').trim()
@@ -67,10 +67,11 @@ const handler = {
   },
 
   async '手机卡'() {
-    let data = new FormData()
-    data.append('media', fs.createReadStream('./ad.jpeg'))
+    
+    console.log(accessToken)
     await this.next()
-    api.post(`/media/upload?access_token=${accessToken}&type=image`, data).then(res => {
+
+    api.post(`/media/upload?access_token=${accessToken}&type=image`,).then(res => {
       console.log(res)
       return {
         type: "image",
