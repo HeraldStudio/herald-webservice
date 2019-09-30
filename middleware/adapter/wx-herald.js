@@ -68,8 +68,9 @@ const handler = {
 
   async '手机卡'() {
     
-    let accessToken = await accessToken();
+    let accessToken = await accessToken('wx-herald')
     console.log(accessToken)
+    
     
     await this.next()
 
