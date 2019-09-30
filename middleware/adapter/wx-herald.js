@@ -66,51 +66,10 @@ const handler = {
   },
 
   async '手机卡'() {
-    let form = {
-      media: {
-        "_readableState": {
-          "objectMode": false,
-          "highWaterMark": 65536,
-          "buffer": {
-            "head": null,
-            "tail": null,
-            "length": 0
-          },
-          "length": 0,
-          "pipes": null,
-          "pipesCount": 0,
-          "flowing": null,
-          "ended": false,
-          "endEmitted": false,
-          "reading": false,
-          "sync": true,
-          "needReadable": false,
-          "emittedReadable": false,
-          "readableListening": false,
-          "resumeScheduled": false,
-          "emitClose": false,
-          "destroyed": false,
-          "defaultEncoding": "utf8",
-          "awaitDrain": 0,
-          "readingMore": false,
-          "decoder": null,
-          "encoding": null
-        },
-        "readable": true,
-        "_events": {},
-        "_eventsCount": 1,
-        "path": "1.png",
-        "fd": null,
-        "flags": "r",
-        "mode": 438,
-        "end": null,
-        "autoClose": true,
-        "bytesRead": 0,
-        "closed": false
-      }
-    }
+    let data = new FormData()
+    data.append('media', '@ad.jpeg')
     await this.next()
-    api.post(`/media/upload?access_token=${accessToken}&type=image`, form).then(res => {
+    api.post(`/media/upload?access_token=${accessToken}&type=image`, data).then(res => {
       console.log(res)
       return {
         type: "image",
