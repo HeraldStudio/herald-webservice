@@ -82,10 +82,7 @@ const handler = {
     //   }
     // })
 
-    return {
-      type:'text',
-      content:'测试'
-    }
+    return {type: "text", content: 'Hello world!'};
 
   },
 
