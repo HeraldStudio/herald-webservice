@@ -33,7 +33,7 @@ exports.route = {
           admins: await adminCollection.find({ domain }).toArray()
         }
       }
-      
+
   },
 
   /**
@@ -45,15 +45,6 @@ exports.route = {
     let adminCollection = await mongodb('herald_admin')
     let domainCollection = await mongodb('herald_admin_domain')
     let { name, cardnum, phone } = admin
-
-    console.log("admin")
-    console.log(admin)
-    console.log("name:"+name)
-    
-    //信息不完全
-    if (name || cardnum || phone) {
-      throw '信息不完全'
-    }
 
     // 只允许同域任命
     if (!this.admin[domain]) {
