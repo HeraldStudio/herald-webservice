@@ -8,7 +8,7 @@ exports.route = {
   * 带 domain 参数表示查询指定域下的管理员；不带 domain 参数表示查询自己的管理员身份
   */
   async get({ domain }) {
-    return await this.userCache('1d+', async () => {
+    
       let adminCollection = await mongodb('herald_admin')
       let domainCollection = await mongodb('herald_admin_domain')
       if (!domain) {
@@ -33,7 +33,7 @@ exports.route = {
           admins: await adminCollection.find({ domain }).toArray()
         }
       }
-    })
+      
   },
 
   /**
