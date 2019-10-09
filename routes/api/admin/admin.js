@@ -7,7 +7,7 @@ exports.route = {
   * 查询管理员二合一接口
   * 带 domain 参数表示查询指定域下的管理员；不带 domain 参数表示查询自己的管理员身份
   */
-  async get ({ domain }) {
+  async get({ domain }) {
     return await this.userCache('1d+', async () => {
       let adminCollection = await mongodb('herald_admin')
       let domainCollection = await mongodb('herald_admin_domain')
@@ -46,6 +46,15 @@ exports.route = {
     let domainCollection = await mongodb('herald_admin_domain')
     let { name, cardnum, phone } = admin
 
+    console.log("admin")
+    console.log(admin)
+    console.log("name:"+name)
+    
+    //信息不完全
+    if (name || cardnum || phone) {
+      throw '信息不完全'
+    }
+
     // 只允许同域任命
     if (!this.admin[domain]) {
       throw 403
@@ -64,6 +73,7 @@ exports.route = {
     //   authorized: now,
     //   lastUsed: now
     // })
+    
     await adminCollection.insertOne({
       cardnum, name, phone, domain,
       level: this.admin[domain].level + 1,
@@ -95,7 +105,7 @@ exports.route = {
     }
 
     //await db.admin.update({ cardnum: admin.cardnum, domain }, admin)
-    await adminCollection.updateOne({ cardnum: admin.cardnum, domain }, { $set:admin })
+    await adminCollection.updateOne({ cardnum: admin.cardnum, domain }, { $set: admin })
     return 'OK'
   },
 
