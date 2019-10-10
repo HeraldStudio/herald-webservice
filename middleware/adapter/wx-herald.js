@@ -591,7 +591,7 @@ const handler = {
     iOS用户请直接在应用商店搜索：小猴偷米
 
     Android用户新版下载地址：
-    https://hybrid.myseu.cn/herald-app-beta-5.apk
+    https://hybrid.myseu.cn/herald-app-6.apk
     （请复制到浏览器打开）
 
 
