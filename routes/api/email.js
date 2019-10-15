@@ -1,8 +1,4 @@
 const imaps = require('imap-simple');
-
-
-
-
 exports.route = {
     async get(){
        let config = {
