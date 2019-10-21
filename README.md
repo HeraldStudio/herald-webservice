@@ -97,7 +97,7 @@ cp sdk/sdk.example.json sdk/sdk.json
 yarn dev
 ```
 
-Windows 用户须先阅读 [https://github.com/nodejs/node-gyp#installation](node-gyp 的安装指南) ，确保安装设置 Python 2.7 以避免编译错误。
+Windows 用户须先阅读 [node-gyp 的安装指南](https://github.com/nodejs/node-gyp#installation) ，确保安装设置 Python 2.7 以避免编译错误。
 
 ### Hello World
 
