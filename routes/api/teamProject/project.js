@@ -7,9 +7,9 @@ exports.route = {
     async post({ title, projectDesc, skillRequirement, duartion, campus, category, otherRequirement, wantedNumber, endTime }) {
         let { cardnum, name } = this.user
         let now = +moment()
-        let teamProject = await mongodb("herald_team_project")
+        let teamProjectCollection = await mongodb("herald_team_project")
         // 防止发布过多的竞赛组队项目
-        let recordCount = await teamProject.count({ creatorCardnum: cardnum, endTime: { $gt: now }, auditStatus: { $in: ['WAITING', 'PASSED'] } })
+        let recordCount = await teamProjectCollection.count({ creatorCardnum: cardnum, endTime: { $gt: now }, auditStatus: { $in: ['WAITING', 'PASSED'] } })
         if (recordCount > 3) {
             throw '发布的项目过多,请先完成当前的项目'
         }
@@ -32,7 +32,7 @@ exports.route = {
             category,
             otherRequirement,
             wantedNumber,
-            nowNeedNumber:wantedNumber,   //创建时候的默认值
+            nowNeedNumber: wantedNumber,   //创建时候的默认值
             endTime,
             auditStatus: 'WAITING'
         })
@@ -42,8 +42,8 @@ exports.route = {
     async delete({ id }) {
         let { cardnum } = this.user
         let _id = ObjectId(id)
-        let teamProject = await mongodb("herald_team_project")
-        let record = await teamProject.findOne({ _id })
+        let teamProjectCollection = await mongodb("herald_team_project")
+        let record = await teamProjectCollection.findOne({ _id })
         if (!record) {
             throw '项目不存在'
         }
@@ -51,27 +51,27 @@ exports.route = {
         if ([record.creatorCardnum, ...adminList].indexOf(cardnum) === -1) {
             throw '没有操作权限'
         }
-        await teamProject.update({ _id }, { $set: { endTime: +moment() } })
+        await teamProjectCollection.update({ _id }, { $set: { endTime: +moment() } })
 
         return '删除成功'
     },
     async get({ id = '', fromMe, page = 1, pagesize = 10 }) {
         let { cardnum } = this.user
         let _id = ObjectId(id)
-        let teamProject = await mongodb("herald_team_project")
+        let teamProjectCollection = await mongodb("herald_team_project")
         // 如果id存在则返回该条目的信息
         if (id) {
-            let record = await teamProject.findOne({ _id })
+            let record = await teamProjectCollection.findOne({ _id })
             return record
         }
         // 查看本人发布的竞赛组队项目
         else if (fromMe) {
-            return await teamProject.find({ creatorCardnum: cardnum },
+            return await teamProjectCollection.find({ creatorCardnum: cardnum },
                 { limit: pagesize, skip: (page - 1) * pagesize, sort: [['createdTime', -1]] }).toArray()
         }
         // 啥都不指定就返回所有通过审核的组队项目
         else {
-            return await teamProject.find({ auditStatus: 'PASSED' },
+            return await teamProjectCollection.find({ auditStatus: 'PASSED', endTime: { $gt: now } },
                 { limit: pagesize, skip: (page - 1) * pagesize, sort: [['createdTime', -1]] }).toArray()
         }
 

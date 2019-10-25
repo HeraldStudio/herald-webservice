@@ -2,7 +2,15 @@
  * wx-herald 小猴偷米微信公众号中间件
  */
 const wechat = require('co-wechat')
-const config = require('../../sdk/sdk.json').wechat['wx-herald']
+
+//方便本地调试
+let config 
+try {
+  config = require('../../sdk/sdk.json').wechat['wx-herald']
+} catch (e) {
+  console.log('wx-herald未配置')
+}
+
 const api = require('../../sdk/wechat').getAxios('wx-herald')
 const accessToken = require('../../sdk/wechat').getToken
 const mongodb = require('../../database/mongodb')
@@ -634,84 +642,88 @@ const handler = {
     💡 所有命令与参数之间均有空格`.padd()
   }
 }
+try {
+  // 分割用户指令并进入相应 handler 函数中
+  const middleware = wechat(config).middleware(async (message, ctx) => {
 
-// 分割用户指令并进入相应 handler 函数中
-const middleware = wechat(config).middleware(async (message, ctx) => {
+    let han, args
+    if (message.Content) {
+      let [cmd, ...tmpArgs] = message.Content.trim().split(/\s+/g)
+      han = handler[Object.keys(handler).find(k => new RegExp(k, 'i').test(cmd)) || 'default']
+      args = tmpArgs
+    } else {
+      han = 'default'
+      args = []
+    }
 
-  let han, args
-  if (message.Content) {
-    let [cmd, ...tmpArgs] = message.Content.trim().split(/\s+/g)
-    han = handler[Object.keys(handler).find(k => new RegExp(k, 'i').test(cmd)) || 'default']
-    args = tmpArgs
-  } else {
-    han = 'default'
-    args = []
-  }
+    ctx.request.headers.token = message.FromUserName
+    ctx.message = message
 
-  ctx.request.headers.token = message.FromUserName
-  ctx.message = message
+    let openid = message.FromUserName
+    ctx.openid = openid
 
-  let openid = message.FromUserName
-  ctx.openid = openid
-
-  new Promise((resolve, reject) => {
-    (async () => {
-      if (han instanceof Function) {
-        let originalPath = ctx.path
-        let originalMethod = ctx.method
-        try {
-          return await han.call(ctx, ...args)
-        } catch (e) {
-          if (e instanceof Error && ~e.message.indexOf('timeout')) {
-            e = 'timeout'
-          }
-          let han = handler[e] || handler.defaultError(e)
-          if (han instanceof Function) {
+    new Promise((resolve, reject) => {
+      (async () => {
+        if (han instanceof Function) {
+          let originalPath = ctx.path
+          let originalMethod = ctx.method
+          try {
             return await han.call(ctx, ...args)
-          } else {
-            return han
+          } catch (e) {
+            if (e instanceof Error && ~e.message.indexOf('timeout')) {
+              e = 'timeout'
+            }
+            let han = handler[e] || handler.defaultError(e)
+            if (han instanceof Function) {
+              return await han.call(ctx, ...args)
+            } else {
+              return han
+            }
+          } finally {
+            ctx.path = originalPath
+            ctx.method = originalMethod
           }
-        } finally {
-          ctx.path = originalPath
-          ctx.method = originalMethod
+        } else {
+          return han
         }
-      } else {
-        return han
-      }
-    })().then((msg) => {
-      if (msg === 'default') {
-        return ''
-      }
-      try {
-        if(msg.type === "image"){
-          api.post('/message/custom/send', {
-            "touser": openid,
-            "msgtype": "image",
-            "image":
-            {
-              "media_id": msg.content
-            }
-          })
+      })().then((msg) => {
+        if (msg === 'default') {
+          return ''
         }
-        else{
-          api.post('/message/custom/send', {
-            "touser": openid,
-            "msgtype": "text",
-            "text":
-            {
-              "content": msg
-            }
-          })
+        try {
+          if (msg.type === "image") {
+            api.post('/message/custom/send', {
+              "touser": openid,
+              "msgtype": "image",
+              "image":
+              {
+                "media_id": msg.content
+              }
+            })
+          }
+          else {
+            api.post('/message/custom/send', {
+              "touser": openid,
+              "msgtype": "text",
+              "text":
+              {
+                "content": msg
+              }
+            })
+          }
+        } catch (e) {
+          console.log('向微信服务器推送消息失败')
         }
-      } catch (e) {
-        console.log('向微信服务器推送消息失败')
-      }
+      })
     })
+
+    return ''
+
   })
+}catch(e){
+  console.log('wx-herald未配置')
+}
 
-  return ''
-
-})
 
 module.exports = async (ctx, next) => {
   if (ctx.path.indexOf('/adapter-wx-herald/') === 0) {

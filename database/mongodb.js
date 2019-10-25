@@ -8,13 +8,19 @@ const authMechanism = 'DEFAULT';
 
 // Connection URL
 const url = `mongodb://${user}:${password}@${config.host}:${config.port}/webservice?authMechanism=${authMechanism}`
-let mongodb = null
+const urlDebug = `mongodb://${config.host}:${config.port}/webservice`
 
-const getCollection = async(col) => {
+let mongodb = null
+let mongodbUrl = ''
+
+const getCollection = async (col) => {
   if (mongodb) {
     return mongodb.collection(col)
   } else {
-    mongodb = await MongoClient.connect(url, { useNewUrlParser: true })
+    //方便本地调试
+    mongodbUrl = !(user && password) ? urlDebug : url
+
+    mongodb = await MongoClient.connect(mongodbUrl, { useNewUrlParser: true })
     mongodb = mongodb.db("webservice")
     return mongodb.collection(col)
   }
