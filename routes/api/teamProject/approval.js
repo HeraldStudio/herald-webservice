@@ -16,6 +16,21 @@ exports.route = {
             {_id}, 
             {$set:{isAccepted:true}})
 
-        record = await teamProjectCollection.find
+        let record_Project = await teamProjectCollection.findOne({
+            _id: ObjectId(record_Participation.teamProjectId)
+        })
+        if(!record_Project){
+            throw '项目不存在'
+        }
+        if(record_Project.nowNeedNumber<=0)
+        {
+            throw '项目人数已满'
+        }else{
+            await teamProjectCollection.update(
+                {_id},
+                {$set:{nowNeedNumber: record_Project.nowNeedNumber-1}}
+            )
+            return '同意申请成功'
+        }
     }
 }
