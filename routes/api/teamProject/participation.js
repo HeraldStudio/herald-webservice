@@ -59,7 +59,7 @@ exports.route = {
         // 如果id存在则返回该条目的信息
         if (id) {
             let record = await teamParticipationCollection.findOne({ _id })
-            return record
+            return [{"isAdmin": true}, record]
         }
         // 查看本人的申请
         else if (fromMe) {
@@ -67,8 +67,8 @@ exports.route = {
                 { limit: pagesize, skip: (page - 1) * pagesize }).toArray()
         }
         // 查看本人收到的申请信息
-        else{
-            return await teamParticipationCollection.find({creatorCardnum:cardnum},
+        else {
+            return await teamParticipationCollection.find({ creatorCardnum: cardnum },
                 { limit: pagesize, skip: (page - 1) * pagesize }).toArray()
         }
     }

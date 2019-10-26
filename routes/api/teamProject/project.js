@@ -62,7 +62,7 @@ exports.route = {
         // 如果id存在则返回该条目的信息
         if (id) {
             let record = await teamProjectCollection.findOne({ _id })
-            return record
+            return  [{"isAdmin": true}, record]
         }
         // 查看本人发布的竞赛组队项目
         else if (fromMe) {

@@ -3,34 +3,52 @@ const ObjectId = require('mongodb').ObjectId
 
 exports.route = {
     //同意组队申请
-    async post({ participationId }){
+    async post({ participationId, isAgree = false }) {
         let teamParticipationCollection = await mongodb("herald_team_participation")
         let teamProjectCollection = await mongodb("herald_team_project")
-        let record_Participation = await teamParticipationCollection.findOne({ 
+
+        let recordOfParticipation = await teamParticipationCollection.findOne({
             _id: ObjectId(participationId)
         })
-        if(!record_Participation){
+        if (!recordOfParticipation) {
             throw '申请不存在'
         }
-        await teamParticipationCollection.update(
-            {_id}, 
-            {$set:{isAccepted:true}})
 
-        let record_Project = await teamProjectCollection.findOne({
-            _id: ObjectId(record_Participation.teamProjectId)
+        let recordOfProject = await teamProjectCollection.findOne({
+            _id: ObjectId(recordOfParticipation.teamProjectId)
         })
-        if(!record_Project){
+        if (!recordOFProject) {
             throw '项目不存在'
         }
-        if(record_Project.nowNeedNumber<=0)
-        {
-            throw '项目人数已满'
-        }else{
+
+
+        // isAgree 同意申请
+        if (isAgree) {
+
+            if (recordOfProject.nowNeedNumber <= 0) {
+                throw '项目人数已满'
+            }
+
+            await teamParticipationCollection.update(
+                { _id: ObjectId(participationId) },
+                { $set: { isAccepted: true, isRead: true } }
+            )
+
             await teamProjectCollection.update(
-                {_id},
-                {$set:{nowNeedNumber: record_Project.nowNeedNumber-1}}
+                { _id },
+                { $set: { nowNeedNumber: recordOfProject.nowNeedNumber - 1 } }
             )
             return '同意申请成功'
+        } else {
+            await teamParticipationCollection.update(
+                { _id: ObjectId(participationId) },
+                { $set: { isRead: true } }
+            )
+            return '已读'
         }
+
+
+
+
     }
 }
