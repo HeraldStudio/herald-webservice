@@ -7,7 +7,7 @@ module.exports = async (ctx, cardnum, password) => {
   let now = +moment()
   let needCaptchaUrl = `https://newids.seu.edu.cn/authserver/needCaptcha.html?username=${cardnum}&pwdEncrypt2=pwdEncryptSalt&_=${now}`
   let res = await ctx.get(needCaptchaUrl)
-  if(res.data){
+  if (res.data) {
     throw '验证码'
   }
   // IDS Server 认证地址
@@ -54,13 +54,13 @@ module.exports = async (ctx, cardnum, password) => {
      * 该方案能稳定获取但是速度较慢
      * 使用herald_userInfo集合进行缓存，更新粒度为2周
      */
-    
+
     let userInfoCollection = await mongodb('herald_userInfo')
-    let record = await userInfoCollection.findOne({cardnum})
+    let record = await userInfoCollection.findOne({ cardnum })
     let now = +moment()
     try {
-      if (!record || 
-        (record && now - record.updateTime > 90 * 24 * 60 * 60 * 1000)) {
+      if ( (!record ||
+        (record && now - record.updateTime > 90 * 24 * 60 * 60 * 1000))) {
         // 记录不存在或者过期
         // 从ehall.seu.edu.cn抓取新的信息
         const ehallUrlRes = await ctx.get(`http://ehall.seu.edu.cn/appMultiGroupEntranceList?appId=4585275700341858&r_t=${Date.now()}`)
@@ -75,7 +75,7 @@ module.exports = async (ctx, cardnum, password) => {
 
         if (studentInfo && studentInfo.data && studentInfo.data.data) {
           studentInfo = studentInfo.data.data
-          if(!studentInfo.XH){
+          if (!studentInfo.XH) {
             throw 'ehall-fail'
           }
           // 此处已对要返回的学号姓名进行赋值
@@ -83,33 +83,34 @@ module.exports = async (ctx, cardnum, password) => {
           schoolnum = studentInfo.XH
           studentInfo = {
             cardnum,
-            schoolnum:studentInfo.XH,
-            name:studentInfo.XM,
-            updateTime:now
+            schoolnum: studentInfo.XH,
+            name: studentInfo.XM,
+            updateTime: now
           }
+          
         } else {
           throw 'ehall-fail';
         }
-        if(!record){
+        if (!record) {
           // 若是无记录的情况，插入记录
-          if(studentInfo.name && studentInfo.schoolnum) {
+          if (studentInfo.name && studentInfo.schoolnum) {
             await userInfoCollection.insertOne(studentInfo)
           }
         } else {
           // 更新记录
-          await userInfoCollection.updateMany({cardnum}, {$set:studentInfo})
+          await userInfoCollection.updateMany({ cardnum }, { $set: studentInfo })
         }
       } else {
         // 记录存在且未过期，直接使用记录
         schoolnum = record.schoolnum
         name = record.name
       }
-    } catch(e) {
+    } catch (e) {
       // 学号姓名信息更新失败
-      if(e === 'ehall-fail'){
+      if (e === 'ehall-fail') {
         console.log(`${cardnum} - 学号/姓名信息更新失败 - 由于ehall失效`)
         // 对于留学生的情况，从新信息门户获取
-        try{
+        try {
           console.log(`${cardnum} - 尝试从新信息门户获取学号`)
           let res = await ctx.get('http://my.seu.edu.cn/index.portal?.pn=p1681')
           let infoUrl = /(pnull\.portal\?[^"]*)/.exec(res.data) || []
@@ -118,7 +119,7 @@ module.exports = async (ctx, cardnum, password) => {
             res = await ctx.post('http://my.seu.edu.cn/' + infoUrl, 'itemId=239&childId=241')
             schoolnum = /<th>\s*学籍号\s*<\/th>\s*<td colspan="1">\s*([0-9A-Z]+)\s*<\/td>/im.exec(res.data) || []
             schoolnum = schoolnum[1] || ''
-            if(schoolnum){
+            if (schoolnum) {
               console.log(`${cardnum} - 新信息门户获取学号成功`)
             } else {
               throw 'ids6-failed'
@@ -126,9 +127,9 @@ module.exports = async (ctx, cardnum, password) => {
           } else {
             throw 'ids6-failed'
           }
-        } catch(e) {
+        } catch (e) {
           console.log(`${cardnum} - 学号/姓名信息更新失败 - 由于新信息门户失效`)
-          if(record){
+          if (record) {
             schoolnum = record.schoolnum
             name = record.name
             console.log(`已使用历史记录替代`)

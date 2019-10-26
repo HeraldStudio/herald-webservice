@@ -24,7 +24,7 @@ chardet.Constants.MINIMUM_THRESHOLD = 0
 
 const iconv = require('iconv')
 const qs = require('querystring')
-axiosCookieJarSupport(axios)
+
 
 const proxyOptions = `socks5://118.126.82.142:8000`;
 const httpsAgent = new SocksProxyAgent(proxyOptions, true);
@@ -59,7 +59,6 @@ module.exports = async (ctx, next) => {
 
     // 使用当前会话的 CookieJar
     withCredentials: true,
-    jar: ctx.cookieJar,
 
     // 覆盖默认的状态码判断，防止在禁用重定向时误判 302 为错误返回
     validateStatus: s => s < 400,
@@ -92,6 +91,9 @@ module.exports = async (ctx, next) => {
 
     ...config.axios
   })
+
+  axiosCookieJarSupport(_axios)
+  _axios.defaults.jar = ctx.cookieJar
 
   ;['get','post','put','delete'].forEach(k => {
     ctx[k] = async (...args) => {

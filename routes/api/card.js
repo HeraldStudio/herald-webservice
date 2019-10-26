@@ -12,132 +12,132 @@ exports.route = {
   **/
   async get({ date = '' }) {
     // 懒缓存 1 分钟
-   // return await this.userCache('1s+', async () => {
-      await this.useAuthCookie()
-      // 带着统一身份认证 Cookie 获取一卡通中心 Cookie；带着一卡通中心 Cookie 抓取一卡通页面
-      await this.get('http://allinonecard.seu.edu.cn/ecard/dongnanportalHome.action')
-      let res = await this.get('http://allinonecard.seu.edu.cn/accountcardUser.action')
-      // 一卡通基本信息
-     
+    // return await this.userCache('1s+', async () => {
+    await this.useAuthCookie()
+    // 带着统一身份认证 Cookie 获取一卡通中心 Cookie；带着一卡通中心 Cookie 抓取一卡通页面
+    await this.get('http://allinonecard.seu.edu.cn/ecard/dongnanportalHome.action')
+    let res = await this.get('http://allinonecard.seu.edu.cn/accountcardUser.action')
+    // 一卡通基本信息
 
-      // 模板应用器
-      function applyTemplate(template, pairs) {
-        for (key in template) {
-          if (template.hasOwnProperty(key)) {
-            if (typeof template[key] === 'string') {
-              template[key] = pairs.filter(pair => pair[0].trim() === template[key].trim())[0]
-              if (template[key]) {
-                template[key] = template[key][1]
-              }
-            } else if (typeof template[key] === 'object') {
-              applyTemplate(template[key], pairs)
+
+    // 模板应用器
+    function applyTemplate(template, pairs) {
+      for (key in template) {
+        if (template.hasOwnProperty(key)) {
+          if (typeof template[key] === 'string') {
+            template[key] = pairs.filter(pair => pair[0].trim() === template[key].trim())[0]
+            if (template[key]) {
+              template[key] = template[key][1]
             }
+          } else if (typeof template[key] === 'object') {
+            applyTemplate(template[key], pairs)
           }
         }
       }
+    }
 
-      // 匹配的模式串
-      const columnReg = /[\r\n]([^：\r\n])+：[\s]*([^：]+)(?=[\r\n])/img  //这个匹配可能会出现小问题
+    // 匹配的模式串
+    const columnReg = /[\r\n]([^：\r\n])+：[\s]*([^：]+)(?=[\r\n])/img  //这个匹配可能会出现小问题
 
-      // 返回数据的模板，键值要跟网页中找到的栏目名一致，比如「帐号」不能写成「账号」
-      let info = {
-        account: '帐号',
-        status: '卡状态',
-        balance: '余额',
+    // 返回数据的模板，键值要跟网页中找到的栏目名一致，比如「帐号」不能写成「账号」
+    let info = {
+      account: '帐号',
+      status: '卡状态',
+      balance: '余额',
+    }
+
+
+    // 直接转文字，根据冒号分隔的固定模式匹配字段名和内容
+    if (!res.data) {
+      throw '无查询结果'
+    }
+    let $ = cheerio.load(res.data)
+    //console.log($('.neiwen').text().match(columnReg))
+    let pairs = $('.neiwen').text().match(columnReg)
+    if (pairs) {
+      pairs = pairs.map(k => k.replace(/\s+/g, '').split('：', 2)).filter(k => k.length === 2)
+      //console.log(pairs)
+    } else {
+      throw 'columnReg匹配失败，pairs为空'
+    }
+
+    // 将对应的 [字段名, 内容] 二元组列表传入 applyTemplate 工具函数，替换 template 中对应键值
+    applyTemplate(info, pairs)
+
+    // 抓取余额
+    let balance = /([.,\d]+)元\s*[（(]卡余额[)）]/img.exec(info.balance)[1].trim()
+
+    // 接口设计规范，能转换为数字/bool的数据尽量转换，不要都用字符串
+    info.balance = parseFloat(balance.replace(/,/g, ''))
+
+    // 查询电子钱包余额
+    res = await this.get('http://allinonecard.seu.edu.cn/accounttranUser.action')
+    $ = cheerio.load(res.data)
+    info.eacc = parseFloat($('tr.listbg>td').eq(2).text().trim().replace(/,/g, ''))
+
+    // 由于此接口一次只查询一天，一般只有一到两页，遍历查询所有页对性能影响不大，且方便了接口调用，所以这里用遍历
+    let page = 1, pageCount = 1, detail = []
+    while (page <= pageCount) {
+      if (date) {
+        date = moment(date, 'YYYY-M-D')
       }
 
-      
-      // 直接转文字，根据冒号分隔的固定模式匹配字段名和内容
-      if(!res.data){
-        throw '无查询结果'
-      }
-      let $ = cheerio.load(res.data)
-      //console.log($('.neiwen').text().match(columnReg))
-      let pairs = $('.neiwen').text().match(columnReg)
-      if(pairs){
-        pairs = pairs.map(k => k.replace(/\s+/g, '').split('：', 2)).filter(k => k.length === 2)
-        //console.log(pairs)
-      }else{
-        throw 'columnReg匹配失败，pairs为空'
-      }
-      
-      // 将对应的 [字段名, 内容] 二元组列表传入 applyTemplate 工具函数，替换 template 中对应键值
-      applyTemplate(info, pairs)
+      // 当天流水，直接查询
+      // 这里要判断传入日期是否是今天，如果是今天则不能用历史流水查询的方式
+      if (!date || +date === +moment().startOf('day')) {
+        res = await this.post('http://allinonecard.seu.edu.cn/accounttodatTrjnObject.action', {
+          'pageVo.pageNum': page,
+          account: info.account,
+          inputObject: 'all'
+        })
+      } else {
+        // 转换成 YYYYMMDD 的格式
+        date = date.format('YYYYMMDD')
 
-      // 抓取余额
-      let balance = /([.,\d]+)元\s*[（(]卡余额[)）]/img.exec(info.balance)[1].trim()
-
-      // 接口设计规范，能转换为数字/bool的数据尽量转换，不要都用字符串
-      info.balance = parseFloat(balance.replace(/,/g, ''))
-
-      // 查询电子钱包余额
-      res = await this.get('http://allinonecard.seu.edu.cn/accounttranUser.action')
-      $ = cheerio.load(res.data)
-      info.eacc = parseFloat($('tr.listbg>td').eq(2).text().trim().replace(/,/g, ''))
-
-      // 由于此接口一次只查询一天，一般只有一到两页，遍历查询所有页对性能影响不大，且方便了接口调用，所以这里用遍历
-      let page = 1, pageCount = 1, detail = []
-      while (page <= pageCount) {
-        if (date) {
-          date = moment(date, 'YYYY-M-D')
-        }
-
-        // 当天流水，直接查询
-        // 这里要判断传入日期是否是今天，如果是今天则不能用历史流水查询的方式
-        if (!date || +date === +moment().startOf('day')) { 
-          res = await this.post('http://allinonecard.seu.edu.cn/accounttodatTrjnObject.action',{
-            'pageVo.pageNum': page,
+        // 四个地址要按顺序请求，前两个地址用于服务端跳转判定，不请求会导致服务端判定不通过；
+        // 第三个地址只能查询第一页，无论 pageNum 值为多少，都只返回第一页；第四个地址可以查询任意页。
+        for (let address of [
+          'accounthisTrjn1.action',
+          'accounthisTrjn2.action',
+          'accounthisTrjn3.action',
+          'accountconsubBrows.action'
+        ]) {
+          // 真正要的是最后一个接口的数据
+          res = await this.post('http://allinonecard.seu.edu.cn/' + address, {
+            pageNum: page,
             account: info.account,
-            inputObject: 'all'
+            inputObject: 'all',
+            inputStartDate: date,
+            inputEndDate: date
           })
-        } else {
-          // 转换成 YYYYMMDD 的格式
-          date = date.format('YYYYMMDD')
-
-          // 四个地址要按顺序请求，前两个地址用于服务端跳转判定，不请求会导致服务端判定不通过；
-          // 第三个地址只能查询第一页，无论 pageNum 值为多少，都只返回第一页；第四个地址可以查询任意页。
-          for (let address of [
-            'accounthisTrjn1.action',
-            'accounthisTrjn2.action',
-            'accounthisTrjn3.action',
-            'accountconsubBrows.action'
-          ]) {
-            // 真正要的是最后一个接口的数据
-            res = await this.post('http://allinonecard.seu.edu.cn/' + address,{
-              pageNum: page,
-              account: info.account,
-              inputObject: 'all',
-              inputStartDate: date,
-              inputEndDate: date
-            })
-          }
         }
-
-        // 直接上 jQuery
-        $ = cheerio.load(res.data)
-
-        detail = detail.concat($('#tables').children('tbody').children('tr').toArray().slice(1, -1).map(tr => {
-          let [time, cardnum, name, type, location, amount, balance, id, state, comment]
-            = $(tr).children('td').toArray().map(td => $(td).text().trim())
-
-          // 接口设计规范，一定是数字的字段尽量转成数字；表示日期时间的字段转成毫秒时间戳
-          return {
-            id: parseInt(id),
-            desc: location || type.replace(/扣款/g, '') || comment.replace(/^[\d-]+/, ''), // 地点或者交易性质
-            time: +moment(time, 'YYYY/MM/DD HH:mm:ss'),
-            amount: parseFloat(amount.replace(/,/g, '')),
-            balance: parseFloat(balance.replace(/,/g, '')),
-            state: state
-          }
-        }))
-
-        // 更新总页码，如果还有下一页，循环抓取下一页
-        pageCount = parseInt(/共(\d+)页/.exec(res.data)[1])
-        page++
       }
-      let { name, cardnum, schoolnum } = this.user
-      this.logMsg = `${name} (${cardnum}) - 查询一卡通流水`
-      return { info, detail }
+
+      // 直接上 jQuery
+      $ = cheerio.load(res.data)
+
+      detail = detail.concat($('#tables').children('tbody').children('tr').toArray().slice(1, -1).map(tr => {
+        let [time, cardnum, name, type, location, amount, balance, id, state, comment]
+          = $(tr).children('td').toArray().map(td => $(td).text().trim())
+
+        // 接口设计规范，一定是数字的字段尽量转成数字；表示日期时间的字段转成毫秒时间戳
+        return {
+          id: parseInt(id),
+          desc: location || type.replace(/扣款/g, '') || comment.replace(/^[\d-]+/, ''), // 地点或者交易性质
+          time: +moment(time, 'YYYY/MM/DD HH:mm:ss'),
+          amount: parseFloat(amount.replace(/,/g, '')),
+          balance: parseFloat(balance.replace(/,/g, '')),
+          state: state
+        }
+      }))
+
+      // 更新总页码，如果还有下一页，循环抓取下一页
+      pageCount = parseInt(/共(\d+)页/.exec(res.data)[1])
+      page++
+    }
+    let { name, cardnum, schoolnum } = this.user
+    this.logMsg = `${name} (${cardnum}) - 查询一卡通流水`
+    return { info, detail }
     //})
   },
 
@@ -150,7 +150,7 @@ exports.route = {
   **/
   async put({ cardnum, password, amount, eacc }) {
     throw '由于上游接口故障，一卡通充值暂不开放，敬请谅解'
-    
+
     cardnum || ({ cardnum, name, token } = this.user)
     amount = parseFloat(amount)
 

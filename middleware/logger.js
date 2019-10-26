@@ -4,9 +4,17 @@
   代替 koa 的日志中间件，为了解析 return.js 中间件返回的 JSON 状态码，并且为了好看。
  */
 const { send, Auth } = require('pandora-nodejs-sdk')
-const { qiniuLog } =require('../sdk/sdk.json')
+const { qiniuLog } = require('../sdk/sdk.json')
 
-let qiniuAuth = new Auth( qiniuLog.access, qiniuLog.secret)
+let qiniuAuth 
+try{
+  qiniuAuth = new Auth(qiniuLog.access, qiniuLog.secret)
+}catch(e){
+  console.log('七牛云日志服务未配置')
+}
+
+
+
 
 module.exports = async (ctx, next) => {
   let begin = moment()
@@ -19,13 +27,13 @@ module.exports = async (ctx, next) => {
   let name = '未登录'
   let platform = '未登录'
 
-  if(ctx.request.headers.token){
+  if (ctx.request.headers.token) {
     // 当请求中包含token，就可以向日志输出用户非敏感信息，以便于分析业务情况
-    try{
+    try {
       cardnum = ctx.user.cardnum
       name = ctx.user.name
       platform = ctx.user.platform
-    } catch(e){}
+    } catch (e) { }
   }
 
   // 考虑到某些情况（如重定向）时，返回中没有 JSON 格式的 body，只有 status
@@ -42,13 +50,18 @@ module.exports = async (ctx, next) => {
     (logMsg ? ' | ' + chalkColored.yellow(logMsg) : '')
   )
 
+  try {
+    send(qiniuAuth, qiniuLog.accessRepo, [{ cardnum, username: name, status, method: ctx.method, path: ctx.path, duration, msg: logMsg ? logMsg : '', platform }]).catch((e) => {
+      qiniuAuth = new Auth(qiniuLog.access, qiniuLog.secret)
+    }).catch(e => {
+      console.log(e)
+    })
+  } catch (e) {
+    console.log('七牛云日志服务未配置')
+  }
 
-  send(qiniuAuth, qiniuLog.accessRepo, [{cardnum, username:name, status, method:ctx.method, path:ctx.path, duration, msg: logMsg ? logMsg : '', platform}]).catch((e)=>{
-    qiniuAuth = new Auth( qiniuLog.access, qiniuLog.secret)
-  }).catch( e=> {
-    console.log(e)
-  })
-  
-  
+
+
+
 
 }
