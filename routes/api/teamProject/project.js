@@ -17,8 +17,8 @@ exports.route = {
         if (endTime > now + 15 * 24 * 3600 * 1000) {
             throw '截止时间过长'
         }
-        if (!(title && projectDesc && skillRequirement && campus && category && duartion && otherRequirement && wantedNumber)) {
-            throw '项目信息不完整,请补全项目信息'
+        if (!(title && projectDesc && skillRequirement && campus && category && duartion && otherRequirement && (wantedNumber > 0))) {
+            throw '项目信息不完整或不正确,请补全或者修改项目信息'
         }
         await teamProject.insertOne({
             title,
@@ -69,9 +69,9 @@ exports.route = {
             return await teamProjectCollection.find({ creatorCardnum: cardnum },
                 { limit: pagesize, skip: (page - 1) * pagesize, sort: [['createdTime', -1]] }).toArray()
         }
-        // 啥都不指定就返回所有通过审核的组队项目
+        // 啥都不指定就返回所有通过审核的组队项目，并且没有招满的组队项目
         else {
-            return await teamProjectCollection.find({ auditStatus: 'PASSED', endTime: { $gt: now } },
+            return await teamProjectCollection.find({ auditStatus: 'PASSED', endTime: { $gt: now }, nowNeedNumber: { $gt: 0 } },
                 { limit: pagesize, skip: (page - 1) * pagesize, sort: [['createdTime', -1]] }).toArray()
         }
 
