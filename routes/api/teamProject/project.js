@@ -9,7 +9,7 @@ exports.route = {
         let now = +moment()
         let teamProjectCollection = await mongodb("herald_team_project")
         // 防止发布过多的竞赛组队项目
-        let recordCount = await teamProjectCollection.count({ creatorCardnum: cardnum, endTime: { $gt: now }, auditStatus: { $in: ['WAITING', 'PASSED'] } })
+        let recordCount = await teamProjectCollection.countDocuments({ creatorCardnum: cardnum, endTime: { $gt: now }, auditStatus: { $in: ['WAITING', 'PASSED'] } })
         if (recordCount > 3) {
             throw '发布的项目过多,请先完成当前的项目'
         }
@@ -20,7 +20,7 @@ exports.route = {
         if (!(title && projectDesc && skillRequirement && campus && category && duartion && otherRequirement && (wantedNumber > 0))) {
             throw '项目信息不完整或不正确,请补全或者修改项目信息'
         }
-        await teamProject.insertOne({
+        await teamProjectCollection.insertOne({
             title,
             createdTime: now,
             creatorCardnum: cardnum,
@@ -51,7 +51,7 @@ exports.route = {
         if ([record.creatorCardnum, ...adminList].indexOf(cardnum) === -1) {
             throw '没有操作权限'
         }
-        await teamProjectCollection.update({ _id }, { $set: { endTime: +moment() } })
+        await teamProjectCollection.updateOne({ _id }, { $set: { endTime: +moment() } })
 
         return '删除成功'
     },

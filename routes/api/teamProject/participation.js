@@ -9,7 +9,7 @@ exports.route = {
         let { cardnum, name } = this.user
         let teamParticipationCollection = await mongodb("herald_team_participation")
         let teamProjectCollection = await mongodb("herald_team_project")
-        let grade = cardnum.slice(3, 5)
+        let grade = cardnum.slice(3, 5) + '级'
         let record = await teamProjectCollection.findOne({ _id: ObjectId(teamProjectId) })
         if (!record) {
             throw '项目不存在'
@@ -59,7 +59,7 @@ exports.route = {
         // 如果id存在则返回该条目的信息
         if (id) {
             let record = await teamParticipationCollection.findOne({ _id })
-            return [{"isAdmin": true}, record]
+            return [{ "isAdmin": true }, record]
         }
         // 查看本人的申请
         else if (fromMe) {

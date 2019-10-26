@@ -3,7 +3,7 @@ const mongodb = require('../../database/mongodb')
 exports.route = {
 
     /**
-    * GET /api/exam
+    * GET /api/cet
     * 个人考试信息查询
     **/
 
