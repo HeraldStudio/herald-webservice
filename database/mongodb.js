@@ -14,7 +14,7 @@ const getCollection = async(col) => {
   if (mongodb) {
     return mongodb.collection(col)
   } else {
-    mongodb = await MongoClient.connect(url, { useNewUrlParser: true })
+    mongodb = await MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
     mongodb = mongodb.db("webservice")
     return mongodb.collection(col)
   }
