@@ -20,7 +20,7 @@ const getCollection = async (col) => {
     //方便本地调试
     mongodbUrl = !(user && password) ? urlDebug : url
 
-    mongodb = await MongoClient.connect(mongodbUrl, { useNewUrlParser: true })
+    mongodb = await MongoClient.connect(mongodbUrl, { useNewUrlParser: true, useUnifiedTopology: true })
     mongodb = mongodb.db("webservice")
     return mongodb.collection(col)
   }
