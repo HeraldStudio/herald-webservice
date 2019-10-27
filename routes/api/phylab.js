@@ -1,7 +1,7 @@
+/* eslint require-atomic-updates:off */
 const cheerio = require('cheerio')
 const loginUrl = 'http://phylab.seu.edu.cn/plms/UserLogin.aspx?ReturnUrl=%2fplms%2fSelectLabSys%2fDefault.aspx'
 const courseUrl = 'http://phylab.seu.edu.cn/plms/SelectLabSys/StuViewCourse.aspx'
-const { config } = require('../../app')
 
 const headers = {
   'Cache-Control': 'no-cache',
@@ -95,7 +95,7 @@ exports.route = {
         let res = await this.post(courseUrl, form, { headers })
         {
           let $ = cheerio.load(res.data)
-          let table = $('table#ctl00_cphSltMain_ShowAStudentScore1_gvStudentCourse')
+          //let table = $('table#ctl00_cphSltMain_ShowAStudentScore1_gvStudentCourse')
           let data = $('table#ctl00_cphSltMain_ShowAStudentScore1_gvStudentCourse span')
             .toArray().map(i => $(i).text())
           let labs = []

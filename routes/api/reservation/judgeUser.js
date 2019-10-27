@@ -1,4 +1,3 @@
-const cheerio = require('cheerio')
 const Cookie = require('tough-cookie').Cookie
 
 
@@ -16,7 +15,7 @@ exports.route = {
     await this.useAuthCookie()
 
     let cookie = Cookie.parse(_cookie)
-    this.cookieJar.setCookie(cookie, 'http://yuyue.seu.edu.cn/eduplus/order/order/', (error, cookie)=>{
+    this.cookieJar.setCookie(cookie, 'http://yuyue.seu.edu.cn/eduplus/order/order/', ()=>{
     })
     /*_cookie.split(';').map(k => {
       this.cookieJar.setCookie(k)

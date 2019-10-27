@@ -22,3 +22,5 @@ rules:
   semi:
     - error
     - never
+  require-atomic-updates:
+    - warn

@@ -12,7 +12,7 @@ showapiSdk.setting({
 exports.recognizeCaptcha = async (imageData, vtoken) => {
   let tmpPath = `/tmp/newxk-${vtoken}.jpg`
   // 出于不可描述的原因要先写入磁盘
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     fs.writeFileSync(tmpPath, Buffer.from(imageData))
     let request=showapiSdk.request()
     request.appendFile('image', tmpPath)

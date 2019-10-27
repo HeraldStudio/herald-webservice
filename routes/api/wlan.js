@@ -18,20 +18,20 @@ exports.route = {
       )
 
       // 查询使用状态
-      res = await this.post(
+      let res = await this.post(
         'https://selfservice.seu.edu.cn/selfservice/service_manage_index.php',
         { operation: 'status', item: 'web' }
       )
 
       // 分为状态/用量/连接/设备三个表格
-      $ = cheerio.load(res.data)
+      let $ = cheerio.load(res.data)
       let [state, usage, connections, devices] = $('table[width="450"]').toArray()
 
       state = $(state).find('td').eq(1).text().trim()
       if (/正常/.test(state)) {
         state = {
           service: 'active',
-          due: +moment(/[\d\-]+/.exec(state)[0])
+          due: +moment(/[\d-]+/.exec(state)[0])
         }
       } else if (/超流量锁定/.test(state)) {
         state = { service: 'locked' }
@@ -64,8 +64,8 @@ exports.route = {
       )
 
       // 解析余额
-      $ = cheerio.load(balance.data)
-      balance = parseFloat($('tr.font_text td').eq(1).text().split(' ')[0])
+      let $2 = cheerio.load(balance.data)
+      balance = parseFloat($2('tr.font_text td').eq(1).text().split(' ')[0])
 
       return {state, balance, usage, connections, devices}
     })
@@ -138,7 +138,7 @@ exports.route = {
     let operation = ip ? 'offline' : 'deletemacbind'
 
     // 执行下线或删除设备
-    res = await this.post(
+    let res = await this.post(
       'https://selfservice.seu.edu.cn/selfservice/service_manage_status_web.php',
       { operation, kick_ip_address: ip, macaddress: mac }
     )

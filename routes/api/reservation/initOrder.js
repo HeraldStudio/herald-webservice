@@ -38,9 +38,9 @@ exports.route = {
     let cookie = init.config.headers.Cookie
     let $ = cheerio.load(init.data)
     
-    phone = $('#phone').attr('value')
-    half = $('#half').text()
-    full = $('#full').text()
+    let phone = $('#phone').attr('value')
+    let half = $('#half').text()
+    let full = $('#full').text()
     let validateBuffer = await this.get('http://yuyue.seu.edu.cn:80/eduplus/control/validateimage')
     let validateImage = validateBuffer.data.toString('base64')
     

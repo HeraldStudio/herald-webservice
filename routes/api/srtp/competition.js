@@ -1,3 +1,4 @@
+/* eslint require-atomic-updates: "off" */
 const cheerio = require('cheerio')
 const Europa = require('node-europa')
 
@@ -5,7 +6,6 @@ const loginAction = 'http://10.1.30.98:8080/competition/login.aspx'
 const listUrl = 'http://10.1.30.98:8080/competition/c_stu_default.aspx'
 const detailUrl = 'http://10.1.30.98:8080/competition/c_stu_xmshow.aspx?xm_bianhao='
 const baseUrl = 'http://10.1.30.98:8080/competition/'
-const url = require('url')
 
 exports.route = {
   /*

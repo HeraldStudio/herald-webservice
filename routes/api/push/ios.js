@@ -1,6 +1,5 @@
-const cheerio = require('cheerio')
 const mongodb = require('../../../database/mongodb')
-const { pushApnByCardnum } = require('../../../sdk/apn')
+// const { pushApnByCardnum } = require('../../../sdk/apn')
 exports.route = {
 
   /**
