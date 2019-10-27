@@ -1,4 +1,4 @@
-
+/* eslint require-atomic-updates: "off" */
 const timetable = {
   '双休节假日': [
     { 'time':'8:00-9:30', 'bus':'每 30min 一班'},
@@ -31,13 +31,15 @@ exports.route = {
       let instant = await Promise.all(buses.map(async k => {
         k.startTime = +moment(k.startTime)
         k.endTime = +moment(k.endTime)
-        k.detail = (await this.get('http://121.248.63.119/busservice/lineDetail?lineId=' + k.id)).data.data.line
+        let res = await this.get('http://121.248.63.119/busservice/lineDetail?lineId=' + k.id)
+        k.detail = res.data.data.line
         k.detail.linePoints.map(k => {
           transformPosition(k.station)
           delete k.longitude
           delete k.latitude
         })
-        k.buses = (await this.get('http://121.248.63.119/busservice/queryBus?lineId=' + k.id)).data.data.buses
+        res = await this.get('http://121.248.63.119/busservice/queryBus?lineId=' + k.id)
+        k.buses = res.data.data.buses
         k.buses.map(k => transformPosition(k.location))
         return k
       }))

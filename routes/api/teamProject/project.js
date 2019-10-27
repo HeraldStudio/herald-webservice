@@ -56,6 +56,7 @@ exports.route = {
     return '删除成功'
   },
   async get({ id = '', fromMe, page = 1, pagesize = 10 }) {
+    let now = +moment()
     let { cardnum } = this.user
     let _id = ObjectId(id)
     let teamProjectCollection = await mongodb('herald_team_project')

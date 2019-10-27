@@ -36,10 +36,10 @@ exports.route = {
       html = cheerio.load(res.data)('.rich_media_content').html()
 
         // section 替换为 p
-        .replace(/(<\/?\s*)section(?=[^A-Za-z\-])(.*?>)/img, '$1p$2')
+        .replace(/(<\/?\s*)section(?=[^A-Za-z-])(.*?>)/img, '$1p$2')
 
         // em 替换为 strong
-        .replace(/(<\/?\s*)em(?=[^A-Za-z\-])(.*?>)/img, '$1strong$2')
+        .replace(/(<\/?\s*)em(?=[^A-Za-z-])(.*?>)/img, '$1strong$2')
 
         // 懒加载的图片链接 data-src 替换为 src
         .replace(/(<img[^>]+)data-src=/img, '$1 src=')

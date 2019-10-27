@@ -1,6 +1,3 @@
-const cheerio = require('cheerio')
-const url = require('url')
-
 exports.route = {
 
   /**

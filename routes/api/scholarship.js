@@ -13,7 +13,6 @@ exports.route = {
   async get() {
     return await this.userCache('1h', async () => {
       await this.useAuthCookie({ ids6: true })
-      let { cardnum, password } = this.user
 
       return Object.assign({}, ...await Promise.all(Object.entries({
         scholarshipList, scholarshipApplied, stipendList, stipendApplied

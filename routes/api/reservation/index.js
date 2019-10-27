@@ -1,3 +1,4 @@
+/* eslint require-atomic-updates:off */
 const cheerio = require('cheerio')
 
 /**
@@ -39,7 +40,7 @@ exports.route = {
     let data = []
     let $ = cheerio.load(res.data)
     $('.time-item ').toArray().map(time => {
-      content = $(time).text().replace(/[\n\t]/g, '').split(' ')
+      let content = $(time).text().replace(/[\n\t]/g, '').split(' ')
       //[ '', '20:00-21:00', '6', '/', '6', '', '预约' ]
       data.push({
         time: content[1],
@@ -57,7 +58,7 @@ exports.route = {
     })
     $ = cheerio.load(page_two.data)
     $('.time-item ').toArray().map(time => {
-      content = $(time).text().replace(/[\n\t]/g, '').split(' ')
+      let content = $(time).text().replace(/[\n\t]/g, '').split(' ')
       //[ '', '20:00-21:00', '6', '/', '6', '', '预约' ]
       data.push({
         time: content[1],
@@ -82,14 +83,14 @@ exports.route = {
   * @apiParam validateCode
   * 预约场馆
   **/
-  async post({ time, dayInfo, itemId, useMode, userIds, validateCode }) {
-    await this.useAuthCookie()
+  //   async post({ time, dayInfo, itemId, useMode, userIds, validateCode }) {
+  //     await this.useAuthCookie()
     
-    return 'ok'
-    /**
- * 2018-10-01
- * 7
- * 09:00-10:00
-*/
-  }
+//     return 'ok'
+//     /**
+//  * 2018-10-01
+//  * 7
+//  * 09:00-10:00
+// */
+//   }
 }
