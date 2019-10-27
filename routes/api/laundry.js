@@ -14,7 +14,7 @@ exports.route = {
       return await Promise.all(Object.keys(shops).map(async area => {
         let machines = (await this.post('https://userapi.qiekj.com/machine/list', shops[area])).data.data
         machines = machines.items.map(k => {
-          let { id: id, machineName: name, subTypeName: type, machineState: state, remainMinutes, payType } = k
+          let { id: id, machineName: name, subTypeName: type, machineState: state, remainMinutes } = k
           let url = `https://h5.qiekj.com/choosemode/${id}`
           try {
             type = type.match(/洗衣机|烘干机|洗鞋机|协议机/)[0]

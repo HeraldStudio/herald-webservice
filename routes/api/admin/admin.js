@@ -1,4 +1,3 @@
-let db = require('../../../database/admin')
 let mongodb = require('../../../database/mongodb')
 exports.route = {
 
@@ -43,7 +42,7 @@ exports.route = {
   */
   async post({ domain, admin }) {
     let adminCollection = await mongodb('herald_admin')
-    let domainCollection = await mongodb('herald_admin_domain')
+    //let domainCollection = await mongodb('herald_admin_domain')
     let { name, cardnum, phone } = admin
 
     // 只允许同域任命

@@ -24,7 +24,9 @@ module.exports = ({ python }) => {
               delete captchaJobPool[message.path]
               let result = message.result
               job.resolve(result)
-            } catch (e) {}
+            } catch (e) {
+              console.log(e)
+            }
           }
         })
       })

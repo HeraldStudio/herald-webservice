@@ -1,4 +1,4 @@
-const db = require('../../database/publicity')
+//const db = require('../../database/publicity')
 const mongodb = require('../../database/mongodb')
 exports.route = {
   async get ({ page = 1, pagesize = 10 }) {

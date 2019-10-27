@@ -39,7 +39,7 @@ module.exports = async (ctx, cardnum, password) => {
   // 对于本科生，此页面可显示用户信息；对于其他角色（研究生和教师），此页面重定向至老信息门户主页。
   // 但对于所有角色，无论是否重定向，右上角用户姓名都可抓取；又因为只有本科生需要通过查询的方式获取学号，
   // 研究生可直接通过一卡通号截取学号，教师则无学号，所以此页面可以满足所有角色信息抓取的要求。
-  res = await ctx.get('http://myold.seu.edu.cn/index.portal?.pn=p3447_p3449_p3450')
+  let res = await ctx.get('http://myold.seu.edu.cn/index.portal?.pn=p3447_p3449_p3450')
 
   let findName = (res) => {
     // 解析姓名

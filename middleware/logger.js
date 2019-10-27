@@ -33,7 +33,9 @@ module.exports = async (ctx, next) => {
       cardnum = ctx.user.cardnum
       name = ctx.user.name
       platform = ctx.user.platform
-    } catch (e) { }
+    } catch (e) { 
+      console.log(e)
+    }
   }
 
   // 考虑到某些情况（如重定向）时，返回中没有 JSON 格式的 body，只有 status
@@ -51,13 +53,13 @@ module.exports = async (ctx, next) => {
   )
 
   try {
-    send(qiniuAuth, qiniuLog.accessRepo, [{ cardnum, username: name, status, method: ctx.method, path: ctx.path, duration, msg: logMsg ? logMsg : '', platform }]).catch((e) => {
+    send(qiniuAuth, qiniuLog.accessRepo, [{ cardnum, username: name, status, method: ctx.method, path: ctx.path, duration, msg: logMsg ? logMsg : '', platform }]).catch(() => {
       qiniuAuth = new Auth(qiniuLog.access, qiniuLog.secret)
     }).catch(e => {
       console.log(e)
     })
-  } catch (e) {
-    console.log('七牛云日志服务未配置')
+  } catch(e) {
+    console.log('七牛云日志服务未配置', e)
   }
 
 

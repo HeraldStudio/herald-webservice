@@ -28,7 +28,7 @@ exports.route = {
       // 上游测试结果
       return await Promise.all(Object.keys(tests).map(async k => {
         let name = k, url = tests[k]
-        let trials = Array(3).fill().map(_ => testConnection(tests[k]))
+        let trials = Array(3).fill().map(() => testConnection(tests[k]))
         trials = await Promise.all(trials)
         let timeout = trials.reduce((a, b) => b <= a || a == -1 ? b : a, -1)
         let health = timeout >= 0

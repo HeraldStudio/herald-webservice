@@ -73,7 +73,7 @@ exports.route = {
       users = users.map( k => {return k.openid})
       templateMsg.touser = users
       templateMsg.accessToken = await accessToken('wx-herald')
-      let pushJob = new Promise((resolve, reject) => {
+      let pushJob = new Promise((resolve) => {
         let pushProcess = new childProcess.fork('./worker/morningExerciseNotification.js')
         pushProcess.send(templateMsg)
         pushProcess.on('message',(msg)=>{
