@@ -17,9 +17,6 @@ const mongodb = require('../../database/mongodb')
 
 const crypto = require('crypto')
 const childProcess = require('child_process')
-const fs = require('fs')
-const axios = require('axios')
-
 
 
 String.prototype.padd = function () {
@@ -63,7 +60,7 @@ const handler = {
           💡 回复关键词使用对应功能`.padd()
   },
 
-  async '绑定|登录|登陆|綁定|登錄'(cardnum, password, gpassword = '') {
+  async '绑定|登录|登陆|綁定|登錄'() {
     // this.path = '/auth'
     // this.method = 'POST'
     // this.params = {
@@ -73,7 +70,7 @@ const handler = {
     // }
     //await this.next()
     // return `🔗 绑定功能`
-    return `绑定功能暂时关闭`
+    return '绑定功能暂时关闭，请使用小猴偷米 App 或微信小程序'
   },
 
   async '手机卡'() {
@@ -122,7 +119,7 @@ const handler = {
     let upcoming = curriculum.filter(k => k.startTime > now).sort((a, b) => a.startTime - b.startTime)
     let upcomingCount = upcoming.length
     let current = curriculum.filter(k => k.startTime <= now && k.endTime > now)
-    let currentCount = current.length
+    // let currentCount = current.length
 
     return [
       `🗓 本学期已上 ${endedCount} 课，还有 ${upcomingCount} 课`,
@@ -323,7 +320,7 @@ const handler = {
         users = users.map(k => { return k.openid })
         templateMsg.touser = users
         templateMsg.accessToken = await accessToken('wx-herald')
-        let pushJob = new Promise((resolve, reject) => {
+        let pushJob = new Promise((resolve) => {
           let pushProcess = new childProcess.fork('./worker/morningExerciseNotification.js')
           pushProcess.send(templateMsg)
           pushProcess.on('message', (msg) => {
@@ -357,7 +354,7 @@ const handler = {
     // 检查是否设置成功
     let record = await collection.find({ type: 'wechat', function: '跑操提醒', openid }).toArray()
     if (record.length === 1) {
-      let res = await api.post('message/template/send', {
+      await api.post('message/template/send', {
         touser: openid,
         template_id: 'q-o8UyAeQRSQfvvue1VWrvDV933q1Sw3esCusDA8Nl4',
         data: {
@@ -393,7 +390,7 @@ const handler = {
     // 检查是否删除成功
     let record = await collection.find({ type: 'wechat', function: '跑操提醒', openid }).toArray()
     if (record.length === 0) {
-      let res = await api.post('message/template/send', {
+      await api.post('message/template/send', {
         touser: openid,
         template_id: 'q-o8UyAeQRSQfvvue1VWrvDV933q1Sw3esCusDA8Nl4',
         data: {
@@ -424,7 +421,7 @@ const handler = {
     this.method = 'GET'
     await this.next()
     let { count, detail, remainDays } = this.body
-    let remaining = Math.max(0, 45 - count)
+    //let remaining = Math.max(0, 45 - count)
     let lastTime = count && moment(detail.sort((a, b) => a - b).slice(-1)[0]).fromNow()
     return [
       `🥇 已跑操 ${count} 次，还有 ${remainDays} 天`,
@@ -466,7 +463,7 @@ const handler = {
     let upcoming = labs.filter(k => k.startTime > now).sort((a, b) => a.startTime - b.startTime)
     let upcomingCount = upcoming.length
     let current = labs.filter(k => k.startTime <= now && k.endTime > now)
-    let currentCount = current.length
+    //let currentCount = current.length
 
     return [
       `🔬 已做 ${endedCount} 次实验，还有 ${upcomingCount} 次`,
@@ -486,7 +483,7 @@ const handler = {
     let upcoming = exams.filter(k => k.startTime > now).sort((a, b) => a.startTime - b.startTime)
     let upcomingCount = upcoming.length
     let current = exams.filter(k => k.startTime <= now && k.endTime > now)
-    let currentCount = current.length
+    //let currentCount = current.length
 
     return [
       `📝 已完成 ${endedCount} 场考试，还有 ${upcomingCount} 场`,
@@ -582,7 +579,7 @@ const handler = {
     this.path = '/api/dorm'
     this.method = 'GET'
     await this.next()
-    let { campus, area, building, room, bed } = this.body
+    let { campus, building, room, bed } = this.body
     if (building) {
       return [
         '🏠 你的宿舍：',
@@ -642,9 +639,12 @@ const handler = {
     💡 所有命令与参数之间均有空格`.padd()
   }
 }
+
+let middleware
+
 try {
   // 分割用户指令并进入相应 handler 函数中
-  const middleware = wechat(config).middleware(async (message, ctx) => {
+  middleware = wechat(config).middleware(async (message, ctx) => {
 
     let han, args
     if (message.Content) {
@@ -662,7 +662,7 @@ try {
     let openid = message.FromUserName
     ctx.openid = openid
 
-    new Promise((resolve, reject) => {
+    new Promise(() => {
       (async () => {
         if (han instanceof Function) {
           let originalPath = ctx.path
@@ -671,6 +671,7 @@ try {
             return await han.call(ctx, ...args)
           } catch (e) {
             if (e instanceof Error && ~e.message.indexOf('timeout')) {
+              // eslint-disable-next-line no-ex-assign
               e = 'timeout'
             }
             let han = handler[e] || handler.defaultError(e)

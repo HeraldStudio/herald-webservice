@@ -46,7 +46,7 @@
   均可使用的功能，需要先通过 isLogin 区分用户和游客，然后对用户按需获取其他属性，不能对游客获取用户属性，
   否则将抛出 401。
  */
-const tough = require('tough-cookie')
+// const tough = require('tough-cookie')
 const crypto = require('crypto')
 const { config } = require('../app')
 const mongodb = require('../database/mongodb')
@@ -102,7 +102,7 @@ const hash = value => {
  * 1. 登录认证 => ids3 => 登录成功
  * 2. 路由请求 => 路由需要 ids3 Cookie? => ids3 => 路由需要 ids6 Cookie? => ids6
  */
-const ids3Auth = require('./auth-provider/ids-3')
+// const ids3Auth = require('./auth-provider/ids-3')
 const ids6Auth = require('./auth-provider/ids-6')
 const graduateAuth = require('./auth-provider/graduate')
 
@@ -111,28 +111,28 @@ const graduateAuth = require('./auth-provider/graduate')
 // - 用户首次登录；
 // - 用户重复登录时，提供的密码哈希与数据库保存的值不一致；
 // - 需要获取 ids3 Cookie (useAuthCookie()) 调用时。
-const ids3AuthCheck = async (ctx, cardnum, password, gpassword) => {
-  try {
-    if (/^22\d*(\d{6})$/.test(cardnum)) {
-      await graduateAuth(ctx, RegExp.$1, gpassword)
-    }
-    let { schoolnum, name } = await ids3Auth(ctx, cardnum, password)
-    if (!schoolnum || !name) {
-      throw '身份完整性校验失败'
-    }
-    return { schoolnum, name }
-  } catch (e) {
-    if (e === 401) {
-      if (ctx.user && ctx.user.isLogin) {
-        let authCollection = await mongodb('herald_auth')
-        let { token } = ctx.user
-        await authCollection.deleteMany({ tokenHash: token })
-        tokenHashPool[token] = undefined
-      }
-    }
-    throw e
-  }
-}
+// const ids3AuthCheck = async (ctx, cardnum, password, gpassword) => {
+//   try {
+//     if (/^22\d*(\d{6})$/.test(cardnum)) {
+//       await graduateAuth(ctx, RegExp.$1, gpassword)
+//     }
+//     let { schoolnum, name } = await ids3Auth(ctx, cardnum, password)
+//     if (!schoolnum || !name) {
+//       throw '身份完整性校验失败'
+//     }
+//     return { schoolnum, name }
+//   } catch (e) {
+//     if (e === 401) {
+//       if (ctx.user && ctx.user.isLogin) {
+//         let authCollection = await mongodb('herald_auth')
+//         let { token } = ctx.user
+//         await authCollection.deleteMany({ tokenHash: token })
+//         tokenHashPool[token] = undefined
+//       }
+//     }
+//     throw e
+//   }
+// }
 
 const ids6AuthCheck = async (ctx, cardnum, password, gpassword) => {
   try {
@@ -184,7 +184,7 @@ module.exports = async (ctx, next) => {
 
     if (!platform) {
       throw '缺少参数 platform: 必须指定平台名'
-    } else if (!/^[0-9a-z\-]+$/.test(platform)) {
+    } else if (!/^[0-9a-z-]+$/.test(platform)) {
       throw 'platform 只能由小写字母、数字和中划线组成' // 为了美观
     }
 
@@ -211,7 +211,7 @@ module.exports = async (ctx, next) => {
 
     // 若找到已认证记录，比对密码，全部正确则可以免去统一身份认证流程，确认不需要验证码
     if (existing) {
-      let { passwordHash, tokenHash, tokenEncrypted, gpasswordEncrypted } = existing
+      let { passwordHash, tokenEncrypted, gpasswordEncrypted } = existing
       let token
       // 先判断密码正确
       if (hash(password) === passwordHash
@@ -316,7 +316,7 @@ module.exports = async (ctx, next) => {
       let identity = hash(cardnum + name)
 
       // 将统一身份认证 Cookie 获取器暴露给模块
-      ctx.useAuthCookie = async ({ ids6 = true } = {}) => {
+      ctx.useAuthCookie = async () => {
 
         // 进行 ids6 认证，拿到 ids6 Cookie，如果密码错误，会抛出 401
         // 如果需要验证码，也转换成抛出401
@@ -324,7 +324,7 @@ module.exports = async (ctx, next) => {
           await ids6AuthCheck(ctx, cardnum, password, gpassword)
         } catch(e) {
           if(e === '验证码'){
-            e = 401
+            throw 401
           }
           throw e
         }
@@ -365,6 +365,7 @@ module.exports = async (ctx, next) => {
     }
   }
 
+  /* eslint getter-return:off */
   // 对于没有 token 或 token 失效的请求，若下游中间件要求取 user，说明功能需要登录，抛出 401
   let reject = () => { throw 401 }
   ctx.user = {

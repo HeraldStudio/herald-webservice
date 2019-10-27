@@ -71,7 +71,7 @@ exports.route = {
   async get () {
     let now = +moment()
     // 调试环境下接受 site 参数用于单独获取某网站的通知
-    let argSite = program.mode === 'development' ? this.params.site : undefined
+    let argSite = this.program.mode === 'development' ? this.params.site : undefined
     delete this.params.site
 
     let keys = typeof argSite !== 'undefined' ? [argSite] : commonSites
@@ -122,7 +122,7 @@ exports.route = {
         // 找出所有新闻条目，和日期配对，返回
         return list.map(ele => $(ele[0]).find('a').toArray().map(k => $(k)).map((k, i) => {
           let href = k.attr('href')
-          currentUrl = url.resolve(sites[site].infoUrl, href)
+          let currentUrl = url.resolve(sites[site].infoUrl, href)
           return {
             site: sites[site].name,
             category: ele[1],

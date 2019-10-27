@@ -1,7 +1,7 @@
 const  mongodb  = require('../../database/mongodb')
-const { config } = require('../../app')
+// const { config } = require('../../app')
 const crypto = require('crypto')
-const axios = require('axios')
+// const axios = require('axios')
 
 // 哈希算法，用于对 token 和密码进行摘要
 const hash = value => {

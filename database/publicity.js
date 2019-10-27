@@ -1,6 +1,5 @@
 //const db = require('sqlongo')('publicity')
 const db = {}
-const mongodb = require('./mongodb')
 db.banner = {
   bid:              'integer primary key',
   title:            'text not null',    // 标题

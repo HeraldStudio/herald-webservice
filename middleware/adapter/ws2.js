@@ -1,7 +1,7 @@
-const crypto = require('crypto')
-const { config } = require('../../app')
-const axios = require('axios')
-const cheerio = require('cheerio')
+// const crypto = require('crypto')
+// const { config } = require('../../app')
+// const axios = require('axios')
+// const cheerio = require('cheerio')
 const mongodb = require('../../database/mongodb')
 module.exports = async (ctx, next) => {
   if (ctx.path.indexOf('/adapter-ws2/') !== 0) {
@@ -16,19 +16,19 @@ module.exports = async (ctx, next) => {
       let { user, password } = ctx.params // 对 appid 容错
 
       // 根据头部特征识别具体平台
-      let { 'user-agent': ua, 'accept-language': lang } = ctx.request.headers
-      let platform = 'ws2'
-      if (!ua && lang) {
-        platform += '-ios'
-      } else if (/okhttp/i.test(ua)) {
-        platform += '-android'
-      } else if (/iphone/i.test(ua)) {
-        platform += '-mina-ios'
-      } else if (/android/i.test(ua)) {
-        platform += '-mina-android'
-      } else if (/devtools/i.test(ua)) {
-        platform += '-mina-devtools'
-      }
+      //let { 'user-agent': ua, 'accept-language': lang } = ctx.request.headers
+      // let platform = 'ws2'
+      // if (!ua && lang) {
+      //   platform += '-ios'
+      // } else if (/okhttp/i.test(ua)) {
+      //   platform += '-android'
+      // } else if (/iphone/i.test(ua)) {
+      //   platform += '-mina-ios'
+      // } else if (/android/i.test(ua)) {
+      //   platform += '-mina-android'
+      // } else if (/devtools/i.test(ua)) {
+      //   platform += '-mina-devtools'
+      // }
 
       // 转换为对 ws3 auth 请求
       ctx.path = '/auth'
@@ -124,7 +124,7 @@ module.exports = async (ctx, next) => {
         ctx.path = '/api/curriculum'
         await next()
         let sidebar = []
-        let weekdays = 'Mon,Tue,Wed,Thu,Fri,Sat,Sun'.split(',')
+        // let weekdays = 'Mon,Tue,Wed,Thu,Fri,Sat,Sun'.split(',')
         let { curriculum } = ctx.body
         curriculum.map(k => {
           if (!sidebar.find(j =>
@@ -166,7 +166,7 @@ module.exports = async (ctx, next) => {
 
       } else if (ctx.path === '/api/gpa') {
         await next()
-        let { graduated, gpa, gpaBeforeMakeup, calculationTime, score, credits, detail } = ctx.body
+        let { graduated, gpa, gpaBeforeMakeup, calculationTime, score, detail } = ctx.body
         let content = (!graduated ? [
           {
             'calculate time': calculationTime ? moment(calculationTime).format('YYYY-MM-DD HH:mm:ss') : '未计算',
@@ -448,7 +448,7 @@ module.exports = async (ctx, next) => {
       // 续：这个请求是用于兼容老 App 的 WebView 点击，是浏览器发起的请求，没有登录态（headers 中没有 token）
       // 但因为轮播和活动的 adapter 路由中在 URL 中带了 [uuid] 控制指令，强制 App 传入 uuid
       // 作为参数（WS2 uuid 即为 WS3 token），因此可以在这个请求的 URL 参数中拿到用户的 token
-      let { aid, bid, token } = ctx.query
+      let { aid, token } = ctx.query
       
       // 更旧版本的 App 不能识别 [uuid] 控制指令，会把 [uuid] 原样传回来；另外未登录态下，老 App 的 uuid 为全零
       // 这两种情况都要排除（保留非登录态），其余情况加上登录态

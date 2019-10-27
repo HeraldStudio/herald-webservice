@@ -38,7 +38,7 @@ exports.route = {
             let [startTime, endTime] = rawTime.split(' ')[1].split('-')
             startTime = +moment(date + '-' + startTime, 'YYYY-MM-DD-HH:mm')
             endTime = +moment(date + '-' + endTime, 'YYYY-MM-DD-HH:mm')
-            duration = (endTime - startTime) / 1000 / 60
+            let duration = (endTime - startTime) / 1000 / 60
             try {
               if (k.KSMC.split(' ')[1]) {
                 k.KCM = k.KCM + ' ' + k.KSMC.split(' ')[1]
@@ -75,7 +75,7 @@ exports.route = {
 
       await this.useAuthCookie()
       // 经测试，使用老门户的 cookie，并不需要再登录教务处。
-      res = await this.get(
+      let res = await this.get(
         'http://xk.urp.seu.edu.cn/studentService/cs/stuServe/runQueryExamPlanAction.action'
       )
 

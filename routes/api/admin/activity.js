@@ -2,7 +2,7 @@
 let mongodb = require('../../../database/mongodb')
 
 exports.route = {
-  async get ({ page = 1, pagesize = 10 }) {
+  async get () {
     if (!this.admin || !this.admin.publicity) {
       throw 403
     }
@@ -18,7 +18,7 @@ exports.route = {
   },
   async post ({ activity }) {
     let activityCollection = await mongodb('herald_activity')
-    let activityClickCollection = await mongodb('herald_activity_click')
+    //let activityClickCollection = await mongodb('herald_activity_click')
 
     if (!this.admin || !this.admin.publicity) {
       throw 403
@@ -29,7 +29,7 @@ exports.route = {
   },
   async put ({ activity }) {
     let activityCollection = await mongodb('herald_activity')
-    let activityClickCollection = await mongodb('herald_activity_click')
+    //let activityClickCollection = await mongodb('herald_activity_click')
 
     if (!this.admin || !this.admin.publicity) {
       throw 403

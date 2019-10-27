@@ -34,6 +34,7 @@ exports.route = {
       throw 403
     }
     //await db.notice.remove({ nid })
+    let noticeCollection = await mongodb('herald_notice')
     await noticeCollection.deleteMany({nid})
     return 'OK'
   }
