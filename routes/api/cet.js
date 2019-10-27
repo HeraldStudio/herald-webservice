@@ -1,4 +1,3 @@
-const cheerio = require('cheerio')
 const mongodb = require('../../database/mongodb')
 exports.route = {
 
@@ -10,7 +9,7 @@ exports.route = {
   async get() {
     let cetCollection = await mongodb('herald_cet')
     return await this.userCache('10h', async () => {
-      let { name, cardnum, schoolnum } = this.user
+      let {  cardnum } = this.user
       try {
         await this.useEHallAuth('5226570836424975')
         let res = await this.post('http://ehall.seu.edu.cn/publicapp/sys/sljzkzdy/modules/ksxxhd/T_KSBM_ZKZDY_QUERY.do', { XH: cardnum })

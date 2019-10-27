@@ -1,6 +1,6 @@
-const cheerio = require('cheerio')
 const Lecture = require('../../sdk/sdk.json')['Lecture']
 const moment = require('moment')
+
 exports.route = {
   async get() {
     /**

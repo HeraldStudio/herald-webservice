@@ -3,13 +3,10 @@
  */
 
 const ws = require('ws')
-const net = require('net')
 const { config } = require('../app')
-const chardet = require('jschardet-eastasia')
 const axios = require('axios')
 const tough = require('tough-cookie')
 const sms = require('../sdk/yunpian')
-const slackMessage = require('./slack').SlackMessage
 const spiderSecret = (() => {
   try {
     return require('./spider-secret.json')
@@ -28,7 +25,7 @@ const adminPhoneNumber = ['15651975186'] // 日后和鉴权平台融合
 class SpiderServer {
 
   constructor() {
-    let that = this
+    //let that = this
     this.connectionPool = {}  // 连接池
     this.requestPool = {}  // 请求池
     this.socketServer = new ws.Server({port: program.port + 1000})
@@ -125,7 +122,7 @@ class SpiderServer {
     })
 
     // 硬件爬虫关闭响应
-    connection.on('close', (code, reason) => {
+    connection.on('close', () => {
       // console.log(`[I]硬件爬虫 <${connection.spiderName}> 连接关闭,code=${code}, reason=${reason}`)
       delete this.connectionPool[connection.spiderName]
     })
@@ -156,7 +153,7 @@ class SpiderServer {
     let name
     do {
       name = Math.random().toString(36).substr(2)
-    } while (this.connectionPool.hasOwnProperty(name))
+    } while (this.connectionPool[name])
     return name
   }
 
@@ -164,7 +161,7 @@ class SpiderServer {
     let name
     do {
       name = Math.random().toString(36).substr(2)
-    } while (this.requestPool.hasOwnProperty(name))
+    } while (this.requestPool[name])
     return name
   }
 
@@ -208,13 +205,13 @@ class SpiderServer {
     request.requestName = name
     this.requestPool[name] = {name, ctx}
     // 按照axios格式处理请求
-    if (request.hasOwnProperty('transformRequest')) {
+    if (request.transformRequest) {
       request.data = request.transformRequest(request.data, request.headers)
     }
-    if (request.hasOwnProperty('transformResponse')) {
+    if (request.transformResponse) {
       this.requestPool[name].transformResponse = request.transformResponse
     }
-    if (request.hasOwnProperty('paramsSerializer')) {
+    if (request.paramsSerializer) {
       request.params = request.paramsSerializer(request.params)
     }
     let encodedRequest = this.requestEncoder(request)
@@ -322,6 +319,7 @@ class SpiderServer {
       try {
         data.data = JSON.parse(data.data)
       } catch (e) {
+        console.log(e)
       }
       // 自动更新cookieJar
       requestObj.ctx.cookieJar = tough.CookieJar.fromJSON(data.cookie)
@@ -330,7 +328,7 @@ class SpiderServer {
     } else {
       clearTimeout(requestObj.timeout)
       data.errCode = REQUEST_ERROR
-      if (data.hasOwnProperty('data')) {
+      if (data.data) {
         data.data = Buffer.from(data.data.data).toString()
       }
       requestObj.reject(data)
@@ -369,7 +367,7 @@ class SpiderServer {
     let result = {}
     let assignValue = (val, key) => {
       if (typeof result[key] === 'object' && typeof val === 'object') {
-        result[key] = merge(result[key], val)
+        result[key] = this.merge(result[key], val)
       } else {
         result[key] = val
       }

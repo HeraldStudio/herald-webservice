@@ -1,6 +1,6 @@
+/* eslint no-unused-vars:off, require-atomic-updates:off */
+
 const cheerio = require('cheerio')
-const { config } = require('../../app')
-const { recognizeCaptcha } = require('../../sdk/captcha')
 
 // 每节课的开始时间 (时 * 60 + 分)
 // 注：本科生和研究生的时间表完全一样。
@@ -53,11 +53,10 @@ exports.route = {
   * 对于这类课表，我们需要在系统中将长学期开学日期向前推4周。
   **/
   async get({ term }) {
-    let now = +moment()
     let currentTerm = (this.term.current || this.term.next).name
     // 若为查询未来学期，可能是在选课过程中，需要减少缓存时间
     return await this.userCache(term && term > currentTerm ? '15m+' : '1d+', async () => {
-      let { name, cardnum, password, schoolnum } = this.user
+      let { name, cardnum, schoolnum } = this.user
       let curriculum = []
 
       // 新选课系统-目前使用18级本科生数据进行测试
@@ -281,7 +280,7 @@ exports.route = {
                 flip = { '(单)': 'odd', '(双)': 'even' }[flip] || 'none'
 
                 // 根据课程名和起止周次，拼接索引键，在侧栏表中查找对应的课程信息
-                let teacherName = '', credit = ''
+                // let teacherName = '', credit = ''
 
                 // 对于这个课的每一周，到侧栏去找对应的授课老师和学分等信息
                 let ret = []
@@ -375,7 +374,9 @@ exports.route = {
         let $ = cheerio.load(res.data)
 
         if (term) {
-          let [beginYear, endYear, period] = term.split('-')
+          let endYear = term.split('-')[1]
+          let period = term.split('-')[2]
+          //let [beginYear, endYear, period] = term.split('-')
           period = ['短学期', '秋学期', '春学期'][period - 1]
           let re = RegExp(`${endYear}${period}$`)
           let option = $('#txtxq option').toArray().map(k => $(k))
@@ -429,8 +430,8 @@ exports.route = {
             let [dayOfWeek, periods] = day.split(/-/)
             dayOfWeek = '一二三四五六日'.indexOf(dayOfWeek.split('').slice(-1)[0]) + 1
             periods = periods.split(/,/g).map(p => '上下晚'.indexOf(p[0]) * 5 + Number(/\d+/.exec(p)[0]))
-            begins = periods.filter((k, i, a) => i === 0 || a[i] !== a[i - 1] + 1)
-            ends = periods.filter((k, i, a) => i === a.length - 1 || a[i] !== a[i + 1] - 1)
+            let begins = periods.filter((k, i, a) => i === 0 || a[i] !== a[i - 1] + 1)
+            let ends = periods.filter((k, i, a) => i === a.length - 1 || a[i] !== a[i + 1] - 1)
             return begins.map((k, i) => ({
               courseName: className,
               teacherName, credit, location,

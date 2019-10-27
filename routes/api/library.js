@@ -6,7 +6,7 @@ exports.route = {
   * GET /api/library
   * 图书馆信息查询
   **/
-  async get({ password }) {
+  async get() {
     return await this.userCache('1m+', async () => {
       await this.useAuthCookie()
       await this.get('http://www.libopac.seu.edu.cn:8080/reader/hwthau.php')

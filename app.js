@@ -4,10 +4,8 @@ const kf = require('kf-router')
 const fs = require('fs')
 const program = require('commander')
 const chalk = require('chalk')
-// 调试时打开，设置所有 Promise 超时 15 秒，超过 15 秒自动 reject 并输出超时 Promise 所在位置
-// require('./promise-timeout')(15000)
 
-const morningExerciseEmailJob = require('./worker/morningExerciseEmailSend')
+require('./worker/morningExerciseEmailSend')
 
 program
   .version('1.0.0')
@@ -64,8 +62,6 @@ app.use(require('./middleware/adapter/unpacker'))
 app.use(require('./middleware/counter'))
 // 2. 日志输出，需要依赖返回格式中间件中返回出来的 JSON 格式
 app.use(require('./middleware/logger'))
-// 3. 日志统计，用于匿名统计用户行为、接口调用成功率等
-app.use(require('./middleware/statistics'))
 
 /**
   ## C. 接口层
