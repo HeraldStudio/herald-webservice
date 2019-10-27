@@ -1,5 +1,4 @@
 const cheerio = require('cheerio')
-const { config } = require('../../../app')
 
 const hintTable = [
   '小猴提醒：大一起床不抓紧，大四跑操两行泪'

@@ -1,4 +1,3 @@
-const cheerio = require('cheerio')
 
 exports.route = {
   async get() {
@@ -9,7 +8,7 @@ exports.route = {
       // let cid = /course_(\d+)/.exec($('a[title="国家级资源共享课程"]').attr('href'))[1]
       
       let cid = 2598
-      res = await this.get(`http://mobile.icourses.cn/hep-mobile/sword/app/share/detail/getExam?courseId=${cid}&subjectType=1`)
+      let res = await this.get(`http://mobile.icourses.cn/hep-mobile/sword/app/share/detail/getExam?courseId=${cid}&subjectType=1`)
       return res.data.data.map(k => k.resList[0]).map(k => ({
         title: k.title,
         url: k.fullResUrl
