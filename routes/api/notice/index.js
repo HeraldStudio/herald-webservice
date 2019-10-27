@@ -71,7 +71,7 @@ exports.route = {
   async get () {
     let now = +moment()
     // 调试环境下接受 site 参数用于单独获取某网站的通知
-    let argSite = program.mode === 'development' ? this.params.site : undefined
+    let argSite = this.program.mode === 'development' ? this.params.site : undefined
     delete this.params.site
 
     let keys = typeof argSite !== 'undefined' ? [argSite] : commonSites
