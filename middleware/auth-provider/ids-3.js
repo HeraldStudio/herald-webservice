@@ -1,5 +1,5 @@
 // 模拟老信息门户 (ids3) 认证，缺陷是得到的 Cookie 不能用于新信息门户
-const mongodb = require('../../database/mongodb');
+const mongodb = require('../../database/mongodb')
 
 module.exports = async (ctx, cardnum, password) => {
   try {

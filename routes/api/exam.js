@@ -69,7 +69,7 @@ exports.route = {
           if (element) {
             finalList.push(element)
           }
-        });
+        })
         return finalList.filter(k => k.endTime > now)
       }
 

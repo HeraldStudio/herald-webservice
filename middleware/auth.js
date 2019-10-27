@@ -49,7 +49,7 @@
 const tough = require('tough-cookie')
 const crypto = require('crypto')
 const { config } = require('../app')
-const mongodb = require('../database/mongodb');
+const mongodb = require('../database/mongodb')
 
 const tokenHashPool = {} // 用于缓存tokenHash，防止高峰期数据库爆炸💥
 // 数据库迁移代码
@@ -337,11 +337,11 @@ module.exports = async (ctx, next) => {
         // 获取下一步操作所需的 URL
         const urlRes = await ctx.get(`http://ehall.seu.edu.cn/appMultiGroupEntranceList?appId=${appId}&r_t=${Date.now()}`)
 
-        let url = '';
+        let url = ''
         urlRes.data && urlRes.data.data && urlRes.data.data.groupList && urlRes.data.data.groupList[0] &&
-          (url = urlRes.data.data.groupList[0].targetUrl);
+          (url = urlRes.data.data.groupList[0].targetUrl)
         if (!url)
-          throw 400;
+          throw 400
 
         // 访问一下上述 URL ，获取名为 _WEU 的 cookie
         await ctx.get(url)

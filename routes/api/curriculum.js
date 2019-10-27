@@ -88,7 +88,7 @@ exports.route = {
         const curriculumRes = await this.post('http://ehall.seu.edu.cn/jwapp/sys/wdkb/modules/xskcb/xskcb.do', {
           'XNXQDM': queryTerm,
         })
-        const rows = curriculumRes.data.datas.xskcb.rows;
+        const rows = curriculumRes.data.datas.xskcb.rows
         rows.forEach(rawCourse => {
           const course = {
             courseName: rawCourse.KCM,
@@ -97,17 +97,17 @@ exports.route = {
             endWeek: rawCourse.SKZC.lastIndexOf('1') + 1,
             dayOfWeek: parseInt(rawCourse.SKXQ),
             flip: rawCourse.SKZC.startsWith('1010') ?
-                    'odd' :
-                    rawCourse.SKZC.startsWith('0101') ?
-                      'even':
-                      'none',
+              'odd' :
+              rawCourse.SKZC.startsWith('0101') ?
+                'even':
+                'none',
             beginPeriod: parseInt(rawCourse.KSJC),
             endPeriod: parseInt(rawCourse.JSJC),
             location: rawCourse.JASMC,
             credit: '学分未知'
-          };
-          curriculum.push(course);
-        });
+          }
+          curriculum.push(course)
+        })
 
         //////////////////////////////////////////////////////////////
         // term = this.term.list.find( t => t.name === '18-19-2')
@@ -209,7 +209,7 @@ exports.route = {
           }
 
           // 初始化侧边栏和课表解析结果
-          let sidebarDict = {}, sidebarList = [];
+          let sidebarDict = {}, sidebarList = []
 
           // 解析侧边栏，先搜索侧边栏所在的 table
           res.data.match(/class="tableline">([\s\S]*?)<\/table/img)[0]
@@ -336,7 +336,7 @@ exports.route = {
 
               // 第 0 格交给周 1，以此类推
               k.match(/<td[^>]*>.*?<\/td>/img).map((k, i) => appendClasses(k, i + 1))
-            });
+            })
 
           // 取周六大单元格的内容，交给周六
           appendClasses(/>周六<\/td>[^<]*<td[^>]*>([\s\S]*?)<\/td>/img.exec(res.data)[1], 6)

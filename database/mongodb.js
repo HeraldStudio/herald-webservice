@@ -1,10 +1,10 @@
-const MongoClient = require('mongodb').MongoClient;
-const assert = require('assert');
+const MongoClient = require('mongodb').MongoClient
+const assert = require('assert')
 const config = require('./mongodb-secret.json')
 
-const user = encodeURIComponent(config.user);
-const password = encodeURIComponent(config.pwd);
-const authMechanism = 'DEFAULT';
+const user = encodeURIComponent(config.user)
+const password = encodeURIComponent(config.pwd)
+const authMechanism = 'DEFAULT'
 
 // Connection URL
 const url = `mongodb://${user}:${password}@${config.host}:${config.port}/webservice?authMechanism=${authMechanism}`
@@ -21,7 +21,7 @@ const getCollection = async (col) => {
     mongodbUrl = !(user && password) ? urlDebug : url
 
     mongodb = await MongoClient.connect(mongodbUrl, { useNewUrlParser: true, useUnifiedTopology: true })
-    mongodb = mongodb.db("webservice")
+    mongodb = mongodb.db('webservice')
     return mongodb.collection(col)
   }
 }

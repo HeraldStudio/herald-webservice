@@ -36,7 +36,7 @@ class SpiderServer {
       this.handleConnection(connection)
     })
     this.socketServer.on('error', (error) => {
-      error.errCode = SERVER_ERROR;
+      error.errCode = SERVER_ERROR
       console.log(error)
     })
     console.log(chalkColored.green('[+] 分布式硬件爬虫服务正在运行...'))
@@ -125,12 +125,12 @@ class SpiderServer {
     })
 
     // 硬件爬虫关闭响应
-    connection.on("close", (code, reason) => {
+    connection.on('close', (code, reason) => {
       // console.log(`[I]硬件爬虫 <${connection.spiderName}> 连接关闭,code=${code}, reason=${reason}`)
       delete this.connectionPool[connection.spiderName]
     })
 
-    connection.on("error", (error) => {
+    connection.on('error', (error) => {
 
       console.log(chalkColored.red(`[W]硬件爬虫 <${connection.spiderName}> 连接出错, 错误信息：`))
       console.log(error.message)
@@ -301,14 +301,14 @@ class SpiderServer {
 
   handleResponse(data) {
     try {
-      data = JSON.parse(data);
+      data = JSON.parse(data)
     } catch (e) {
-      console.log(e.message);
-      console.log(data);
-      throw e;
+      console.log(e.message)
+      console.log(data)
+      throw e
     }
-    let requestName = data.requestName;
-    let requestObj = this.requestPool[requestName];
+    let requestName = data.requestName
+    let requestObj = this.requestPool[requestName]
     if (!requestObj) {
       return
     }

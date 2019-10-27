@@ -1,5 +1,5 @@
 const cheerio = require('cheerio')
-const mongodb = require('../../database/mongodb');
+const mongodb = require('../../database/mongodb')
 
 // 模拟新信息门户 (ids6) 认证，缺陷是请求较慢，而且同一个用户多次输错密码会对该用户触发验证码
 module.exports = async (ctx, cardnum, password) => {
@@ -64,11 +64,11 @@ module.exports = async (ctx, cardnum, password) => {
         // 记录不存在或者过期
         // 从ehall.seu.edu.cn抓取新的信息
         const ehallUrlRes = await ctx.get(`http://ehall.seu.edu.cn/appMultiGroupEntranceList?appId=4585275700341858&r_t=${Date.now()}`)
-        let ehallUrl = '';
+        let ehallUrl = ''
         ehallUrlRes.data && ehallUrlRes.data.data && ehallUrlRes.data.data.groupList && ehallUrlRes.data.data.groupList[0] &&
-          (ehallUrl = ehallUrlRes.data.data.groupList[0].targetUrl);
+          (ehallUrl = ehallUrlRes.data.data.groupList[0].targetUrl)
         if (!ehallUrl) {
-          throw 'ehall-fail';
+          throw 'ehall-fail'
         }
         await ctx.get(ehallUrl)
         let studentInfo = await ctx.post('http://ehall.seu.edu.cn/xsfw/sys/jbxxapp/modules/infoStudent/getStuBatchInfo.do')
@@ -89,7 +89,7 @@ module.exports = async (ctx, cardnum, password) => {
           }
           
         } else {
-          throw 'ehall-fail';
+          throw 'ehall-fail'
         }
         if (!record) {
           // 若是无记录的情况，插入记录
@@ -132,7 +132,7 @@ module.exports = async (ctx, cardnum, password) => {
           if (record) {
             schoolnum = record.schoolnum
             name = record.name
-            console.log(`已使用历史记录替代`)
+            console.log('已使用历史记录替代')
           }
         }
       }

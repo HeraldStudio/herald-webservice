@@ -35,10 +35,10 @@ exports.route = {
       if(/^21318/.test(cardnum)) {
         await this.useEHallAuth('4768574631264620')
         let rawData = await this.post('http://ehall.seu.edu.cn/jwapp/sys/cjcx/modules/cjcx/xscjcx.do',
-        {querySetting: [],
-        '*order': '-XNXQDM,KCH,KXH',
-        pageSize: 1000,
-        pageNumber: 1})
+          {querySetting: [],
+            '*order': '-XNXQDM,KCH,KXH',
+            pageSize: 1000,
+            pageNumber: 1})
         //原始数据中有重复数据
         rawData = rawData.data.datas.xscjcx.rows
         
@@ -208,8 +208,8 @@ exports.route = {
 
         let [gpa, gpaBeforeMakeup, year, calculationTime]
           = $('#table4 tr').eq(1).find('td').toArray().map(td => {
-          return $(td).text().trim().replace(/&[0-9A-Za-z];/g, '')
-        })
+            return $(td).text().trim().replace(/&[0-9A-Za-z];/g, '')
+          })
         
         // 计算各门课程是否首次通过
         // 用于判断课程是否获得学分，以及用于前端判断课程是否默认计入校内绩点估算
@@ -272,18 +272,18 @@ exports.route = {
             return { semester, courseName, courseType: '', credit, score, standardScore, scoreType }
           })
         })
-        .reduce((a, b) => a.concat(b), [])
-        .sort((a, b) => b.semester - a.semester)
-        .reduce((a, b) => { // 按学期分组
-          let semester = b.semester
-          delete b.semester
-          if (!a.length || a.slice(-1)[0].semester !== semester) {
-            return a.concat([{ semester, courses: [b] }])
-          } else {
-            a.slice(-1)[0].courses.push(b)
-            return a
-          }
-        }, [])
+          .reduce((a, b) => a.concat(b), [])
+          .sort((a, b) => b.semester - a.semester)
+          .reduce((a, b) => { // 按学期分组
+            let semester = b.semester
+            delete b.semester
+            if (!a.length || a.slice(-1)[0].semester !== semester) {
+              return a.concat([{ semester, courses: [b] }])
+            } else {
+              a.slice(-1)[0].courses.push(b)
+              return a
+            }
+          }, [])
 
         let score = parseFloat($('#lblgghpjcj').text()) // 规格化平均成绩
         let degree = parseFloat($('#lblxwxf').text()) // 学位学分

@@ -18,18 +18,18 @@ exports.getUptoken = (prefix='') => {
 
 exports.deleteFile = (url) => {
   let { access, secret, bucket } = config.qiniu
-  let mac = new qiniu.auth.digest.Mac(access, secret);
-  let _config = new qiniu.conf.Config();
-  _config.zone = qiniu.zone.Zone_z0;
-  let bucketManager = new qiniu.rs.BucketManager(mac, _config);
+  let mac = new qiniu.auth.digest.Mac(access, secret)
+  let _config = new qiniu.conf.Config()
+  _config.zone = qiniu.zone.Zone_z0
+  let bucketManager = new qiniu.rs.BucketManager(mac, _config)
   let key = url.replace('https://static.myseu.cn/', '')
   return new Promise((resolve, reject) => {
-    bucketManager.delete(bucket, key, function(err, respBody, respInfo) {
+    bucketManager.delete(bucket, key, function(err, respBody) {
       if (err) {
         reject(err)
       } else {
         resolve(respBody)
       }
-    });
+    })
   })
 }

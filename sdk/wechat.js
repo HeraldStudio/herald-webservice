@@ -1,5 +1,5 @@
 const { config } = require('../app')
-const mongodb  = require('../database/mongodb');
+const mongodb  = require('../database/mongodb')
 
 const axios = require('axios').create({
   baseURL: 'https://api.weixin.qq.com/cgi-bin/',

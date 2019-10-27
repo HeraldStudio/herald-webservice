@@ -19,17 +19,17 @@ exports.route = {
     msg = msg.data.toString()
 
     if(msg === '1'){
-      return "预约时间已过！"
+      return '预约时间已过！'
     }else if(msg === '6'){
-      return "非预约时间段不能进行预约操作！"
+      return '非预约时间段不能进行预约操作！'
     }else if(msg === '2'){
-      return "该时间已有其他预约！"
+      return '该时间已有其他预约！'
     }else if(msg === '3'){
-      return "本日预约已经达到最大限制！"
+      return '本日预约已经达到最大限制！'
     }else if(msg === '4'){
-      return "本项目预约已经达到最大限制！"
+      return '本项目预约已经达到最大限制！'
     }else if(msg === '5'){
-      return "您已被冻结，无法进行预约！"
+      return '您已被冻结，无法进行预约！'
     }
     
     // 可以继续预约
@@ -50,13 +50,13 @@ exports.route = {
       //console.log('require validate image again')
     }
     return {
-        phone: phone,
-        half: half,
-        full: full,
-        validateImage: validateImage,
-        cookie: cookie
+      phone: phone,
+      half: half,
+      full: full,
+      validateImage: validateImage,
+      cookie: cookie
     }
-/**
+    /**
  * 2018-10-01
  * 7
  * 09:00-10:00

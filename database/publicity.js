@@ -38,7 +38,7 @@ db.activity = {
 db.activityClick = {
   aid:              'int not null',
   identity:         'text not null'    // 数据库中要区分用户时务必用 identity
-};
+}
 
 // 数据库迁移代码
 // (async() => {

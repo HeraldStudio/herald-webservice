@@ -10,11 +10,11 @@ const sites = {
     baseUrl: 'http://jwc.seu.edu.cn',
     infoUrl: 'http://jwc.seu.edu.cn',
     list: [
-      ['#wp_news_w6', "教务信息"],
-      ['#wp_news_w7', "学籍管理"],
-      ['#wp_news_w9', "实践教学"],
-      ['#wp_news_w10', "国际交流"],
-      ['#wp_news_w8', "教学研究"]
+      ['#wp_news_w6', '教务信息'],
+      ['#wp_news_w7', '学籍管理'],
+      ['#wp_news_w9', '实践教学'],
+      ['#wp_news_w10', '国际交流'],
+      ['#wp_news_w8', '教学研究']
     ],
     contentSelector: '.wp_articlecontent'
   },
@@ -98,24 +98,24 @@ exports.route = {
           ele => {
             timeList[ele[1]] =
               $(ele[0]).find(sites[site].dateSelector || 'div').toArray()
-              .map(k => /(\d+-)?(\d+)-(\d+)/.exec($(k).text()))
-              .filter(k => k)
-              .map(k => {
-                k.year = parseInt(k[1])
-                k.month = parseInt(k[2])
-                k.date = parseInt(k[3])
-                return k
-              })
+                .map(k => /(\d+-)?(\d+)-(\d+)/.exec($(k).text()))
+                .filter(k => k)
+                .map(k => {
+                  k.year = parseInt(k[1])
+                  k.month = parseInt(k[2])
+                  k.date = parseInt(k[3])
+                  return k
+                })
               // 过滤掉一看就不是日期的内容，比如「17-18-3」
               // 一个标题: 我院召开17-18-3学期期中教学检查学生座谈会
-              .filter(k =>
-                      (!k.year || k.year >= 1000 || k.year < 100)
+                .filter(k =>
+                  (!k.year || k.year >= 1000 || k.year < 100)
                       && k.month >= 1 && k.month <= 12
                       && k.date >= 1 && k.date <= 31)
               // FIXME 这里可能还存在着 bug。
-              .map(k => k[1] // 有的网站上没有年份信息。
+                .map(k => k[1] // 有的网站上没有年份信息。
                   ? +moment(k[0], 'YYYY-M-D')
-                   : +autoMoment(k[0]))
+                  : +autoMoment(k[0]))
           }
         )
 
@@ -136,7 +136,7 @@ exports.route = {
             // 记下其在本栏中出现的顺序，一般，序号越小，越新
             index: i
           }
-        }).reduce((arr, news) => {if(news.title){arr.push(news)}; return arr}, [])
+        }).reduce((arr, news) => {if(news.title){arr.push(news)} return arr}, [])
         ).reduce((a, b) => a.concat(b), [])
       }) // publicCache
     )) // Promise.all
