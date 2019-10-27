@@ -425,4 +425,33 @@ GET /api => {
 2. 更优雅的爬虫授权方式
 3. 给予请求的访问方式过滤
 
-and more？
+## 精细化管理 科学化养猪
+
+**Git & GitHub 团队协作指南**
+
+### 分支
+
+**master 分支** ：线上分支，受保护，master 分支代码被直接部署到服务器上运行
+
+**dev 分支** ： 开发分支，受保护
+
+### 分支管理策略
+
+master 和 dev 分支均被设置为保护分支，**不允许直接 commit 到这两个分支**。
+
+当你需要添加新的功能特性（feature）或者进行 bug 修复（bugfix）时，请将 dev 分支的改动同步到本地然后在 dev 分支的 HEAD 处创建新的分支：
+
+```bash
+> git fetch origin
+> git checkout dev
+> git pull
+> git checkout -b <新的分支名称>
+```
+
+新的分支名称请按照：`<username>/<feature|bugfix>-what-would-you-do` 格式命名，例如：
+
+* `wolf-tungsten/feature-love-zzj`
+* `zzj/bugfix-guna`
+
+
+
