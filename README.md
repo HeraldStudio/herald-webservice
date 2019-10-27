@@ -1,5 +1,7 @@
 # herald-webservice
 
+[![Build Status](https://travis-ci.com/HeraldStudio/herald-webservice.svg?branch=master)](https://travis-ci.com/HeraldStudio/herald-webservice)
+
 小猴偷米 2018 WebService3 后端，使用 Node.js + Koa 构建。
 
 ## 使用说明
