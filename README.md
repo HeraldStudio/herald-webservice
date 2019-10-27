@@ -453,5 +453,27 @@ master 和 dev 分支均被设置为保护分支，**不允许直接 commit 到�
 * `wolf-tungsten/feature-love-zzj`
 * `zzj/bugfix-guna`
 
+之后你可以在该分支上进行代码编写然后正常创建 commit，当你需要将代码推送到 GitHub 时，由于远程目前还没有这个新分支的对应分支，你需要使用不太一样的 push 命令：
+
+```bash
+> git push -u origin <新的分支名称>
+```
+
+之后如果需要继续 push 则可直接使用 `git push` 命令。
+
+当你完成功能的一部分开发，并且确信该部分可以和其他人开发的部分协作，你就可以发起 pull-request 了（什么？不会 Pull-Request ？再见👋），按照管理策略，所有向主线靠拢的 pull-request 需要首先 merge 到 dev 分支。
+
+**pull-request 会被 Traivs CI 进行自动检查** ，如果检查不通过则无法被 merge ，所以在准备合并之间，请你现在本地执行：`yarn lint` ，**确保无错误输出**。
+
+**Code-Review 策略** 被设置为，每个 pull-request 需要额外 1 人审阅，即发起人需要邀请额外的一个人审阅，审阅无误后才可进行合并。
+
+当你的开发分支被合并到 dev 分支后，请手动删除 GitHub 中的对应分支，你的本地分支可以攒够一定数量之后~~召唤神龙~~ 批量删除。
+
+**dev 分支到 master 分支的合并同样需要额外一人审阅** ，确认无误后才可从服务器拉取，投入正式使用。
+
+
+
+
+
 
 
