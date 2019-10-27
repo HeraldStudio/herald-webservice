@@ -1,4 +1,4 @@
-const  mongodb  = require('../../database/mongodb');
+const  mongodb  = require('../../database/mongodb')
 const { config } = require('../../app')
 const crypto = require('crypto')
 const axios = require('axios')

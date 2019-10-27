@@ -12,10 +12,10 @@ exports.route = {
     //     return k
     //   }))
     return await Promise.all((await bannerCollection.find().sort('endTime', -1).skip((page - 1) * pagesize).limit(parseInt(pagesize)).toArray())
-    .map(async k => {
-      k.clicks = await bannerClickCollection.countDocuments({ bid: k.bid })
-      return k
-    }))
+      .map(async k => {
+        k.clicks = await bannerClickCollection.countDocuments({ bid: k.bid })
+        return k
+      }))
   },
   async post ({ banner }) {
     let bannerCollection = await mongodb('herald_banner')

@@ -83,7 +83,7 @@ const handler = {
     //console.log(token)
 
     //客服消息回复图片,永久添加图片
-    return { type: "image", content: 'V0B7CYkN4lHoVoFrs63HZTbLCIHsvi-YgZgrctk4kU0' };
+    return { type: 'image', content: 'V0B7CYkN4lHoVoFrs63HZTbLCIHsvi-YgZgrctk4kU0' }
 
   },
 
@@ -102,7 +102,7 @@ const handler = {
         let amount = k.amount.toFixed(2).replace(/^(?:\d)/, '+')
         return date ? `${k.desc} ${amount}` : `${time}：${k.desc} ${amount}`
       }).join('\n'),
-      date ? '' : `💡 可查指定日期，注意日期前加空格，例如：一卡通 2018-3-17`
+      date ? '' : '💡 可查指定日期，注意日期前加空格，例如：一卡通 2018-3-17'
     ].filter(k => k).join('\n\n').padd()
   },
 
@@ -129,7 +129,7 @@ const handler = {
       current.map(k => `正在上课：${k.courseName} @ ${k.location}\n`).join(''),
       upcoming.slice(0, 5).map(k => `${moment(k.startTime).fromNow()}
         ${k.courseName} @ ${k.location}`).join('\n\n'),
-      `💡 完整课表详见网页版或小程序`
+      '💡 完整课表详见网页版或小程序'
     ].filter(k => k).join('\n\n').padd()
   },
 
@@ -151,11 +151,11 @@ const handler = {
   },
 
   async '空教室|教室'(building = '') {
-    let hour = +moment().format("HH")
-    let minute = +moment().format("mm")
+    let hour = +moment().format('HH')
+    let minute = +moment().format('mm')
 
     if (hour >= 21 || (hour >= 20 && minute >= 55)) {
-      return `🙈 已经没有教室在上课啦！不过小猴提醒你还是要早点休息哦～`
+      return '🙈 已经没有教室在上课啦！不过小猴提醒你还是要早点休息哦～'
     }
 
     this.path = '/api/classroom/current'
@@ -235,7 +235,7 @@ const handler = {
     })
 
     result = [
-      `📚小猴偷米空教室查询`,
+      '📚小猴偷米空教室查询',
       `${result.currentTimeDesc}`,
       ...result.forCurrent,
       `${result.nextTimeDesc}`,
@@ -243,7 +243,7 @@ const handler = {
     ].join('\n\n')
 
     if (result.length > 1000) {
-      return "🤔现在的空教室太多了，请按教学楼查询吧～ 例如【空教室 教一】"
+      return '🤔现在的空教室太多了，请按教学楼查询吧～ 例如【空教室 教一】'
     }
 
     return result
@@ -257,7 +257,7 @@ const handler = {
     let courses = this.body
 
     return [
-      `🗓 选修课程排行 Top 10`,
+      '🗓 选修课程排行 Top 10',
       courses.map(k => `
         ${k.courseName} (${k.courseType})
         ${k.avgScore ? `平均参考成绩 ${k.avgScore} (样本容量 ${k.sampleCount})` : ''}
@@ -266,14 +266,14 @@ const handler = {
   },
 
   async '跑操管理员'() {
-    let md5 = crypto.createHash('md5');
-    let openidHash = md5.update(this.openid).digest('hex');
+    let md5 = crypto.createHash('md5')
+    let openidHash = md5.update(this.openid).digest('hex')
     return openidHash
   },
 
   async '跑操通知'(message) {
-    let md5 = crypto.createHash('md5');
-    let openidHash = md5.update(this.openid).digest('hex');
+    let md5 = crypto.createHash('md5')
+    let openidHash = md5.update(this.openid).digest('hex')
     let adminCollection = await mongodb('herald_morning_exercise_admin')
     let adminRecord = await adminCollection.findOne({ openidHash })
     if (adminRecord) {
@@ -288,19 +288,19 @@ const handler = {
         // 状态切换过程发送全体推送
         let templateMsg = {
           touser: [],
-          template_id: "q-o8UyAeQRSQfvvue1VWrvDV933q1Sw3esCusDA8Nl4",
+          template_id: 'q-o8UyAeQRSQfvvue1VWrvDV933q1Sw3esCusDA8Nl4',
           data: {
             first: {
-              value: ""
+              value: ''
             },
             keyword1: {
-              value: "东南大学"
+              value: '东南大学'
             },
             keyword2: {
-              value: "体育系"
+              value: '体育系'
             },
             keyword3: {
-              value: '' + String(moment().format("YYYY-MM-DD"))
+              value: '' + String(moment().format('YYYY-MM-DD'))
             },
             keyword4: {
               value: '\n\n' + message
@@ -308,14 +308,14 @@ const handler = {
           }
         }
         if (state === 'set') {
-          templateMsg.data.first.value = `跑操安排提醒【今日跑操正常进行】\n`
+          templateMsg.data.first.value = '跑操安排提醒【今日跑操正常进行】\n'
         } else if (state === 'cancel') {
-          templateMsg.data.first.value = `跑操安排提醒【今日跑操取消】\n`
+          templateMsg.data.first.value = '跑操安排提醒【今日跑操取消】\n'
         }
 
         if (record.state !== 'pending') {
           // 跑操状态中途变更
-          templateMsg.data.first.value = `【紧急通知】跑操安排调整\n`
+          templateMsg.data.first.value = '【紧急通知】跑操安排调整\n'
         }
 
         let subscriberCollection = await mongodb('herald_notification')
@@ -324,13 +324,13 @@ const handler = {
         templateMsg.touser = users
         templateMsg.accessToken = await accessToken('wx-herald')
         let pushJob = new Promise((resolve, reject) => {
-          let pushProcess = new childProcess.fork("./worker/morningExerciseNotification.js")
+          let pushProcess = new childProcess.fork('./worker/morningExerciseNotification.js')
           pushProcess.send(templateMsg)
           pushProcess.on('message', (msg) => {
             if (msg.success) {
               resolve(`【跑操提醒推送】共 ${msg.amount} 人订阅，${msg.count} 推送成功，跑操状态设置成功`)
             } else {
-              resolve(`【跑操提醒推送】消息推送出错`)
+              resolve('【跑操提醒推送】消息推送出错')
             }
             pushProcess.kill()
           })
@@ -357,24 +357,24 @@ const handler = {
     // 检查是否设置成功
     let record = await collection.find({ type: 'wechat', function: '跑操提醒', openid }).toArray()
     if (record.length === 1) {
-      let res = await api.post(`message/template/send`, {
+      let res = await api.post('message/template/send', {
         touser: openid,
-        template_id: "q-o8UyAeQRSQfvvue1VWrvDV933q1Sw3esCusDA8Nl4",
+        template_id: 'q-o8UyAeQRSQfvvue1VWrvDV933q1Sw3esCusDA8Nl4',
         data: {
           first: {
-            value: "✅ 跑操提醒服务开启成功\n"
+            value: '✅ 跑操提醒服务开启成功\n'
           },
           keyword1: {
-            value: "东南大学"
+            value: '东南大学'
           },
           keyword2: {
-            value: "小猴偷米"
+            value: '小猴偷米'
           },
           keyword3: {
-            value: '' + String(moment().format("YYYY-MM-DD"))
+            value: '' + String(moment().format('YYYY-MM-DD'))
           },
           keyword4: {
-            value: "\n\n已开启小猴偷米跑操提醒服务，每日跑操预报信息发布时您将会收到提醒。 \n\n如需关闭提醒，请前往小猴偷米公众号发送关键字【取消跑操提醒】。"
+            value: '\n\n已开启小猴偷米跑操提醒服务，每日跑操预报信息发布时您将会收到提醒。 \n\n如需关闭提醒，请前往小猴偷米公众号发送关键字【取消跑操提醒】。'
           }
         }
       })
@@ -393,24 +393,24 @@ const handler = {
     // 检查是否删除成功
     let record = await collection.find({ type: 'wechat', function: '跑操提醒', openid }).toArray()
     if (record.length === 0) {
-      let res = await api.post(`message/template/send`, {
+      let res = await api.post('message/template/send', {
         touser: openid,
-        template_id: "q-o8UyAeQRSQfvvue1VWrvDV933q1Sw3esCusDA8Nl4",
+        template_id: 'q-o8UyAeQRSQfvvue1VWrvDV933q1Sw3esCusDA8Nl4',
         data: {
           first: {
-            value: "⛔️ 跑操提醒服务已关闭\n"
+            value: '⛔️ 跑操提醒服务已关闭\n'
           },
           keyword1: {
-            value: "东南大学"
+            value: '东南大学'
           },
           keyword2: {
-            value: "小猴偷米"
+            value: '小猴偷米'
           },
           keyword3: {
-            value: '' + String(moment().format("YYYY-MM-DD"))
+            value: '' + String(moment().format('YYYY-MM-DD'))
           },
           keyword4: {
-            value: "\n\n已关闭小猴偷米跑操提醒服务。 \n\n如需再次开启，请前往小猴偷米公众号发送关键字【开启跑操提醒】。"
+            value: '\n\n已关闭小猴偷米跑操提醒服务。 \n\n如需再次开启，请前往小猴偷米公众号发送关键字【开启跑操提醒】。'
           }
         }
       })
@@ -429,8 +429,8 @@ const handler = {
     return [
       `🥇 已跑操 ${count} 次，还有 ${remainDays} 天`,
       count && `上次跑操是在${lastTime}`,
-      `💡 回复 体测 查看体测成绩`,
-      `💡 回复 开启跑操提醒 体验跑操提醒服务`
+      '💡 回复 体测 查看体测成绩',
+      '💡 回复 开启跑操提醒 体验跑操提醒服务'
     ].filter(k => k).join('\n\n').padd()
   },
 
@@ -440,7 +440,7 @@ const handler = {
     await this.next()
     let { health } = this.body
     return [
-      `🏓 最近一次体测成绩：`,
+      '🏓 最近一次体测成绩：',
       health.map(k => `${k.name}：${k.value}` + (k.grade && `（${k.score}，${k.grade}）`)).join('\n')
     ].filter(k => k).join('\n\n').padd()
   },
@@ -547,9 +547,9 @@ const handler = {
     let list = scholarshipList.concat(stipendList)
     let applied = scholarshipApplied.concat(stipendApplied)
     return [
-      `🔑 可申请奖助学金：`,
+      '🔑 可申请奖助学金：',
       list.map(k => k.name).join('\n'),
-      `🔑 已申请奖助学金：`,
+      '🔑 已申请奖助学金：',
       applied.map(k => `${k.name}（${k.endYear} ${k.state}）`).join('\n')
     ].filter(k => k).join('\n\n').padd()
   },
@@ -560,7 +560,7 @@ const handler = {
     await this.next()
     let notices = this.body
     return [
-      `📨 最近通知：`,
+      '📨 最近通知：',
       notices.slice(0, 5).map(k => `${k.category} ${moment(k.time).calendar()}
         <a href="${k.url || 'https://myseu.cn/?nid=' + k.nid}">${k.title}</a>`).join('\n\n')
     ].filter(k => k).join('\n\n').padd()
@@ -585,11 +585,11 @@ const handler = {
     let { campus, area, building, room, bed } = this.body
     if (building) {
       return [
-        `🏠 你的宿舍：`,
+        '🏠 你的宿舍：',
         `${campus} ${building} ${room} ${bed}号床`
       ].join('\n').padd()
     }
-    return `🏠 你暂时没有分配宿舍`
+    return '🏠 你暂时没有分配宿舍'
   },
 
   async 'App|APP|下载'() {
@@ -691,23 +691,23 @@ try {
           return ''
         }
         try {
-          if (msg.type === "image") {
+          if (msg.type === 'image') {
             api.post('/message/custom/send', {
-              "touser": openid,
-              "msgtype": "image",
-              "image":
+              'touser': openid,
+              'msgtype': 'image',
+              'image':
               {
-                "media_id": msg.content
+                'media_id': msg.content
               }
             })
           }
           else {
             api.post('/message/custom/send', {
-              "touser": openid,
-              "msgtype": "text",
-              "text":
+              'touser': openid,
+              'msgtype': 'text',
+              'text':
               {
-                "content": msg
+                'content': msg
               }
             })
           }

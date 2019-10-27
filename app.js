@@ -2,8 +2,8 @@ const koa = require('koa')
 const app = new koa()
 const kf = require('kf-router')
 const fs = require('fs')
-const program = require('commander');
-const chalk = require('chalk');
+const program = require('commander')
+const chalk = require('chalk')
 // 调试时打开，设置所有 Promise 超时 15 秒，超过 15 秒自动 reject 并输出超时 Promise 所在位置
 // require('./promise-timeout')(15000)
 
@@ -13,14 +13,14 @@ program
   .version('1.0.0')
   .option('-m --mode <mode>', '执行模式 <production|development|profile>')
   .option('-p, --port <port>', '监听端口（爬虫服务监听port+1000端口）',parseInt)
-  .parse(process.argv);
+  .parse(process.argv)
 
 // 将 moment 导出到全局作用域
 global.moment = require('moment')
 // 运行参数导出到全局
 global.program = program
 
-global.chalkColored = new chalk.constructor({level: 2});
+global.chalkColored = new chalk.constructor({level: 2})
 
 // 解析 YAML 配置文件
 const config = require('js-yaml').load(fs.readFileSync('./config.yml'))

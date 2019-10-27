@@ -8,7 +8,8 @@
     "profile": "yarn && cross-env NODE_ENV=profile nodemon app.js --mode=profile --port=3000",
     "log": "pm2 log",
     "cluster-start": "yarn && pm2 start ./pm2-ws.json",
-    "cluster-stop": "pm2 delete herald-webservice-1 && pm2 delete herald-webservice-2 && pm2 delete herald-webservice-3 && pm2 delete herald-webservice-4"
+    "cluster-stop": "pm2 delete herald-webservice-1 && pm2 delete herald-webservice-2 && pm2 delete herald-webservice-3 && pm2 delete herald-webservice-4",
+    "lint":"eslint ."
   },
   "dependencies": {
     "apn": "^2.2.0",
@@ -20,6 +21,7 @@
     "co-wechat": "^2.3.0",
     "commander": "^2.19.0",
     "cross-env": "^5.2.0",
+    "eslint": "^6.6.0",
     "form-data": "^2.3.2",
     "iconv": "^2.3.0",
     "iconv-lite": "^0.4.24",

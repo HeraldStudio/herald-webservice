@@ -11,22 +11,22 @@ exports.route = {
     //   startTime: { $lte: now },
     //   endTime: { $gt: now }
     // }, -1, 0, 'startTime-'))
-    (await bannerCollection.find({
-         startTime: { $lte: now },
-         endTime: { $gt: now }
-       }).sort('startTime', -1).toArray())
-    .filter(k =>
-      schoolnum.indexOf(k.schoolnumPrefix) === 0 ||
+      (await bannerCollection.find({
+        startTime: { $lte: now },
+        endTime: { $gt: now }
+      }).sort('startTime', -1).toArray())
+        .filter(k =>
+          schoolnum.indexOf(k.schoolnumPrefix) === 0 ||
       !schoolnum && k.schoolnumPrefix === 'guest' ||
       schoolnum && k.schoolnumPrefix === '!guest'
-    )
-    // 这里删除 url 参数，强制要求前端在用户点击时通过 put 请求获取链接，以保证统计不遗漏
-    // 将bid替换成_id
-    .map(k => {
-      k.hasUrl = !!k.url
-      delete k.url
-      return k
-    }))
+        )
+      // 这里删除 url 参数，强制要求前端在用户点击时通过 put 请求获取链接，以保证统计不遗漏
+      // 将bid替换成_id
+        .map(k => {
+          k.hasUrl = !!k.url
+          delete k.url
+          return k
+        }))
   },
 
   /**

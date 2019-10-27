@@ -9,30 +9,30 @@ exports.route = {
   */
   async get({ domain }) {
     
-      let adminCollection = await mongodb('herald_admin')
-      let domainCollection = await mongodb('herald_admin_domain')
-      if (!domain) {
-        if (!(this.admin && this.admin.super) && !this.user.isLogin) {
-          throw 401
-        }
-        this.body = ''
-        this.status = 200
-        return this.admin
-      } else {
-        // 只允许当前域中的管理员和超级管理员查看当前域中的管理员
-        if (!this.admin[domain]) {
-          throw 403
-        }
-
-        // return {
-        //   domain: await db.domain.find({ domain }, 1),
-        //   admins: await db.admin.find({ domain })
-        // }
-        return {
-          domain: await domainCollection.findOne({ domain }),
-          admins: await adminCollection.find({ domain }).toArray()
-        }
+    let adminCollection = await mongodb('herald_admin')
+    let domainCollection = await mongodb('herald_admin_domain')
+    if (!domain) {
+      if (!(this.admin && this.admin.super) && !this.user.isLogin) {
+        throw 401
       }
+      this.body = ''
+      this.status = 200
+      return this.admin
+    } else {
+      // 只允许当前域中的管理员和超级管理员查看当前域中的管理员
+      if (!this.admin[domain]) {
+        throw 403
+      }
+
+      // return {
+      //   domain: await db.domain.find({ domain }, 1),
+      //   admins: await db.admin.find({ domain })
+      // }
+      return {
+        domain: await domainCollection.findOne({ domain }),
+        admins: await adminCollection.find({ domain }).toArray()
+      }
+    }
 
   },
 

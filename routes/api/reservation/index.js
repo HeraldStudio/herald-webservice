@@ -15,7 +15,7 @@ const cheerio = require('cheerio')
  * 17     网球场 四牌楼
  */
 
- /**
+/**
   * dayInfo 为今天 明天 后天
   * format 2018-09-27
   */
@@ -86,7 +86,7 @@ exports.route = {
     await this.useAuthCookie()
     
     return 'ok'
-/**
+    /**
  * 2018-10-01
  * 7
  * 09:00-10:00

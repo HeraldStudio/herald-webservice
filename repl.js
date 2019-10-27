@@ -93,7 +93,7 @@ exports.start = () => {
             console.log(`\n用 ${composedParams.cardnum} 的身份登录了！`)
             testClient.defaults.headers = { token: res.data.result }
           } else if (method === 'delete') {
-            console.log(`\n退出登录了！`)
+            console.log('\n退出登录了！')
             testClient.defaults.headers = {}
           }
         }

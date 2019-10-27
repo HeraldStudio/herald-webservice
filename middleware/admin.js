@@ -1,5 +1,5 @@
 const crypto = require('crypto')
-const mongodb = require('../database/mongodb');
+const mongodb = require('../database/mongodb')
 
 //数据库迁移代码
 // (async() => {

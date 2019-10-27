@@ -88,7 +88,7 @@ module.exports = class Procmon {
 
   check() {
     let { pid } = this.process
-    cp.exec(`ps aux ${pid}`, (err, stdout, stderr) => {
+    cp.exec(`ps aux ${pid}`, (err, stdout) => {
       let out = stdout.trim().split('\n')
       if (out.length < 2) {
         if (this.autoReload) {

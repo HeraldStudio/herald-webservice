@@ -38,7 +38,7 @@ exports.route = {
       sysid: items[0].sysid,
       billamts: [],
       feeTotal: 0,
-      type: "",
+      type: '',
       counts: [],
       feeamts: [],
       unpaid: [],
@@ -106,31 +106,31 @@ exports.route = {
     // 金智烂代码警告
     let $ = cheerio.load(res2.data)
     let body4
-    let bankid = "JZJF"
-    if ($("#paystyle").val() == "O") {
-      let savingAmt = $("#savingAmt").val();
+    let bankid = 'JZJF'
+    if ($('#paystyle').val() == 'O') {
+      let savingAmt = $('#savingAmt').val()
       if (savingAmt.trim() == '' || parseFloat(savingAmt) == 0) {
-        let userid = $("#useridHidden").val();
-        let hassubbank = $("#" + bankid).val();
-        let type = 'nothing';
-        let subbankid = $("input[name='" + bankid + "id']:checked").val();
-        let cfcabankid = $("input[name='cfcabankid']:checked").val();
+        let userid = $('#useridHidden').val()
+        let hassubbank = $('#' + bankid).val()
+        let type = 'nothing'
+        let subbankid = $('input[name=\'' + bankid + 'id\']:checked').val()
+        let cfcabankid = $('input[name=\'cfcabankid\']:checked').val()
 
         body4 = {
-          billno: $("#billnoTd").text().trim(),
+          billno: $('#billnoTd').text().trim(),
           bankid: bankid,
-          feeitemdefords: $("#feeitemdefordsHidden").val(),
-          ords: $("#ordsHidden").val(),
-          ticketTitle: encodeURI($("#ticketTitle").val()),
+          feeitemdefords: $('#feeitemdefordsHidden').val(),
+          ords: $('#ordsHidden').val(),
+          ticketTitle: encodeURI($('#ticketTitle').val()),
           type: type,
-          nothing: "nodate",
+          nothing: 'nodate',
           alipaybankid: subbankid,
           cfcabankid: cfcabankid,
           subbankid: subbankid,
-          userid: $("#useridHidden").val(),
-          username: $("#usernameHidden").val(),
+          userid: $('#useridHidden').val(),
+          username: $('#usernameHidden').val(),
           url: url2,
-          payamt: $("#amtTd").text(),
+          payamt: $('#amtTd').text(),
           domain: 'caiwuchu.seu.edu.cn'
         }
       }

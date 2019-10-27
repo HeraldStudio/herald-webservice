@@ -93,15 +93,15 @@ module.exports = async (ctx, next) => {
         curriculum.map(k => {
           if (!sidebar.find(j => j.lecturer === k.teacherName && j.course === k.courseName)) {
             try {
-            sidebar.push({
-              lecturer: k.teacherName,
-              course: k.courseName,
-              week: `${k.beginWeek}-${k.endWeek}`,
-              credit: k.credit ? k.credit.toString() : '获取失败'
-            })
-          } catch(e) {
-            console.log('ws2/curriculum', k)
-          }
+              sidebar.push({
+                lecturer: k.teacherName,
+                course: k.courseName,
+                week: `${k.beginWeek}-${k.endWeek}`,
+                credit: k.credit ? k.credit.toString() : '获取失败'
+              })
+            } catch(e) {
+              console.log('ws2/curriculum', k)
+            }
           }
           if (k.dayOfWeek) {
             content[weekdays[k.dayOfWeek - 1]].push([
@@ -131,16 +131,16 @@ module.exports = async (ctx, next) => {
             j.lecturer === k.teacherName
             && j.course === k.courseName
             && j.week === `${k.beginWeek}-${k.endWeek}`)) {
-              try {
-            sidebar.push({
-              lecturer: k.teacherName,
-              course: k.courseName,
-              week: `${k.beginWeek}-${k.endWeek}`,
-              credit: k.credit ? k.credit.toString() : '获取失败'
-            })
-          } catch (e) {
+            try {
+              sidebar.push({
+                lecturer: k.teacherName,
+                course: k.courseName,
+                week: `${k.beginWeek}-${k.endWeek}`,
+                credit: k.credit ? k.credit.toString() : '获取失败'
+              })
+            } catch (e) {
               console.log('ws2/sidebar', k)
-          }
+            }
           }
         })
 
@@ -174,21 +174,21 @@ module.exports = async (ctx, next) => {
             'gpa': gpa?gpa.toString():'0.000'
           }
         ] : [ // 研究生暂时做个兼容
-            {
-              'calculate time': '',
-              'gpa without revamp': score.toString(),
-              'gpa': score.toString()
-            }
-          ]).concat(detail.map(k => k.courses.map(course => {
-            return {
-              name: course.courseName,
-              extra: course.courseType,
-              credit: course.credit.toString(),
-              semester: k.semester,
-              score: course.score,
-              type: course.scoreType
-            }
-          })).reduce((a, b) => a.concat(b), []))
+          {
+            'calculate time': '',
+            'gpa without revamp': score.toString(),
+            'gpa': score.toString()
+          }
+        ]).concat(detail.map(k => k.courses.map(course => {
+          return {
+            name: course.courseName,
+            extra: course.courseType,
+            credit: course.credit.toString(),
+            semester: k.semester,
+            score: course.score,
+            type: course.scoreType
+          }
+        })).reduce((a, b) => a.concat(b), []))
 
         ctx.body = { content, code: 200 }
 

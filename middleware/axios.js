@@ -26,9 +26,9 @@ const iconv = require('iconv')
 const qs = require('querystring')
 
 
-const proxyOptions = `socks5://118.126.82.142:8000`;
-const httpsAgent = new SocksProxyAgent(proxyOptions, true);
-const httpAgent = new SocksProxyAgent(proxyOptions);
+const proxyOptions = 'socks5://118.126.82.142:8000'
+const httpsAgent = new SocksProxyAgent(proxyOptions, true)
+const httpAgent = new SocksProxyAgent(proxyOptions)
 /**
   ## 安全性
 
@@ -38,7 +38,7 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
 module.exports = async (ctx, next) => {
 
-/**
+  /**
   ## 饼干罐 🍪 Cookie Jar
 
   对于每一个 Context，将自动生成一个饼干罐 (Cookie Jar) 用于存储饼干 (Cookies)。
@@ -47,7 +47,7 @@ module.exports = async (ctx, next) => {
  */
   ctx.cookieJar = new tough.CookieJar()
 
-/**
+  /**
   ## 实现
 
   支持 get/post/put/delete 四个方法
@@ -74,14 +74,14 @@ module.exports = async (ctx, next) => {
     // 自动检测返回内容编码
     responseType: 'arraybuffer',
     transformResponse(res) {
-      let { encoding } = chardet.detect(res);
+      let { encoding } = chardet.detect(res)
       if (encoding === 'windows-1250' || encoding === 'windows-1252') {
         // 验证码类型，不做处理
         return res
       } else { // 若 chardet 返回 null，表示不是一个已知编码的字符串，就当做二进制，不做处理
         try {
           res = new iconv.Iconv(encoding, 'UTF-8//TRANSLIT//IGNORE').convert(res).toString()
-        try { res = JSON.parse(res) } catch (e) {}
+          try { res = JSON.parse(res) } catch (e) {}
         } catch(e) {
           return res
         }
@@ -103,22 +103,22 @@ module.exports = async (ctx, next) => {
             return qs.stringify(req)
           }
           return req
-        };
+        }
         let transformResponse = (res) => {
-          let { encoding } = chardet.detect(res);
+          let { encoding } = chardet.detect(res)
           if (encoding === 'windows-1250' || encoding === 'windows-1252') {
             // 验证码类型，不做处理
             return res
           } else { // 若 chardet 返回 null，表示不是一个已知编码的字符串，就当做二进制，不做处理
             try {
-              res = new iconv.Iconv(encoding, 'UTF-8//TRANSLIT//IGNORE').convert(res).toString();
+              res = new iconv.Iconv(encoding, 'UTF-8//TRANSLIT//IGNORE').convert(res).toString()
               try { res = JSON.parse(res) } catch (e) { }
             } catch (e) {
               return res
             }
           }
           return res
-        };
+        }
         try {
           return await ctx.spiderServer.request(ctx, k, args, config.axios, transformRequest, transformResponse)
         } catch (e) {
@@ -128,7 +128,7 @@ module.exports = async (ctx, next) => {
         return await _axios[k](...args)
       }
     }
-  });
+  })
 
   await next()
 }
