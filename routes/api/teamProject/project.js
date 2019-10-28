@@ -51,29 +51,29 @@ exports.route = {
     if ([record.creatorCardnum, ...adminList].indexOf(cardnum) === -1) {
       throw '没有操作权限'
     }
-    await teamProjectCollection.updateOne({ _id }, { $set: { endTime: +moment() } })
+    await teamProjectCollection.deleteOne({ _id })
 
     return '删除成功'
   },
   async get({ id = '', fromMe, page = 1, pagesize = 10 }) {
     let now = +moment()
     let { cardnum } = this.user
-    let _id = ObjectId(id)
+    let _id = id && ObjectId(id)
     let teamProjectCollection = await mongodb('herald_team_project')
     // 如果id存在则返回该条目的信息
     if (id) {
       let record = await teamProjectCollection.findOne({ _id })
-      return  [{'isAdmin': true}, record]
+      return [{ 'isAdmin': true }, record]
     }
-    // 查看本人发布的竞赛组队项目
+    // 查看本人发布的竞赛组队项目,并且没有过期的
     else if (fromMe) {
-      return await teamProjectCollection.find({ creatorCardnum: cardnum },
-        { limit: pagesize, skip: (page - 1) * pagesize, sort: [['createdTime', -1]] }).toArray()
+      return await teamProjectCollection.find({ creatorCardnum: cardnum ,endTime: { $gt: now }},
+        { limit: +pagesize, skip: (+page - 1) * +pagesize, sort: [['createdTime', -1]] }).toArray()
     }
     // 啥都不指定就返回所有通过审核的组队项目，并且没有招满的组队项目
     else {
       return await teamProjectCollection.find({ auditStatus: 'PASSED', endTime: { $gt: now }, nowNeedNumber: { $gt: 0 } },
-        { limit: pagesize, skip: (page - 1) * pagesize, sort: [['createdTime', -1]] }).toArray()
+        { limit: +pagesize, skip: (+page - 1) * +pagesize, sort: [['createdTime', -1]] }).toArray()
     }
 
   }

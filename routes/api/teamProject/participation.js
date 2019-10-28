@@ -16,7 +16,7 @@ exports.route = {
     if (!(qqNum && email && phoneNum)) {
       throw '缺少联系方式'
     }
-    if (!(majority && skill & desc)) {
+    if (!(majority && skill && desc)) {
       throw '内容不完整'
     }
     await teamParticipationCollection.insertOne({
@@ -53,7 +53,7 @@ exports.route = {
   },
   async get({ id = '', fromMe, page = 1, pagesize = 10 }) {
     let { cardnum } = this.user
-    let _id = ObjectId(id)
+    let _id = id && ObjectId(id)
     let teamParticipationCollection = await mongodb('herald_team_participation')
     // 如果id存在则返回该条目的信息
     if (id) {
@@ -63,12 +63,12 @@ exports.route = {
     // 查看本人的申请
     else if (fromMe) {
       return await teamParticipationCollection.find({ cardnum },
-        { limit: pagesize, skip: (page - 1) * pagesize }).toArray()
+        { limit: +pagesize, skip: (+page - 1) * +pagesize }).toArray()
     }
     // 查看本人收到的申请信息
     else {
       return await teamParticipationCollection.find({ creatorCardnum: cardnum },
-        { limit: pagesize, skip: (page - 1) * pagesize }).toArray()
+        { limit: +pagesize, skip: (+page - 1) * +pagesize }).toArray()
     }
   }
 }
