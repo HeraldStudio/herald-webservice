@@ -319,7 +319,7 @@ class SpiderServer {
       try {
         data.data = JSON.parse(data.data)
       } catch (e) {
-        console.log(e)
+        // ignore
       }
       // 自动更新cookieJar
       requestObj.ctx.cookieJar = tough.CookieJar.fromJSON(data.cookie)
