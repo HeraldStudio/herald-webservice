@@ -55,25 +55,42 @@ exports.route = {
 
     return '删除成功'
   },
-  async get({ id = '', fromMe, page = 1, pagesize = 10 }) {
+  async get({ id = '', kind, page = 1, pagesize = 10 }) {
     let now = +moment()
     let { cardnum } = this.user
     let _id = id && ObjectId(id)
     let teamProjectCollection = await mongodb('herald_team_project')
+    let teamParticipationCollection = await mongodb('herald_team_participation')
     // 如果id存在则返回该条目的信息
     if (id) {
       let record = await teamProjectCollection.findOne({ _id })
       return [{ 'isAdmin': true }, record]
     }
-    // 查看本人发布的竞赛组队项目,并且没有过期的
-    else if (fromMe) {
-      return await teamProjectCollection.find({ creatorCardnum: cardnum ,endTime: { $gt: now }},
+    // 查看本人发布的竞赛组队项目
+    else if (kind === 'publishFromMe') {
+      return await teamProjectCollection.find({ creatorCardnum: cardnum },
         { limit: +pagesize, skip: (+page - 1) * +pagesize, sort: [['createdTime', -1]] }).toArray()
     }
-    // 啥都不指定就返回所有通过审核的组队项目，并且没有招满的组队项目
-    else {
+    // 查看正在招募的所有的项目
+    else if (kind === 'all') {
       return await teamProjectCollection.find({ auditStatus: 'PASSED', endTime: { $gt: now }, nowNeedNumber: { $gt: 0 } },
         { limit: +pagesize, skip: (+page - 1) * +pagesize, sort: [['createdTime', -1]] }).toArray()
+    }
+    // 查看我申请的项目
+    else {
+      // 所有申请
+      let resOfParticipation = await teamParticipationCollection.find({ cardnum },
+        { limit: +pagesize, skip: (+page - 1) * +pagesize }).toArray()
+      
+      let resOfReturn = []
+      for (let index in resOfParticipation) {
+       
+        let res = await teamProjectCollection.findOne({ _id: ObjectId(resOfParticipation[index].teamProjectId) })
+        resOfReturn.push(res)
+      }
+      //console.log(resOfReturn)
+      return resOfReturn
+
     }
 
   }

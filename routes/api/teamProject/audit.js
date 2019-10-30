@@ -6,11 +6,13 @@ exports.route = {
   async get({ pagesize = 10, page = 1 }) {
     let { cardnum } = this.user
     let teamProjectCollection = await mongodb('herald_team_project')
-    if (adminList.indexOf(cardnum)) {
-      return await teamProjectCollection.find({ auditStatus: 'WAITING' }, { limit: pagesize, skip: (page - 1) * pagesize }).toArray()
+    if (adminList.indexOf(cardnum) !== -1) {
+      let res =  await teamProjectCollection.find({ auditStatus: 'WAITING' }, { limit: +pagesize, skip: (+page - 1) * +pagesize }).toArray()
+    
+      return res
     } else {
       return []
     }
-  }
+}
 
 }

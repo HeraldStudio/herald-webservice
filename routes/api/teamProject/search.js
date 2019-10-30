@@ -1,8 +1,9 @@
 const mongodb = require('../../../database/mongodb')
 
 exports.route = {
-  async get({ key,selectedType, page=1, pagesize=10}) {
+  async get({ type,key, page=1, pagesize=10}) {
     //搜索组队项目
+    console.log({type,key})
     let now = +moment()
     let teamProjectCollection = await mongodb('herald_team_project')
     if(!selectedType){

@@ -59,7 +59,7 @@ module.exports = async (ctx, next) => {
       console.log(e)
     })
   } catch(e) {
-    console.log('七牛云日志服务未配置', e)
+    console.log('七牛云日志服务未配置')
   }
 
 
