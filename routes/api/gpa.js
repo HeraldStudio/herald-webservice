@@ -1,6 +1,5 @@
 const cheerio = require('cheerio')
 //const db = require('../../database/course')
-const { config } = require('../../app')
 
 // 折合百分制成绩（本科生用）
 const calculateEquivalentScore = score => {
@@ -30,7 +29,7 @@ exports.route = {
     
     return await this.userCache('10m+', async () => {
       
-      let { name, cardnum, schoolnum } = this.user
+      let { name, cardnum } = this.user
 
       if(/^21318/.test(cardnum)) {
         await this.useEHallAuth('4768574631264620')
@@ -126,16 +125,15 @@ exports.route = {
       // 本科生
       if (/^21/.test(cardnum)) {
         await this.useAuthCookie()
-        res = await this.get(
+        let res = await this.get(
           'http://xk.urp.seu.edu.cn/studentService/cs/stuServe/studentExamResultQuery.action'
         )
         let $ = cheerio.load(res.data)
         
         // 计算去年的当前学期号，以便统计时进行过滤。
         // 早于去年当前学期的数据不再记录。
-        let now = +moment()
         let currentTerm = (this.term.current || this.term.prev).name
-        let prevYearCurrentTerm = currentTerm.split('-').map(Number).map((k, i) => i < 2 ? k - 1 : k).join('-')
+        //let prevYearCurrentTerm = currentTerm.split('-').map(Number).map((k, i) => i < 2 ? k - 1 : k).join('-')
 
         // 解析课程
         let detail = (await Promise.all($('#table2 tr').toArray().slice(1).map(async tr => {
@@ -154,49 +152,6 @@ exports.route = {
           // 学分解析为浮点数
           credit = parseFloat(credit)
 
-          // 不早于去年当前学期的数据，进行课程统计
-          if (semester >= prevYearCurrentTerm) try {
-            let course = await db.course.find({ cid }, 1)
-            if (!course) {
-              await db.course.insert(course = { cid, courseName, courseType, credit, avgScore: 0, sampleCount: 0, updateTime: 0 })
-            }
-
-            // 若分数可识别为数字且非零，更新课程的平均分
-            // course.sampleCount 是原来的样本容量，sampleCount 是更新后的样本容量
-            let sampleCount = course.sampleCount + 1
-
-            // 三种情况：自己有分，原来也有均分，重新取平均；自己有分，原来没有均分，取自己的分；自己没分，不变
-            let avgScore = equivalentScore ? course.avgScore ? (course.avgScore * course.sampleCount + equivalentScore) / sampleCount : equivalentScore : course.avgScore
-            await db.course.update({ cid }, { courseName, courseType, credit, avgScore, sampleCount, updateTime: +moment() })
-
-            // 课程学期信息插入课程学期表关系表
-            if (scoreType === '首修') {
-              let major = schoolnum.substr(0, 3)
-
-              // 入学年份后两位，必须在一卡通号里取，学号可能因为留级而变化
-              let entryYear = parseInt(cardnum.substr(3, 2))
-
-              // 当前课程所在学期的年份后两位，取学期号前两位
-              let semesterYear = parseInt(semester.substr(0, 2))
-
-              // 计算得到当前课程的年级，需要加一，使得大一为 1
-              let grade = semesterYear - entryYear + 1
-
-              // 学期次序，1 短学期，2 秋学期，3春学期
-              let semesterIndex = parseInt(semester.split('-')[2])
-
-              // 查找是否已有该记录，无该记录则插入
-              let record = { cid, major, grade, semester: semesterIndex }
-              let courseSemester = await db.courseSemester.find(record, 1)
-              if (!courseSemester) {
-                record.updateTime = +moment()
-                await db.courseSemester.insert(record)
-              } else {
-                await db.courseSemester.update(record, { updateTime: +moment() })
-              }
-            }
-          } catch (e) {}
-          
           // isFirstPassed 和 isHighestPassed 留给后面计算
           return {
             cid, semester,
