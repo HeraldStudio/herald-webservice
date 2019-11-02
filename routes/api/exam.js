@@ -19,8 +19,13 @@ exports.route = {
         await this.useEHallAuth('4768687067472349')
 
         // 获取学期代号
-        let termRes = await this.post('http://ehall.seu.edu.cn/jwapp/sys/studentWdksapApp/modules/wdksap/dqxnxq.do')
-        let termCode = termRes.data.datas.dqxnxq.rows[0].DM
+        let termCode
+        try {
+          let termRes = await this.post('http://ehall.seu.edu.cn/jwapp/sys/studentWdksapApp/modules/wdksap/dqxnxq.do')
+          termCode = termRes.data.datas.dqxnxq.rows[0].DM
+        } catch (e) {
+          throw '考试查询-获取学期代号异常'
+        }
 
         // 获取原始的考试安排数据
         let examData = await this.post('http://ehall.seu.edu.cn/jwapp/sys/studentWdksapApp/modules/wdksap/wdksap.do',

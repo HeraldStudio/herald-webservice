@@ -133,7 +133,7 @@ exports.route = {
         // 计算去年的当前学期号，以便统计时进行过滤。
         // 早于去年当前学期的数据不再记录。
 
-        let currentTerm = (this.term.current || this.term.prev).name
+        //let currentTerm = (this.term.current || this.term.prev).name
         //let prevYearCurrentTerm = currentTerm.split('-').map(Number).map((k, i) => i < 2 ? k - 1 : k).join('-')
 
         // 解析课程
