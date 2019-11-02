@@ -7,6 +7,8 @@ globals:
   Atomics: readonly
   SharedArrayBuffer: readonly
   moment: readonly
+  program: readonly
+  chalkColored: readonly
 parserOptions:
   ecmaVersion: 2018
 rules:
@@ -23,4 +25,4 @@ rules:
     - error
     - never
   require-atomic-updates:
-    - warn
+    - off

@@ -1,4 +1,3 @@
-const { config } = require('../../../app')
 const db = require('../../../database/course')
 const cheerio = require('cheerio')
 
@@ -27,7 +26,7 @@ exports.route = {
         await this.useAuthCookie()
 
         // 获取用户已修课程的 id 用于过滤，遇到已修课程直接排除
-        res = await this.get(
+        let res = await this.get(
           'http://xk.urp.seu.edu.cn/studentService/cs/stuServe/studentExamResultQuery.action'
         )
         let $ = cheerio.load(res.data)

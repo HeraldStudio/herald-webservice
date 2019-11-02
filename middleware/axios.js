@@ -14,21 +14,22 @@
   例：
   - `let res = (await this.get/post/put/delete('http://google.com')).data`
  */
+/* eslint no-empty:off */
 const axios = require('axios')
 const { config } = require('../app')
 const axiosCookieJarSupport = require('axios-cookiejar-support').default
 const tough = require('tough-cookie')
 const chardet = require('jschardet-eastasia')
-const SocksProxyAgent = require('socks-proxy-agent')
+//const SocksProxyAgent = require('socks-proxy-agent')
 chardet.Constants.MINIMUM_THRESHOLD = 0
 
 const iconv = require('iconv')
 const qs = require('querystring')
 
 
-const proxyOptions = 'socks5://118.126.82.142:8000'
-const httpsAgent = new SocksProxyAgent(proxyOptions, true)
-const httpAgent = new SocksProxyAgent(proxyOptions)
+// const proxyOptions = 'socks5://118.126.82.142:8000'
+// const httpsAgent = new SocksProxyAgent(proxyOptions, true)
+// const httpAgent = new SocksProxyAgent(proxyOptions)
 /**
   ## 安全性
 
@@ -81,8 +82,8 @@ module.exports = async (ctx, next) => {
       } else { // 若 chardet 返回 null，表示不是一个已知编码的字符串，就当做二进制，不做处理
         try {
           res = new iconv.Iconv(encoding, 'UTF-8//TRANSLIT//IGNORE').convert(res).toString()
-          try { res = JSON.parse(res) } catch (e) {}
-        } catch(e) {
+          try { res = JSON.parse(res) } catch (e) { }
+        } catch (e) {
           return res
         }
       }
@@ -95,38 +96,38 @@ module.exports = async (ctx, next) => {
   axiosCookieJarSupport(_axios)
   _axios.defaults.jar = ctx.cookieJar
 
-  ;['get','post','put','delete'].forEach(k => {
+  ;['get', 'post', 'put', 'delete'].forEach(k => {
     ctx[k] = async (...args) => {
-      if (true) {
-        let transformRequest = (req) => {
-          if (typeof req === 'object') {
-            return qs.stringify(req)
-          }
-          return req
+      //if (true) {
+      let transformRequest = (req) => {
+        if (typeof req === 'object') {
+          return qs.stringify(req)
         }
-        let transformResponse = (res) => {
-          let { encoding } = chardet.detect(res)
-          if (encoding === 'windows-1250' || encoding === 'windows-1252') {
-            // 验证码类型，不做处理
-            return res
-          } else { // 若 chardet 返回 null，表示不是一个已知编码的字符串，就当做二进制，不做处理
-            try {
-              res = new iconv.Iconv(encoding, 'UTF-8//TRANSLIT//IGNORE').convert(res).toString()
-              try { res = JSON.parse(res) } catch (e) { }
-            } catch (e) {
-              return res
-            }
-          }
+        return req
+      }
+      let transformResponse = (res) => {
+        let { encoding } = chardet.detect(res)
+        if (encoding === 'windows-1250' || encoding === 'windows-1252') {
+          // 验证码类型，不做处理
           return res
+        } else { // 若 chardet 返回 null，表示不是一个已知编码的字符串，就当做二进制，不做处理
+          try {
+            res = new iconv.Iconv(encoding, 'UTF-8//TRANSLIT//IGNORE').convert(res).toString()
+            try { res = JSON.parse(res) } catch (e) { }
+          } catch (e) {
+            return res
+          }
         }
-        try {
-          return await ctx.spiderServer.request(ctx, k, args, config.axios, transformRequest, transformResponse)
-        } catch (e) {
-          return await _axios[k](...args)
-        }
-      } else {
+        return res
+      }
+      try {
+        return await ctx.spiderServer.request(ctx, k, args, config.axios, transformRequest, transformResponse)
+      } catch (e) {
         return await _axios[k](...args)
       }
+      //} else {
+      // return await _axios[k](...args)
+      //}
     }
   })
 

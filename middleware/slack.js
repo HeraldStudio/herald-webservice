@@ -53,7 +53,7 @@ class SlackMessage {
     this.callback_id = ''
     do {
       this.callback_id = Math.random().toString(36).substr(2)
-    } while (slackMessagePool.hasOwnProperty(this.callback_id))
+    } while (slackMessagePool[this.callback_id])
 
     this.msg = { text }
     let attachment = {}
@@ -66,13 +66,13 @@ class SlackMessage {
       attachment.color = color
       attachment.actions = []
       for (let action of actions) {
-        if (!action.hasOwnProperty('name')) {
+        if (!action.name) {
           throw new Error('必须指定按钮的name')
         }
-        if (!action.hasOwnProperty('text')) {
+        if (!action.text) {
           throw new Error('必须指定按钮的text')
         }
-        if (!action.hasOwnProperty('response')) {
+        if (!action.response) {
           throw new Error('必须指定按钮的response')
         }
         attachment.actions.push({

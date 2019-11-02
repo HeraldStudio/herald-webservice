@@ -24,7 +24,7 @@ const jobPool = {}
 const redis = require('redis')
 const bluebird = require('bluebird')
 bluebird.promisifyAll(redis.RedisClient.prototype)
-const fs = require('fs')
+
 let client = (() => {
   try {
     let secret = require('./redis-secret.json')
@@ -47,7 +47,7 @@ client.batchDelete = async (keyword) => {
   //await client.delAsync(`*${keyword}*`)
 }
 
-client.on('error', e => {
+client.on('error', () => {
   
   client.quit()
   console.log('Redis 引入失败，已使用临时 Object 代替缓存空间…')
@@ -73,7 +73,7 @@ client.on('error', e => {
       return value
     },
     batchDelete (keyword) {
-      Object.keys(pool).filter(k => ~k.indexOf(keyword)).map(k => { delete pool[key] })
+      Object.keys(pool).filter(k => ~k.indexOf(keyword)).map(key => { delete pool[key] })
     }
   }
 })
@@ -134,12 +134,12 @@ const parseDurationStr = (duration) => {
   let isLazy = /\+$/.test(duration)
   let seconds = 0
 
-  if (parseDurationStr.cache.hasOwnProperty(duration)) {
+  if (parseDurationStr.cache[duration]) {
     seconds = parseDurationStr.cache[duration]
   } else {
     let units = { y: 0, mo: 0, d: 0, h: 0, m: 0, s: 0 }
-    duration.match(/[\d\.]+[a-z]+/g).forEach(k => {
-      let parts = /([\d\.]+)([a-z]+)/g.exec(k)
+    duration.match(/[\d.]+[a-z]+/g).forEach(k => {
+      let parts = /([\d.]+)([a-z]+)/g.exec(k)
       units[parts[2]] = parseFloat(parts[1])
     })
     seconds = ((((units.y * 12 + units.mo) * 30 + units.d) * 24 + units.h) * 60 + units.m) * 60 + units.s
@@ -247,7 +247,7 @@ async function internalCached (isPublic, ...args) {
             // 这样处理同时也使得回源函数中出现异常时，同样也返回缓存
             task = Promise.race([
               task, new Promise((_, r) => setTimeout(r, 15000))
-            ]).catch(e => {
+            ]).catch(() => {
               // 回源函数出现任何异常，均返回 203，表示返回值无时效性
               this.status = 203
               return cached
@@ -283,9 +283,9 @@ async function internalCached (isPublic, ...args) {
 }
 
 // 用于临时禁用某种 Cache 的装饰器
-async function disabled (...args) {
-  return await args.slice(-1)[0]()
-}
+// async function disabled (...args) {
+//   return await args.slice(-1)[0]()
+// }
 
 // 当前脱离等待链的回源任务计数
 let detachedTaskCount = 0
