@@ -1,5 +1,6 @@
 const cheerio = require('cheerio')
 const mongodb = require('../../database/mongodb')
+const encryptAES = require('./ids-encrypt')
 
 // 模拟新信息门户 (ids6) 认证，缺陷是请求较慢，而且同一个用户多次输错密码会对该用户触发验证码
 module.exports = async (ctx, cardnum, password) => {
@@ -17,7 +18,14 @@ module.exports = async (ctx, cardnum, password) => {
   res = await ctx.get(url)
   let $ = cheerio.load(res.data)
   let form = { username: cardnum, password }
-  $('[tabid="01"] input[type="hidden"]').toArray().map(k => form[$(k).attr('name')] = $(k).attr('value'))
+  $('[tabid="01"] input[type="hidden"]').toArray().map(k => {
+    if ($(k).attr('name')) {
+      form[$(k).attr('name')] = $(k).attr('value')
+    } else if ($(k).attr('id')) {
+      form[$(k).attr('id')] = $(k).attr('value')
+    }
+  })
+  form.password = encryptAES(password, form.pwdDefaultEncryptSalt)
 
   // Step 2：隐藏值与用户名密码一同 POST
   // 这个请求其实包含三个步骤：
