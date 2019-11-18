@@ -11,6 +11,7 @@ exports.route = {
     return await this.userCache('1s', async () => {
 
       let { name, cardnum, schoolnum } = this.user
+      console.log('{ name, cardnum, schoolnum }:'+{ name, cardnum, schoolnum })
       let now = +moment()
 
       // 新考试安排系统-目前使用18级本科生数据进行测试
@@ -83,7 +84,7 @@ exports.route = {
       let res = await this.get(
         'http://xk.urp.seu.edu.cn/studentService/cs/stuServe/runQueryExamPlanAction.action'
       )
-      
+      console.log('res.data:' + res.data)
       let $ = cheerio.load(res.data)
 
       this.logMsg = `${name} (${cardnum}) - 查询考试安排`
@@ -97,7 +98,7 @@ exports.route = {
 
         return { semester, campus, courseName, courseType, teacherName, startTime, endTime, location, duration }
       }).filter(k => k.endTime > now) // 防止个别考生考试开始了还没找到考场🤔
-
+      console.log('result' + result)
       // 在考试周的时候强制缓存 12月 1月
       if (result.length === 0 && (moment().format('MMM') === '12月' || moment().format('MMM') === '1月')) {
         throw '上游数据出错'
