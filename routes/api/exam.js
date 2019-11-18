@@ -8,7 +8,7 @@ exports.route = {
   **/
 
   async get() {
-    return await this.userCache('12h', async () => {
+    return await this.userCache('1s', async () => {
 
       let { name, cardnum, schoolnum } = this.user
       let now = +moment()
@@ -83,7 +83,7 @@ exports.route = {
       let res = await this.get(
         'http://xk.urp.seu.edu.cn/studentService/cs/stuServe/runQueryExamPlanAction.action'
       )
-
+      
       let $ = cheerio.load(res.data)
 
       this.logMsg = `${name} (${cardnum}) - 查询考试安排`
