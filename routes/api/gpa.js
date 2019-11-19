@@ -4,11 +4,11 @@ const cheerio = require('cheerio')
 // 折合百分制成绩（本科生用）
 const calculateEquivalentScore = score => {
   if (/优/.test(score)) {
-    score = 95
+    score = 97
   } else if (/良/.test(score)) {
-    score = 85
+    score = 87
   } else if (/中/.test(score)) {
-    score = 75
+    score = 77
   } else if (/不及格/.test(score)) {
     score = 0
   } else if (/及格|通过/.test(score)) {
