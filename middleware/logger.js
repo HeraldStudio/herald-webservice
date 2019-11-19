@@ -27,14 +27,14 @@ module.exports = async (ctx, next) => {
   let name = '未登录'
   let platform = '未登录'
 
-  if (ctx.request.headers.token) {
+  if (ctx.request.headers.token ) {
     // 当请求中包含token，就可以向日志输出用户非敏感信息，以便于分析业务情况
     try {
       cardnum = ctx.user.cardnum
       name = ctx.user.name
       platform = ctx.user.platform
     } catch (e) { 
-      console.log(e)
+      //console.log(e)
     }
   }
 
