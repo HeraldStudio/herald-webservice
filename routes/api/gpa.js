@@ -120,9 +120,9 @@ exports.route = {
         let courseTypes = detail.map(k => k.courseType)
         courseTypes = courseTypes.filter( k => k.courseType === '')
 
-        if(courseTypes.length == 0){
+        if(courseTypes.length === 0){
           detail.map(k => {
-            if(k.courseType == '限选')
+            if(k.courseType === '限选')
               k.courseType = ''
           })
         }
@@ -229,9 +229,9 @@ exports.route = {
         let courseTypes = detail.map(k => k.courseType)
         courseTypes = courseTypes.filter( k => k.courseType === '')
 
-        if(courseTypes.length == 0){
+        if(courseTypes.length === 0){
           detail.map(k => {
-            if(k.courseType == '限选')
+            if(k.courseType === '限选')
               k.courseType = ''
           })
         }        
