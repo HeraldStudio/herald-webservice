@@ -17,34 +17,35 @@ exports.route = {
       }))
   },
   async post({ activity }) {
-    let activityCollection = await mongodb('herald_activity')
-    //let activityClickCollection = await mongodb('herald_activity_click')
-
     if (!this.admin || !this.admin.publicity) {
       throw 403
     }
+
+    let activityCollection = await mongodb('herald_activity')
+    //let activityClickCollection = await mongodb('herald_activity_click')
+
     //await db.activity.insert(activity)
     await activityCollection.insertOne(activity)
     return 'OK'
   },
   async put({ activity }) {
-    let activityCollection = await mongodb('herald_activity')
-    //let activityClickCollection = await mongodb('herald_activity_click')
-
     if (!this.admin || !this.admin.publicity) {
       throw 403
     }
+    let activityCollection = await mongodb('herald_activity')
+    //let activityClickCollection = await mongodb('herald_activity_click')
+
     //await db.activity.update({ aid: activity.aid }, activity)
     await activityCollection.updateOne({ _id: activity._id }, { $set: activity })
     return 'OK'
   },
   async delete({ _id }) {
-    let activityCollection = await mongodb('herald_activity')
-    let activityClickCollection = await mongodb('herald_activity_click')
-
     if (!this.admin || !this.admin.publicity) {
       throw 403
     }
+    let activityCollection = await mongodb('herald_activity')
+    let activityClickCollection = await mongodb('herald_activity_click')
+
     //await db.activity.remove({ aid })
     await activityCollection.deleteOne({ _id })
     await activityClickCollection.deleteMany({ aid: _id })
