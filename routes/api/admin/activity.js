@@ -2,21 +2,24 @@
 let mongodb = require('../../../database/mongodb')
 
 exports.route = {
-  async get () {
+  async get() {
     if (!this.admin || !this.admin.publicity) {
       throw 403
     }
-    
+
     let activityCollection = await mongodb('herald_activity')
     let activityClickCollection = await mongodb('herald_activity_click')
 
-    return await Promise.all((await activityCollection.find({},{sort:{startTime:-1}}).toArray())
+    console.log(await activityCollection.find({}).toArray())
+    console.log(await activityClickCollection.find({}).toArray())
+
+    return await Promise.all((await activityCollection.find({}, { sort: { startTime: -1 } }).toArray())
       .map(async k => {
-        k.clicks = await activityClickCollection.count({ aid: k.aid })
+        k.clicks = await activityClickCollection.count({ aid: k._id })
         return k
       }))
   },
-  async post ({ activity }) {
+  async post({ activity }) {
     let activityCollection = await mongodb('herald_activity')
     //let activityClickCollection = await mongodb('herald_activity_click')
 
@@ -27,7 +30,7 @@ exports.route = {
     await activityCollection.insertOne(activity)
     return 'OK'
   },
-  async put ({ activity }) {
+  async put({ activity }) {
     let activityCollection = await mongodb('herald_activity')
     //let activityClickCollection = await mongodb('herald_activity_click')
 
@@ -35,10 +38,10 @@ exports.route = {
       throw 403
     }
     //await db.activity.update({ aid: activity.aid }, activity)
-    await activityCollection.updateOne({ aid: activity.aid },{$set:activity})
+    await activityCollection.updateOne({ _id: activity._id }, { $set: activity })
     return 'OK'
   },
-  async delete ({ aid }) {
+  async delete({ _id }) {
     let activityCollection = await mongodb('herald_activity')
     let activityClickCollection = await mongodb('herald_activity_click')
 
@@ -46,8 +49,8 @@ exports.route = {
       throw 403
     }
     //await db.activity.remove({ aid })
-    await activityCollection.deleteOne({ aid })
-    await activityClickCollection.deleteOne({ aid })
+    await activityCollection.deleteOne({ _id })
+    await activityClickCollection.deleteMany({ aid: _id })
     return 'OK'
   }
 }
