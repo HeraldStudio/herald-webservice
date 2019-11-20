@@ -24,11 +24,11 @@ exports.route = {
    * 注：标准的前后端分离不应该有重定向 API，后端只负责提供数据，不应该控制浏览器做任何事
    * 因此这里使用 put 请求，若前端已登录，仍然需要带着 token 来请求，以便统计点击量
    */
-  async put({ _id }) {
+  async put({ aid }) {
     let activityCollection = await mongodb('herald_activity')
     let activityClickCollection = await mongodb('herald_activity_click')
     //let activity = await db.activity.find({ aid }, 1)
-    let activity = await activityCollection.findOne({ _id: ObjectId(_id) })
+    let activity = await activityCollection.findOne({ _id: ObjectId(aid) })
     if (!activity) {
       throw 404
     }
@@ -39,8 +39,8 @@ exports.route = {
       // if (!await db.activityClick.find({ aid, identity }, 1)) {
       //   await db.activityClick.insert({ aid, identity })
       // }
-      if ((await activityClickCollection.countDocuments({ aid: _id, identity })) === 0) {
-        await activityClickCollection.insertOne({ aid: _id, identity })
+      if ((await activityClickCollection.countDocuments({ aid: aid, identity })) === 0) {
+        await activityClickCollection.insertOne({ aid: aid, identity })
       }
     }
 
