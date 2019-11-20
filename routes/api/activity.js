@@ -1,6 +1,7 @@
 //const db = require('../../database/publicity')
 const mongodb = require('../../database/mongodb')
 const ObjectId = require('mongodb').ObjectId
+
 exports.route = {
   async get({ page = 1, pagesize = 10 }) {
     let activityCollection = await mongodb('herald_activity')
@@ -27,7 +28,6 @@ exports.route = {
     let activityCollection = await mongodb('herald_activity')
     let activityClickCollection = await mongodb('herald_activity_click')
     //let activity = await db.activity.find({ aid }, 1)
-    console.log(_id)
     let activity = await activityCollection.findOne({ _id: ObjectId(_id) })
     if (!activity) {
       throw 404
