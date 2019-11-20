@@ -42,8 +42,8 @@ exports.route = {
   async get() {
 
 
-    // return await this.userCache('10m+', async () => {
-    return await this.userCache('1s', async () => {
+    return await this.userCache('10m+', async () => {
+    // return await this.userCache('1s', async () => {
       let { name, cardnum } = this.user
 
       if (/^21318/.test(cardnum) || /^21319/.test(cardnum)) {
@@ -119,7 +119,7 @@ exports.route = {
         // 解决转系生课程全为任选或限选的状况
         let courseTypes = detail.map(k => k.courseType)
         courseTypes = courseTypes.filter( k => k.courseType === '')
-        console.log(courseTypes)
+
         if(courseTypes.length == 0){
           detail.map(k => {
             if(k.courseType == '限选')
@@ -228,7 +228,7 @@ exports.route = {
         // 解决转系生课程全为任选或限选的状况
         let courseTypes = detail.map(k => k.courseType)
         courseTypes = courseTypes.filter( k => k.courseType === '')
-        console.log(courseTypes)
+
         if(courseTypes.length == 0){
           detail.map(k => {
             if(k.courseType == '限选')
