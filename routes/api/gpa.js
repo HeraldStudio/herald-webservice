@@ -42,8 +42,8 @@ exports.route = {
   async get() {
 
 
-    return await this.userCache('10m+', async () => {
-
+    // return await this.userCache('10m+', async () => {
+    return await this.userCache('1s', async () => {
       let { name, cardnum } = this.user
 
       if (/^21318/.test(cardnum) || /^21319/.test(cardnum)) {
@@ -77,7 +77,6 @@ exports.route = {
             scoreType: k.CXCKDM_DISPLAY === '初修' ? '首修' : k.CXCKDM_DISPLAY
           }
         })
-
         //对数据rawDetail进行去重，依靠课程代码进行去重
         //及格重修的课程代码与首修课程代码相同，将来可能会产生bug，希望以后可以不用数据去重
         let cidList = {}
@@ -116,6 +115,19 @@ exports.route = {
           }
         })
         Object.values(courseHighestPassed).map(k => k.isHighestPassed = true)
+        
+        // 解决转系生课程全为任选或限选的状况
+        let courseTypes = detail.map(k => k.courseType)
+        courseTypes = courseTypes.filter( k => k.courseType === '')
+        console.log(courseTypes)
+        if(courseTypes.length == 0){
+          detail.map(k => {
+            if(k.courseType == '限选')
+              k.courseType = ''
+          })
+        }
+        
+        
 
         // 按学期分组
         detail = detail.reduce((a, b) => {
@@ -138,8 +150,8 @@ exports.route = {
         this.logMsg = `${name} (${cardnum}) - 查询绩点`
         return { gpa, gpaBeforeMakeup, achievedCredits, year, calculationTime, detail }
 
-
       }
+
       // 本科生
       if (/^21/.test(cardnum)) {
         await this.useAuthCookie()
@@ -212,6 +224,17 @@ exports.route = {
           }
         })
         Object.values(courseHighestPassed).map(k => k.isHighestPassed = true)
+        
+        // 解决转系生课程全为任选或限选的状况
+        let courseTypes = detail.map(k => k.courseType)
+        courseTypes = courseTypes.filter( k => k.courseType === '')
+        console.log(courseTypes)
+        if(courseTypes.length == 0){
+          detail.map(k => {
+            if(k.courseType == '限选')
+              k.courseType = ''
+          })
+        }        
 
         // 按学期分组
         detail = detail.reduce((a, b) => {
@@ -268,6 +291,8 @@ exports.route = {
         let total = parseFloat($('#lblyxxf').text()) // 总学分
         let required = parseFloat($('#lblyxxf1').text()) // 应修总学分
         let credits = { degree, optional, total, required }
+        
+        
 
         return { graduated: true, score, credits, detail }
       }
