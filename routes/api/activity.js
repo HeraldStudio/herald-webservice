@@ -10,6 +10,7 @@ exports.route = {
       return (await activityCollection.find().limit(parseInt(pagesize)).skip((page - 1) * pagesize).toArray())
         // 这里删除 url 参数，强制要求前端在用户点击时通过 put 请求获取链接，以保证统计不遗漏
         .map(k => {
+          k.aid = k._id  
           k.hasUrl = !!k.url
           delete k.url
           return k
