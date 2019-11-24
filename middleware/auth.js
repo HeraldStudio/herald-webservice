@@ -170,7 +170,7 @@ module.exports = async (ctx, next) => {
     // 获取一卡通号、密码、研究生密码、前端定义版本、自定义 token
     // 自定义 token 可用于将微信 openid 作为 token，实现微信端账号的无明文绑定
     let { cardnum, password, gpassword, platform, customToken } = ctx.params
-
+    console.log( `身份认证中: ${cardnum}` )
     // 登录是高权限操作，需要对参数类型进行检查，防止通过 Object 注入数据库
     // 例如 platform 若允许传入对象 { $neq: '' }，将会触发 Sqlongo 语法，导致在下面删除时把该用户在所有平台的记录都删掉
     if (typeof cardnum !== 'string'
