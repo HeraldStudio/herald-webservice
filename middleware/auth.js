@@ -167,6 +167,7 @@ module.exports = async (ctx, next) => {
       throw 405
     }
 
+    console.log(`${cardnum} - 正在进行身份认证的登录`)
     // 获取一卡通号、密码、研究生密码、前端定义版本、自定义 token
     // 自定义 token 可用于将微信 openid 作为 token，实现微信端账号的无明文绑定
     let { cardnum, password, gpassword, platform, customToken } = ctx.params
