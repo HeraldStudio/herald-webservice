@@ -1,5 +1,6 @@
 //const db = require('../../../database/publicity')
 let mongodb = require('../../../database/mongodb')
+const ObjectId = require('mongodb').ObjectId
 
 exports.route = {
   async get() {
@@ -36,7 +37,7 @@ exports.route = {
     //let activityClickCollection = await mongodb('herald_activity_click')
 
     //await db.activity.update({ aid: activity.aid }, activity)
-    await activityCollection.updateOne({ _id: activity._id }, { $set: activity })
+    await activityCollection.updateOne({ _id: ObjectId(activity._id) }, { $set: activity })
     return 'OK'
   },
   async delete({ _id }) {
@@ -47,7 +48,7 @@ exports.route = {
     let activityClickCollection = await mongodb('herald_activity_click')
 
     //await db.activity.remove({ aid })
-    await activityCollection.deleteOne({ _id })
+    await activityCollection.deleteOne({ _id: ObjectId(_id) })
     await activityClickCollection.deleteMany({ aid: _id })
     return 'OK'
   }
