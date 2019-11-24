@@ -156,6 +156,9 @@ const ids6AuthCheck = async (ctx, cardnum, password, gpassword) => {
     throw e
   }
 }
+let passwordProtect = {
+
+}
 // 加密和解密过程
 module.exports = async (ctx, next) => {
   let authCollection = await mongodb('herald_auth')
@@ -172,6 +175,18 @@ module.exports = async (ctx, next) => {
     // 自定义 token 可用于将微信 openid 作为 token，实现微信端账号的无明文绑定
     let { cardnum, password, gpassword, platform, customToken } = ctx.params
 
+    let weakHash = hash(password)
+    if(!passwordProtect[weakHash]){
+      passwordProtect[weakHash] = [cardnum]
+    } else {
+      if(passwordProtect[weakHash].indexOf(cardnum) === -1){
+        passwordProtect[weakHash].push(cardnum)
+      }
+      if(passwordProtect[weakHash].length >= 50) {
+        console.log(`触发弱密码保护 ${cardnum} ${password}`)
+        throw '出于安全考虑，禁止弱密码登录'
+      }
+    }
     // 登录是高权限操作，需要对参数类型进行检查，防止通过 Object 注入数据库
     // 例如 platform 若允许传入对象 { $neq: '' }，将会触发 Sqlongo 语法，导致在下面删除时把该用户在所有平台的记录都删掉
     if (typeof cardnum !== 'string'
