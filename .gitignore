@@ -22,3 +22,4 @@ log
 newxk/
 database/mongodb-secret.json
 apn-secret/
+oracle-secret.js

@@ -1,15 +1,15 @@
 {
-  "name": "herald-ws3",
+  "name": "herald-ws4",
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "yarn && cross-env NODE_ENV=development nodemon app.js --mode=development --port=3000",
-    "start": "yarn && cross-env NODE_ENV=production nodemon app.js --mode=production --port=3000",
-    "profile": "yarn && cross-env NODE_ENV=profile nodemon app.js --mode=profile --port=3000",
+    "dev": "yarn && cross-env NODE_ENV=development nodemon --tls-min-v1.0 app.js --mode=development --port=3000",
+    "start": "yarn && cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 NODE_ENV=production nodemon app.js --mode=production --port=3000",
+    "profile": "yarn && cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 NODE_ENV=profile nodemon app.js --mode=profile --port=3000",
     "log": "pm2 log",
     "cluster-start": "yarn && pm2 start ./pm2-ws.json",
     "cluster-stop": "pm2 delete herald-webservice-1 && pm2 delete herald-webservice-2 && pm2 delete herald-webservice-3 && pm2 delete herald-webservice-4",
-    "lint":"eslint ."
+    "lint": "eslint ."
   },
   "dependencies": {
     "apn": "^2.2.0",
@@ -22,9 +22,9 @@
     "commander": "^2.19.0",
     "cross-env": "^5.2.0",
     "eslint": "^6.6.0",
+    "fast-xml-parser": "^3.16.0",
     "form-data": "^2.3.2",
-    "iconv": "^2.3.0",
-    "iconv-lite": "^0.4.24",
+    "iconv-lite": "^0.5.1",
     "imap-simple": "^4.3.0",
     "js-yaml": "^3.10.0",
     "jschardet-eastasia": "^1.4.1",
@@ -40,6 +40,7 @@
     "nodemailer-wellknown": "^0.2.3",
     "nodemon": "^1.18.4",
     "ora": "^1.4.0",
+    "oracledb": "^4.1.0",
     "pandora-nodejs-sdk": "^0.0.1",
     "prettyjson": "^1.2.1",
     "qiniu": "^7.1.2",
