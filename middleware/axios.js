@@ -23,7 +23,7 @@ const chardet = require('jschardet-eastasia')
 //const SocksProxyAgent = require('socks-proxy-agent')
 chardet.Constants.MINIMUM_THRESHOLD = 0
 
-const iconv = require('iconv')
+const iconv = require('iconv-lite')
 const qs = require('querystring')
 
 

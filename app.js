@@ -83,7 +83,11 @@ app.use(require('./middleware/adapter/appserv'))
 app.use(require('./middleware/adapter/wx-herald'))
 
 /**
-  ## E. API 层
+ * E. Oralce 数据库
+ */
+app.use(require('./middleware/oracle.js'))
+/**
+  ## F. API 层
   负责为路由处理程序提供 API 以便路由处理程序使用的中间件。
 */
 // 1. 熔断器中间件，同一路由 1 分钟内超过 5 次超时或失败则暂时拒绝服务
@@ -103,14 +107,7 @@ app.use(require('./middleware/admin'))
 app.use(require('./middleware/redis'))
 // 8. 学期信息 term API
 app.use(require('./middleware/term'))
-// 9. Slack API
-app.use(require('./middleware/slack').middleware)
-// 10. 生产环境下验证码识别(算了)
-if (program.mode === 'production') {
-  // app.use(require('./middleware/captcha')({
-  //   python: '/usr/local/bin/anaconda3/envs/captcha/bin/python'
-  // }))
-}
+
 
 /**
   ## F. 路由层
