@@ -107,11 +107,10 @@ module.exports = async (ctx, next) => {
       const data = xmlparser.parse(res.data)['cas:serviceResponse']['cas:authenticationSuccess']['cas:attributes'];
       cardnum = data['cas:uid']
     } catch (e) {
-
+      throw '统一身份认证过程出错'
     }
 
     // TODO: 从数据库查找记录
-    let 
 
     // 生成 32 字节 token 转为十六进制，及其哈希值
     let token = Buffer.from(crypto.randomBytes(20)).toString('hex')
