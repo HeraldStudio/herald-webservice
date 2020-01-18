@@ -110,7 +110,42 @@ module.exports = async (ctx, next) => {
       throw '统一身份认证过程出错'
     }
 
-    // TODO: 从数据库查找记录
+    // 从数据库查找学号、姓名
+    let name, schoolnum
+    if (cardnum.startsWith('21')) {
+      // 本科生库
+      const record = await ctx.db.execute(
+        `SELECT XM, XJH FROM TOMMY.T_BZKS
+        WHERE XH=:cardnum`, [cardnum]
+      )
+      if (record.rows.length > 0) {
+        name = record.rows[0][0]
+        schoolnum = record.rows[0][1]
+      }
+    } else if (cardnum.startsWith('22') || cardnum.startsWith('23')) {
+      // 研究生库
+      const record = await ctx.db.execute(
+        `SELECT XM, XJH FROM TOMMY.T_YJS
+        WHERE XH=:cardnum`, [cardnum]
+      )
+      if(record.rows.length > 0) {
+        name = record.rows[0][0]
+        schoolnum = record.rows[0][1]
+      }
+    } else if (cardnum.startsWith('10')) { 
+      // 教职工库
+      const record = await ctx.db.execute(
+        `SELECT XM FROM TOMMY.T_JZG_JBXX
+        WHERE ZGH=:cardnum`, [cardnum]
+      )
+      if(record.rows.length > 0) {
+        name = record.rows[0][0]
+      }
+    }
+
+    if (!name) {
+      throw '身份完整性校验失败'
+    }
 
     // 生成 32 字节 token 转为十六进制，及其哈希值
     let token = Buffer.from(crypto.randomBytes(20)).toString('hex')
@@ -120,6 +155,7 @@ module.exports = async (ctx, next) => {
     let now = +moment()
 
     // TODO: 向数据库插入记录
+    
 
     ctx.body = token
     ctx.logMsg = `${name} [${cardnum}] - 身份认证成功 - 登录平台 ${platform}`
