@@ -90,7 +90,7 @@ module.exports = async (ctx, next) => {
     // 例如 platform 若允许传入对象 { $neq: '' }，将会触发 Sqlongo 语法，导致在下面删除时把该用户在所有平台的记录都删掉
     if (typeof ticket !== 'string'
       || typeof service !== 'string') {
-      throw '统一身份认证参数'
+      throw '缺少统一身份认证参数'
     }
 
     if (!platform) {
@@ -104,9 +104,10 @@ module.exports = async (ctx, next) => {
       // 从IDS获取一卡通号
       const serviceValidateURL = `https://newids.seu.edu.cn/authserver/serviceValidate?service=${service}&ticket=${ticket}`
       const res = await axios.get(serviceValidateURL)
-      const data = xmlparser.parse(res.data)['cas:serviceResponse']['cas:authenticationSuccess']['cas:attributes'];
-      cardnum = data['cas:uid']
+      const data = xmlparser.parse(res.data)['cas:serviceResponse']['cas:authenticationSuccess']['cas:attributes']
+      cardnum = ''+data['cas:uid']
     } catch (e) {
+      console.log(e)
       throw '统一身份认证过程出错'
     }
 
@@ -158,7 +159,7 @@ module.exports = async (ctx, next) => {
     await ctx.db.execute(
       `INSERT INTO TOMMY.H_AUTH 
       (TOKEN_HASH, CARDNUM, REAL_NAME, CREATED_TIME, PLATFORM, LAST_INVOKED_TIME, SCHOOLNUM)
-      VALUES (:tokenHash, :cardnum, :name, :createdTime, 'repl', :lastInvokedTime, :schoolnum )
+      VALUES (:tokenHash, :cardnum, :name, :createdTime, :platform, :lastInvokedTime, :schoolnum )
       `,
       { 
         tokenHash,
@@ -166,7 +167,8 @@ module.exports = async (ctx, next) => {
         name,
         createdTime:now.toDate(),
         lastInvokedTime:now.toDate(),
-        schoolnum
+        schoolnum,
+        platform
       }
     )
 
@@ -208,7 +210,7 @@ module.exports = async (ctx, next) => {
     if (record) {
       let now = moment()
       let lastInvokedTime = record.lastInvokedTime
-      // 每四小时更新一次用户上次调用时间
+      // 每 4 小时更新一次用户上次调用时间
       if (now - lastInvokedTime >= 4 * 60 * 60 * 1000) {
         await ctx.db.execute(`
           UPDATE TOMMY.H_AUTH
@@ -218,12 +220,12 @@ module.exports = async (ctx, next) => {
         )
         record.lastInvokedTime = now.unix()
       }
-      // 解密用户密码
+
       let {
         cardnum, name, schoolnum, platform,
       } = record
 
-      // 将身份识别码、解密后的一卡通号、密码和 Cookie、加解密接口暴露给下层中间件
+      // 将用户信息暴露给下层中间件
       ctx.user = {
         isLogin: true,
         token: tokenHash,
