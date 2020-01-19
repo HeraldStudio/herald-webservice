@@ -4,6 +4,13 @@ const repl = require('repl')
 const axios = require('axios')
 const { config } = require('./app')
 const prettyjson = require('prettyjson')
+const oracle = require('./database/oracle')
+const crypto = require('crypto')
+
+const hash = value => {
+  return Buffer.from(crypto.createHash('sha256').update(value).digest()).toString('base64')
+}
+
 
 function isRecoverableError(error) {
   if (error.name === 'SyntaxError') {
@@ -52,16 +59,80 @@ exports.start = () => {
           console.log(`\n基地址改为 ${params} 了！`)
           return callback(null)
         } else if (/^auth$/.test(path) && !method) {
-          method = 'post'
-          let [cardnum, password, gpassword] = params.split(/\s+/g)
+          oracle.getConnection().then(async (db) => {
+            const cardnum = params
+            let name
+            if (cardnum.startsWith('21')) {
+              // 本科生库
+              const record = await db.execute(
+                `SELECT XM, XJH FROM TOMMY.T_BZKS
+        WHERE XH=:cardnum`, [cardnum]
+              )
+              if (record.rows.length > 0) {
+                name = record.rows[0][0]
+                schoolnum = record.rows[0][1]
+              }
+            } else if (cardnum.startsWith('22') || cardnum.startsWith('23')) {
+              // 研究生库
+              const record = await db.execute(
+                `SELECT XM, XJH FROM TOMMY.T_YJS
+        WHERE XH=:cardnum`, [cardnum]
+              )
+              if (record.rows.length > 0) {
+                name = record.rows[0][0]
+                schoolnum = record.rows[0][1]
+              }
+            } else if (cardnum.startsWith('10')) {
+              // 教职工库
+              const record = await db.execute(
+                `SELECT XM FROM TOMMY.T_JZG_JBXX
+        WHERE ZGH=:cardnum`, [cardnum]
+              )
+              if (record.rows.length > 0) {
+                name = record.rows[0][0]
+              }
+            }
 
-          if (password) {
-            composedParams = { cardnum, password, gpassword, platform: 'repl' }
-          } else if (params) {
-            testClient.defaults.headers = { token: params }
-            console.log(`\n用户身份改为 ${params} 了！`)
-            return callback(null)
-          }
+            if (!name) {
+              console.log('身份完整性校验失败')
+              callback(null)
+              await db.close()
+              return
+            }
+
+            // 生成 32 字节 token 转为十六进制，及其哈希值
+            let token = Buffer.from(crypto.randomBytes(20)).toString('hex')
+            let tokenHash = hash(token)
+
+            // 防止数据库被挤爆，也为了安全性，先删除用户已有的 repl token
+            await db.execute(`DELETE FROM TOMMY.H_AUTH WHERE CARDNUM = :cardnum AND PLATFORM = 'repl'`,
+              {cardnum})
+            
+            // 将新用户信息插入数据库
+            let now = moment()
+            // TODO: 向数据库插入记录
+            const dbResult = await db.execute(
+              `INSERT INTO TOMMY.H_AUTH 
+              (TOKEN_HASH, CARDNUM, REAL_NAME, CREATED_TIME, PLATFORM, LAST_INVOKED_TIME)
+              VALUES (:tokenHash, :cardnum, :name, :createdTime, 'repl', :lastInvokedTime )
+              `,
+              { 
+                tokenHash,
+                cardnum,
+                name,
+                createdTime:now.toDate(),
+                lastInvokedTime:now.toDate(),
+              }
+            )
+            if(dbResult.rowsAffected === 1){
+              console.log(`当前认证身份：${cardnum} - ${name}`)
+              testClient.defaults.headers = { 'x-api-token': token }
+            }
+            console.log(await db.execute(`SELECT * FROM TOMMY.H_AUTH`))
+            callback(null)
+            await db.close()
+          })
+          return
         } else {
           try {
             composedParams = vm.runInThisContext('(' + params + ')')
