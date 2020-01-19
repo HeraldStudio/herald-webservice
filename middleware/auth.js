@@ -69,7 +69,7 @@ const decrypt = (key, value) => {
 
 // 哈希算法，用于对 token 进行摘要
 const hash = value => {
-  return Buffer.from(crypto.createHash('sha256').update(value).digest()).toString('base64')
+  return Buffer.from(crypto.createHash('sha256').update(value).digest()).toString('hex')
 }
 
 
@@ -152,14 +152,22 @@ module.exports = async (ctx, next) => {
     let tokenHash = hash(token)
 
     // 将新用户信息插入数据库
-    let now = +moment()
+    let now = moment()
 
     // TODO: 向数据库插入记录
-    const dbResult = await ctx.db.execute(
+    await ctx.db.execute(
       `INSERT INTO TOMMY.H_AUTH 
-      (TOKEN_HASH, CARDNUM, REAL_NAME, CREATED_TIME, PLATFORM, IDENTITY)
-      VALUES (:)
-      `
+      (TOKEN_HASH, CARDNUM, REAL_NAME, CREATED_TIME, PLATFORM, LAST_INVOKED_TIME, SCHOOLNUM)
+      VALUES (:tokenHash, :cardnum, :name, :createdTime, 'repl', :lastInvokedTime, :schoolnum )
+      `,
+      { 
+        tokenHash,
+        cardnum,
+        name,
+        createdTime:now.toDate(),
+        lastInvokedTime:now.toDate(),
+        schoolnum
+      }
     )
 
     ctx.body = token
@@ -175,80 +183,56 @@ module.exports = async (ctx, next) => {
 
     if (!record) {
       // 缓存没有命中
-      record = await authCollection.findOne({ tokenHash })
-      tokenHashPool[tokenHash] = record
+      record = await ctx.db.execute(`
+      SELECT CARDNUM, REAL_NAME, CREATED_TIME, LAST_INVOKED_TIME, SCHOOLNUM, PLATFORM
+      FROM TOMMY.H_AUTH
+      WHERE TOKEN_HASH=:tokenHash`,
+      { tokenHash }
+      )
+      if(record.rows.length >= 0) {
+        // 数据库找到啦
+        record = {
+          cardnum:record.rows[0][0],
+          name:record.rows[0][1],
+          createdTime:moment(record.rows[0][2]).unix(),
+          lastInvokedTime:moment(record.rows[0][3]).unix(),
+          schoolnum:record.rows[0][4],
+          platform:record.rows[0][5],
+        }
+        tokenHashPool[tokenHash] = record
+      } else {
+        record = null
+      }
     }
-    // 运行到此处，mongodb中应该已经包含用户记录了，之后的更新操作全部对mongodb操作
-    // 缓存也一定已经包含tokenHash了
-    // record必须包含姓名和学号，否则无效
-    if (record && record.name && record.schoolnum) { // 若 token 失效，穿透到未登录的情况去
-      let now = +moment()
-      let lastInvoked = record.lastInvoked
-      // 更新用户最近调用时间一天更新一次降低粒度
-      if (now - lastInvoked >= 2 * 60 * 60 * 1000) {
-        await authCollection.updateOne({ tokenHash }, { $set: { lastInvoked: now } })
-        record.lastInvoked = now
+
+    if (record) {
+      let now = moment()
+      let lastInvokedTime = record.lastInvokedTime
+      // 每四小时更新一次用户上次调用时间
+      if (now - lastInvokedTime >= 4 * 60 * 60 * 1000) {
+        await ctx.db.execute(`
+          UPDATE TOMMY.H_AUTH
+          SET LAST_INVOKED_TIME = :now
+          WHERE TOKEN_HASH = :tokenHash`,
+        {now:now.toDate(), tokenHash}
+        )
+        record.lastInvokedTime = now.unix()
       }
       // 解密用户密码
       let {
         cardnum, name, schoolnum, platform,
-        passwordEncrypted, gpasswordEncrypted
       } = record
-      let password = decrypt(token, passwordEncrypted)
-      let gpassword = ''
-      if (/^22/.test(cardnum)) {
-        gpassword = decrypt(token, gpasswordEncrypted)
-      }
-
-      let identity = hash(cardnum + name)
-
-      // 将统一身份认证 Cookie 获取器暴露给模块
-      ctx.useAuthCookie = async () => {
-
-        // 进行 ids6 认证，拿到 ids6 Cookie，如果密码错误，会抛出 401
-        // 如果需要验证码，也转换成抛出401
-        try {
-          await ids6AuthCheck(ctx, cardnum, password, gpassword)
-        } catch (e) {
-          if (e === '验证码') {
-            throw 401
-          }
-          throw e
-        }
-
-      }
-
-      // 新网上办事大厅身份认证，使用时传入 AppID
-      ctx.useEHallAuth = async (appId) => {
-        await ctx.useAuthCookie()
-        // 获取下一步操作所需的 URL
-        const urlRes = await ctx.get(`http://ehall.seu.edu.cn/appMultiGroupEntranceList?appId=${appId}&r_t=${Date.now()}`)
-
-        let url = ''
-        urlRes.data && urlRes.data.data && urlRes.data.data.groupList && urlRes.data.data.groupList[0] &&
-          (url = urlRes.data.data.groupList[0].targetUrl)
-        if (!url)
-          throw 400
-
-        // 访问一下上述 URL ，获取名为 _WEU 的 cookie
-        await ctx.get(url)
-      }
 
       // 将身份识别码、解密后的一卡通号、密码和 Cookie、加解密接口暴露给下层中间件
       ctx.user = {
         isLogin: true,
-        encrypt: encrypt.bind(undefined, password),
-        decrypt: decrypt.bind(undefined, password),
         token: tokenHash,
-        identity, cardnum, password, gpassword, name, schoolnum, platform
+        cardnum, name, schoolnum, platform
       }
 
       // 调用下游中间件
       await next()
       return
-    } else {
-      // 删除所有该token相关记录
-      authCollection.deleteMany({ tokenHash })
     }
   }
 
@@ -257,18 +241,11 @@ module.exports = async (ctx, next) => {
   let reject = () => { throw 401 }
   ctx.user = {
     isLogin: false,
-    get encrypt() { reject() },
-    get decrypt() { reject() },
-    get identity() { reject() },
     get cardnum() { reject() },
-    get password() { reject() },
-    get gpassword() { reject() },
     get name() { reject() },
     get schoolnum() { reject() },
     get platform() { reject() }
   }
-
-  ctx.useAuthCookie = reject
 
   // 调用下游中间件
   await next()

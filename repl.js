@@ -8,7 +8,7 @@ const oracle = require('./database/oracle')
 const crypto = require('crypto')
 
 const hash = value => {
-  return Buffer.from(crypto.createHash('sha256').update(value).digest()).toString('base64')
+  return Buffer.from(crypto.createHash('sha256').update(value).digest()).toString('hex')
 }
 
 
@@ -61,7 +61,7 @@ exports.start = () => {
         } else if (/^auth$/.test(path) && !method) {
           oracle.getConnection().then(async (db) => {
             const cardnum = params
-            let name
+            let name, schoolnum=null
             if (cardnum.startsWith('21')) {
               // 本科生库
               const record = await db.execute(
@@ -113,8 +113,8 @@ exports.start = () => {
             // TODO: 向数据库插入记录
             const dbResult = await db.execute(
               `INSERT INTO TOMMY.H_AUTH 
-              (TOKEN_HASH, CARDNUM, REAL_NAME, CREATED_TIME, PLATFORM, LAST_INVOKED_TIME)
-              VALUES (:tokenHash, :cardnum, :name, :createdTime, 'repl', :lastInvokedTime )
+              (TOKEN_HASH, CARDNUM, REAL_NAME, CREATED_TIME, PLATFORM, LAST_INVOKED_TIME, SCHOOLNUM)
+              VALUES (:tokenHash, :cardnum, :name, :createdTime, 'repl', :lastInvokedTime, :schoolnum )
               `,
               { 
                 tokenHash,
@@ -122,13 +122,13 @@ exports.start = () => {
                 name,
                 createdTime:now.toDate(),
                 lastInvokedTime:now.toDate(),
+                schoolnum
               }
             )
             if(dbResult.rowsAffected === 1){
-              console.log(`当前认证身份：${cardnum} - ${name}`)
+              console.log(`当前认证身份：${cardnum} - ${name} - ${schoolnum}`)
               testClient.defaults.headers = { 'x-api-token': token }
             }
-            console.log(await db.execute(`SELECT * FROM TOMMY.H_AUTH`))
             callback(null)
             await db.close()
           })
