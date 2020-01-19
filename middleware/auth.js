@@ -155,7 +155,12 @@ module.exports = async (ctx, next) => {
     let now = +moment()
 
     // TODO: 向数据库插入记录
-    
+    const dbResult = await ctx.db.execute(
+      `INSERT INTO TOMMY.H_AUTH 
+      (TOKEN_HASH, CARDNUM, REAL_NAME, CREATED_TIME, PLATFORM, IDENTITY)
+      VALUES (:)
+      `
+    )
 
     ctx.body = token
     ctx.logMsg = `${name} [${cardnum}] - 身份认证成功 - 登录平台 ${platform}`

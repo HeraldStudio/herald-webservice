@@ -108,5 +108,5 @@ exports.start = () => {
     process.exit()
   })
 
-  require('repl.history')(replServer, './.repl_history')
+  require('./replHistory')(replServer, './.repl_history')
 }
