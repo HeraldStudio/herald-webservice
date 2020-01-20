@@ -4,7 +4,7 @@
  * 管理员权限表 H_ADMIN_PERMISSION
  * 
  * 暴露 ctx.hasPermission 接口，当需要使用权限时，直接传入所需权限的
- * 枚举值名称，若不具有对应权限就抛 401
+ * 枚举值名称，若不具有对应权限就抛 403
  * 
  */
 module.exports = async (ctx, next) => {
@@ -32,7 +32,7 @@ module.exports = async (ctx, next) => {
               `, { lastInvokedTime: now.toDate(), cardnum })
       return true
     } else {
-      throw 401
+      throw 403
     }
   }
   await next()
