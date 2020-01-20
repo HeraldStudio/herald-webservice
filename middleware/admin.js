@@ -19,9 +19,8 @@ module.exports = async (ctx, next) => {
     let permissions = await ctx.db.execute(`
       SELECT p.PERMISSION 
       FROM TOMMY.H_ADMIN a, TOMMY.H_ADMIN_PERMISSION p 
-      WHERE a.CARDNUM = b.CARDNUM AND a.CARDNUM = :cardnum`,
+      WHERE a.CARDNUM = p.CARDNUM AND a.CARDNUM = :cardnum`,
     { cardnum })
-
     permissions = permissions.rows.map(p => p[0])
     if(permissions.indexOf(permissionName) !== -1) {
       let now = moment()
