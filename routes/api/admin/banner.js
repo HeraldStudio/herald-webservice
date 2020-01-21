@@ -93,6 +93,9 @@ exports.route = {
     if (banner.endTime !== moment(banner.endTime, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm:ss')) {
       throw '结束日期格式不合法'
     }
+    if (+moment(banner.endTime, 'YYYY-MM-DD HH:mm:ss') < +moment(banner.startTime, 'YYYY-MM-DD HH:mm:ss')){
+      throw '结束日期小于开始日期'
+    }
     // 向数据库插入记录
     await this.db.execute(
       `INSERT INTO TOMMY.H_BANNER 
@@ -132,6 +135,9 @@ exports.route = {
     if (banner.endTime !== moment(banner.endTime, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm:ss')) {
       throw '结束日期格式不合法'
     }
+    if (+moment(banner.endTime, 'YYYY-MM-DD HH:mm:ss') < +moment(banner.startTime, 'YYYY-MM-DD HH:mm:ss')){
+      throw '结束日期小于开始日期'
+    }
     // await db.banner.update({ bid: banner.bid }, banner)
     // 更新数据库记录
     await this.db.execute(`
@@ -140,15 +146,15 @@ exports.route = {
                   END_TIME = :endTime, START_TIME =: startTime, URL =: url
               WHERE ID = :id
               `,
-      {
-        id: banner.id,
-        title: banner.title,
-        pic: banner.pic,
-        url: banner.url,
-        schoolnumPrefix: banner.schoolnumPrefix,
-        endTime: moment(banner.endTime, 'YYYY-MM-DD HH:mm:ss').toDate(),
-        startTime: moment(banner.startTime, 'YYYY-MM-DD HH:mm:ss').toDate(),
-      })
+    {
+      id: banner.id,
+      title: banner.title,
+      pic: banner.pic,
+      url: banner.url,
+      schoolnumPrefix: banner.schoolnumPrefix,
+      endTime: moment(banner.endTime, 'YYYY-MM-DD HH:mm:ss').toDate(),
+      startTime: moment(banner.startTime, 'YYYY-MM-DD HH:mm:ss').toDate(),
+    })
 
     // await bannerCollection.updateOne({bid: banner.bid}, {$set:banner})
     return 'OK'
