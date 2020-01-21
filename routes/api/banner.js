@@ -1,33 +1,60 @@
-const mongodb = require('../../database/mongodb')
+
 const moment = require('moment')
 
 exports.route = {
   async get () {
-    let bannerCollection = await mongodb('herald_banner')
-    // 轮播图有定向推送，不能使用 public 存储，因此为了节省空间也不设缓存
-    let schoolnum = this.user.isLogin ? this.user.schoolnum : ''
-    let now = +moment()
-    return (
-    //   await db.banner.find({
-    //   startTime: { $lte: now },
-    //   endTime: { $gt: now }
-    // }, -1, 0, 'startTime-'))
-      (await bannerCollection.find({
-        startTime: { $lte: now },
-        endTime: { $gt: now }
-      }).sort('startTime', -1).toArray())
-        .filter(k =>
-          schoolnum.indexOf(k.schoolnumPrefix) === 0 ||
-      !schoolnum && k.schoolnumPrefix === 'guest' ||
-      schoolnum && k.schoolnumPrefix === '!guest'
-        )
-      // 这里删除 url 参数，强制要求前端在用户点击时通过 put 请求获取链接，以保证统计不遗漏
-      // 将bid替换成_id
-        .map(k => {
-          k.hasUrl = !!k.url
-          delete k.url
-          return k
-        }))
+    let now = moment()
+    if (!this.user.isLogin) {
+      // 强制一下，必须在登录态才能获取链接
+      throw 403
+    }
+    let bannerList = await this.db.execute(`
+    SELECT ID,URL,TITLE,PIC,SCHOOLNUM_PREFIX,START_TIME,END_TIME,SCHOOLNUM_PREFIX 
+    FROM TOMMY.H_BANNER p
+    WHERE :nowTime between p.start_time and p.end_time ORDER BY p.START_TIME DESC`,
+    {
+      nowTime:now.toDate()
+    })
+
+    let res = []
+    // 整理一下数据格式
+    const fieldName = bannerList.metaData.map(item => {
+      if (item.name.split('_').length === 1) {
+        return item.name.toLowerCase()
+      } else {
+        return item.name.split('_')[0].toLowerCase() +
+          (item.name.split('_')[1].charAt(0).toUpperCase() + item.name.split('_')[1].slice(1).toLowerCase())
+      }
+    })
+    const data = bannerList.rows
+    data.forEach(oneData => {
+      let tempData = {}
+      oneData.forEach((item, index) => {
+        if (index === 5 || index === 6) {
+          item = moment(item).format('YYYY-MM-DD HH:mm:ss')
+        }
+        tempData[fieldName[index]] = item
+      })
+      res.push(tempData)
+    })
+
+    // 按照学号过滤
+    res = res.filter(k => {
+      if (k.schoolnumPrefix === null) return true
+      let result = false
+      const prefixList = k.schoolnumPrefix.split(' ')
+      prefixList.forEach( prefix => {
+        if(this.user.schoolnum.startsWith(prefix)) result =true
+      })
+      return result
+    }).map(k => {
+      // 去除链接
+      k.hasUrl = !!k.url
+      delete k.url
+      return k
+    })
+
+    return res 
   },
 
   /**

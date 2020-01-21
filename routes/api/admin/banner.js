@@ -78,6 +78,7 @@ exports.route = {
   // 添加一条轮播头图
   /*
   * 注意检查日期格式 YYYY-MM-DD HH:mm:ss
+  * 学号前缀 schoolnumPrefix:"06 70 ..."
   */
   async post({ banner }) {
     // let bannerCollection = await mongodb('herald_banner')
