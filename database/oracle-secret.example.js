@@ -1,5 +1,14 @@
 module.exports = {
-  user: 'tommy',
-  password: '你猜猜',
-  connectionString: '10.64.132.19:1521/orcl'
+  herald: {
+    user: 'tommy',
+    password: '你猜猜',
+    connectionString: '你猜猜',
+    poolTimeout: 3600
+  },
+  allinoneCard: {
+    user: '你猜猜',
+    password: '你猜猜',
+    connectionString: '你猜猜',
+    poolTimeout: 3600
+  }
 }
