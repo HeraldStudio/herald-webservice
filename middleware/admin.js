@@ -10,8 +10,8 @@
 module.exports = async (ctx, next) => {
 
   // 中间件处理，允许下游查询当前用户的权限
-  ctx.hasPermission = async ( permissionName ) => {
-    if(!ctx.user.isLogin) {
+  ctx.hasPermission = async (permissionName) => {
+    if (!ctx.user.isLogin) {
       // 还没登录就访问？直接给你401
       throw 401
     }
@@ -22,9 +22,9 @@ module.exports = async (ctx, next) => {
       WHERE a.CARDNUM = p.CARDNUM AND a.CARDNUM = :cardnum`,
     { cardnum })
     permissions = permissions.rows.map(p => p[0])
-    if(permissions.indexOf(permissionName) !== -1) {
+    if (permissions.indexOf(permissionName) !== -1) {
       let now = moment()
-      ctx.db.execute(`
+      await ctx.db.execute(`
               UPDATE TOMMY.H_ADMIN 
               SET LAST_INVOKED_TIME = :lastInvokedTime
               WHERE CARDNUM = :cardnum
