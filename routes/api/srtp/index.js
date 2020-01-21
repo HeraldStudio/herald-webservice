@@ -7,7 +7,7 @@ exports.route = {
   * SRTP查询
   **/
   async get() {
-    return await this.userCache('1d+', async () => {
+    // return await this.userCache('1d+', async () => {
       let { schoolnum } = this.user
 
       let res = await this.post('http://10.1.30.98:8080/srtp2/USerPages/SRTP/Report3.aspx',`code=${schoolnum}`)
@@ -50,6 +50,6 @@ exports.route = {
       })
 
       return { info, projects }
-    })
+    // })
   }
 }
