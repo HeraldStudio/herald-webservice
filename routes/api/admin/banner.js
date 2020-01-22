@@ -11,7 +11,7 @@ exports.route = {
     let bannerList = await this.db.execute(`
       SELECT ID,TITLE,PIC,URL,SCHOOLNUM_PREFIX,END_TIME,START_TIME
       FROM (SELECT tt.*, ROWNUM AS rowno
-        FROM (SELECT t.* FROM H_BANNER t ORDER BY END_TIME DESC) tt
+        FROM (SELECT t.* FROM TOMMY.H_BANNER t ORDER BY END_TIME DESC) tt
         WHERE ROWNUM < :endRow) table_alias
       WHERE table_alias.rowno >= :startRow`,
     {
@@ -123,7 +123,6 @@ exports.route = {
   * 注意检查日期格式 YYYY-MM-DD HH:mm:ss
   */
   async put({ banner }) {
-    //let bannerCollection = await mongodb('herald_banner')
     if (!(this.user.isLogin && await this.hasPermission('publicity'))) {
       throw 403
     }
