@@ -17,8 +17,7 @@ const mongodb = require('../database/mongodb')
 // }
 
 
-
-
+// 修改为使用MongoDB数据库保存log
 module.exports = async (ctx, next) => {
   let begin = moment()
   await next()
@@ -67,7 +66,7 @@ module.exports = async (ctx, next) => {
     ' ' + duration + 'ms' +
     (logMsg ? ' | ' + chalkColored.yellow(logMsg) : '')
   )
-
+  
   try {
     let logCollection = await mongodb('webservice_log')
     await logCollection.insertOne({
@@ -83,9 +82,4 @@ module.exports = async (ctx, next) => {
   } catch(e) {
     console.log('MongoDB服务出现错误', e)
   }
-
-
-
-
-
 }
