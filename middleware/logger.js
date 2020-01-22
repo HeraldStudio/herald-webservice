@@ -1,17 +1,20 @@
+const mongodb = require('../database/mongodb')
 /**
   # 日志中间件
 
   代替 koa 的日志中间件，为了解析 return.js 中间件返回的 JSON 状态码，并且为了好看。
  */
-const { send, Auth } = require('pandora-nodejs-sdk')
-const { qiniuLog } = require('../sdk/sdk.json')
 
-let qiniuAuth 
-try{
-  qiniuAuth = new Auth(qiniuLog.access, qiniuLog.secret)
-}catch(e){
-  console.log('七牛云日志服务未配置')
-}
+
+// const { send, Auth } = require('pandora-nodejs-sdk')
+// const { qiniuLog } = require('../sdk/sdk.json')
+
+// let qiniuAuth 
+// try{
+//   qiniuAuth = new Auth(qiniuLog.access, qiniuLog.secret)
+// }catch(e){
+//   console.log('七牛云日志服务未配置')
+// }
 
 
 
@@ -30,6 +33,19 @@ module.exports = async (ctx, next) => {
   if (ctx.request.headers.token ) {
     // 当请求中包含token，就可以向日志输出用户非敏感信息，以便于分析业务情况
     try {
+      console.log(ctx.request.headers.token)
+      cardnum = ctx.user.cardnum
+      name = ctx.user.name
+      platform = ctx.user.platform
+    } catch (e) { 
+      //console.log(e)
+    }
+  }
+
+  if (ctx.request.headers['x-api-token'] ) {
+    // 当请求中包含token，就可以向日志输出用户非敏感信息，以便于分析业务情况
+    try {
+      console.log(ctx.request.headers['x-api-token'])
       cardnum = ctx.user.cardnum
       name = ctx.user.name
       platform = ctx.user.platform
@@ -53,13 +69,19 @@ module.exports = async (ctx, next) => {
   )
 
   try {
-    send(qiniuAuth, qiniuLog.accessRepo, [{ cardnum, username: name, status, method: ctx.method, path: ctx.path, duration, msg: logMsg ? logMsg : '', platform }]).catch(() => {
-      qiniuAuth = new Auth(qiniuLog.access, qiniuLog.secret)
-    }).catch(e => {
-      console.log(e)
+    let logCollection = await mongodb('webservice_log')
+    await logCollection.insertOne({
+      cardnum:  cardnum,
+      username: name,
+      status:   status,
+      method:   ctx.method,
+      path:     ctx.path,
+      duration: duration,
+      msg:      logMsg ? logMsg : '',
+      platform: platform
     })
   } catch(e) {
-    console.log('七牛云日志服务未配置', e)
+    console.log('MongoDB服务出现错误', e)
   }
 
 
