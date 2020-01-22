@@ -1,6 +1,7 @@
 /* eslint require-atomic-updates: "off" */
 const cheerio = require('cheerio')
 const Europa = require('node-europa')
+const admin = require('../../../sdk/admin.json')
 
 const loginAction = 'http://10.1.30.98:8080/competition/login.aspx'
 const listUrl = 'http://10.1.30.98:8080/competition/c_stu_default.aspx'
@@ -17,10 +18,10 @@ exports.route = {
     // 因此，这里使用非时效性公有缓存：
     // - 若用户已登录，将根据缓存时效性选择取缓存或者帮助更新缓存；
     // - 若用户未登录，回源函数将抛出 401，根据非时效性缓存机制，将会强制取缓存。
-    return await this.publicCache('1h+', async () => {
+    // return await this.publicCache('1h+', async () => {
 
-      // 模拟登录
-      let { cardnum, password } = this.user
+      // 模拟登录,使用管理员的一卡通以及密码
+      let { cardnum, password } = require('../../../sdk/admin.json')
       let res = await this.get(loginAction)
       let $ = cheerio.load(res.data)
       let fields = {}
@@ -59,7 +60,7 @@ exports.route = {
           startTime: +moment(startTime.text().trim(), 'YYYY-M-D H:mm:ss'),
           endTime: +moment(endTime.text().trim(), 'YYYY-M-D H:mm:ss')
         }))
-    })
+    // })
   },
 
   /*
@@ -69,7 +70,7 @@ exports.route = {
   async post({ id }) {
     // 原理同上
     return await this.publicCache('5m+', async () => {
-      let { cardnum, password } = this.user
+      let { cardnum, password } = require('../../../sdk/admin.json')
       let res = await this.get(loginAction)
       let $ = cheerio.load(res.data)
       let fields = {}

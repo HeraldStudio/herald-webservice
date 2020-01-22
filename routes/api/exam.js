@@ -1,19 +1,20 @@
 const cheerio = require('cheerio')
-
+const oracledb = require('oracledb')
 exports.route = {
 
   /**
   * GET /api/exam
+  * @apiReturn [{ semester, campus, courseName, teacherName, startTime, endTime, location, duration }]
   * 个人考试信息查询
   **/
 
   async get() {
-    // return await this.userCache('2h', async () => {
 
     let { name, cardnum, schoolnum } = this.user
 
     let now = +moment()
-    console.log(cardnum)
+
+    // 获取考试数据
     let record = await this.db.execute(`
     select  g.XNXQDM,g.MC,T_KC_KCB.KCM,T_JZG_JBXX.XM,g.KSSJMS,JASMC, KSSC
     from T_JZG_JBXX,T_KC_KCB,(
@@ -40,20 +41,81 @@ exports.route = {
       where T_RW_JSB.JXBID=f.JXBID and T_RW_JSB.KCH=f.KCH)g
     where T_JZG_JBXX.ZGH=g.JSH and g.KCH=T_KC_KCB.KCH
     `,[cardnum])
+
     let result = record.rows.map( Element => {
       let [semester, campus, courseName, teacherName, time, location, duration]=Element
-
       let startMoment = moment(time, 'YYYY-MM-DD HH:mm(dddd)')
       let startTime = +startMoment
       let endTime = +startMoment.add(duration, 'minutes')
 
       return { semester, campus, courseName, teacherName, startTime, endTime, location, duration }
-      
-    }).filter(k => k.endTime > now)
+    })
 
-    console.log(result)
+    // 获取自定义考试数据
+    let  customExam= await this.db.execute(`
+      select semester, campus, courseName, teacherName, startTime, endTime, location, duration
+      from t_my_exam
+      where cardnum=:cardnum
+    `,[cardnum])
+
+    customExam.rows.map( Element => {
+      let [semester, campus, courseName, teacherName, startTime, endTime, location, duration]=Element
+      result.push({ semester, campus, courseName, teacherName, startTime, endTime, location, duration })
+    })
+    
+    result.filter( e => e.endTime > now)// 防止个别考生考试开始了还没找到考场🤔
     return result
+  },
 
+  /**
+  * POST /api/exam
+  * 自定义考试
+  * @apiParam semester    学年学期
+  * @apiParam campus      校区
+  * @apiParam courseName  课程名
+  * @apiParam teacherName 老师名
+  * @apiParam startTime   开始时间   格式 'YYYY-MM-DD HH:mm:ss'
+  * @apiParam location    考试地点
+  * @apiParam duration    考试时长   单位：分
+  **/
 
+  async post({semester, campus, courseName, teacherName, startTime, location, duration}) {
+
+    let { cardnum } = this.user
+
+    startMoment = moment(startTime, 'YYYY-MM-DD HH:mm:ss')
+    startTime = +startMoment
+    let endTime = +startMoment.add(duration, 'minutes')
+
+    sql = `INSERT INTO T_MY_EXAM VALUES (:1, :2, :3, :4, :5, :6, :7, :8, :9)`;
+
+    binds = [
+      [semester, campus, courseName, teacherName, startTime, endTime, location, duration, cardnum],
+    ];
+
+    options = {
+      autoCommit: true,
+
+      bindDefs: [
+        { type: oracledb.STRING, maxSize: 20 },
+        { type: oracledb.STRING, maxSize: 200 },
+        { type: oracledb.STRING, maxSize: 100 },
+        { type: oracledb.STRING, maxSize: 90 },
+        { type: oracledb.NUMBER },
+        { type: oracledb.NUMBER },
+        { type: oracledb.STRING, maxSize: 200 },
+        { type: oracledb.STRING, maxSize: 10 },
+        { type: oracledb.STRING, maxSize: 20 },
+      ]
+    };
+
+    result = await this.db.executeMany(sql, binds, options);
+
+    if(result.rowsAffected>0){
+      return '自定义考试成功'
+    }else{
+      throw '自定义考试失败'
+    }
   }
+
 }

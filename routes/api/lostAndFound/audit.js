@@ -3,6 +3,11 @@ const ObjectId = require('mongodb').ObjectId
 const {adminList} = require('./admin.json')
 
 exports.route = {
+  /**
+   * POST /api/lostAndFound/audit
+   * @param { id, pass } 
+   * 审核接口
+   */
   async post({id, pass}){
     let _id = ObjectId(id)
     let {cardnum} = this.user
