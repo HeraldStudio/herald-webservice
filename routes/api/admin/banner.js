@@ -168,7 +168,7 @@ exports.route = {
     await this.db.execute(`DELETE FROM TOMMY.H_BANNER WHERE ID = :id`, { id })
     await this.db.execute(`DELETE FROM TOMMY.H_BANNER_CLICK WHERE BID = :id`, { id })
 
-    return 'ok'
+    return 'Ok'
 
   }
 }
