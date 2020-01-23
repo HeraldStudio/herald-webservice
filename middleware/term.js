@@ -16,35 +16,43 @@
  * {
     "list": [
       {
-        "name": "17-18-3",
-        "startDate": 1519574400000,
-        "endDate": 1530460800000,
+        "name": "2017-2018-1",
+        "startDate": "2017-08-10 00:00:00",
+        "endDate": "2017-09-07 00:00:00",
         "isCurrent": false,
         "isNext": false,
-        "isPrev": true,
-        "isLong": true
+        "isPrev": false,
+        "isLong": false,
       },
       ...
     ],
-    "next": {
-      "name": "18-19-1",
-      "startDate": 1534694400000,
-      "endDate": 1537113600000,
+    "nextTerm": {
+      "name": "2020-2021-1",
+      "startDate": "2020-06-29 00:00:00",
+      "endDate": "2020-07-27 00:00:00",
       "isCurrent": false,
       "isNext": true,
       "isPrev": false,
       "isLong": false
     },
-    "prev": {
-      "name": "17-18-3",
-      "startDate": 1519574400000,
-      "endDate": 1530460800000,
+    "prevTerm": {
+      "name": "2019-2020-2",
+      "startDate": "2019-09-16 00:00:00",
+      "endDate": "2020-01-20 00:00:00",
       "isCurrent": false,
       "isNext": false,
       "isPrev": true,
       "isLong": true
     },
-    "current": null
+    "current": {
+      "name": "2019-2020-3",
+      "startDate": "2020-02-24 00:00:00",
+      "endDate": "2020-06-29 00:00:00",
+      "isCurrent": true,
+      "isNext": false,
+      "isPrev": false,
+      "isLong": true
+    }
   }
  */
 const { config } = require('../app')
@@ -112,17 +120,25 @@ module.exports = async (ctx, next) => {
         nextTerm = term.list[ currentTerm.index + 1]
         term.list[ currentTerm.index + 1].isNext = true
         nextTerm.isNext = true
+        delete nextTerm.index
       }
       if (currentTerm.index - 1 >= 0) {
         prevTerm = term.list[ currentTerm.index - 1]
         term.list[ currentTerm.index - 1].isPrev = true
         prevTerm.isPrev = true
+        delete prevTerm.index
       }
       
       term.nextTerm = nextTerm
       term.prevTerm = prevTerm
       term.currentTerm = currentTerm
+      delete term.currentTerm.index
 
+      term.list = term.list.map( k => {
+        delete k.index
+        return k
+      })
+      
       return term
     }
   })
