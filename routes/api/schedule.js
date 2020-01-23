@@ -10,6 +10,6 @@ exports.route = {
       throw 403
     }
     // 将校历图片上传到outline服务器，直接图片连接
-    return 'https://static.myseu.cn/schedule_2019.jpg'
+    return 'https://tommy.seu.edu.cn/static/images/2019-2020.jpg'
   }
 }
