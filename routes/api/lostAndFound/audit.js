@@ -9,16 +9,26 @@ exports.route = {
    * 审核接口
    */
   async post({id, pass}){
-    let _id = ObjectId(id)
     let {cardnum} = this.user
-    let lostAndFoundCollection = await mongodb('herald_lost_and_found')
     if(adminList.indexOf(cardnum) === -1) {
       throw 401
     }
     if(pass){
-      await lostAndFoundCollection.updateOne({_id}, {$set:{isAudit:true, isFinished:false}})
+      await this.db.execute(`
+      UPDATE herald_lost_and_found
+      SET 
+      ISAUDIT = 1,
+      ISFINISHED = 0
+      WHERE wid = '${id}'
+      `)
     } else {
-      await lostAndFoundCollection.updateOne({_id},{$set:{isAudit:false, isFinished:true}})
+      await this.db.execute(`
+      UPDATE herald_lost_and_found
+      SET 
+      ISAUDIT = 1,
+      ISFINISHED = 0
+      WHERE wid = '${id}'
+      `)
     }
     return 'success'
   }
