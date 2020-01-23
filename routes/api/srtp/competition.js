@@ -20,46 +20,46 @@ exports.route = {
     // - 若用户未登录，回源函数将抛出 401，根据非时效性缓存机制，将会强制取缓存。
     // return await this.publicCache('1h+', async () => {
 
-      // 模拟登录,使用管理员的一卡通以及密码
-      let { cardnum, password } = require('../../../sdk/admin.json')
-      let res = await this.get(loginAction)
-      let $ = cheerio.load(res.data)
-      let fields = {}
+    // 模拟登录,使用管理员的一卡通以及密码
+    let { cardnum, password } = require('../../../sdk/admin.json')
+    let res = await this.get(loginAction)
+    let $ = cheerio.load(res.data)
+    let fields = {}
+    $('input').toArray().map(k => $(k)).map(k => {
+      fields[k.attr('name')] = k.attr('value')
+    })
+    // 这两个参数必须有，否则无法登录
+    fields['ImageButton1.x'] = 28
+    fields['ImageButton1.y'] = 1
+    fields.tbname = cardnum
+    fields.tbpsw = password
+    res = await this.post(loginAction, fields)
+    $ = cheerio.load(res.data)
+      
+    // 模拟 Post 翻到指定页面
+    if (page != 1) {
+      fields = {}
       $('input').toArray().map(k => $(k)).map(k => {
         fields[k.attr('name')] = k.attr('value')
       })
-      // 这两个参数必须有，否则无法登录
-      fields['ImageButton1.x'] = 28
-      fields['ImageButton1.y'] = 1
-      fields.tbname = cardnum
-      fields.tbpsw = password
-      res = await this.post(loginAction, fields)
+      fields['__EVENTTARGET'] = 'ctl00$ContentPlaceHolder1$gvleader'
+      fields['__EVENTARGUMENT'] = `Page$${page}`
+      res = await this.post(listUrl, fields)
       $ = cheerio.load(res.data)
-      
-      // 模拟 Post 翻到指定页面
-      if (page != 1) {
-        fields = {}
-        $('input').toArray().map(k => $(k)).map(k => {
-          fields[k.attr('name')] = k.attr('value')
-        })
-        fields['__EVENTTARGET'] = 'ctl00$ContentPlaceHolder1$gvleader'
-        fields['__EVENTARGUMENT'] = `Page$${page}`
-        res = await this.post(listUrl, fields)
-        $ = cheerio.load(res.data)
-      }
+    }
 
-      // 解析该页的竞赛列表
-      return $('#ctl00_ContentPlaceHolder1_gvleader > tbody > tr')
-        .toArray().slice(1, -1) // 去掉标题行和分页行
-        .map(tr => $(tr).find('td').toArray())
-        .map(arr => arr.map(item => $(item)))
-        // 每行四个格子，其中name栏还包含了对应的链接
-        .map(([id, name, startTime, endTime]) => ({
-          id: id.text().trim(),
-          name: name.text().trim(),
-          startTime: +moment(startTime.text().trim(), 'YYYY-M-D H:mm:ss'),
-          endTime: +moment(endTime.text().trim(), 'YYYY-M-D H:mm:ss')
-        }))
+    // 解析该页的竞赛列表
+    return $('#ctl00_ContentPlaceHolder1_gvleader > tbody > tr')
+      .toArray().slice(1, -1) // 去掉标题行和分页行
+      .map(tr => $(tr).find('td').toArray())
+      .map(arr => arr.map(item => $(item)))
+    // 每行四个格子，其中name栏还包含了对应的链接
+      .map(([id, name, startTime, endTime]) => ({
+        id: id.text().trim(),
+        name: name.text().trim(),
+        startTime: +moment(startTime.text().trim(), 'YYYY-M-D H:mm:ss'),
+        endTime: +moment(endTime.text().trim(), 'YYYY-M-D H:mm:ss')
+      }))
     // })
   },
 
