@@ -89,16 +89,20 @@ exports.route = {
         throw `没有相应于 ${site} 的学校网站`
       }
       
-      
+      // console.log(sites[site].infoUrl)
       let res = await this.get(sites[site].infoUrl)
+      // console.log(res.data)
       let $ = cheerio.load(res.data)
-      // console.log('$:',$)
+      // console.log('$:',$.html())
       let list = sites[site].list
 
       // 分组获取时间，按组名装入 timeList 的 property 里，防止混乱
       let timeList = {}
       list.forEach(
         ele => {
+          // console.log(sites[site].dateSelector)
+          // console.log(ele[0])
+          // console.log($('div'))
           timeList[ele[1]] =
               $(ele[0]).find(sites[site].dateSelector || 'div').toArray()
                 .map(k => /(\d+-)?(\d+)-(\d+)/.exec($(k).text()))
@@ -121,11 +125,11 @@ exports.route = {
                   : +autoMoment(k[0]))
         }
       )
-      
+      // console.log(timeList)
 
       // 找出所有新闻条目，和日期配对，返回
       return list.map(ele => $(ele[0]).find('a').toArray().map(k => $(k)).map((k, i) => {
-        let href = k.attr('href')
+        let href = k.attr('href') ? k.attr('href'):''
         let currentUrl = url.resolve(sites[site].infoUrl, href)
         return {
           site: sites[site].name,
@@ -186,7 +190,7 @@ exports.route = {
     })
     
 
-    return ret.reduce((a, b) => a.concat(b), [])
+    ret = ret.reduce((a, b) => a.concat(b), [])
       // 如果项目都有两个时间，就按时间排序，否则按在某一栏中出现的顺序排序
       // 时间越大，或者序号越小，越新。
       .sort((a, b) => (a.time && b.time) ? (b.time - a.time) : (a.index - b.index))
@@ -199,6 +203,19 @@ exports.route = {
       })
       // 加上小猴偷米的消息通知
       .concat(res)
+
+    // 按照标题去重
+    let titleList = {}
+    ret = ret.filter( k => {
+      if (typeof titleList[k.title] === 'undefined'){
+        titleList[k.title] = true
+        return true
+      } else {
+        return false
+      }
+    })
+
+    return ret
   },
 
   /**
