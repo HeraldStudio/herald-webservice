@@ -33,15 +33,15 @@ exports.route = {
 
     let term = await this.get('https://myseu.cn/ws3/api/classroom/term')
     let myTerm = this.term
-    let termName = myTerm['current']['name']
+    let termName = myTerm['currentTerm']['name']
 
-    //转换一下termName的格式
-    let termNameStr = termName.split('-')
-    for (let i = 0; i < termNameStr.length - 1; i++) {
-      termNameStr[i] = '20'.concat(termNameStr[i])
-    }
-    termName = termNameStr.join('-')
-
+    // //转换一下termName的格式
+    // let termNameStr = termName.split('-')
+    // for (let i = 0; i < termNameStr.length - 1; i++) {
+    //   termNameStr[i] = '20'.concat(termNameStr[i])
+    // }
+    // termName = termNameStr.join('-')
+    console.log(termName)
     //查询termId
     let termId
     for (let i = 0; i < term.data.result.length; i++) {
@@ -50,7 +50,6 @@ exports.route = {
         break
       }
     }
-
     let nowDate = new Date().getTime()
     let startDate = myTerm.current['startDate']
     let aWeekInSecond = 7 * 24 * 3600 * 1000

@@ -189,11 +189,11 @@ exports.route = {
 
 ### 获取学期
 
-通过 `this.term` 可以得到当前 `config` 中已知的所有学期列表 `this.term.list`，并可以直接获得当前学期 `this.term.current`、上一学期 `this.term.prev`、下一学期 `this.term.next`。
+通过 `this.term` 可以得到当前 `config` 中已知的所有学期列表 `this.term.list`，并可以直接获得当前学期 `this.term.currentTerm`、上一学期 `this.term.prevTerm`、下一学期 `this.term.nextTerm`。
 
 上述「学期」均为对象，包含 `name` 表示学期的编号、`startDate`/`endDate` 时间戳表示学期的开始和结束、`isCurrent`/`isPrev`/`isNext` 表示学期的状态，`isLong` 表示学期的性质。
 
-注意，只要 `config` 配置足够准确，上学期、下学期都是始终存在的，但当前学期可以为空。这就意味着当你需要获取当前学期时，一定要仔细考虑：当处于假期，`this.term.current` 为空时应该如何处理？通常的处理是用刚刚过去的学期或者即将到来的学期作为替代，这时你可以用 `||` 操作符指定一个 `fallback`，例如 `this.term.current || this.term.prev` 等。
+注意，只要 `config` 配置足够准确，上学期、下学期都是始终存在的，但当前学期可以为空。这就意味着当你需要获取当前学期时，一定要仔细考虑：当处于假期，`this.term.currentTerm` 为空时应该如何处理？通常的处理是用刚刚过去的学期或者即将到来的学期作为替代，这时你可以用 `||` 操作符指定一个 `fallback`，例如 `this.term.currentTerm || this.term.prevTerm` 等。
 
 ### 网络请求
 

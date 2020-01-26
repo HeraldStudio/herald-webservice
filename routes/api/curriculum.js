@@ -53,7 +53,8 @@ exports.route = {
   * 对于这类课表，我们需要在系统中将长学期开学日期向前推4周。
   **/
   async get({ term }) {
-    let currentTerm = (this.term.current || this.term.next).name
+    console.log(this.term)
+    let currentTerm = (this.term.currentTerm || this.term.nextTerm).name
     // 若为查询未来学期，可能是在选课过程中，需要减少缓存时间
     return await this.userCache(term && term > currentTerm ? '15m+' : '1d+', async () => {
       let { name, cardnum, schoolnum } = this.user
@@ -469,5 +470,5 @@ exports.route = {
       this.logMsg = `${name} (${cardnum}) - 查询课程表`
       return { term, curriculum }
     })
-  }
+  },
 }

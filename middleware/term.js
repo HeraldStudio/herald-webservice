@@ -44,7 +44,7 @@
       "isPrev": true,
       "isLong": true
     },
-    "current": {
+    "currentTerm": {
       "name": "2019-2020-3",
       "startDate": "2020-02-24 00:00:00",
       "endDate": "2020-06-29 00:00:00",

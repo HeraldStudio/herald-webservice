@@ -66,7 +66,7 @@ exports.route = {
     // 剩余天数单独缓存，防止受跑操上游故障影响
     let remainDays = await this.publicCache('remainDays', '1h', async () => {
       let now = moment()
-      let beginOfTerm = this.term.current && this.term.current.isLong && moment(this.term.current.startDate)
+      let beginOfTerm = this.term.currentTerm && this.term.currentTerm.isLong && moment(this.term.currentTerm.startDate)
 
       return beginOfTerm ? (
         Array(16 * 7).fill() // 生成当前学期每一天的下标数组
