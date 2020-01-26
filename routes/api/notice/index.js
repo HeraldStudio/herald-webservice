@@ -225,7 +225,9 @@ exports.route = {
   * @apiParam nid? 需要查看 Markdown 的通知 nid
   * @apiReturn <string> 转换结果
   */
-  async post ({ url = '', nid = '' }) {
+  async post ({ url = '', id = '' }) {
+    console.log(url)
+    console.log(id)
     if (url) {
       let typeObj = Object.keys(sites).map(k => sites[k]).find(k => url.indexOf(k.baseUrl) + 1)
 
@@ -241,11 +243,20 @@ exports.route = {
         baseUri: typeObj.baseUrl,
         inline: true
       }).convert($(typeObj.contentSelector || 'body').html())
-    } else if (nid) {
-      let noticeCollection = await mongodb('herald_notice')
-      //let notice = await db.notice.find({ nid }, 1)
-      let notice = await noticeCollection.findOne({ nid })
-      return `# ${notice.title}\n\n${notice.content}`
+    } else if (id) {
+      let notice = await this.db.execute(`SELECT TITLE,CONTENT,URL FROM TOMMY.H_NOTICE WHERE ID =:id`,{ id })
+    
+      // 处理一下返回数据
+      let heraldNotice = {}
+      heraldNotice['title'] = notice.rows[0][0]
+      heraldNotice['content'] = notice.rows[0][1]
+      heraldNotice['url'] = notice.rows[0][2]
+
+      return `# ${heraldNotice.title}\n\n
+                ${heraldNotice.content}\n\n 
+                ${heraldNotice.url? '相关链接:'+ heraldNotice.url : ''}
+                `
+      
     } else {
       throw '无转换结果'
     }
