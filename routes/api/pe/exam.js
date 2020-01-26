@@ -14,7 +14,6 @@ exports.route = {
     // let $ = cheerio.load(res.data)
     // let cid = /course_(\d+)/.exec($('a[title="国家级资源共享课程"]').attr('href'))[1]
     let cid = 2598
-    console.log(`http://mobile.icourses.cn/hep-mobile/sword/app/share/detail/getExam?courseId=${cid}&subjectType=1`)
     let res = await this.get(`http://mobile.icourses.cn/hep-mobile/sword/app/share/detail/getExam?courseId=${cid}&subjectType=1`)
     // buffer 转为JSON
     res = JSON.parse(res.data.toString()).data
