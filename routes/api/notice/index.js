@@ -70,6 +70,7 @@ exports.route = {
   * GET /api/notice
   * 调试模式下 GET /api/notice?site=zwc
   * @apiReturn [{ category, department, title, url, time, isAttachment, isImportant }]
+  * 目前没有使用缓存，但是根据时间消耗，还是应该使用缓存提升用户体验
   */
   async get () {
     let now = +moment()
@@ -174,7 +175,6 @@ exports.route = {
         tempData[fieldName[index]] = item
         tempData.site = '小猴偷米'
         tempData.category = '小猴通知'
-        delete tempData.id
       })
       res.push(tempData)
     })
@@ -225,7 +225,7 @@ exports.route = {
   * @apiParam nid? 需要查看 Markdown 的通知 nid
   * @apiReturn <string> 转换结果
   */
-  async post ({ url, nid }) {
+  async post ({ url = '', nid = '' }) {
     if (url) {
       let typeObj = Object.keys(sites).map(k => sites[k]).find(k => url.indexOf(k.baseUrl) + 1)
 
@@ -247,7 +247,7 @@ exports.route = {
       let notice = await noticeCollection.findOne({ nid })
       return `# ${notice.title}\n\n${notice.content}`
     } else {
-      throw 400
+      throw '无转换结果'
     }
   }
 }
