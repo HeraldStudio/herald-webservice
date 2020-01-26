@@ -1,6 +1,5 @@
 const cheerio = require('cheerio')
 const Europa = require('node-europa')
-const mongodb = require('../../../database/mongodb')
 const url = require('url')
 
 const sites = {
