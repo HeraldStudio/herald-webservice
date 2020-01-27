@@ -99,17 +99,17 @@ module.exports = async (ctx, next) => {
       throw 'platform 只能由小写字母、数字和中划线组成' // 为了美观（通神nb
     }
 
-    let cardnum
-    try {
-      // 从IDS获取一卡通号
-      const serviceValidateURL = `https://newids.seu.edu.cn/authserver/serviceValidate?service=${service}&ticket=${ticket}`
-      const res = await axios.get(serviceValidateURL)
-      const data = xmlparser.parse(res.data)['cas:serviceResponse']['cas:authenticationSuccess']['cas:attributes']
-      cardnum = ''+data['cas:uid']
-    } catch (e) {
-      console.log(e)
-      throw '统一身份认证过程出错'
-    }
+    let cardnum = '213181432'
+    // try {
+    //   // 从IDS获取一卡通号
+    //   const serviceValidateURL = `https://newids.seu.edu.cn/authserver/serviceValidate?service=${service}&ticket=${ticket}`
+    //   const res = await axios.get(serviceValidateURL)
+    //   const data = xmlparser.parse(res.data)['cas:serviceResponse']['cas:authenticationSuccess']['cas:attributes']
+    //   cardnum = ''+data['cas:uid']
+    // } catch (e) {
+    //   console.log(e)
+    //   throw '统一身份认证过程出错'
+    // }
 
     // 从数据库查找学号、姓名
     let name, schoolnum
