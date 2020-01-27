@@ -88,7 +88,6 @@ exports.route = {
           WHERE
             cj.XH = xk.XH AND cj.KCH = xk.KCH
       `,{ cardnum: cardnum});
-        console.log(rawData);
         let rawDetail = rawData.rows.map(row => {
           let semesterName = row[0].split('-')
           let cxckMap = new Map([['01','首修'],['02','重修'],['03','及格重修'],['04','补考']]);

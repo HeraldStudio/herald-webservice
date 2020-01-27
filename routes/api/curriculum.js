@@ -1,5 +1,5 @@
 /* eslint no-unused-vars:off, require-atomic-updates:off */
-
+const oracledb = require('oracledb')
 const cheerio = require('cheerio')
 
 // 每节课的开始时间 (时 * 60 + 分)
@@ -53,19 +53,18 @@ exports.route = {
   * 对于这类课表，我们需要在系统中将长学期开学日期向前推4周。
   **/
   async get({ term }) {
-    console.log(this.term)
     let currentTerm = (this.term.currentTerm || this.term.nextTerm).name
     // 若为查询未来学期，可能是在选课过程中，需要减少缓存时间
-    return await this.userCache(term && term > currentTerm ? '15m+' : '1d+', async () => {
+    // return await this.userCache(term && term > currentTerm ? '15m+' : '1d+', async () => {
       let { name, cardnum, schoolnum } = this.user
       let curriculum = []
 
       // 新选课系统-目前使用18级本科生数据进行测试
       if (/^21318/.test(cardnum) || /^[0-9A-Z]{3}18/.test(schoolnum)||/^21319/.test(cardnum)||/^[0-9A-Z]{3}19/.test(schoolnum)) {
         // 处理 term
-        if(!term){term='19-20-2'}
+        if(!term){term='2019-2020-3'}
         term = this.term.list.find( t => t.name === term )
-        
+        console.log(this.term.list)
         if(term.name.endsWith('1')){
           term.maxWeek = 4
         }
@@ -74,19 +73,47 @@ exports.route = {
         }
       
         
-        await this.useEHallAuth('4770397878132218')
         // 处理 curriculum
         // 获取课表
-        let queryTerm = '2019-2020-2'
-        if (term.name === '19-20-1') {
-          queryTerm = '2019-2020-1'
-        }
-        if(term.name === '18-19-3'){
-          queryTerm = '2018-2019-3'
-        }
-        //console.log(queryTerm)
-        const curriculumRes = await this.post('http://ehall.seu.edu.cn/jwapp/sys/wdkb/modules/xskcb/xskcb.do', {
-          'XNXQDM': queryTerm,
+        let result = this.db.execute(`
+        select e.skzc,skxq,ksjc,jsjc,jasmc,kcm,t_jzg_jbxx.xm
+        from t_jzg_jbxx,(
+            select d.jsh,skzc,skxq,ksjc,jsjc,jasmc,t_kc_kcb.kcm
+            from t_kc_kcb,(
+                select c.jsh,skzc,skxq,ksjc,jsjc,kch,t_jas_jbxx.jasmc
+                from t_jas_jbxx,(
+                    select b.jsh ,t_pk_sjddb.skzc, skxq, ksjc, jsjc, jasdm, kch
+                    from t_pk_sjddb,(
+                        select jsh,a.jxbid
+                        from t_rw_jsb,(
+                           select jxbid
+                           from t_xk_xkxs
+                           where xh='${cardnum}' and xnxqdm = '${currentTerm}')a
+                        where a.jxbid = t_rw_jsb.jxbid)b
+                    where b.jxbid = t_pk_sjddb.jxbid)c
+                where c.jasdm = t_jas_jbxx.jasdm)d
+            where d.kch = t_kc_kcb.kch)e
+        where e.jsh = t_jzg_jbxx.zgh
+        `)
+        result.rows.map(Element => {
+          let [ SKZC, SKXQ, KSJC, JSJC, JASMC, KCM, XM ] = Element
+          const course = {
+            courseName: KCM,
+            teacherName: XM,
+            beginWeek: SKZC.indexOf('1') + 1,
+            endWeek: SKZC.lastIndexOf('1') + 1,
+            dayOfWeek: parseInt(SKXQ),
+            flip: SKZC.startsWith('1010') ?
+              'odd' :
+              startsWith('0101') ?
+                'even':
+                'none',
+            beginPeriod: parseInt(KSJC),
+            endPeriod: parseInt(JSJC),
+            location: JASMC,
+            credit: '学分未知'
+          }
+          curriculum.push(course)
         })
         const rows = curriculumRes.data.datas.xskcb.rows
         rows.forEach(rawCourse => {
@@ -469,6 +496,56 @@ exports.route = {
 
       this.logMsg = `${name} (${cardnum}) - 查询课程表`
       return { term, curriculum }
-    })
+    // })
   },
+
+  /**
+  * POST /api/curriculum
+  * 自定义课程
+  * @apiParam courseName  课程名
+  * @apiParam teacherName 老师名
+  * @apiParam beginWeek   开始周次  
+  * @apiParam endWeek     结束周次
+  * @apiParam dayOfWeek   星期几      // 为了数据直观以及前端绘图方便，1-7 分别表示周一到周日
+  * @apiParam flip        单双周      // even 双周, odd 单周, none 全周
+  * @apiParam beginPeriod 开始节次
+  * @apiParam endPeriod   结束节次
+  * @apiParam location    地点
+  **/
+
+ async post({ courseName, teacherName, beginWeek, endWeek, dayOfWeek, flip, beginPeriod, endPeriod, location }) {
+  let { cardnum } = this.user
+
+  sql = `INSERT INTO T_MY_COURSE VALUES (:1, :2, :3, :4, :5, :6, :7, :8, :9, sys_guid(), :10, '${this.term.currentTerm.name}')`;
+
+  binds = [
+    [ courseName, teacherName, beginWeek, endWeek, dayOfWeek, flip, beginPeriod, endPeriod, location, cardnum ],
+  ];
+  console.log()
+  options = {
+    autoCommit: true,
+
+    bindDefs: [
+
+      { type: oracledb.STRING, maxSize: 100 },
+      { type: oracledb.STRING, maxSize: 90 },
+      { type: oracledb.NUMBER },
+      { type: oracledb.NUMBER },
+      { type: oracledb.NUMBER },
+      { type: oracledb.STRING, maxSize: 10 },
+      { type: oracledb.NUMBER },
+      { type: oracledb.NUMBER },
+      { type: oracledb.STRING, maxSize: 200 },
+      { type: oracledb.STRING, maxSize: 20 },
+    ]
+  };
+
+  result = await this.db.executeMany(sql, binds, options);
+
+  if (result.rowsAffected > 0) {
+    return '自定义课程成功'
+  } else {
+    throw '自定义课程失败'
+  }
+}
 }
