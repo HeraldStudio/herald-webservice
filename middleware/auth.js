@@ -39,33 +39,33 @@
 const crypto = require('crypto')
 const xmlparser = require('fast-xml-parser')
 const axios =  require('axios')
-const { config } = require('../app')
+// const { config } = require('../app')
 
 const tokenHashPool = {} // 用于缓存tokenHash，防止高峰期数据库爆炸💥
 
 // 对称加密算法，要求 value 是 String 或 Buffer，否则会报错
-const encrypt = (key, value) => {
-  try {
-    let cipher = crypto.createCipher(config.auth.cipher, key)
-    let result = cipher.update(value, 'utf8', 'hex')
-    result += cipher.final('hex')
-    return result
-  } catch (e) {
-    return ''
-  }
-}
+// const encrypt = (key, value) => {
+//   try {
+//     let cipher = crypto.createCipher(config.auth.cipher, key)
+//     let result = cipher.update(value, 'utf8', 'hex')
+//     result += cipher.final('hex')
+//     return result
+//   } catch (e) {
+//     return ''
+//   }
+// }
 
 // 对称解密算法，要求 value 是 String 或 Buffer，否则会报错
-const decrypt = (key, value) => {
-  try {
-    let decipher = crypto.createDecipher(config.auth.cipher, key)
-    let result = decipher.update(value, 'hex', 'utf8')
-    result += decipher.final('utf8')
-    return result
-  } catch (e) {
-    return ''
-  }
-}
+// const decrypt = (key, value) => {
+//   try {
+//     let decipher = crypto.createDecipher(config.auth.cipher, key)
+//     let result = decipher.update(value, 'hex', 'utf8')
+//     result += decipher.final('utf8')
+//     return result
+//   } catch (e) {
+//     return ''
+//   }
+// }
 
 // 哈希算法，用于对 token 进行摘要
 const hash = value => {

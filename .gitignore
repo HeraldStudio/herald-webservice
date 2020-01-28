@@ -10,6 +10,7 @@ spider_test.js
 **/*.db
 sdk/sdk.json
 sdk/admin.json
+sdk/pe.json
 worker/captcha/models/
 *.swp
 .repl_history

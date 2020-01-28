@@ -36,7 +36,7 @@ exports.route = {
       let tempData = {}
       oneData.forEach((item, index) => {
         if (index === 5 || index === 6) {
-          item = moment(item).format('YYYY-MM-DD HH:mm:ss')
+          item = +moment(item)
         }
         tempData[fieldName[index]] = item
         tempData['click'] = 0
