@@ -64,8 +64,6 @@ const terms = Object.keys(config.term).map(k => {
   let startMoment = moment(config.term[k],'YYYY-MM-DD')
   let startDate = +startMoment
   let endDate = +startMoment.add(/-1$/.test(k) ? 4 : 18, 'weeks')
-  startDate = moment(startDate)
-  endDate = moment(endDate)
   return { name: k, startDate, endDate }
 }).reduce((a, b) => a.concat(b), [])
 
@@ -73,9 +71,9 @@ module.exports = async (ctx, next) => {
   // 定义一个不可以被修改的属性，详情参考 MDN Object.defineProperty
   Object.defineProperty(ctx, 'term', {
     get() {
-      let now = moment()
+      let now = +moment()
       // 需要记录一个上一个学期的结束时间 起始值是一个比较早的时间
-      let prevEndDate = moment('1998-11-25 00:00:00','YYYY-MM-DD HH:mm:ss')
+      let prevEndDate = +moment('1998-11-25 00:00:00','YYYY-MM-DD HH:mm:ss')
       let currentTerm = null
       let nextTerm = null
       let prevTerm = null
@@ -97,15 +95,12 @@ module.exports = async (ctx, next) => {
           k.index = index
 
           // 确定当前学期
-          if( now.unix() >= prevEndDate.unix() && now.unix() < k.endDate.unix()) {
+          if( now >= prevEndDate && now < k.endDate) {
             k.isCurrent = true
           }
 
           prevEndDate = k.endDate
           index = index + 1
-          
-          k.endDate = k.endDate.format('YYYY-MM-DD HH:mm:ss')
-          k.startDate = k.startDate.format('YYYY-MM-DD HH:mm:ss')
           
           if(k.isCurrent) currentTerm = Object.assign({}, k)
 
