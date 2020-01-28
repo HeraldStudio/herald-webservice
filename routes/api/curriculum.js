@@ -206,56 +206,35 @@ exports.route = {
         // 老师的号码是1开头的九位数
         // 考虑到学号是八位数的情况
         let isStudent = !(/^1\d{8}$/.exec(cardnum))
-        if (isStudent) {
-          // 处理 curriculum
-          // 获取课表
-          let result = await this.db.execute(`
-          SELECT XKJXB, XKKCDM, JSXM, SKAP
-          FROM T_XK_XKJG
-          WHERE XH = '${cardnum}' AND XN='${currentTerm.split('-')[0]}'
-        `)
-          result.rows.map(Element => {
-            let [XKJXB, XKKCDM, JSXM, SKAP] = Element
-            // const course = {
-            //   courseName: KCM,
-            //   teacherName: XM,
-            //   beginWeek: SKZC.indexOf('1') + 1,
-            //   endWeek: SKZC.lastIndexOf('1') + 1,
-            //   dayOfWeek: parseInt(SKXQ),
-            //   flip: SKZC.startsWith('1010') ?
-            //     'odd' :
-            //     startsWith('0101') ?
-            //       'even' :
-            //       'none',
-            //   beginPeriod: parseInt(KSJC),
-            //   endPeriod: parseInt(JSJC),
-            //   location: JASMC,
-            //   credit: '学分未知'
-            // }
-            // curriculum.push(course)
+        // if (isStudent) {
+        //   // 处理 curriculum
+        //   // 获取课表
+        //   let result = await this.db.execute(`
+        //   SELECT XKJXB, XKKCDM, JSXM, SKAP
+        //   FROM T_XK_XKJG
+        //   WHERE XH = '${cardnum}' AND XN='${currentTerm.split('-')[0]}'
+        // `)
+        //   result.rows.map(Element => {
+        //     let [XKJXB, XKKCDM, JSXM, SKAP] = Element
+        //     // const course = {
+        //     //   courseName: KCM,
+        //     //   teacherName: XM,
+        //     //   beginWeek: SKZC.indexOf('1') + 1,
+        //     //   endWeek: SKZC.lastIndexOf('1') + 1,
+        //     //   dayOfWeek: parseInt(SKXQ),
+        //     //   flip: SKZC.startsWith('1010') ?
+        //     //     'odd' :
+        //     //     startsWith('0101') ?
+        //     //       'even' :
+        //     //       'none',
+        //     //   beginPeriod: parseInt(KSJC),
+        //     //   endPeriod: parseInt(JSJC),
+        //     //   location: JASMC,
+        //     //   credit: '学分未知'
+        //     // }
+        //     // curriculum.push(course)
 
-          })
-          const rows = curriculumRes.data.datas.xskcb.rows
-          rows.forEach(rawCourse => {
-            const course = {
-              courseName: rawCourse.KCM,
-              teacherName: rawCourse.SKJS,
-              beginWeek: rawCourse.SKZC.indexOf('1') + 1,
-              endWeek: rawCourse.SKZC.lastIndexOf('1') + 1,
-              dayOfWeek: parseInt(rawCourse.SKXQ),
-              flip: rawCourse.SKZC.startsWith('1010') ?
-                'odd' :
-                rawCourse.SKZC.startsWith('0101') ?
-                  'even' :
-                  'none',
-              beginPeriod: parseInt(rawCourse.KSJC),
-              endPeriod: parseInt(rawCourse.JSJC),
-              location: rawCourse.JASMC,
-              credit: '学分未知'
-            }
-            curriculum.push(course)
-          })
-        }
+        //   })
         // 抓取课表页面
         let res = await (isStudent ? this.post(
           'http://xk.urp.seu.edu.cn/jw_service/service/stuCurriculum.action',
@@ -275,7 +254,12 @@ exports.route = {
           // 从课表页面抓取学期号
           term = /<font class="Context_title">[\s\S]*?(\d{2}-\d{2}-\d)[\s\S]*?<\/font>/im.exec(res.data)[1]
         } catch (e) { throw '解析失败' }
-
+        term = term.split('-').map(Element => {
+          if (term.split('-').indexOf(Element) <= 1) {
+            Element = '20' + Element
+          }
+          return Element
+        }).join('-')
         // 用 term 字符串从 term 中间件中拿到学期对象，这里 term 从字符串类型变成了 Object
         term = this.term.list.find(k => k.name === term) || {
           name: term
@@ -561,13 +545,12 @@ exports.route = {
 
   async post({ courseName, teacherName, beginWeek, endWeek, dayOfWeek, flip, beginPeriod, endPeriod, location }) {
     let { cardnum } = this.user
-
-    sql = `INSERT INTO T_MY_COURSE VALUES (:1, :2, :3, :4, :5, :6, :7, :8, :9, sys_guid(), :10, '${this.term.currentTerm.name}')`;
+    let sql, binds, options, result
+    sql = `INSERT INTO T_MY_COURSE VALUES (:1, :2, :3, :4, :5, :6, :7, :8, :9, sys_guid(), :10, '${this.term.currentTerm.name}')`
 
     binds = [
       [courseName, teacherName, beginWeek, endWeek, dayOfWeek, flip, beginPeriod, endPeriod, location, cardnum],
-    ];
-    console.log()
+    ]
     options = {
       autoCommit: true,
 
@@ -584,14 +567,36 @@ exports.route = {
         { type: oracledb.STRING, maxSize: 200 },
         { type: oracledb.STRING, maxSize: 20 },
       ]
-    };
+    }
 
-    result = await this.db.executeMany(sql, binds, options);
+    result = await this.db.executeMany(sql, binds, options)
 
     if (result.rowsAffected > 0) {
       return '自定义课程成功'
     } else {
       throw '自定义课程失败'
+    }
+  },
+
+  async delete({ id }) {
+    let record = await this.db.execute(`
+    select * from T_MY_COURSE
+    where wid='${id}'
+  `)
+    record = record.rows[0]
+
+    if (!record) {
+      throw '事务不存在'
+    }
+
+    let result = await this.db.execute(`
+    DELETE from T_MY_COURSE
+    WHERE WID ='${id}'
+  `)
+    if (result.rowsAffected > 0) {
+      return '删除成功'
+    } else {
+      throw '删除失败'
     }
   }
 }

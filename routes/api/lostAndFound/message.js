@@ -1,6 +1,4 @@
-const mongodb = require('../../../database/mongodb')
-const ObjectId = require('mongodb').ObjectId
-
+const oracledb = require('oracledb')
 exports.route = {
   async get({ itemId }) {
     let { cardnum } = this.user
@@ -93,24 +91,24 @@ exports.route = {
       return { _id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished }
     })[0]
     if (record.isAudit && !record.isFinished) {
-      sql = `INSERT INTO herald_lost_and_found_message VALUES (sys_guid(), :1, :2, :3, :4, :5)`;
+      let sql = `INSERT INTO herald_lost_and_found_message VALUES (sys_guid(), :1, :2, :3, :4, :5)`
 
-    binds = [
-      [itemId, message, cardnum, 0, +moment()],
-    ];
-
-    options = {
-      autoCommit: true,
-
-      bindDefs: [
-        { type: oracledb.STRING, maxSize: 50 },
-        { type: oracledb.STRING, maxSize: 100 },
-        { type: oracledb.STRING, maxSize: 20 },
-        { type: oracledb.NUMBER },
-        { type: oracledb.NUMBER },
+      let binds = [
+        [itemId, message, cardnum, 0, +moment()],
       ]
-    };
-    result = await this.db.executeMany(sql, binds, options);
+
+      let options = {
+        autoCommit: true,
+
+        bindDefs: [
+          { type: oracledb.STRING, maxSize: 50 },
+          { type: oracledb.STRING, maxSize: 100 },
+          { type: oracledb.STRING, maxSize: 20 },
+          { type: oracledb.NUMBER },
+          { type: oracledb.NUMBER },
+        ]
+      }
+      await this.db.executeMany(sql, binds, options)
       return '回复成功'
     } else {
       throw '该事务未通过审核或已被关闭'

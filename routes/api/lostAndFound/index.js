@@ -1,5 +1,3 @@
-const mongodb = require('../../../database/mongodb')
-const ObjectId = require('mongodb').ObjectId
 const { adminList } = require('./admin.json')
 const { deleteFile } = require('../../../sdk/qiniu')
 const oracledb = require('oracledb')
@@ -103,13 +101,13 @@ exports.route = {
       throw '图片不合法'
     }
 
-    sql = `INSERT INTO herald_lost_and_found VALUES (sys_guid(), :1, :2, :3, :4, :5, :6, :7, :8)`;
+    let sql = `INSERT INTO herald_lost_and_found VALUES (sys_guid(), :1, :2, :3, :4, :5, :6, :7, :8)`
 
-    binds = [
+    let binds = [
       [cardnum, title, +moment(), describe ? describe : '', imageUrl ? imageUrl : '', type, 0, 0],
-    ];
+    ]
 
-    options = {
+    let options = {
       autoCommit: true,
 
       bindDefs: [
@@ -122,9 +120,9 @@ exports.route = {
         { type: oracledb.NUMBER },
         { type: oracledb.NUMBER },
       ]
-    };
+    }
 
-    result = await this.db.executeMany(sql, binds, options);
+    let result = await this.db.executeMany(sql, binds, options)
 
     if (result.rowsAffected > 0) {
       return '提交成功'

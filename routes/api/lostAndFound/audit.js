@@ -1,5 +1,3 @@
-const mongodb = require('../../../database/mongodb')
-const ObjectId = require('mongodb').ObjectId
 const {adminList} = require('./admin.json')
 
 exports.route = {

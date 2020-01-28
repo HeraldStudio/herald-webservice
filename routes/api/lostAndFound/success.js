@@ -1,9 +1,7 @@
-const mongodb = require('../../../database/mongodb')
-const ObjectId = require('mongodb').ObjectId
 const {adminList} = require('./admin.json')
 
 exports.route = {
-  async post({id}){
+  async post({itemId}){
     let {cardnum} = this.user
     let record = await this.db.execute(`
     select * 
@@ -21,7 +19,7 @@ exports.route = {
     UPDATE herald_lost_and_found
     SET 
     ISFINISHED = 1
-    WHERE wid = '${id}'
+    WHERE wid = '${itemId}'
     `)
     return 'success'
   }

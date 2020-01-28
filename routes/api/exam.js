@@ -115,6 +115,27 @@ exports.route = {
     } else {
       throw '自定义考试失败'
     }
+  },
+  async delete({ id }) {
+    let record = await this.db.execute(`
+    select * from T_MY_EXAM
+    where wid='${id}'
+  `)
+    record = record.rows[0]
+
+    if (!record) {
+      throw '事务不存在'
+    }
+
+    let result = await this.db.execute(`
+    DELETE from T_MY_EXAM
+    WHERE WID ='${id}'
+  `)
+    if (result.rowsAffected > 0) {
+      return '删除成功'
+    } else {
+      throw '删除失败'
+    }
   }
 
 }
