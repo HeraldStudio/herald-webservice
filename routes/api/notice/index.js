@@ -169,7 +169,7 @@ exports.route = {
       let tempData = {}
       oneData.forEach((item, index) => {
         if (index === 5 ) {
-          item = moment(item).format('YYYY-MM-DD')
+          item = +moment(item)
         }
         tempData[fieldName[index]] = item
         tempData.site = '小猴偷米'
@@ -195,11 +195,6 @@ exports.route = {
       .sort((a, b) => (a.time && b.time) ? (b.time - a.time) : (a.index - b.index))
       // 按保留天数和条数过滤获取的信息
       .filter(k => k.index < keepNum || now - k.time < keepTime)
-      // 修改一下时间格式
-      .map(k => {
-        k.time = moment(k.time).format('YYYY-MM-DD')
-        return k
-      })
       // 加上小猴偷米的消息通知
       .concat(res)
 

@@ -82,17 +82,17 @@ exports.route = {
 
   async post({ semester, campus, courseName, teacherName, startTime, location, duration }) {
     let { cardnum } = this.user
-    startMoment = moment(startTime, 'YYYY-MM-DD HH:mm:ss')
+    let startMoment = moment(startTime, 'YYYY-MM-DD HH:mm:ss')
     startTime = +startMoment
     let endTime = +startMoment.add(duration, 'minutes')
 
-    sql = `INSERT INTO T_MY_EXAM VALUES (:1, :2, :3, :4, :5, :6, :7, :8, :9, sys_guid())`;
+    let sql = `INSERT INTO T_MY_EXAM VALUES (:1, :2, :3, :4, :5, :6, :7, :8, :9, sys_guid())`
 
-    binds = [
+    let binds = [
       [ semester, campus, courseName, teacherName, startTime, endTime, location, duration, cardnum ],
-    ];
+    ]
 
-    options = {
+    let options = {
       autoCommit: true,
 
       bindDefs: [
@@ -106,9 +106,9 @@ exports.route = {
         { type: oracledb.STRING, maxSize: 10 },
         { type: oracledb.STRING, maxSize: 20 },
       ]
-    };
+    }
 
-    result = await this.db.executeMany(sql, binds, options);
+    let result = await this.db.executeMany(sql, binds, options)
 
     if (result.rowsAffected > 0) {
       return '自定义考试成功'
