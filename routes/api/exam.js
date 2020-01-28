@@ -1,4 +1,3 @@
-const cheerio = require('cheerio')
 const oracledb = require('oracledb')
 exports.route = {
 
@@ -46,7 +45,6 @@ exports.route = {
     `,[cardnum])
     let result = record.rows.map(Element => {
       let [semester, campus, courseName, courseType, teacherName, time, location, duration] = Element
-      console.log(Element)
       let startMoment = moment(time, 'YYYY-MM-DD HH:mm(dddd)')
       let startTime = +startMoment
       let endTime = +startMoment.add(duration, 'minutes')
@@ -56,17 +54,17 @@ exports.route = {
 
     // 获取自定义考试数据
     let customExam = await this.db.execute(`
-      select semester, campus, courseName, teacherName, startTime, endTime, location, duration
+      select semester, campus, courseName, teacherName, startTime, endTime, location, duration, wid
       from t_my_exam
       where cardnum=:cardnum
     `, [cardnum])
 
     customExam.rows.map(Element => {
-      let [semester, campus, courseName, teacherName, startTime, endTime, location, duration] = Element
-      result.push({ semester, campus, courseName, teacherName, startTime, endTime, location, duration })
+      let [semester, campus, courseName, teacherName, startTime, endTime, location, duration, _id] = Element
+      result.push({ semester, campus, courseName, teacherName, startTime, endTime, location, duration, _id })
     })
 
-    // result.filter( e => e.endTime > now)// 防止个别考生考试开始了还没找到考场🤔
+    result = result.filter( e => e.endTime > now)// 防止个别考生考试开始了还没找到考场🤔
     return result
   },
 
@@ -83,17 +81,15 @@ exports.route = {
   **/
 
   async post({ semester, campus, courseName, teacherName, startTime, location, duration }) {
-
     let { cardnum } = this.user
-
     startMoment = moment(startTime, 'YYYY-MM-DD HH:mm:ss')
     startTime = +startMoment
     let endTime = +startMoment.add(duration, 'minutes')
 
-    sql = `INSERT INTO T_MY_EXAM VALUES (:1, :2, :3, :4, :5, :6, :7, :8, :9)`;
+    sql = `INSERT INTO T_MY_EXAM VALUES (:1, :2, :3, :4, :5, :6, :7, :8, :9, sys_guid())`;
 
     binds = [
-      [semester, campus, courseName, teacherName, startTime, endTime, location, duration, cardnum],
+      [ semester, campus, courseName, teacherName, startTime, endTime, location, duration, cardnum ],
     ];
 
     options = {
