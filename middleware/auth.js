@@ -37,8 +37,8 @@
  */
 
 const crypto = require('crypto')
-const xmlparser = require('fast-xml-parser')
-const axios =  require('axios')
+// const xmlparser = require('fast-xml-parser')
+// const axios =  require('axios')
 // const { config } = require('../app')
 
 const tokenHashPool = {} // 用于缓存tokenHash，防止高峰期数据库爆炸💥
