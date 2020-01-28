@@ -75,16 +75,14 @@ exports.route = {
   * @apiParam campus      校区
   * @apiParam courseName  课程名
   * @apiParam teacherName 老师名
-  * @apiParam startTime   开始时间   格式 'YYYY-MM-DD HH:mm:ss'
+  * @apiParam startTime   开始时间   格式：时间戳
   * @apiParam location    考试地点
   * @apiParam duration    考试时长   单位：分
   **/
 
   async post({ semester, campus, courseName, teacherName, startTime, location, duration }) {
     let { cardnum } = this.user
-    let startMoment = moment(startTime, 'YYYY-MM-DD HH:mm:ss')
-    startTime = +startMoment
-    let endTime = +startMoment.add(duration, 'minutes')
+    let endTime = startTime.add(duration, 'minutes')
 
     let sql = `INSERT INTO H_MY_EXAM VALUES (:1, :2, :3, :4, :5, :6, :7, :8, :9, sys_guid())`
 
