@@ -112,6 +112,7 @@ exports.route = {
       // 完成跑操任务
       hint = hintTable[4]
     } else {
+      // 随机一个
       hint = hintTable[now % 2 + 1]
     }
     
