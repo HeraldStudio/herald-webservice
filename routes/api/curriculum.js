@@ -546,7 +546,7 @@ exports.route = {
   async post({ courseName, teacherName, beginWeek, endWeek, dayOfWeek, flip, beginPeriod, endPeriod, location }) {
     let { cardnum } = this.user
     let sql, binds, options, result
-    sql = `INSERT INTO T_MY_COURSE VALUES (:1, :2, :3, :4, :5, :6, :7, :8, :9, sys_guid(), :10, '${this.term.currentTerm.name}')`
+    sql = `INSERT INTO H_MY_COURSE VALUES (:1, :2, :3, :4, :5, :6, :7, :8, :9, sys_guid(), :10, '${this.term.currentTerm.name}')`
 
     binds = [
       [courseName, teacherName, beginWeek, endWeek, dayOfWeek, flip, beginPeriod, endPeriod, location, cardnum],
@@ -580,7 +580,7 @@ exports.route = {
 
   async delete({ id }) {
     let record = await this.db.execute(`
-    select * from T_MY_COURSE
+    select * from H_MY_COURSE
     where wid='${id}'
   `)
     record = record.rows[0]
@@ -590,7 +590,7 @@ exports.route = {
     }
 
     let result = await this.db.execute(`
-    DELETE from T_MY_COURSE
+    DELETE from H_MY_COURSE
     WHERE WID ='${id}'
   `)
     if (result.rowsAffected > 0) {

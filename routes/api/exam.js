@@ -55,7 +55,7 @@ exports.route = {
     // 获取自定义考试数据
     let customExam = await this.db.execute(`
       select semester, campus, courseName, teacherName, startTime, endTime, location, duration, wid
-      from t_my_exam
+      from h_my_exam
       where cardnum=:cardnum
     `, [cardnum])
 
@@ -86,7 +86,7 @@ exports.route = {
     startTime = +startMoment
     let endTime = +startMoment.add(duration, 'minutes')
 
-    let sql = `INSERT INTO T_MY_EXAM VALUES (:1, :2, :3, :4, :5, :6, :7, :8, :9, sys_guid())`
+    let sql = `INSERT INTO H_MY_EXAM VALUES (:1, :2, :3, :4, :5, :6, :7, :8, :9, sys_guid())`
 
     let binds = [
       [ semester, campus, courseName, teacherName, startTime, endTime, location, duration, cardnum ],
@@ -118,7 +118,7 @@ exports.route = {
   },
   async delete({ id }) {
     let record = await this.db.execute(`
-    select * from T_MY_EXAM
+    select * from H_MY_EXAM
     where wid='${id}'
   `)
     record = record.rows[0]
@@ -128,7 +128,7 @@ exports.route = {
     }
 
     let result = await this.db.execute(`
-    DELETE from T_MY_EXAM
+    DELETE from H_MY_EXAM
     WHERE WID ='${id}'
   `)
     if (result.rowsAffected > 0) {

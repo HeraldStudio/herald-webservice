@@ -6,7 +6,7 @@ exports.route = {
       // 如果指定了事务id，首先获取事务记录
       let record = await this.db.execute(`
       select * 
-      from herald_lost_and_found
+      from H_LOST_AND_FOUND
       where wid = '${itemId}'
     `)
       record = record.rows.map(Element => {
@@ -21,7 +21,7 @@ exports.route = {
         // return await messageCollection.find({ itemId, creator: cardnum }, { sort: [['lastModifiedTime', -1]] }).toArray()
         let record = await this.db.execute(`
           SELECT *
-          FROM herald_lost_and_found_message
+          FROM H_LOST_AND_FOUND_message
           where ITEMID = '${itemId}' and creator = '${cardnum}'
           ORDER BY LASTMODIFIEDTIME DESC
         `)
@@ -33,7 +33,7 @@ exports.route = {
       // 如果是自己创建的就查找该事务的全部
       // await messageCollection.updateMany({ itemId }, { $set: { hasRead: true } }) // 标记为已读
       await this.db.execute(`
-      UPDATE herald_lost_and_found_message
+      UPDATE H_LOST_AND_FOUND_message
       SET 
       HASREAD = 1
       WHERE ITEMID = '${itemId}'
@@ -41,7 +41,7 @@ exports.route = {
       // return await messageCollection.find({ itemId }, { sort: [['lastModifiedTime', -1]] }).toArray()
       record = await this.db.execute(`
       SELECT *
-      FROM herald_lost_and_found_message
+      FROM H_LOST_AND_FOUND_message
       where ITEMID = '${itemId}'
       ORDER BY LASTMODIFIEDTIME DESC
     `)
@@ -54,7 +54,7 @@ exports.route = {
       // let items = await lostAndFoundCollection.find({ creator: cardnum, isAudit: true, isFinished: false }, { projection: { '_id': 1 } }).toArray()
       let items = await this.db.execute(`
       select * 
-      from herald_lost_and_found
+      from H_LOST_AND_FOUND
       where creator = '${cardnum}' and isAudit = 1 and isFinished = 0
     `)
       items = items.rows.map(Element => {
@@ -65,7 +65,7 @@ exports.route = {
       for (let itemId of items) {
         let result = await this.db.execute(`
         SELECT COUNT(*)
-        FROM herald_lost_and_found_message
+        FROM H_LOST_AND_FOUND_message
         where ITEMID = '${itemId._id}' and hasRead = 0
       `)
         res[itemId._id] = result.rows[0][0]
@@ -83,7 +83,7 @@ exports.route = {
     let { cardnum } = this.user
     let record = await this.db.execute(`
     select * 
-    from herald_lost_and_found
+    from H_LOST_AND_FOUND
     where wid = '${itemId}'
   `)
     record = record.rows.map(Element => {
@@ -91,7 +91,7 @@ exports.route = {
       return { _id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished }
     })[0]
     if (record.isAudit && !record.isFinished) {
-      let sql = `INSERT INTO herald_lost_and_found_message VALUES (sys_guid(), :1, :2, :3, :4, :5)`
+      let sql = `INSERT INTO H_LOST_AND_FOUND_message VALUES (sys_guid(), :1, :2, :3, :4, :5)`
 
       let binds = [
         [itemId, message, cardnum, 0, +moment()],

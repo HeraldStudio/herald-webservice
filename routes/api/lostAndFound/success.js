@@ -5,7 +5,7 @@ exports.route = {
     let { cardnum } = this.user
     let record = await this.db.execute(`
     select * 
-    from herald_lost_and_found
+    from H_LOST_AND_FOUND
     where wid = '${id}'
   `)
     record = record.rows.map(Element => {
@@ -16,7 +16,7 @@ exports.route = {
       throw 401
     }
     await this.db.execute(`
-    UPDATE herald_lost_and_found
+    UPDATE H_LOST_AND_FOUND
     SET 
     ISFINISHED = 1
     WHERE wid = '${id}'

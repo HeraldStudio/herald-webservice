@@ -13,7 +13,7 @@ exports.route = {
     }
     if(pass){
       await this.db.execute(`
-      UPDATE herald_lost_and_found
+      UPDATE H_LOST_AND_FOUND
       SET 
       ISAUDIT = 1,
       ISFINISHED = 0
@@ -21,7 +21,7 @@ exports.route = {
       `)
     } else {
       await this.db.execute(`
-      UPDATE herald_lost_and_found
+      UPDATE H_LOST_AND_FOUND
       SET 
       ISAUDIT = 1,
       ISFINISHED = 0

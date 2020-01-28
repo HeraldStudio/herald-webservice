@@ -4,12 +4,12 @@ const oracledb = require('oracledb')
 exports.route = {
   async get({ id = '', type, page = 1, pagesize = 10 }) {
     let { cardnum } = this.user
-    // let lostAndFoundCollection = await mongodb('herald_lost_and_found')
+    // let lostAndFoundCollection = await mongodb('H_LOST_AND_FOUND')
     if (id) {
       // 如果存在 id 则返回条目的信息
       let record = await this.db.execute(`
         select * 
-        from herald_lost_and_found
+        from H_LOST_AND_FOUND
         where wid = '${id}'
       `)
       record = record.rows.map(Element => {
@@ -29,7 +29,7 @@ exports.route = {
       let record = await this.db.execute(`
         SELECT * FROM (
           SELECT *
-          FROM herald_lost_and_found
+          FROM H_LOST_AND_FOUND
           where isAudit = 1 and isFinished = 0 and type = 'lost'
           ORDER BY LASTMODIFIEDTIME DESC
         ) WHERE ROWNUM > ${(page - 1) * pagesize} and ROWNUM <= ${page * pagesize}
@@ -43,7 +43,7 @@ exports.route = {
       let record = await this.db.execute(`
       SELECT * FROM (
         SELECT *
-        FROM herald_lost_and_found
+        FROM H_LOST_AND_FOUND
         where isAudit = 1 and isFinished = 0 and type = 'found'
         ORDER BY LASTMODIFIEDTIME DESC
       ) WHERE ROWNUM > ${(page - 1) * pagesize} and ROWNUM <= ${page * pagesize}
@@ -61,7 +61,7 @@ exports.route = {
       let record = await this.db.execute(`
       SELECT * FROM (
         SELECT *
-        FROM herald_lost_and_found
+        FROM H_LOST_AND_FOUND
         where isAudit = 0 and isFinished = 0
         ORDER BY LASTMODIFIEDTIME DESC
       ) WHERE ROWNUM > ${(page - 1) * pagesize} and ROWNUM <= ${page * pagesize}
@@ -76,7 +76,7 @@ exports.route = {
       let record = await this.db.execute(`
         SELECT * FROM (
           SELECT *
-          FROM herald_lost_and_found
+          FROM H_LOST_AND_FOUND
           WHERE CREATOR = '${cardnum}'
           ORDER BY LASTMODIFIEDTIME DESC
         ) WHERE ROWNUM > ${(page - 1) * pagesize} and ROWNUM <= ${page * pagesize}
@@ -101,7 +101,7 @@ exports.route = {
       throw '图片不合法'
     }
 
-    let sql = `INSERT INTO herald_lost_and_found VALUES (sys_guid(), :1, :2, :3, :4, :5, :6, :7, :8)`
+    let sql = `INSERT INTO H_LOST_AND_FOUND VALUES (sys_guid(), :1, :2, :3, :4, :5, :6, :7, :8)`
 
     let binds = [
       [cardnum, title, +moment(), describe ? describe : '', imageUrl ? imageUrl : '', type, 0, 0],
@@ -134,7 +134,7 @@ exports.route = {
   async put({ id, title, describe, imageUrl }) {
     let { cardnum } = this.user
     let record = await this.db.execute(`
-    select * from herald_lost_and_found
+    select * from H_LOST_AND_FOUND
     where wid='${id}'
   `)
     let oldRecord = record.rows.map(Element => {
@@ -156,7 +156,7 @@ exports.route = {
     }
 
     let result = await this.db.execute(`
-        UPDATE herald_lost_and_found
+        UPDATE H_LOST_AND_FOUND
         SET 
         TITLE = :title,
         DESCRIBE = :describe,
@@ -175,7 +175,7 @@ exports.route = {
   async delete({ id }) {
     let { cardnum } = this.user
     let record = await this.db.execute(`
-    select * from herald_lost_and_found
+    select * from H_LOST_AND_FOUND
     where wid='${id}'
   `)
     record = record.rows.map(Element => {
@@ -194,7 +194,7 @@ exports.route = {
     }
 
     let result = await this.db.execute(`
-    DELETE from herald_lost_and_found
+    DELETE from H_LOST_AND_FOUND
     WHERE WID ='${id}'
   `)
     if (result.rowsAffected > 0) {
