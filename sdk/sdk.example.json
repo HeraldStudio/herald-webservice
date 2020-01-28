@@ -35,5 +35,14 @@
         "pass": ""
       }
     }
+  },
+  "admin":{
+      "cardnum":"",
+      "password":""
+  },
+  "pe":{
+    "url":"",
+    "ak":"",
+    "sk":""
   }
 }

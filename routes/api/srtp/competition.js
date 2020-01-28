@@ -1,7 +1,6 @@
 /* eslint require-atomic-updates: "off" */
 const cheerio = require('cheerio')
 const Europa = require('node-europa')
-const admin = require('../../../sdk/admin.json')
 
 const loginAction = 'http://10.1.30.98:8080/competition/login.aspx'
 const listUrl = 'http://10.1.30.98:8080/competition/c_stu_default.aspx'
@@ -21,7 +20,7 @@ exports.route = {
     // return await this.publicCache('1h+', async () => {
 
     // 模拟登录,使用管理员的一卡通以及密码
-    let { cardnum, password } = require('../../../sdk/admin.json')
+    let { cardnum, password } = require('../../../sdk/sdk.json').admin
     let res = await this.get(loginAction)
     let $ = cheerio.load(res.data)
     let fields = {}
@@ -35,7 +34,7 @@ exports.route = {
     fields.tbpsw = password
     res = await this.post(loginAction, fields)
     $ = cheerio.load(res.data)
-      
+
     // 模拟 Post 翻到指定页面
     if (page != 1) {
       fields = {}
@@ -53,7 +52,7 @@ exports.route = {
       .toArray().slice(1, -1) // 去掉标题行和分页行
       .map(tr => $(tr).find('td').toArray())
       .map(arr => arr.map(item => $(item)))
-    // 每行四个格子，其中name栏还包含了对应的链接
+      // 每行四个格子，其中name栏还包含了对应的链接
       .map(([id, name, startTime, endTime]) => ({
         id: id.text().trim(),
         name: name.text().trim(),
@@ -69,32 +68,30 @@ exports.route = {
   */
   async post({ id }) {
     // 原理同上
-    return await this.publicCache('5m+', async () => {
-      let { cardnum, password } = require('../../../sdk/admin.json')
-      let res = await this.get(loginAction)
-      let $ = cheerio.load(res.data)
-      let fields = {}
-      $('input').toArray().map(k => $(k)).map(k => {
-        fields[k.attr('name')] = k.attr('value')
-      })
-      // 这两个参数必须有，否则无法登录
-      fields['ImageButton1.x'] = 28
-      fields['ImageButton1.y'] = 1
-
-      fields.tbname = cardnum
-      fields.tbpsw = password
-      await this.post(loginAction, fields)
-      res = await this.get(detailUrl + id)
-      $ = cheerio.load(res.data)
-      let content = $('.detail_body').html()
-      content = content.replace(/(<\/?\s*)(table|tbody|tr)/g, '$1div')
-      content = content.replace(/(<\/?\s*)(td)/g, '$1span')
-
-      return new Europa({
-        absolute: true,
-        baseUri: baseUrl,
-        inline: true
-      }).convert(content)
+    let { cardnum, password } = require('../../../sdk/sdk.json').admin
+    let res = await this.get(loginAction)
+    let $ = cheerio.load(res.data)
+    let fields = {}
+    $('input').toArray().map(k => $(k)).map(k => {
+      fields[k.attr('name')] = k.attr('value')
     })
+    // 这两个参数必须有，否则无法登录
+    fields['ImageButton1.x'] = 28
+    fields['ImageButton1.y'] = 1
+
+    fields.tbname = cardnum
+    fields.tbpsw = password
+    await this.post(loginAction, fields)
+    res = await this.get(detailUrl + id)
+    $ = cheerio.load(res.data)
+    let content = $('.detail_body').html()
+    content = content.replace(/(<\/?\s*)(table|tbody|tr)/g, '$1div')
+    content = content.replace(/(<\/?\s*)(td)/g, '$1span')
+
+    return new Europa({
+      absolute: true,
+      baseUri: baseUrl,
+      inline: true
+    }).convert(content)
   }
 }

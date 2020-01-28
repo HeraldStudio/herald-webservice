@@ -1,5 +1,5 @@
 // const cheerio = require('cheerio')
-const peConfig = require('../../../sdk/pe.json')
+const peConfig = require('../../../sdk/sdk.json')
 const axios = require('axios')
 const sha = require('sha1')
 const moment = require ('moment')
@@ -28,8 +28,8 @@ exports.route = {
     const cardnum = this.user.cardnum
     const now = +moment()
     // 获取体测成绩
-    let signature = sha(`ak=${peConfig.ak}&cardnum=${cardnum}&nounce=healthScore&sk=${peConfig.sk}`)
-    const healthScoreUrl = peConfig.url + '/healthScore?' +`ak=${peConfig.ak}&cardnum=${cardnum}&nounce=healthScore&signature=${signature}`
+    let signature = sha(`ak=${peConfig.pe.ak}&cardnum=${cardnum}&nounce=healthScore&sk=${peConfig.pe.sk}`)
+    const healthScoreUrl = peConfig.pe.url + '/healthScore?' +`ak=${peConfig.pe.ak}&cardnum=${cardnum}&nounce=healthScore&signature=${signature}`
     let res = await axios.get(healthScoreUrl)
 
     let health = {
@@ -71,8 +71,8 @@ exports.route = {
     // console.log(health)
     
     // 获取跑操数据
-    signature = sha(`ak=${peConfig.ak}&cardnum=${cardnum}&nounce=morningExercises&sk=${peConfig.sk}`)
-    const morningExercisesUrl = peConfig.url + '/morningExercises?' +`ak=${peConfig.ak}&cardnum=${cardnum}&nounce=morningExercises&signature=${signature}`
+    signature = sha(`ak=${peConfig.pe.ak}&cardnum=${cardnum}&nounce=morningExercises&sk=${peConfig.pe.sk}`)
+    const morningExercisesUrl = peConfig.pe.url + '/morningExercises?' +`ak=${peConfig.pe.ak}&cardnum=${cardnum}&nounce=morningExercises&signature=${signature}`
     res = await axios.get(morningExercisesUrl)
     
     // 过滤，仅获取当前学期的的跑操次数
