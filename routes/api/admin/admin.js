@@ -1,3 +1,19 @@
+/**
+ * 简单说明一下现在的管理员权限
+ * 两个表 H_ADMIN，H_ADMIN_PERMISSION，一卡通 cardnum 作为唯一标识
+ * 表 H_ADMIN ：记录管理员权限等级，上一次操作时间以及管理员基本信息。0级等级最高。
+ * 表 H_ADMIN_PERMISSION ：记录管理员权限范围
+ * 
+ * 此时会出现一个好玩的现象“光杆司令”，即管理员的权限等级很高，但是没有权限范围（白搭，啥都干不了）
+ * 
+ * 规则1:不允许授予同级、上级（指权限等级）管理员权限范围
+ * 规则2:不允许跨范围授予、删除权限范围
+ * 规则3:没有超级管理员
+ * 
+ * 每个管理员可以有多个权限范围即PERMISSION，可以对应不同的功能
+ * 例如：失物招领的发布审核、轮播图和活动的发布和设置、跑操提醒的设置等等
+ * 以后可能还会有更过的权限
+ */
 const monent = require('moment')
 exports.route = {
 
@@ -5,6 +21,7 @@ exports.route = {
   * api {GET} /api/admin/admin
   * 查询管理员二合一接口
   * 带 domain 参数表示查询指定域下的管理员；不带 domain 参数表示查询自己的管理员身份
+  * @apiReturn [{ permission, cardnum, phonenum, accessLevel, realName }]
   * 
   */
   async get({ domain = '' }) {
