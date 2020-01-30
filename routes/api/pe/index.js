@@ -12,6 +12,35 @@ const hintTable = [
   '小猴祝贺：恭喜你已经完成了跑操任务🎉'   // 完成跑操任务
 ]
 
+const en2ch = {
+  '男':{
+    score:'总分',
+    sex:'性别',
+    stature:'身高',
+    avoirdupois:'体重',
+    vitalCapacity:'肺活量',
+    fiftyMeter:'50米',
+    standingLongJump:'立定跳远',
+    BMI:'BMI',
+    bend:'坐体前屈',
+    kiloMeter:'1000米',
+    lie:'引体向上'
+  },
+  '女':{
+    score:'总分',
+    sex:'性别',
+    stature:'身高',
+    avoirdupois:'体重',
+    vitalCapacity:'肺活量',
+    fiftyMeter:'50米',
+    standingLongJump:'立定跳远',
+    BMI:'BMI',
+    bend:'坐体前屈',
+    kiloMeter:'800米',
+    lie:'仰卧起坐'
+  },
+}
+
 exports.route = {
 
   /**
@@ -30,58 +59,42 @@ exports.route = {
     // 获取体测成绩
     let signature = sha(`ak=${peConfig.pe.ak}&cardnum=${cardnum}&nounce=healthScore&sk=${peConfig.pe.sk}`)
     const healthScoreUrl = peConfig.pe.url + '/healthScore?' +`ak=${peConfig.pe.ak}&cardnum=${cardnum}&nounce=healthScore&signature=${signature}`
+    // console.log(healthScoreUrl)
     let res = await axios.get(healthScoreUrl)
-
-    let health = {
-      "身高":res.data.stature,
-      "体重":res.data.avoirdupois,
-      "肺活量":res.data.vitalCapacity,
-      "肺活量分数":res.data.vitalCapacityScore,
-      "肺活量评价":res.data.vitalCapacityConclusion,
-      "50米":res.data.fiftyMeter,
-      "50米分数":res.data.fiftyMeterScore,
-      "50米评价":res.data.fiftyMeterConclusion,
-      "立定跳远":res.data.standingLongJump,
-      "立定跳远分数":res.data.standingLongJumpScore,
-      "立定跳远评价":res.data.standingLongJumpConclusion,
-      "BMI值":res.data.BMI,
-      "BMI分数":res.data.BMIScore,
-      "BMI评价":res.data.BMIConclusion,
-      "坐体前屈":res.data.bend,
-      "坐体前屈分数":res.data.bendScore,
-      "坐体前屈评价":res.data.bendConclusion,
-      "总分":res.data.score
-    }
-    if (res.data.sex === '男') {
-      health["1000米"] = res.data.kiloMeter
-      health["1000米分数"] = res.data.kiloMeterScore
-      health["1000米评价"] = res.data.kiloMeterConclusion
-      health["引体向上"] = res.data.lie
-      health["引体向上分数"] = res.data.lieScore
-      health["引体向上评价"] = res.data.lieConclusion
-    } else {
-      health["800米"] = res.data.kiloMeter
-      health["800米分数"] = res.data.kiloMeterScore
-      health["800米评价"] = res.data.kiloMeterConclusion
-      health["仰卧起坐"] = res.data.lie
-      health["仰卧起坐分数"] = res.data.lieScore
-      health["仰卧起坐评价"] = res.data.lieConclusion
-    }
-
-    // console.log(health)
+    let healthList = Object.keys(res.data).filter(k => !(k.endsWith('Score')||k.endsWith('Conclusion')) )
+    let health = []
+    healthList.forEach( healthItem => {
+      let tempData = {}
+      tempData['name'] = en2ch[res.data.sex][healthItem]
+      tempData['value'] = res.data[healthItem]
+      if(typeof res.data[healthItem+'Score'] !== undefined){
+        tempData['score'] = res.data[healthItem+'Score']
+      }
+      if(typeof res.data[healthItem+'Conclusion'] !== undefined){
+        tempData['grade'] = res.data[healthItem+'Conclusion']
+      }
+      health.push(tempData)
+    })
+    
+ 
+   
     
     // 获取跑操数据
     signature = sha(`ak=${peConfig.pe.ak}&cardnum=${cardnum}&nounce=morningExercises&sk=${peConfig.pe.sk}`)
     const morningExercisesUrl = peConfig.pe.url + '/morningExercises?' +`ak=${peConfig.pe.ak}&cardnum=${cardnum}&nounce=morningExercises&signature=${signature}`
+    // console.log(morningExercisesUrl)
     res = await axios.get(morningExercisesUrl)
     
     // 过滤，仅获取当前学期的的跑操次数
-    // 测试期间，暂不过滤
-    // res.data.records = res.data.records.filter( 
-    //   k => +moment(+k) > this.term.currentTerm.startDate && +moment(+k) < this.term.currentTerm.endDate
-    // )
+    res.data.records = res.data.records
+      .map(k => +k)
+      .filter( 
+        // 测试期间，暂不过滤
+        () => true
+        // k => +moment(k) > this.term.currentTerm.startDate && +moment(k) < this.term.currentTerm.endDate
+      )
 
-    //console.log(res.data.records)
+    // console.log(res.data.records)
     
     const count = res.data.records.length
 
