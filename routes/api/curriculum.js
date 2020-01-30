@@ -99,10 +99,11 @@ exports.route = {
       myResult.rows.map(Element => {
         let [courseName, teacherName, beginWeek, endWeek, dayOfWeek, flip, beginPeriod, endPeriod, location, _id] = Element
         if(dayOfWeek)
-        {const course = { courseName, teacherName, beginWeek, endWeek, dayOfWeek, flip, beginPeriod, endPeriod, location, _id, credit: '学分未知' }}
+        {const course = { courseName, teacherName, beginWeek, endWeek, dayOfWeek, flip, beginPeriod, endPeriod, location, _id, credit: '学分未知' }
+        curriculum.push(course)}
         else
-        {const course = { courseName, teacherName, beginWeek, endWeek, flip, location, _id, credit: '学分未知' }}
-        curriculum.push(course)
+        {let course = { courseName, teacherName, beginWeek, endWeek, flip, location, _id, credit: '学分未知' }
+        curriculum.push(course)}
       })
       result.rows.map(Element => {
         let [SKZC, SKXQ, KSJC, JSJC, JASMC, KCM, XM] = Element
