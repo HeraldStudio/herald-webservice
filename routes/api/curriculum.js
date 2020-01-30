@@ -91,10 +91,16 @@ exports.route = {
             where d.kch = t_kc_kcb.kch)e
         where e.jsh = t_jzg_jbxx.zgh
         `)
-      let myResult = this.db.execute(`
-        SELECT * FROM H_MY_COURSE
-        WHERE OWNER = '${cardnum}'
+      let myResult = await this.db.execute(`
+        SELECT COURSENAME, TEACHERNAME, BEGINWEEK, ENDWEEK, DAYOFWEEK, FLIP, BEGINPERIOD, ENDPERIOD, LOCATION, WID
+        FROM H_MY_COURSE
+        WHERE OWNER = '${cardnum}' and SEMESTER = '${currentTerm}'
         `)
+      myResult.rows.map(Element => {
+        let [courseName, teacherName, beginWeek, endWeek, dayOfWeek, flip, beginPeriod, endPeriod, location, wid] = Element
+        const course = { courseName, teacherName, beginWeek, endWeek, dayOfWeek, flip, beginPeriod, endPeriod, location, wid, credit: '学分未知' }
+        curriculum.push(course)
+      })
       result.rows.map(Element => {
         let [SKZC, SKXQ, KSJC, JSJC, JASMC, KCM, XM] = Element
         const course = {

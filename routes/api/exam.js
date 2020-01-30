@@ -82,6 +82,7 @@ exports.route = {
 
   async post({ semester, campus, courseName, teacherName, startTime, location, duration }) {
     let { cardnum } = this.user
+    console.log({ semester, campus, courseName, teacherName, startTime, location, duration })
     if (!semester) {
       throw '未定义学期'
     }
@@ -101,7 +102,7 @@ exports.route = {
     let binds = [
       [semester, campus, courseName, teacherName, startTime, endTime, location, duration, cardnum],
     ]
-
+    console.log({semester, campus, courseName, teacherName, startTime, endTime, location, duration, cardnum})
     let options = {
       autoCommit: true,
 
@@ -113,7 +114,7 @@ exports.route = {
         { type: oracledb.NUMBER },
         { type: oracledb.NUMBER },
         { type: oracledb.STRING, maxSize: 200 },
-        { type: oracledb.STRING, maxSize: 10 },
+        { type: oracledb.NUMBER },
         { type: oracledb.STRING, maxSize: 20 },
       ]
     }
