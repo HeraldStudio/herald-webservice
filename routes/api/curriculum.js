@@ -97,8 +97,8 @@ exports.route = {
         WHERE OWNER = '${cardnum}' and SEMESTER = '${currentTerm}'
         `)
       myResult.rows.map(Element => {
-        let [courseName, teacherName, beginWeek, endWeek, dayOfWeek, flip, beginPeriod, endPeriod, location, wid] = Element
-        const course = { courseName, teacherName, beginWeek, endWeek, dayOfWeek, flip, beginPeriod, endPeriod, location, wid, credit: '学分未知' }
+        let [courseName, teacherName, beginWeek, endWeek, dayOfWeek, flip, beginPeriod, endPeriod, location, _id] = Element
+        const course = { courseName, teacherName, beginWeek, endWeek, dayOfWeek, flip, beginPeriod, endPeriod, location, _id, credit: '学分未知' }
         curriculum.push(course)
       })
       result.rows.map(Element => {
