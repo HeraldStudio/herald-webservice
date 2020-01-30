@@ -37,5 +37,5 @@ exports.route = {
         throw '没有CET考试信息'
       }
     })
-  },
+  }
 }
