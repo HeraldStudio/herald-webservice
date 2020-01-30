@@ -98,12 +98,27 @@ exports.route = {
         `)
       myResult.rows.map(Element => {
         let [courseName, teacherName, beginWeek, endWeek, dayOfWeek, flip, beginPeriod, endPeriod, location, _id] = Element
-        if(dayOfWeek)
-        {const course = { courseName, teacherName, beginWeek, endWeek, dayOfWeek, flip, beginPeriod, endPeriod, location, _id, credit: '学分未知' }
-        curriculum.push(course)}
-        else
-        {let course = { courseName, teacherName, beginWeek, endWeek, flip, location, _id, credit: '学分未知' }
-        curriculum.push(course)}
+        // if (dayOfWeek) {
+        //   const course = { courseName, teacherName, beginWeek, endWeek, dayOfWeek, flip, beginPeriod, endPeriod, location, _id, credit: '学分未知' }
+        //   curriculum.push(course)
+        // }
+        // else {
+        //   course course = { courseName, teacherName, beginWeek, endWeek, flip, location, _id, credit: '学分未知' }
+        //   curriculum.push(course)
+        // }
+        const course ={
+          courseName: courseName,
+          teacherName: teacherName,
+          beginWeek: beginWeek,
+          endWeek: endWeek,
+          dayOfWeek: dayOfWeek,
+          flip: flip,
+          beginPeriod: beginPeriod,
+          endPeriod: endPeriod,
+          location: location,
+          credit: '学分未知'
+        }
+        curriculum.push(course)
       })
       result.rows.map(Element => {
         let [SKZC, SKXQ, KSJC, JSJC, JASMC, KCM, XM] = Element
@@ -546,7 +561,7 @@ exports.route = {
   /**
   * POST /api/curriculum
   * 自定义课程
-  * @apiParam courseName  课程名
+  * @apiParam courseName  课程名      
   * @apiParam teacherName 老师名
   * @apiParam beginWeek   开始周次  
   * @apiParam endWeek     结束周次`
@@ -559,6 +574,15 @@ exports.route = {
 
   async post({ courseName, teacherName, beginWeek, endWeek, dayOfWeek, flip, beginPeriod, endPeriod, location }) {
     let { cardnum } = this.user
+    if(!courseName){
+      throw'课程名未定义'
+    }
+    if(!beginWeek||!endWeek){
+      throw'周次未定义'
+    }
+    if(!flip){
+      flip = 'none'
+    }
     let sql, binds, options, result
     sql = `INSERT INTO H_MY_COURSE VALUES (:1, :2, :3, :4, :5, :6, :7, :8, :9, sys_guid(), :10, '${this.term.currentTerm.name}')`
 
