@@ -42,7 +42,7 @@ exports.route = {
         where T_RW_JSB.JXBID=f.JXBID and T_RW_JSB.KCH=f.KCH)g
       where T_JZG_JBXX.ZGH=g.JSH and g.KCH=T_KC_KCB.KCH)h
     where T_KW_KSPC.KSDM = h.KSDM
-    `,[cardnum])
+    `, [cardnum])
     let result = record.rows.map(Element => {
       let [semester, campus, courseName, courseType, teacherName, time, location, duration] = Element
       let startMoment = moment(time, 'YYYY-MM-DD HH:mm(dddd)')
@@ -64,7 +64,7 @@ exports.route = {
       result.push({ semester, campus, courseName, teacherName, startTime, endTime, location, duration, _id })
     })
 
-    result = result.filter( e => e.endTime > now)// 防止个别考生考试开始了还没找到考场🤔
+    result = result.filter(e => e.endTime > now)// 防止个别考生考试开始了还没找到考场🤔
     return result
   },
 
@@ -72,7 +72,7 @@ exports.route = {
   * POST /api/exam
   * 自定义考试
   * @apiParam semester    学年学期
-  * @apiParam campus      校区
+  * @apiParam campus      校区       ['九龙湖', '丁家桥', '四牌楼']
   * @apiParam courseName  课程名
   * @apiParam teacherName 老师名
   * @apiParam startTime   开始时间   格式：时间戳
@@ -82,14 +82,23 @@ exports.route = {
 
   async post({ semester, campus, courseName, teacherName, startTime, location, duration }) {
     let { cardnum } = this.user
-    let endTime = startTime.add(duration, 'minutes')
+    console.log({ semester, campus, courseName, teacherName, startTime, location, duration })
+    if (!semester) {
+      throw '未定义学期'
+    }
+    if (!courseName) {
+      throw '未定义课程名'
+    }
+    if (!startTime || !duration) {
+      throw '未定义时间'
+    }
+    let endTime = startTime + duration * 60 * 1000
 
     let sql = `INSERT INTO H_MY_EXAM VALUES (:1, :2, :3, :4, :5, :6, :7, :8, :9, sys_guid())`
 
     let binds = [
-      [ semester, campus, courseName, teacherName, startTime, endTime, location, duration, cardnum ],
+      [semester, campus, courseName, teacherName, startTime, endTime, location, duration, cardnum],
     ]
-
     let options = {
       autoCommit: true,
 
@@ -101,7 +110,7 @@ exports.route = {
         { type: oracledb.NUMBER },
         { type: oracledb.NUMBER },
         { type: oracledb.STRING, maxSize: 200 },
-        { type: oracledb.STRING, maxSize: 10 },
+        { type: oracledb.NUMBER },
         { type: oracledb.STRING, maxSize: 20 },
       ]
     }
@@ -114,10 +123,10 @@ exports.route = {
       throw '自定义考试失败'
     }
   },
-  async delete({ id }) {
+  async delete({ _id }) {
     let record = await this.db.execute(`
     select * from H_MY_EXAM
-    where wid='${id}'
+    where wid='${_id}'
   `)
     record = record.rows[0]
 
@@ -127,7 +136,7 @@ exports.route = {
 
     let result = await this.db.execute(`
     DELETE from H_MY_EXAM
-    WHERE WID ='${id}'
+    WHERE WID ='${_id}'
   `)
     if (result.rowsAffected > 0) {
       return '删除成功'

@@ -26,7 +26,6 @@ exports.route = {
       }
     })
     const data = bannerList.rows
-
     data.forEach(oneData => {
       let tempData = {}
       oneData.forEach((item, index) => {

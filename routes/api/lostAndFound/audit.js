@@ -23,8 +23,8 @@ exports.route = {
       await this.db.execute(`
       UPDATE H_LOST_AND_FOUND
       SET 
-      ISAUDIT = 1,
-      ISFINISHED = 0
+      ISAUDIT = 0,
+      ISFINISHED = 1
       WHERE wid = '${id}'
       `)
     }
