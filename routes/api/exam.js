@@ -92,9 +92,6 @@ exports.route = {
     if (!startTime || !duration) {
       throw '未定义时间'
     }
-    if (!location) {
-      throw '未定义地点'
-    }
     let endTime = startTime + duration * 60 * 1000
 
     let sql = `INSERT INTO H_MY_EXAM VALUES (:1, :2, :3, :4, :5, :6, :7, :8, :9, sys_guid())`
@@ -102,7 +99,6 @@ exports.route = {
     let binds = [
       [semester, campus, courseName, teacherName, startTime, endTime, location, duration, cardnum],
     ]
-    console.log({semester, campus, courseName, teacherName, startTime, endTime, location, duration, cardnum})
     let options = {
       autoCommit: true,
 
