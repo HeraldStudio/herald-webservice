@@ -91,6 +91,10 @@ exports.route = {
             where d.kch = t_kc_kcb.kch)e
         where e.jsh = t_jzg_jbxx.zgh
         `)
+      let myResult = this.db.execute(`
+        SELECT * FROM H_MY_COURSE
+        WHERE OWNER = '${cardnum}'
+        `)
       result.rows.map(Element => {
         let [SKZC, SKXQ, KSJC, JSJC, JASMC, KCM, XM] = Element
         const course = {
@@ -535,7 +539,7 @@ exports.route = {
   * @apiParam courseName  课程名
   * @apiParam teacherName 老师名
   * @apiParam beginWeek   开始周次  
-  * @apiParam endWeek     结束周次
+  * @apiParam endWeek     结束周次`
   * @apiParam dayOfWeek   星期几      // 为了数据直观以及前端绘图方便，1-7 分别表示周一到周日
   * @apiParam flip        单双周      // even 双周, odd 单周, none 全周
   * @apiParam beginPeriod 开始节次
@@ -578,10 +582,10 @@ exports.route = {
     }
   },
 
-  async delete({ id }) {
+  async delete({ _id }) {
     let record = await this.db.execute(`
     select * from H_MY_COURSE
-    where wid='${id}'
+    where wid='${_id}'
   `)
     record = record.rows[0]
 
@@ -591,7 +595,7 @@ exports.route = {
 
     let result = await this.db.execute(`
     DELETE from H_MY_COURSE
-    WHERE WID ='${id}'
+    WHERE WID ='${_id}'
   `)
     if (result.rowsAffected > 0) {
       return '删除成功'

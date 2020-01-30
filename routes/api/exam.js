@@ -88,7 +88,7 @@ exports.route = {
     if (!courseName) {
       throw '未定义课程名'
     }
-    if (!(startTime % duration)) {
+    if (!startTime || !duration) {
       throw '未定义时间'
     }
     if (!location) {
@@ -126,10 +126,10 @@ exports.route = {
       throw '自定义考试失败'
     }
   },
-  async delete({ id }) {
+  async delete({ _id }) {
     let record = await this.db.execute(`
     select * from H_MY_EXAM
-    where wid='${id}'
+    where wid='${_id}'
   `)
     record = record.rows[0]
 
@@ -139,7 +139,7 @@ exports.route = {
 
     let result = await this.db.execute(`
     DELETE from H_MY_EXAM
-    WHERE WID ='${id}'
+    WHERE WID ='${_id}'
   `)
     if (result.rowsAffected > 0) {
       return '删除成功'
