@@ -18,6 +18,7 @@ global.moment = require('moment')
 // 运行参数导出到全局
 global.program = program
 
+// 控制台输出的样式颜色
 global.chalkColored = new chalk.constructor({level: 2})
 
 // 解析 YAML 配置文件

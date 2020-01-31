@@ -1,5 +1,5 @@
 /**
-  # redis 缓存中间件
+  # redis 缓存中间件( Pseudo-cache 伪缓存)
 
   根据路由处理程序的设置，将返回值保存到 redis 缓存，一定时间之内再次调用可以提前取出返回
 
@@ -21,65 +21,45 @@
 // job pool，用于异步获取
 const jobPool = {}
 
-const redis = require('redis')
-const bluebird = require('bluebird')
-bluebird.promisifyAll(redis.RedisClient.prototype)
+console.log('Redis 改造中，使用内存 Object 作为缓存空间')
 
-let client = (() => {
-  try {
-    let secret = require('./redis-secret.json')
-    let redisClient = redis.createClient(secret.port, secret.host)
-    redisClient.auth(secret.password)
-    return redisClient
-  } catch (e) {
-    return redis.createClient()
+const pool = {}
+
+const summarize = (obj, length) => {
+  let str = String(obj)
+  if (str.length > length) {
+    str = str.substring(0, length) + '...'
   }
-})()
-
-client.batchDelete = async (keyword) => {
-  //await client.evalAsync(`for _,k in ipairs(redis.call("keys","*${keyword}*")) do redis.call("del",k) end`, '0')
-  let keys = await client.keysAsync(`*${keyword}*`)
-  console.log(keys)
-  let deleteTasks = keys.map( key => {
-    return client.delAsync(key)
-  })
-  await Promise.all(deleteTasks)
-  //await client.delAsync(`*${keyword}*`)
+  return str
 }
 
-client.on('error', () => {
-  
-  client.quit()
-  console.log('Redis 引入失败，已使用临时 Object 代替缓存空间…')
-
-  const pool = {}
-
-  const summarize = (obj, length) => {
-    let str = String(obj)
-    if (str.length > length) {
-      str = str.substring(0, length) + '...'
-    }
-    return str
+/**
+ * 最基本的三个方法
+ * client.set()
+ * client.getAsync()
+ * client.batchDelete()
+ * 接下来会对这三个方法进行封装，实现更多的功能
+ */
+const client = {
+  set (key, value) {
+    pool[key] = value
+    console.log('Pseudo-cache [set]', chalkColored.cyan(key), summarize(value, 32))
+    // console.log('Pseudo-cache [set]', chalkColored.cyan(key), value)
+  },
+  async getAsync (key) {
+    let value = pool[key] || 'null'
+    console.log('Pseudo-cache [get]', chalkColored.cyan(key), summarize(value, 32))
+    // console.log('Pseudo-cache [get]', chalkColored.cyan(key), value)
+    return value
+  },
+  batchDelete (keyword) {
+    Object.keys(pool).filter(k => ~k.indexOf(keyword)).map(key => { delete pool[key] })
   }
+}
 
-  client = {
-    set (key, value) {
-      pool[key] = value
-      console.log('dev-fake-redis [set]', chalkColored.cyan(key), summarize(value, 32))
-    },
-    async getAsync (key) {
-      let value = pool[key] || 'null'
-      console.log('dev-fake-redis [get]', chalkColored.cyan(key), summarize(value, 32))
-      return value
-    },
-    batchDelete (keyword) {
-      Object.keys(pool).filter(k => ~k.indexOf(keyword)).map(key => { delete pool[key] })
-    }
-  }
-})
 
 /**
-  ## redis 缓存封装
+  ## redis缓存封装
 
   将 redis 的 set/get 进行封装，允许 key/value 为任何 JSON 兼容类型；
 
@@ -89,9 +69,13 @@ client.on('error', () => {
 const cache = {
   async set(key, value) {
     let time = +moment().unix()
+
+    // Profile 模式
     let profileStart = +moment()
+
     client.set(key, JSON.stringify({ value, time }))
-    //Profile
+
+    // Profile 模式
     if (program.mode === 'profile') {
       let profileEnd = +moment()
       console.log(`[Profile] 缓存写入 ${profileEnd - profileStart} ms`)
@@ -99,17 +83,22 @@ const cache = {
   },
   async get(key, ttl) {
     if (key && ttl) {
-      // Profile
+      // Profile 模式
       let profileStart = null
       if (program.mode === 'profile') {
         profileStart = +moment()
       }
+
       let got = JSON.parse(await client.getAsync(key))
+
+      // Profile 模式
       if (program.mode === 'profile') {
         let profileEnd = +moment()
         console.log(`[Profile] 缓存读取 ${profileEnd - profileStart} ms`)
       }
+      
       if (got) {
+        // 判断是否已经过期
         let expired = +moment().unix() - got.time >= ttl
         return [got.value, expired]
       }
@@ -128,9 +117,11 @@ const cache = {
   - 单位：y -> 年，mo -> 月，d -> 日，h -> 小时，m -> 分，s -> 秒；
   - 原理：通过正则识别所有 "数字串+字母串" 的组合，将单位有效的部分相乘相加；
   - 有效值举例：`1y` (360天) , `1h30m` (1小时30分) , `0.1mo1.5d` (4.5天)
-  - 策略串末尾加上加号表示 lazy 模式
+  - 策略串末尾加上加号表示 lazy 模式(懒加载模式)
  */
+
 const parseDurationStr = (duration) => {
+  // 匹配加号
   let isLazy = /\+$/.test(duration)
   let seconds = 0
 
@@ -153,11 +144,12 @@ const parseDurationStr = (duration) => {
   return { isLazy, seconds }
 }
 
+// 缓存时间字符串的缓存，666666666
 parseDurationStr.cache = {}
 
 /**
  * 内部函数 internalCached
- * 本函数将被 bind() 柯里化 (this -> ctx, isPublic -> 由调用的函数名指定)
+ * 本函数将被 bind() 柯里化（处理剩余参数） (this -> ctx, isPublic -> 由调用的函数名指定)
  * 由于箭头函数没有动态 this，因此此函数需要写成 function
  *
  * 后续的参数是倒置式的可变参数 (...keys, duration, func)
@@ -167,7 +159,13 @@ async function internalCached (isPublic, ...args) {
   let [duration, func] = args.slice(-2)
   let keys = args.slice(0, -2).join(' ')
   let { isLazy, seconds } = parseDurationStr(duration)
+  // 强制回源
   let force = this.request.headers.cache === 'update'
+  // 调试模式下，强制回源
+  if (program.mode === 'development') {
+    console.log('> ' + chalkColored.magenta( '调试模式下，强制回源'))
+    force = true
+  }
 
   /**
     将 method、地址 (路由 + querystring)、伪 token、请求体四个元素进行序列化，作为缓存命中判断的依据
@@ -194,21 +192,21 @@ async function internalCached (isPublic, ...args) {
         - 回源成功：取回源结果，更新缓存 ✅
         - 回源失败：返回错误信息 ❌
   */
-  let isPrivate = !isPublic && this.user.isLogin
+  let isPrivate = !isPublic && this.user.cardnum
 
   // 对于超管，强制禁用任何缓存机制（否则由于超管不是用户，会被当做游客进行缓存，造成严重影响）
-  if (this.admin && this.admin.super) {
-    seconds = 0
-  }
-
+  // if (this.admin && this.admin.super) {
+  //   seconds = 0
+  // }
   let cacheKey = [
-    isPrivate ? this.user.identity : '',
+    isPrivate ? this.user.cardnum + ' ' + this.user.platform : '',
     this.method,
     this.path,
     JSON.stringify(this.params),
     keys
   ].join(' ').trim()
-
+  
+  console.log(cacheKey)
   let [cached, expired] = await cache.get(cacheKey, seconds)
 
   // 1. 无论是否过期，首先解析缓存，准确判断缓存是否可用，以便在缓存不可用时进行回源
@@ -241,7 +239,6 @@ async function internalCached (isPublic, ...args) {
           detachedTaskCount++
           let task = func()
           if (allowStale) {
-
             // 若允许过期缓存且有缓存，则将回源任务限制在3秒之内
             // 把超时归类为异常，然后统一在异常情况下返回缓存
             // 这样处理同时也使得回源函数中出现异常时，同样也返回缓存
@@ -255,12 +252,10 @@ async function internalCached (isPublic, ...args) {
           }
 
           let res = await task
-
           // 若需要缓存，且回源成功，将回源返回值存入 redis
           if (seconds && res && this.status !== 203) {
             cached = JSON.stringify(res)
-
-            // 同 [*]，这里利用 auth 的加解密函数，加密数据进行缓存
+            // [*] 这里利用 auth 的加解密函数，加密数据进行缓存
             if (isPrivate) {
               cached = this.user.encrypt(cached)
             }
@@ -282,10 +277,6 @@ async function internalCached (isPublic, ...args) {
   return cached
 }
 
-// 用于临时禁用某种 Cache 的装饰器
-// async function disabled (...args) {
-//   return await args.slice(-1)[0]()
-// }
 
 // 当前脱离等待链的回源任务计数
 let detachedTaskCount = 0
