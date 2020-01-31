@@ -1,8 +1,11 @@
 const moment = require('moment')
 
 exports.route = {
-  async get({ page = 1, pagesize = 10}) {
-    if (!(this.hasPermission('publicity') && this.user.isLogin)) {
+  async get({ page = 1, pagesize = 10 }) {
+    if (!this.user.isLogin) {
+      throw 401
+    }
+    if (!(await this.hasPermission('publicity'))) {
       throw 403
     }
     // 这是一个分页
@@ -16,7 +19,7 @@ exports.route = {
       startRow: (page - 1) * pagesize,
       endRow: page * pagesize
     })
-    
+
     let res = []
 
     // 整理数据格式
@@ -44,7 +47,7 @@ exports.route = {
     })
 
     // 获取点击次数
-    for(let index in res){
+    for (let index in res) {
       let clicks = await this.db.execute(
         `SELECT COUNT(:id) AS CLICKS FROM TOMMY.H_ACTIVITY_CLICK WHERE AID= :id`,
         {
@@ -54,7 +57,7 @@ exports.route = {
     }
 
     return res
-   
+
   },
 
   // 添加一条活动设置
@@ -62,7 +65,7 @@ exports.route = {
   * 注意检查日期格式 YYYY-MM-DD HH:mm:ss
   */
   async post({ activity }) {
-    if (!(this.user.isLogin && await this.hasPermission('publicity'))) {
+    if (!await this.hasPermission('publicity')) {
       throw 403
     }
     if (!(activity.title && activity.pic && activity.endTime && activity.startTime)) {
@@ -74,7 +77,7 @@ exports.route = {
     if (activity.endTime !== moment(activity.endTime, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm:ss')) {
       throw '结束日期格式不合法'
     }
-    if (+moment(activity.endTime, 'YYYY-MM-DD HH:mm:ss') < +moment(activity.startTime, 'YYYY-MM-DD HH:mm:ss')){
+    if (+moment(activity.endTime, 'YYYY-MM-DD HH:mm:ss') < +moment(activity.startTime, 'YYYY-MM-DD HH:mm:ss')) {
       throw '结束日期小于开始日期'
     }
     // 向数据库插入记录
@@ -100,7 +103,10 @@ exports.route = {
   * 注意检查日期格式 YYYY-MM-DD HH:mm:ss
   */
   async put({ activity }) {
-    if (!(this.user.isLogin && await this.hasPermission('publicity'))) {
+    if (!this.user.isLogin) {
+      throw 401
+    }
+    if (!(await this.hasPermission('publicity'))) {
       throw 403
     }
     if (!(activity.id && activity.title && activity.pic && activity.endTime && activity.startTime)) {
@@ -112,7 +118,7 @@ exports.route = {
     if (activity.endTime !== moment(activity.endTime, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm:ss')) {
       throw '结束日期格式不合法'
     }
-    if (+moment(activity.endTime, 'YYYY-MM-DD HH:mm:ss') < +moment(activity.startTime, 'YYYY-MM-DD HH:mm:ss')){
+    if (+moment(activity.endTime, 'YYYY-MM-DD HH:mm:ss') < +moment(activity.startTime, 'YYYY-MM-DD HH:mm:ss')) {
       throw '结束日期小于开始日期'
     }
     // await db.banner.update({ bid: banner.bid }, banner)
@@ -139,7 +145,10 @@ exports.route = {
 
   // 删除一条活动并删除对应的点击记录
   async delete({ id }) {
-    if (!(this.user.isLogin && await this.hasPermission('publicity'))) {
+    if (!this.user.isLogin) {
+      throw 401
+    }
+    if (!(await this.hasPermission('publicity'))) {
       throw 403
     }
     await this.db.execute(`DELETE FROM TOMMY.H_ACTIVITY WHERE ID = :id`, { id })

@@ -2,7 +2,10 @@ let moment = require('moment')
 
 exports.route = {
   async get ({ page = 1, pagesize = 10 }) {
-    if (!(this.hasPermission('publicity') && this.user.isLogin)) {
+    if (!this.user.isLogin) {
+      throw 401
+    }
+    if (!(await this.hasPermission('publicity'))) {
       throw 403
     }
     let noticeList = await this.db.execute(`
@@ -49,7 +52,10 @@ exports.route = {
   */
   async post ({ notice }) {
     let now = moment()
-    if (!(this.user.isLogin && await this.hasPermission('publicity'))) {
+    if (!this.user.isLogin) {
+      throw 401
+    }
+    if (!(await this.hasPermission('publicity'))) {
       throw 403
     }
     if (!(notice.title && notice.content)) {
@@ -81,7 +87,10 @@ exports.route = {
   */
   async put ({ notice }) {
     let now = moment()
-    if (!(this.user.isLogin && await this.hasPermission('publicity'))) {
+    if (!this.user.isLogin) {
+      throw 401
+    }
+    if (!(await this.hasPermission('publicity'))) {
       throw 403
     }
     if (!( notice.id &&notice.title && notice.content)) {
@@ -106,7 +115,10 @@ exports.route = {
 
 
   async delete ({ id }) {
-    if (!(this.user.isLogin && await this.hasPermission('publicity'))) {
+    if (!this.user.isLogin) {
+      throw 401
+    }
+    if (!(await this.hasPermission('publicity'))) {
       throw 403
     }
     await this.db.execute(`DELETE FROM TOMMY.H_NOTICE WHERE ID = :id`, { id })
