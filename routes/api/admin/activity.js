@@ -2,9 +2,6 @@ const moment = require('moment')
 
 exports.route = {
   async get({ page = 1, pagesize = 10 }) {
-    if (!this.user.isLogin) {
-      throw 401
-    }
     if (!(await this.hasPermission('publicity'))) {
       throw 403
     }
@@ -103,9 +100,6 @@ exports.route = {
   * 注意检查日期格式 YYYY-MM-DD HH:mm:ss
   */
   async put({ activity }) {
-    if (!this.user.isLogin) {
-      throw 401
-    }
     if (!(await this.hasPermission('publicity'))) {
       throw 403
     }

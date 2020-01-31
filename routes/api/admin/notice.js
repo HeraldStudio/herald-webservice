@@ -2,9 +2,6 @@ let moment = require('moment')
 
 exports.route = {
   async get ({ page = 1, pagesize = 10 }) {
-    if (!this.user.isLogin) {
-      throw 401
-    }
     if (!(await this.hasPermission('publicity'))) {
       throw 403
     }
@@ -52,9 +49,6 @@ exports.route = {
   */
   async post ({ notice }) {
     let now = moment()
-    if (!this.user.isLogin) {
-      throw 401
-    }
     if (!(await this.hasPermission('publicity'))) {
       throw 403
     }
@@ -115,9 +109,6 @@ exports.route = {
 
 
   async delete ({ id }) {
-    if (!this.user.isLogin) {
-      throw 401
-    }
     if (!(await this.hasPermission('publicity'))) {
       throw 403
     }
