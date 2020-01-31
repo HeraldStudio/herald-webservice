@@ -98,15 +98,7 @@ exports.route = {
         `)
       myResult.rows.map(Element => {
         let [courseName, teacherName, beginWeek, endWeek, dayOfWeek, flip, beginPeriod, endPeriod, location, _id] = Element
-        // if (dayOfWeek) {
-        //   const course = { courseName, teacherName, beginWeek, endWeek, dayOfWeek, flip, beginPeriod, endPeriod, location, _id, credit: '学分未知' }
-        //   curriculum.push(course)
-        // }
-        // else {
-        //   course course = { courseName, teacherName, beginWeek, endWeek, flip, location, _id, credit: '学分未知' }
-        //   curriculum.push(course)
-        // }
-        const course ={
+        const course = {
           courseName: courseName,
           teacherName: teacherName,
           beginWeek: beginWeek,
@@ -296,9 +288,8 @@ exports.route = {
 
         // 初始化侧边栏和课表解析结果
         let sidebarDict = {}, sidebarList = []
-
         // 解析侧边栏，先搜索侧边栏所在的 table
-        res.data.match(/class="tableline">([\s\S]*?)<\/table/img)[0]
+        res.data.toString().match(/class="tableline">([\s\S]*?)<\/table/img)[0]
 
           // 取 table 中所有行
           .match(/<tr height="3[48]">[\s\S]*?<\/tr\s*>/img) // 老师课表是height=38
@@ -415,7 +406,7 @@ exports.route = {
         }
 
         // 对于第二个大表格
-        res.data.match(/class="tableline"\s*>([\s\S]*?)<\/table/img)[1]
+        res.data.toString().match(/class="tableline"\s*>([\s\S]*?)<\/table/img)[1]
 
           // 取出每一行最末尾的五个单元格，排除第一行
           .match(/(<td[^>]*>.*?<\/td>[^<]*){5}<\/tr/img).slice(1).map(k => {
@@ -432,7 +423,28 @@ exports.route = {
 
         // 将侧栏中没有用过的剩余课程（浮动课程）放到 other 字段里
         curriculum = curriculum.concat(Object.values(sidebarList).filter(k => !k.used))
-
+        // 添加自定义课程
+        let myResult = await this.db.execute(`
+        SELECT COURSENAME, TEACHERNAME, BEGINWEEK, ENDWEEK, DAYOFWEEK, FLIP, BEGINPERIOD, ENDPERIOD, LOCATION, WID
+        FROM H_MY_COURSE
+        WHERE OWNER = '${cardnum}' and SEMESTER = '${currentTerm}'
+        `)
+        myResult.rows.map(Element => {
+          let [courseName, teacherName, beginWeek, endWeek, dayOfWeek, flip, beginPeriod, endPeriod, location, _id] = Element
+          const course = {
+            courseName: courseName,
+            teacherName: teacherName,
+            beginWeek: beginWeek,
+            endWeek: endWeek,
+            dayOfWeek: dayOfWeek,
+            flip: flip,
+            beginPeriod: beginPeriod,
+            endPeriod: endPeriod,
+            location: location,
+            credit: '学分未知'
+          }
+          curriculum.push(course)
+        })
         // 确定最大周数
         term.maxWeek = curriculum.map(k => k.endWeek).reduce((a, b) => a > b ? a : b, 0)
 
@@ -574,13 +586,13 @@ exports.route = {
 
   async post({ courseName, teacherName, beginWeek, endWeek, dayOfWeek, flip, beginPeriod, endPeriod, location }) {
     let { cardnum } = this.user
-    if(!courseName){
-      throw'课程名未定义'
+    if (!courseName) {
+      throw '课程名未定义'
     }
-    if(!beginWeek||!endWeek){
-      throw'周次未定义'
+    if (!beginWeek || !endWeek) {
+      throw '周次未定义'
     }
-    if(!flip){
+    if (!flip) {
       flip = 'none'
     }
     let sql, binds, options, result
