@@ -207,7 +207,7 @@ exports.route = {
       isPassed: (row[5] >= 60 && row[5] <= 100) || (row[5] > 200 && row[5] <= 210),  //右边的条件是针对老系统的等级成绩的
       isFirstPassed: false,
       isHighestPassed: false,
-      scoreType: undefined>
+      scoreType: undefined
     }
   })
 
