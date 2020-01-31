@@ -5,7 +5,7 @@ exports.route = {
   async get({ page = 1, pagesize = 10 }) {
     let now = moment()
     if (!this.user.isLogin) {
-      throw 403
+      throw 401
     }
     // 这是一个分页
     let activityList = await this.db.execute(`
@@ -63,7 +63,7 @@ exports.route = {
     let now = moment()
     if (!this.user.isLogin) {
       // 强制一下，必须在登录态才能获取链接
-      throw 403
+      throw 401
     }
     if (!id) {
       throw '未指定活动id'

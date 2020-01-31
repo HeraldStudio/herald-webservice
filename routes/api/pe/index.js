@@ -52,7 +52,7 @@ exports.route = {
   async get() {
 
     if (!this.user.isLogin){
-      throw 403
+      throw 401
     }
     const cardnum = this.user.cardnum
     const now = +moment()

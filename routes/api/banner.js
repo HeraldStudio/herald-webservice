@@ -5,7 +5,7 @@ exports.route = {
   async get() {
     if (!this.user.isLogin) {
       // 强制一下，必须在登录态才能获取链接
-      throw 403
+      throw 401
     }
     let bannerList = await this.db.execute(`
     SELECT ID,URL,TITLE,PIC,SCHOOLNUM_PREFIX,START_TIME,END_TIME,SCHOOLNUM_PREFIX 
@@ -63,7 +63,7 @@ exports.route = {
   async put({ id }) {
     if (!this.user.isLogin) {
       // 强制一下，必须在登录态才能获取链接
-      throw 403
+      throw 401
     }
     if (!id) {
       throw '未指定轮播图id'
