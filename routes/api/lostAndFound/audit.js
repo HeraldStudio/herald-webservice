@@ -1,5 +1,3 @@
-const {adminList} = require('./admin.json')
-
 exports.route = {
   /**
    * POST /api/lostAndFound/audit
@@ -7,9 +5,8 @@ exports.route = {
    * 审核接口
    */
   async post({id, pass}){
-    let {cardnum} = this.user
-    if(adminList.indexOf(cardnum) === -1) {
-      throw 401
+    if (!(await this.hasPermission('publicity'))) {
+      throw 403
     }
     if(pass){
       await this.db.execute(`
