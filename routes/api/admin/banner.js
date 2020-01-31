@@ -3,8 +3,10 @@ const moment = require('moment')
 exports.route = {
   // 管理员获取 banner 列表
   async get({ page = 1, pagesize = 10 }) {
-
-    if (!(this.hasPermission('publicity') && this.user.isLogin)) {
+    if (!this.user.isLogin) {
+      throw 401
+    }
+    if (!(await this.hasPermission('publicity'))) {
       throw 403
     }
     // 这是一个分页
@@ -82,7 +84,10 @@ exports.route = {
   */
   async post({ banner }) {
     // let bannerCollection = await mongodb('herald_banner')
-    if (!(this.user.isLogin && await this.hasPermission('publicity'))) {
+    if (!this.user.isLogin) {
+      throw 401
+    }
+    if (!(await this.hasPermission('publicity'))) {
       throw 403
     }
     if (!(banner.title && banner.pic && banner.endTime && banner.startTime)) {
@@ -123,7 +128,10 @@ exports.route = {
   * 注意检查日期格式 时间戳
   */
   async put({ banner }) {
-    if (!(this.user.isLogin && await this.hasPermission('publicity'))) {
+    if (!this.user.isLogin) {
+      throw 401
+    }
+    if (!(await this.hasPermission('publicity'))) {
       throw 403
     }
     if (!(banner.id && banner.title && banner.pic && banner.endTime && banner.startTime)) {
@@ -162,7 +170,10 @@ exports.route = {
 
   // 删除一条轮播图并删除对应的点击记录
   async delete({ id }) {
-    if (!(this.user.isLogin && await this.hasPermission('publicity'))) {
+    if (!this.user.isLogin) {
+      throw 401
+    }
+    if (!(await this.hasPermission('publicity'))) {
       throw 403
     }
     await this.db.execute(`DELETE FROM TOMMY.H_BANNER WHERE ID = :id`, { id })

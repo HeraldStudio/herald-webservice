@@ -31,7 +31,7 @@ exports.route = {
   */
   async get({ domain = '' }) {
     if (!this.user.isLogin) {
-      throw 403
+      throw 401
     }
     if (domain){
       await this.hasPermission(domain)
@@ -78,7 +78,7 @@ exports.route = {
   async post({ domain, admin }) {
     const now = monent()
     if (!this.user.isLogin) {
-      throw 403
+      throw 401
     }
     
     await this.hasPermission(domain)
@@ -157,7 +157,7 @@ exports.route = {
   async put({ admin }) {
     const now = monent()
     if (!this.user.isLogin) {
-      throw 403
+      throw 401
     }
 
     // 获取当前用户的权限等级
@@ -202,7 +202,7 @@ exports.route = {
   async delete({ domain , cardnum }) {
     const now = monent()
     if (!this.user.isLogin) {
-      throw 403
+      throw 401
     }
 
     // 指明删除的权限
