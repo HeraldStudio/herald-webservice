@@ -1,28 +1,36 @@
 /**
   # redis 缓存中间件( Pseudo-cache 伪缓存)
 
-  根据路由处理程序的设置，将返回值保存到 redis 缓存，一定时间之内再次调用可以提前取出返回
+  经过改造后，这已经不是原来的redis缓存了
+
+  根据路由处理程序的设置，将返回值保存到内存中，一定时间之内再次调用可以提前取出返回
 
   ## 依赖接口
 
   ctx.params          from params.js
   ctx.user.isLogin    from auth.js
-  ctx.user.token      from auth.js
+  ctx.user.cardnum    from auth.js
   ctx.user.encrypt    from auth.js
   ctx.user.decrypt    from auth.js
 
   ## 提供接口
 
-  ctx.userCache       async (...string, string, async () => any) => any
-  ctx.publicCache     async (...string, string, async () => any) => any
+  ctx.userCache       async (...string, string, async () => any) => any    // 用户缓存，缓存内容加密
+  ctx.publicCache     async (...string, string, async () => any) => any    // 公共缓存，缓存内容未加密
+  
+  // 在程序运行的时候可以调用相应的路由清理缓存，当然重启程序也就清理所有缓存
+
   ctx.clearUserCache  async () => undefined
-  ctx.clearAllCache   async () => undefined
- */
+  ctx.clearCache   async () => undefined
+*/
+
+
 // job pool，用于异步获取
 const jobPool = {}
 
 console.log('Redis 改造中，使用内存 Object 作为缓存空间')
 
+// 缓存内容
 const pool = {}
 
 const summarize = (obj, length) => {
@@ -53,18 +61,21 @@ const client = {
     return value
   },
   batchDelete (keyword) {
-    Object.keys(pool).filter(k => ~k.indexOf(keyword)).map(key => { delete pool[key] })
+    Object.keys(pool).filter(k => ~k.indexOf(keyword)).map(key => 
+    { 
+      console.log('Pseudo-cache [delete]', chalkColored.cyan(key), summarize(pool[key], 32))
+      delete pool[key] 
+    })
   }
 }
 
 
 /**
-  ## redis缓存封装
+  ## 对client的set()和get()进行封装
 
-  将 redis 的 set/get 进行封装，允许 key/value 为任何 JSON 兼容类型；
+  将 client 的 set/get 进行封装，允许 key/value 为任何 JSON 兼容类型；
 
-  > 由于本系统需要经常更改缓存时间，redis 自带的「存入时保存过期时间」的方法不适用，
-    此处使用「存入时保存存入时间，取出时根据过期时长判断是否过期」的方法。
+  > 此处使用「存入时保存存入时间，取出时根据过期时长判断是否过期」的方法。
  */
 const cache = {
   async set(key, value) {
@@ -168,11 +179,12 @@ async function internalCached (isPublic, ...args) {
   }
 
   /**
-    将 method、地址 (路由 + querystring)、伪 token、请求体四个元素进行序列化，作为缓存命中判断的依据
-    伪 token 是上游 auth 暴露的属性，用于区分用户，详见 auth.js##伪token
+    将 method、地址 (路由 + querystring)、用户一卡通号和平台名、请求体四个元素进行序列化，作为缓存命中判断的依据
+    this.user.cardnum 和 this.user.platform 是上游 auth 暴露的属性，用于区分用户。
 
-    注：看上去似乎把伪 token 改为 identity 可以让同一用户多端登录时共享缓存，但因为不同 token 是不同的
-    解密密钥，不同 token 的数据无法被解密，相当于乱码，所以事实上是不可能实现的，理论上也是不应该实现的。
+    注：伪缓存仅存储在程序运行的平台，本身仅能通过管理员的路由接口进行操作，重启程序即可清空伪缓存。
+    this.user.cardnum 和 this.user.platform 的存在保证同一用户登录同一平台时才能命中缓存。
+    从理论上讲也不能让同一用户多端登录时共享缓存。
 
     下述「回源」均指调用传入的 func，取得最新数据的过程。
 
@@ -194,10 +206,6 @@ async function internalCached (isPublic, ...args) {
   */
   let isPrivate = !isPublic && this.user.cardnum
 
-  // 对于超管，强制禁用任何缓存机制（否则由于超管不是用户，会被当做游客进行缓存，造成严重影响）
-  // if (this.admin && this.admin.super) {
-  //   seconds = 0
-  // }
   let cacheKey = [
     isPrivate ? this.user.cardnum + ' ' + this.user.platform : '',
     this.method,
@@ -206,7 +214,6 @@ async function internalCached (isPublic, ...args) {
     keys
   ].join(' ').trim()
   
-  console.log(cacheKey)
   let [cached, expired] = await cache.get(cacheKey, seconds)
 
   // 1. 无论是否过期，首先解析缓存，准确判断缓存是否可用，以便在缓存不可用时进行回源
@@ -291,11 +298,25 @@ module.exports = async (ctx, next) => {
     await client.batchDelete(cardnum)
   }
 
-  // 清空所有 key 中包含某字符串的缓存，例如 clearCache('GET /api/gpa')；留空则清空所有缓存
-  // 应当仅允许对管理员使用该 API
-  ctx.clearAllCache = async (keyword = '') => {
+  // 以下仅允许对管理员使用该 API
+
+  // 清空所有 key 中包含某字符串的缓存，留空则清空所有缓存
+  // 例如:清除某一路由的缓存 clearCache('/api/gpa')；
+  // 例如:清除某一用户的缓存 clearCache('213171610')；
+  ctx.clearCache = async (keyword = '') => {
     await client.batchDelete(keyword)
   }
+
+  // 查看所有 key 中包含某字符串的缓存，留空则查看所有缓存
+  // 例如:查看某一路由的缓存 getCache('/api/gpa')；
+  // 例如:查看某一用户的缓存 getCache('213171610')；
+  ctx.getCache = async (keyword = '') => {
+    const keyList = Object.keys(pool).filter(k => ~k.indexOf(keyword))
+    keyList.forEach( async key => {
+      await client.getAsync(key)
+    })
+  }
+  
 
   await next()
 }
