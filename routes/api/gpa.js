@@ -73,7 +73,7 @@ exports.route = {
       WHERE
         cj.XH = xk.XH AND cj.KCH = xk.KCH
   `,{ cardnum: cardnum})
-        let rawDetail = rawData.rows.map(row => {
+        /*let rawDetail = rawData.rows.map(row => {
           let semesterName = row[0].split('-')
           let cxckMap = new Map([['01','首修'],['02','重修'],['03','及格重修'],['04','补考']])
           let kcxzMap = new Map([['01','必修'],['02','任选'],['03','限选']])
@@ -90,6 +90,28 @@ exports.route = {
             isHighestPassed: false,
             scoreType: cxckMap.get(row[6])
           }
+        })*/
+
+        let rawDetail = []
+        rawData.rows.map(row=>{
+          let [semester, cid, courseName, courseType, credit, score, scoreType] = row
+          let semesterName = semester.split('-')
+          let cxckMap = new Map([['01','首修'],['02','重修'],['03','及格重修'],['04','补考']])
+          let kcxzMap = new Map([['01','必修'],['02','任选'],['03','限选']])
+          semesterName = `${semesterName[0].slice(2)}-${semesterName[1].slice(2)}-${semesterName[2]}`
+          const gpa = {
+            semester: semesterName,
+            cid: cid,
+            courseName: courseName,
+            courseType: kcxzMap.get(courseType),
+            credit: credit,
+            score: calculateEquivalentScore(score),
+            isPassed: (score >= 60 && score <= 100) || (score > 200 && score <= 210),  //右边的条件是针对老系统的等级成绩的
+            isFirstPassed: false,
+            isHighestPassed: false,
+            scoreType: cxckMap.get(scoreType)
+          }
+          rawDetail.push(gpa)
         })
 
 
@@ -114,7 +136,7 @@ exports.route = {
         SELECT * FROM TOMMY.H_MY_SCORE
             WHERE CARDNUM = :cardnum
     `,{ cardnum: cardnum})
-        let myexamDetail = myexamData.rows.map(row => {
+        /*let myexamDetail = myexamData.rows.map(row => {
           return {
             _id:  row[0],
             semester: row[7],
@@ -127,10 +149,28 @@ exports.route = {
             isHighestPassed: true,
             scoreType: row[5]
           }
+        })*/
+       
+        myexamData.rows.map(row => {
+          // eslint-disable-next-line no-unused-vars
+          let [_id, courseName, credit, score, courseType, scoreType, cardnum, semester] = row
+          const mygpa =  {
+            _id:  _id,
+            semester: semester,
+            courseName: courseName,
+            courseType: courseType,
+            credit: credit,
+            score: calculateEquivalentScore(score),
+            isPassed: (score >= 60 && score <= 100) || (score > 200 && score <= 210),  //右边的条件是针对老系统的等级成绩的
+            isFirstPassed: true,
+            isHighestPassed: true,
+            scoreType: scoreType
+          }
+          detail.push(mygpa)
         })
-        for(let i=0;i<myexamDetail.length;i++){
+        /*for(let i=0;i<myexamDetail.length;i++){
           detail.push(myexamDetail[i])
-        }
+        }*/
 
         let courseHasPassed = {}
         let achievedCredits = 0
@@ -228,7 +268,7 @@ exports.route = {
       WHERE
         cj.XH = xk.XH AND cj.XKKCDM = xk.XKKCDM
   `,{ cardnum: cardnum})
-        let rawDetail = rawData.rows.map(row => {
+        /*let rawDetail = rawData.rows.map(row => {
           let xn = parseInt(row[0])
           let xq = parseInt(row[1])
           let semesterName = xn.toString().slice(2)+"-"+(xn+1).toString().slice(2)+"-"+xq.toString()
@@ -244,6 +284,27 @@ exports.route = {
             isHighestPassed: false,
             scoreType: undefined
           }
+        })*/
+
+        let rawDetail = []
+        rawData.rows.map(row=>{
+          let [xn, xq, cid, courseName, credit, score] = row
+          xn = parseInt(xn)
+          xq = parseInt(xq)
+          let semesterName = xn.toString().slice(2)+"-"+(xn+1).toString().slice(2)+"-"+xq.toString()
+          const gpa = {
+            semester: semesterName,
+            cid: cid,
+            courseName: courseName,
+            courseType: undefined,
+            credit: credit,
+            score: calculateEquivalentScore(score),
+            isPassed: (score >= 60 && score <= 100) || (score > 200 && score <= 210),  //右边的条件是针对老系统的等级成绩的
+            isFirstPassed: false,
+            isHighestPassed: false,
+            scoreType: undefined
+          }
+          rawDetail.push(gpa)
         })
 
         //对数据rawDetail进行去重，依靠课程代码进行去重
@@ -268,7 +329,7 @@ exports.route = {
             WHERE CARDNUM = :cardnum
     `,{ cardnum: cardnum})
         console.log(myexamData)
-        let myexamDetail = myexamData.rows.map(row => {
+        /*let myexamDetail = myexamData.rows.map(row => {
           return {
             _id:  row[0],
             semester: row[7],
@@ -284,7 +345,24 @@ exports.route = {
         })
         for(let i=0;i<myexamDetail.length;i++){
           detail.push(myexamDetail[i])
-        }
+        }*/
+        myexamData.rows.map(row => {
+          // eslint-disable-next-line no-unused-vars
+          let [_id, courseName, credit, score, courseType, scoreType, cardnum, semester] = row
+          const mygpa =  {
+            _id:  _id,
+            semester: semester,
+            courseName: courseName,
+            courseType: courseType,
+            credit: credit,
+            score: calculateEquivalentScore(score),
+            isPassed: (score >= 60 && score <= 100) || (score > 200 && score <= 210),  //右边的条件是针对老系统的等级成绩的
+            isFirstPassed: true,
+            isHighestPassed: true,
+            scoreType: scoreType
+          }
+          detail.push(mygpa)
+        })
 
         let courseHasPassed = {}
         let achievedCredits = 0
@@ -494,6 +572,11 @@ exports.route = {
   * @apiParam semester    学期
   **/
   async put({ _id,courseName,credit,score,courseType,scoreType,semester }) {
+
+    if (!_id) {
+      throw '未定义id'
+    }
+
     let record = await this.db.execute(`
     SELECT * FROM H_MY_SCORE
     WHERE ID='${_id}'
@@ -502,6 +585,25 @@ exports.route = {
 
     if (!record) {
       throw '事务不存在'
+    }
+
+    if (!courseName) {
+      courseName = record[1]
+    }
+    if (!credit) {
+      credit = record[2]
+    }
+    if (!score) {
+      score = record[3]
+    }
+    if (!courseType) {
+      courseType = record[4]
+    }
+    if (!scoreType) {
+      scoreType = record[5]
+    }
+    if (!semester) {
+      semester = record[7]
     }
   
     let result = await this.db.execute(`
