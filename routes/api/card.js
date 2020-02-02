@@ -158,7 +158,7 @@ exports.route = {
             desc: trim(k[1]) === '' ? trim(k[2]) : trim(k[2]) + '：' + trim(k[1]),
             amount: k[3] / 100,
             balance: k[4] / 100,
-            time: moment(k[6]).unix(),
+            time: +moment(k[6]),
             resume: trim(k[7])
           }
         }).sort((a, b) => a < b)
