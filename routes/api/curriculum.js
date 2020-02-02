@@ -132,6 +132,12 @@ exports.route = {
         }
         curriculum.push(course)
       })
+      curriculum.forEach(Element => {
+        for(let e in Element){
+          if (Element[e]=== null)
+            delete Element[e]
+        }
+      })
       // const rows = curriculumRes.data.datas.xskcb.rows
       // rows.forEach(rawCourse => {
       //   const course = {

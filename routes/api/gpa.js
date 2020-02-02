@@ -171,7 +171,12 @@ exports.route = {
         /*for(let i=0;i<myexamDetail.length;i++){
           detail.push(myexamDetail[i])
         }*/
-
+        detail.forEach(Element => {
+          for(let e in Element){
+            if (Element[e]=== null)
+              delete Element[e]
+          }
+        })
         let courseHasPassed = {}
         let achievedCredits = 0
         detail.slice().reverse().map(k => {
@@ -363,7 +368,12 @@ exports.route = {
           }
           detail.push(mygpa)
         })
-
+        detail.forEach(Element => {
+          for(let e in Element){
+            if (Element[e]=== null)
+              delete Element[e]
+          }
+        })
         let courseHasPassed = {}
         let achievedCredits = 0
         detail.slice().reverse().map(k => {

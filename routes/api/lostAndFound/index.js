@@ -19,6 +19,12 @@ exports.route = {
       if (adminList.indexOf(cardnum) !== -1) {
         record.canAudit = true
       }
+      record.forEach(Element => {
+        for (let e in Element) {
+          if (Element[e] === null)
+            delete Element[e]
+        }
+      })
       return record
     }
     // 确保分页的数据正确
@@ -34,10 +40,17 @@ exports.route = {
           ORDER BY LASTMODIFIEDTIME DESC
         ) WHERE ROWNUM > ${(page - 1) * pagesize} and ROWNUM <= ${page * pagesize}
         `)
-      return record.rows.map(Element => {
+      record = record.rows.map(Element => {
         let [_id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished] = Element
         return { _id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished }
       })
+      record.forEach(Element => {
+        for (let e in Element) {
+          if (Element[e] === null)
+            delete Element[e]
+        }
+      })
+      return record
     } else if (type === 'found') {
       // 分页返回所有的寻物启事
       let record = await this.db.execute(`
@@ -48,10 +61,17 @@ exports.route = {
         ORDER BY LASTMODIFIEDTIME DESC
       ) WHERE ROWNUM > ${(page - 1) * pagesize} and ROWNUM <= ${page * pagesize}
       `)
-      return record.rows.map(Element => {
+      record = record.rows.map(Element => {
         let [_id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished] = Element
         return { _id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished }
       })
+      record.forEach(Element => {
+        for (let e in Element) {
+          if (Element[e] === null)
+            delete Element[e]
+        }
+      })
+      return record
     } else if (type === 'audit') {
       // 分页返回所有的待审核事件
       if (adminList.indexOf(cardnum) === -1) {
@@ -66,11 +86,17 @@ exports.route = {
         ORDER BY LASTMODIFIEDTIME DESC
       ) WHERE ROWNUM > ${(page - 1) * pagesize} and ROWNUM <= ${page * pagesize}
       `)
-      return record.rows.map(Element => {
+      record = record.rows.map(Element => {
         let [_id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished] = Element
-        let canAudit = true
-        return { _id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished, canAudit }
+        return { _id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished }
       })
+      record.forEach(Element => {
+        for (let e in Element) {
+          if (Element[e] === null)
+            delete Element[e]
+        }
+      })
+      return record
     } else {
       // 什么都不指定就返回由自己创建的
       let record = await this.db.execute(`
@@ -81,11 +107,17 @@ exports.route = {
           ORDER BY LASTMODIFIEDTIME DESC
         ) WHERE ROWNUM > ${(page - 1) * pagesize} and ROWNUM <= ${page * pagesize}
         `)
-      return record.rows.map(Element => {
+      record = record.rows.map(Element => {
         let [_id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished] = Element
-        let canAudit = true
-        return { _id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished, canAudit }
+        return { _id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished }
       })
+      record.forEach(Element => {
+        for (let e in Element) {
+          if (Element[e] === null)
+            delete Element[e]
+        }
+      })
+      return record
     }
   },
 
