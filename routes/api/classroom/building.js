@@ -8,6 +8,6 @@ exports.route = {
   async get ({campus}) {
     let now = +moment()
     let rawData = await this.get(`http://58.192.114.179/classroom/common/getenabledbuildinglistex?campusId=${campusMap[campus]}&_=${now}`)
-    return rawData.data
+    return rawData.data.toString()
   }
 }
