@@ -55,12 +55,14 @@ exports.route = {
     if (type === 'lost') {
       // 分页返回所有的失物招领
       let record = await this.db.execute(`
-        SELECT * FROM (
-          SELECT *
+      SELECT * FROM (  
+        SELECT ROWNUM R,T.* FROM (
+          SELECT * 
           FROM H_LOST_AND_FOUND
           where isAudit = 1 and isFinished = 0 and type = 'lost'
           ORDER BY LASTMODIFIEDTIME DESC
-        ) WHERE ROWNUM > ${(page - 1) * pagesize} and ROWNUM <= ${page * pagesize}
+        )T)
+      WHERE R > ${(page - 1) * pagesize} and R <= ${page * pagesize}
         `)
       record = record.rows.map(Element => {
         let [_id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished] = Element
@@ -77,12 +79,14 @@ exports.route = {
     } else if (type === 'found') {
       // 分页返回所有的寻物启事
       let record = await this.db.execute(`
-      SELECT * FROM (
-        SELECT *
-        FROM H_LOST_AND_FOUND
-        where isAudit = 1 and isFinished = 0 and type = 'found'
-        ORDER BY LASTMODIFIEDTIME DESC
-      ) WHERE ROWNUM > ${(page - 1) * pagesize} and ROWNUM <= ${page * pagesize}
+      SELECT * FROM (  
+        SELECT ROWNUM R,T.* FROM (
+          SELECT * 
+          FROM H_LOST_AND_FOUND
+          where isAudit = 1 and isFinished = 0 and type = 'found'
+          ORDER BY LASTMODIFIEDTIME DESC
+        )T)
+      WHERE R > ${(page - 1) * pagesize} and R <= ${page * pagesize}
       `)
       record = record.rows.map(Element => {
         let [_id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished] = Element
@@ -103,12 +107,14 @@ exports.route = {
         return []
       }
       let record = await this.db.execute(`
-      SELECT * FROM (
-        SELECT *
-        FROM H_LOST_AND_FOUND
-        where isAudit = 0 and isFinished = 0
-        ORDER BY LASTMODIFIEDTIME DESC
-      ) WHERE ROWNUM > ${(page - 1) * pagesize} and ROWNUM <= ${page * pagesize}
+      SELECT * FROM (  
+        SELECT ROWNUM R,T.* FROM (
+          SELECT * 
+          FROM H_LOST_AND_FOUND
+          where isAudit = 0 and isFinished = 0
+          ORDER BY LASTMODIFIEDTIME DESC
+        )T)
+      WHERE R > ${(page - 1) * pagesize} and R <= ${page * pagesize}
       `)
       record = record.rows.map(Element => {
         let [_id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished] = Element
