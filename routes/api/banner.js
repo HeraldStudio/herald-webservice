@@ -49,7 +49,13 @@ exports.route = {
       delete k.url
       return k
     })
-
+    // 前端要求，除去值为null的字段
+    res.forEach(Element => {
+      for(let e in Element){
+        if (Element[e]=== null)
+          delete Element[e]
+      }
+    })
     return res
   },
 
@@ -68,12 +74,14 @@ exports.route = {
     if (!id) {
       throw '未指定轮播图id'
     }
-    let banner = await this.db.execute(
-      `SELECT TITLE, URL from TOMMY.H_BANNER WHERE ID = :id`,
-      {
-        id
-      }
-    )
+    let banner = await this.publicCache(id, '1d+', async () => {
+      return await this.db.execute(
+        `SELECT TITLE, URL from TOMMY.H_BANNER WHERE ID = :id`,
+        {
+          id
+        }
+      )
+    })
 
     if (banner.rows.length === 0) {
       throw 404

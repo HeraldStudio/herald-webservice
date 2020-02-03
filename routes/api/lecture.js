@@ -26,6 +26,7 @@ exports.route = {
           }
         )
       })
+      // 前端要求，除去值为null的字段
       result.forEach(Element => {
         for (let e in Element) {
           if (Element[e] === null)

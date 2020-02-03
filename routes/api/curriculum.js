@@ -99,7 +99,7 @@ exports.route = {
       myResult.rows.map(Element => {
         let [courseName, teacherName, beginWeek, endWeek, dayOfWeek, flip, beginPeriod, endPeriod, location, _id] = Element
         const course = {
-          _id : _id,
+          _id: _id,
           courseName: courseName,
           teacherName: teacherName,
           beginWeek: beginWeek,
@@ -133,9 +133,10 @@ exports.route = {
         }
         curriculum.push(course)
       })
+      // 前端要求，除去值为null的字段
       curriculum.forEach(Element => {
-        for(let e in Element){
-          if (Element[e]=== null)
+        for (let e in Element) {
+          if (Element[e] === null)
             delete Element[e]
         }
       })

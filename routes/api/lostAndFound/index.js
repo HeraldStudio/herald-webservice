@@ -41,6 +41,7 @@ exports.route = {
         if (adminList.indexOf(cardnum) !== -1) {
           record.canAudit = true
         }
+        // 前端要求，除去值为null的字段
         record.forEach(Element => {
           for (let e in Element) {
             if (Element[e] === null)
@@ -67,6 +68,7 @@ exports.route = {
         let [_id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished] = Element
         return { _id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished }
       })
+      // 前端要求，除去值为null的字段
       record.forEach(Element => {
         for (let e in Element) {
           if (Element[e] === null)
@@ -88,6 +90,7 @@ exports.route = {
         let [_id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished] = Element
         return { _id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished }
       })
+      // 前端要求，除去值为null的字段
       record.forEach(Element => {
         for (let e in Element) {
           if (Element[e] === null)
@@ -113,6 +116,7 @@ exports.route = {
         let [_id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished] = Element
         return { _id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished }
       })
+      // 前端要求，除去值为null的字段
       record.forEach(Element => {
         for (let e in Element) {
           if (Element[e] === null)
@@ -134,6 +138,7 @@ exports.route = {
         let [_id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished] = Element
         return { _id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished }
       })
+      // 前端要求，除去值为null的字段
       record.forEach(Element => {
         for (let e in Element) {
           if (Element[e] === null)

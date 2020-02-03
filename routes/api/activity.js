@@ -68,13 +68,10 @@ exports.route = {
     if (!id) {
       throw '未指定活动id'
     }
-    let activity = await this.db.execute(
-      `SELECT TITLE, URL from TOMMY.H_ACTIVITY WHERE ID = :id`,
-      {
-        id
-      }
-    )
-    
+
+    let activity = await this.publicCache(id,'1d+',async () => {
+      return await this.db.execute(`SELECT TITLE, URL from TOMMY.H_ACTIVITY WHERE ID = :id`,{ id })
+    })
     if (activity.rows.length === 0){
       throw 404
     }

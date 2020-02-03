@@ -63,6 +63,7 @@ exports.route = {
       let [semester, campus, courseName, teacherName, startTime, endTime, location, duration, _id] = Element
       result.push({ semester, campus, courseName, teacherName, startTime, endTime, location, duration, _id })
     })
+    // 前端要求，除去值为null的字段
     result.forEach(Element => {
       for(let e in Element){
         if (Element[e]=== null)

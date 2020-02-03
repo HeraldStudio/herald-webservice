@@ -47,7 +47,7 @@ exports.route = {
 
     // 本科生
     if (/^21/.test(cardnum)) {
-      if(/^21318/.test(cardnum) || /^21319/.test(cardnum)){  //18 19级
+      if (/^21318/.test(cardnum) || /^21319/.test(cardnum)) {  //18 19级
         let rawData = await this.db.execute(`
       SELECT 
         xk.XNXQDM,
@@ -72,7 +72,7 @@ exports.route = {
         TOMMY.T_XK_XKXS  xk
       WHERE
         cj.XH = xk.XH AND cj.KCH = xk.KCH
-  `,{ cardnum: cardnum})
+  `, { cardnum: cardnum })
         /*let rawDetail = rawData.rows.map(row => {
           let semesterName = row[0].split('-')
           let cxckMap = new Map([['01','首修'],['02','重修'],['03','及格重修'],['04','补考']])
@@ -93,11 +93,11 @@ exports.route = {
         })*/
 
         let rawDetail = []
-        rawData.rows.map(row=>{
+        rawData.rows.map(row => {
           let [semester, cid, courseName, courseType, credit, score, scoreType] = row
           let semesterName = semester.split('-')
-          let cxckMap = new Map([['01','首修'],['02','重修'],['03','及格重修'],['04','补考']])
-          let kcxzMap = new Map([['01','必修'],['02','任选'],['03','限选']])
+          let cxckMap = new Map([['01', '首修'], ['02', '重修'], ['03', '及格重修'], ['04', '补考']])
+          let kcxzMap = new Map([['01', '必修'], ['02', '任选'], ['03', '限选']])
           semesterName = `${semesterName[0].slice(2)}-${semesterName[1].slice(2)}-${semesterName[2]}`
           const gpa = {
             semester: semesterName,
@@ -135,7 +135,7 @@ exports.route = {
         let myexamData = await this.db.execute(`
         SELECT * FROM TOMMY.H_MY_SCORE
             WHERE CARDNUM = :cardnum
-    `,{ cardnum: cardnum})
+    `, { cardnum: cardnum })
         /*let myexamDetail = myexamData.rows.map(row => {
           return {
             _id:  row[0],
@@ -150,12 +150,12 @@ exports.route = {
             scoreType: row[5]
           }
         })*/
-       
+
         myexamData.rows.map(row => {
           // eslint-disable-next-line no-unused-vars
           let [_id, courseName, credit, score, courseType, scoreType, cardnum, semester] = row
-          const mygpa =  {
-            _id:  _id,
+          const mygpa = {
+            _id: _id,
             semester: semester,
             courseName: courseName,
             courseType: courseType,
@@ -171,9 +171,10 @@ exports.route = {
         /*for(let i=0;i<myexamDetail.length;i++){
           detail.push(myexamDetail[i])
         }*/
+        // 前端要求，除去值为null的字段
         detail.forEach(Element => {
-          for(let e in Element){
-            if (Element[e]=== null)
+          for (let e in Element) {
+            if (Element[e] === null)
               delete Element[e]
           }
         })
@@ -181,7 +182,7 @@ exports.route = {
         let achievedCredits = 0
         detail.slice().reverse().map(k => {
           // 对自定义课程另外处理
-          if(k._id !== undefined){
+          if (k._id !== undefined) {
             achievedCredits += k.credit
           }
           // 赋值后判断如果是首次通过
@@ -203,26 +204,26 @@ exports.route = {
           }
         })
         Object.values(courseHighestPassed).map(k => k.isHighestPassed = true)
-        
+
         // 解决转系生课程全为任选或限选的状况
         let courseTypes = detail.map(k => k.courseType)
-        courseTypes = courseTypes.filter( k => k.courseType === '')
+        courseTypes = courseTypes.filter(k => k.courseType === '')
 
-        if(courseTypes.length === 0){
+        if (courseTypes.length === 0) {
           detail.map(k => {
-            if(k.courseType === '限选')
+            if (k.courseType === '限选')
               k.courseType = ''
           })
         }
-        
-        
+
+
 
         //先按学期进行排序，因为从数据库库查出来的数据不是按学期顺序排下来的
-        detail = detail.sort((a, b)=>{
-          if(a.semester<b.semester){
+        detail = detail.sort((a, b) => {
+          if (a.semester < b.semester) {
             return -1
           }
-          if(a.semester>b.semester){
+          if (a.semester > b.semester) {
             return 1
           }
           return 0
@@ -248,7 +249,7 @@ exports.route = {
         this.logMsg = `${name} (${cardnum}) - 查询绩点`
         return { gpa, gpaBeforeMakeup, achievedCredits, year, calculationTime, detail }
       }
-      else{  //16 17级
+      else {  //16 17级
         let rawData = await this.db.execute(`
       SELECT 
         xk.XN,
@@ -272,7 +273,7 @@ exports.route = {
         TOMMY.T_XK_XKJG  xk
       WHERE
         cj.XH = xk.XH AND cj.XKKCDM = xk.XKKCDM
-  `,{ cardnum: cardnum})
+  `, { cardnum: cardnum })
         /*let rawDetail = rawData.rows.map(row => {
           let xn = parseInt(row[0])
           let xq = parseInt(row[1])
@@ -292,11 +293,11 @@ exports.route = {
         })*/
 
         let rawDetail = []
-        rawData.rows.map(row=>{
+        rawData.rows.map(row => {
           let [xn, xq, cid, courseName, credit, score] = row
           xn = parseInt(xn)
           xq = parseInt(xq)
-          let semesterName = xn.toString().slice(2)+"-"+(xn+1).toString().slice(2)+"-"+xq.toString()
+          let semesterName = xn.toString().slice(2) + "-" + (xn + 1).toString().slice(2) + "-" + xq.toString()
           const gpa = {
             semester: semesterName,
             cid: cid,
@@ -332,7 +333,7 @@ exports.route = {
         let myexamData = await this.db.execute(`
         SELECT * FROM TOMMY.H_MY_SCORE
             WHERE CARDNUM = :cardnum
-    `,{ cardnum: cardnum})
+    `, { cardnum: cardnum })
         console.log(myexamData)
         /*let myexamDetail = myexamData.rows.map(row => {
           return {
@@ -354,8 +355,8 @@ exports.route = {
         myexamData.rows.map(row => {
           // eslint-disable-next-line no-unused-vars
           let [_id, courseName, credit, score, courseType, scoreType, cardnum, semester] = row
-          const mygpa =  {
-            _id:  _id,
+          const mygpa = {
+            _id: _id,
             semester: semester,
             courseName: courseName,
             courseType: courseType,
@@ -369,8 +370,8 @@ exports.route = {
           detail.push(mygpa)
         })
         detail.forEach(Element => {
-          for(let e in Element){
-            if (Element[e]=== null)
+          for (let e in Element) {
+            if (Element[e] === null)
               delete Element[e]
           }
         })
@@ -378,7 +379,7 @@ exports.route = {
         let achievedCredits = 0
         detail.slice().reverse().map(k => {
           // 对自定义课程另外处理
-          if(k._id !== undefined){
+          if (k._id !== undefined) {
             achievedCredits += k.credit
           }
           // 赋值后判断如果是首次通过
@@ -400,7 +401,7 @@ exports.route = {
           }
         })
         Object.values(courseHighestPassed).map(k => k.isHighestPassed = true)
-        
+
         // 解决转系生课程全为任选或限选的状况
         /*let courseTypes = detail.map(k => k.courseType)
       courseTypes = courseTypes.filter( k => k.courseType === '')
@@ -411,14 +412,14 @@ exports.route = {
             k.courseType = ''
         })
       }*/
-        
-        
+
+
         //先按学期进行排序，因为从数据库库查出来的数据不是按学期顺序排下来的
-        detail = detail.sort((a, b)=>{
-          if(a.semester<b.semester){
+        detail = detail.sort((a, b) => {
+          if (a.semester < b.semester) {
             return -1
           }
-          if(a.semester>b.semester){
+          if (a.semester > b.semester) {
             return 1
           }
           return 0
@@ -456,7 +457,7 @@ exports.route = {
         let scoreType = ['学位', '选修'][i]
         return table.find('tr').toArray().slice(1).map(k => $(k)).map(tr => {
           let [courseName, credit, semester, score, standardScore]
-              = tr.children('td').toArray().map(k => $(k).text().trim())
+            = tr.children('td').toArray().map(k => $(k).text().trim())
 
           credit = parseFloat(credit)
           return { semester, courseName, courseType: '', credit, score, standardScore, scoreType }
@@ -481,12 +482,12 @@ exports.route = {
       let total = parseFloat($('#lblyxxf').text()) // 总学分
       let required = parseFloat($('#lblyxxf1').text()) // 应修总学分
       let credits = { degree, optional, total, required }
-        
-        
+
+
 
       return { graduated: true, score, credits, detail }
     }
-    
+
   },
 
   /**
@@ -499,9 +500,9 @@ exports.route = {
   * @apiParam scoreType   修读类型   
   * @apiParam semester    学期
   **/
-  async post({courseName,credit,score,courseType,scoreType,semester}) {
+  async post({ courseName, credit, score, courseType, scoreType, semester }) {
     let { cardnum } = this.user
-    console.log({ courseName,credit,score,courseType,scoreType,semester })
+    console.log({ courseName, credit, score, courseType, scoreType, semester })
     if (!courseName) {
       throw '未定义课程名'
     }
@@ -581,7 +582,7 @@ exports.route = {
   * @apiParam scoreType   修读类型   
   * @apiParam semester    学期
   **/
-  async put({ _id,courseName,credit,score,courseType,scoreType,semester }) {
+  async put({ _id, courseName, credit, score, courseType, scoreType, semester }) {
 
     if (!_id) {
       throw '未定义id'
@@ -615,7 +616,7 @@ exports.route = {
     if (!semester) {
       semester = record[7]
     }
-  
+
     let result = await this.db.execute(`
     UPDATE H_MY_SCORE SET 
       COURSENAME='${courseName}', 
