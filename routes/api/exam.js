@@ -63,7 +63,12 @@ exports.route = {
       let [semester, campus, courseName, teacherName, startTime, endTime, location, duration, _id] = Element
       result.push({ semester, campus, courseName, teacherName, startTime, endTime, location, duration, _id })
     })
-
+    result.forEach(Element => {
+      for(let e in Element){
+        if (Element[e]=== null)
+          delete Element[e]
+      }
+    })
     result = result.filter(e => e.endTime > now)// 防止个别考生考试开始了还没找到考场🤔
     return result
   },

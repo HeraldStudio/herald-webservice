@@ -13,6 +13,6 @@ exports.route = {
       endSequence,
       termId
     })
-    return res.data.rows
+    return JSON.parse(res.data.toString()).rows
   }
 }

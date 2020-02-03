@@ -99,6 +99,7 @@ exports.route = {
       myResult.rows.map(Element => {
         let [courseName, teacherName, beginWeek, endWeek, dayOfWeek, flip, beginPeriod, endPeriod, location, _id] = Element
         const course = {
+          _id : _id,
           courseName: courseName,
           teacherName: teacherName,
           beginWeek: beginWeek,
@@ -131,6 +132,12 @@ exports.route = {
           credit: '学分未知'
         }
         curriculum.push(course)
+      })
+      curriculum.forEach(Element => {
+        for(let e in Element){
+          if (Element[e]=== null)
+            delete Element[e]
+        }
       })
       // const rows = curriculumRes.data.datas.xskcb.rows
       // rows.forEach(rawCourse => {

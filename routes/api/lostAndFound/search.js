@@ -7,9 +7,16 @@ exports.route = {
       where isAudit = 1 and isFinished = 0 and type = '${type}' and title like '%${key}%'
       ORDER BY LASTMODIFIEDTIME DESC
     `)
-    return record.rows.map(Element => {
+    record =  record.rows.map(Element => {
       let [_id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished] = Element
       return { _id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished }
     })
+    record.forEach(Element => {
+      for(let e in Element){
+        if (Element[e]=== null)
+          delete Element[e]
+      }
+    })
+    return record
   }
 }

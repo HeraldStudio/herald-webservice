@@ -14,7 +14,7 @@ const sites = {
       ['#wp_news_w9', '实践教学'],
       ['#wp_news_w10', '国际交流'],
       ['#wp_news_w8', '教学研究'],
-      ['#wp_news_w11','文化素质教育']
+      ['#wp_news_w11', '文化素质教育']
     ],
     contentSelector: '.wp_articlecontent'
   },
@@ -71,39 +71,39 @@ exports.route = {
   * @apiReturn [{ category, department, title, url, time, isAttachment, isImportant }]
   * 目前没有使用缓存，但是根据时间消耗，还是应该使用缓存提升用户体验
   */
-  async get () {
+  async get() {
     let now = +moment()
     // 调试环境下接受 site 参数用于单独获取某网站的通知
     let argSite = program.mode === 'development' ? this.params.site : undefined
     delete this.params.site
     let keys = typeof argSite !== 'undefined' ? [argSite] : commonSites
-    
+
     if (typeof argSite === 'undefined'
-        && this.user.isLogin
-        && /^21/.test(this.user.cardnum)) { // 只处理本科生，似乎研究生从学号无法获取学院信息
+      && this.user.isLogin
+      && /^21/.test(this.user.cardnum)) { // 只处理本科生，似乎研究生从学号无法获取学院信息
       keys = keys.concat(deptCodeFromSchoolNum(this.user.schoolnum))
     }
     let ret = await Promise.all(keys.map(async (site) =>
-    {
-      if (!sites[site]) {
-        throw `没有相应于 ${site} 的学校网站`
-      }
-      
-      // console.log(sites[site].infoUrl)
-      let res = await this.get(sites[site].infoUrl)
-      // console.log(res.data)
-      let $ = cheerio.load(res.data)
-      // console.log('$:',$.html())
-      let list = sites[site].list
+      await this.publicCache(site, '1m+', async () => {
+        if (!sites[site]) {
+          throw `没有相应于 ${site} 的学校网站`
+        }
 
-      // 分组获取时间，按组名装入 timeList 的 property 里，防止混乱
-      let timeList = {}
-      list.forEach(
-        ele => {
-          // console.log(sites[site].dateSelector)
-          // console.log(ele[0])
-          // console.log($('div'))
-          timeList[ele[1]] =
+        // console.log(sites[site].infoUrl)
+        let res = await this.get(sites[site].infoUrl)
+        // console.log(res.data)
+        let $ = cheerio.load(res.data)
+        // console.log('$:',$.html())
+        let list = sites[site].list
+
+        // 分组获取时间，按组名装入 timeList 的 property 里，防止混乱
+        let timeList = {}
+        list.forEach(
+          ele => {
+            // console.log(sites[site].dateSelector)
+            // console.log(ele[0])
+            // console.log($('div'))
+            timeList[ele[1]] =
               $(ele[0]).find(sites[site].dateSelector || 'div').toArray()
                 .map(k => /(\d+-)?(\d+)-(\d+)/.exec($(k).text()))
                 .filter(k => k)
@@ -113,40 +113,40 @@ exports.route = {
                   k.date = parseInt(k[3])
                   return k
                 })
-              // 过滤掉一看就不是日期的内容，比如「17-18-3」
-              // 一个标题: 我院召开17-18-3学期期中教学检查学生座谈会
+                // 过滤掉一看就不是日期的内容，比如「17-18-3」
+                // 一个标题: 我院召开17-18-3学期期中教学检查学生座谈会
                 .filter(k =>
                   (!k.year || k.year >= 1000 || k.year < 100)
-                      && k.month >= 1 && k.month <= 12
-                      && k.date >= 1 && k.date <= 31)
-              // FIXME 这里可能还存在着 bug。
+                  && k.month >= 1 && k.month <= 12
+                  && k.date >= 1 && k.date <= 31)
+                // FIXME 这里可能还存在着 bug。
                 .map(k => k[1] // 有的网站上没有年份信息。
                   ? +moment(k[0], 'YYYY-MM-DD')
                   : +autoMoment(k[0]))
-        }
-      )
-      // console.log(timeList)
+          }
+        )
+        // console.log(timeList)
 
-      // 找出所有新闻条目，和日期配对，返回
-      return list.map(ele => $(ele[0]).find('a').toArray().map(k => $(k)).map((k, i) => {
-        let href = k.attr('href') ? k.attr('href'):''
-        let currentUrl = url.resolve(sites[site].infoUrl, href)
-        return {
-          site: sites[site].name,
-          category: ele[1],
-          // 标题可能在 title 属性中，也可能并不在。
-          title: k.attr('title') && k.attr('title').trim() || k.text().trim(),
-          url: currentUrl,
-          isAttachment: ! /\.(html?$|aspx?|jsp|php)/.test(href),
-          isImportant: !!k.find('font').length,
-          time: +moment(timeList[ele[1]][i])
+        // 找出所有新闻条目，和日期配对，返回
+        return list.map(ele => $(ele[0]).find('a').toArray().map(k => $(k)).map((k, i) => {
+          let href = k.attr('href') ? k.attr('href') : ''
+          let currentUrl = url.resolve(sites[site].infoUrl, href)
+          return {
+            site: sites[site].name,
+            category: ele[1],
+            // 标题可能在 title 属性中，也可能并不在。
+            title: k.attr('title') && k.attr('title').trim() || k.text().trim(),
+            url: currentUrl,
+            isAttachment: ! /\.(html?$|aspx?|jsp|php)/.test(href),
+            isImportant: !!k.find('font').length,
+            time: +moment(timeList[ele[1]][i])
               || deduceTimeFromUrl(currentUrl), // 可能网页上没有日期信息
-          // 记下其在本栏中出现的顺序，一般，序号越小，越新
-          index: i
-        }
-      }).reduce((arr, news) => {if(news.title){arr.push(news)} return arr}, [])
-      ).reduce((a, b) => a.concat(b), [])
-    } 
+            // 记下其在本栏中出现的顺序，一般，序号越小，越新
+            index: i
+          }
+        }).reduce((arr, news) => { if (news.title) { arr.push(news) } return arr }, [])
+        ).reduce((a, b) => a.concat(b), [])
+      }) // publicCache
     )) // Promise.all
 
     // 小猴系统通知
@@ -168,7 +168,7 @@ exports.route = {
     data.forEach(oneData => {
       let tempData = {}
       oneData.forEach((item, index) => {
-        if (index === 5 ) {
+        if (index === 5) {
           item = +moment(item)
         }
         tempData[fieldName[index]] = item
@@ -182,12 +182,12 @@ exports.route = {
       if (k.schoolnumPrefix === null || !this.user.isLogin) return true
       let result = false
       const prefixList = k.schoolnumPrefix.split(' ')
-      prefixList.forEach( prefix => {
-        if(this.user.schoolnum.startsWith(prefix)) result =true
+      prefixList.forEach(prefix => {
+        if (this.user.schoolnum.startsWith(prefix)) result = true
       })
       return result
     })
-    
+
 
     ret = ret.reduce((a, b) => a.concat(b), [])
       // 如果项目都有两个时间，就按时间排序，否则按在某一栏中出现的顺序排序
@@ -200,8 +200,8 @@ exports.route = {
 
     // 按照标题去重
     let titleList = {}
-    ret = ret.filter( k => {
-      if (typeof titleList[k.title] === 'undefined'){
+    ret = ret.filter(k => {
+      if (typeof titleList[k.title] === 'undefined') {
         titleList[k.title] = true
         return true
       } else {
@@ -219,7 +219,7 @@ exports.route = {
   * @apiParam nid? 需要查看 Markdown 的通知 nid
   * @apiReturn <string> 转换结果
   */
-  async post ({ url = '', id = '' }) {
+  async post({ url = '', id = '' }) {
     console.log(url)
     console.log(id)
     if (url) {
@@ -238,8 +238,8 @@ exports.route = {
         inline: true
       }).convert($(typeObj.contentSelector || 'body').html())
     } else if (id) {
-      let notice = await this.db.execute(`SELECT TITLE,CONTENT,URL FROM TOMMY.H_NOTICE WHERE ID =:id`,{ id })
-    
+      let notice = await this.db.execute(`SELECT TITLE,CONTENT,URL FROM TOMMY.H_NOTICE WHERE ID =:id`, { id })
+
       // 处理一下返回数据
       let heraldNotice = {}
       heraldNotice['title'] = notice.rows[0][0]
@@ -248,9 +248,9 @@ exports.route = {
 
       return `# ${heraldNotice.title}\n\n
                 ${heraldNotice.content}\n\n 
-                ${heraldNotice.url? '相关链接:'+ heraldNotice.url : ''}
+                ${heraldNotice.url ? '相关链接:' + heraldNotice.url : ''}
                 `
-      
+
     } else {
       throw '无转换结果'
     }

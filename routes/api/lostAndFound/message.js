@@ -45,10 +45,17 @@ exports.route = {
       where ITEMID = '${itemId}'
       ORDER BY LASTMODIFIEDTIME DESC
     `)
-      return record.rows.map(Element => {
+      record =  record.rows.map(Element => {
         let [_id, itemId, message, creator, hasRead, lastModifiedTime] = Element
         return { _id, itemId, message, creator, hasRead, lastModifiedTime }
       })
+      record.forEach(Element => {
+        for(let e in Element){
+          if (Element[e]=== null)
+            delete Element[e]
+        }
+      })
+      return record
     } else {
       // 没有指定 itemId 就要获取一个列表了
       // let items = await lostAndFoundCollection.find({ creator: cardnum, isAudit: true, isFinished: false }, { projection: { '_id': 1 } }).toArray()
@@ -60,6 +67,12 @@ exports.route = {
       items = items.rows.map(Element => {
         let [_id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished] = Element
         return { _id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished }
+      })
+      items.forEach(Element => {
+        for(let e in Element){
+          if (Element[e]=== null)
+            delete Element[e]
+        }
       })
       let res = {}
       for (let itemId of items) {

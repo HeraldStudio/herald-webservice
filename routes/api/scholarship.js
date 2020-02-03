@@ -11,38 +11,67 @@ const [scholarshipList, scholarshipApplied, stipendList, stipendApplied] = [
 
 exports.route = {
   async get() {
-    return await this.userCache('1h', async () => {
-      await this.useAuthCookie({ ids6: true })
+   // const { cardnum } = this.user
+     let { name, cardnum, schoolnum } = this.user
+    console.log(cardnum)
+    
+    let record= await this.db.execute(
+      ` SELECT 
+      T_JXJ_ZL.JXJMC,
+      T_JXJ_DJ.DJMC,
+      T_JXJ_DJ.JE,
+      T_JXJ_PDXX.SQRQ,
+       T_JXJ_PDXX.PDXM,
+       T_JXJ_PDXX.PDXQ,
+       T_JXJ_PDXX.SHZT
+      FROM TOMMY.T_JXJ_DJ,TOMMY.T_JXJ_PDXX,TOMMY.T_JXJ_ZL
+      WHERE XSBH= :cardnum
+      `,[cardnum]
+    )
+   
+    let result = record.rows.map( Element => {
+      let [name, level, amount, startDate, startYear, startTerm, state]=Element
 
-      return Object.assign({}, ...await Promise.all(Object.entries({
-        scholarshipList, scholarshipApplied, stipendList, stipendApplied
-      }).map(async ([type, route]) => {
-        await this.get(`http://my.seu.edu.cn/index.portal?.p=${route}`)
-        let res = await this.get(`http://my.seu.edu.cn/index.portal?pageIndex=1&pageSize=1000&.p=${route}`)
-        let $ = cheerio.load(res.data)
-        return {
-          [type]: $('.isp-service-item-info').toArray().map(k => $(k)).map(k => {
-            try {
-              let name = k.find('.jxjTitle').text()
-              let entries = k.find('.jxjInfo').toArray().map(k => $(k).text().split('：')[1].trim())
-              if (/\d+-\d+-\d+/.test(entries[0])) {
-                let [datePeriod, level, yearPeriod, amount] = entries
-                let [startDate, endDate] = datePeriod.match(/\d+-\d+-\d+/g).map(k => +moment(k))
-                let [startYear, endYear] = yearPeriod.match(/\d+/g)
-                amount = /\d+/.exec(amount)[0]
-                return { name, level, startDate, endDate, startYear, endYear, amount }
-              } else {
-                let [level, yearPeriod, amount, state] = entries
-                let [startYear, endYear] = yearPeriod.match(/\d+/g)
-                amount = /\d+/.exec(amount)[0]
-                return { name, level, startYear, endYear, amount, state }
-              }
-            } catch (e) {
-              return null
-            }
-          }).filter(k => k)
-        }
-      })))
+      return { name, level, amount, startDate, startYear, startTerm, state }
+      
     })
+    
+    console.log(result)
+    return result
+    
+
+    // return await this.userCache('1h', async () => {
+    //   await this.useAuthCookie({ ids6: true })
+
+    //   return Object.assign({}, ...await Promise.all(Object.entries({
+    //     scholarshipList, scholarshipApplied, stipendList, stipendApplied
+    //   }).map(async ([type, route]) => {
+    //     await this.get(`http://my.seu.edu.cn/index.portal?.p=${route}`)
+    //     let res = await this.get(`http://my.seu.edu.cn/index.portal?pageIndex=1&pageSize=1000&.p=${route}`)
+    //     let $ = cheerio.load(res.data)
+    //     return {
+    //       [type]: $('.isp-service-item-info').toArray().map(k => $(k)).map(k => {
+    //         try {
+    //           let name = k.find('.jxjTitle').text()
+    //           let entries = k.find('.jxjInfo').toArray().map(k => $(k).text().split('：')[1].trim())
+    //           if (/\d+-\d+-\d+/.test(entries[0])) {
+    //             let [datePeriod, level, yearPeriod, amount] = entries
+    //             let [startDate, endDate] = datePeriod.match(/\d+-\d+-\d+/g).map(k => +moment(k))
+    //             let [startYear, endYear] = yearPeriod.match(/\d+/g)
+    //             amount = /\d+/.exec(amount)[0]
+    //             return { name, level, startDate, endDate, startYear, endYear, amount }
+    //           } else {
+    //             let [level, yearPeriod, amount, state] = entries
+    //             let [startYear, endYear] = yearPeriod.match(/\d+/g)
+    //             amount = /\d+/.exec(amount)[0]
+    //             return { name, level, startYear, endYear, amount, state }
+    //           }
+    //         } catch (e) {
+    //           return null
+    //         }
+    //       }).filter(k => k)
+    //     }
+    //   })))
+    // })
   }
 }
