@@ -27,7 +27,7 @@ exports.route = {
     let { cardnum } = this.user
     // let lostAndFoundCollection = await mongodb('H_LOST_AND_FOUND')
     if (id) {
-      return await this.publicCache(id, '1d+', async () => {
+      return await this.publicCache('1d+', async () => {
         // 如果存在 id 则返回条目的信息
         let record = await this.db.execute(`
         select * 
@@ -42,12 +42,10 @@ exports.route = {
           record.canAudit = true
         }
         // 前端要求，除去值为null的字段
-        record.forEach(Element => {
-          for (let e in Element) {
-            if (Element[e] === null)
-              delete Element[e]
-          }
-        })
+        for (let e in record) {
+          if (record[e] === null)
+            delete record[e]
+        }
         return record
       })
     }

@@ -43,7 +43,7 @@ exports.route = {
       }
       //console.log(info)
       return info
-    });
+    })
 
   
     // return await this.userCache('1m+', async () => {

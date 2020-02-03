@@ -720,9 +720,7 @@ try {
         }
       })
     })
-
     return ''
-
   })
 }catch(e){
   console.log('wx-herald未配置')

@@ -42,7 +42,6 @@ const axios =  require('axios')
 const { config } = require('../app')
 const authConfig = require('../sdk/sdk.json').auth
 
-
 const tokenHashPool = {} // 用于缓存tokenHash，防止高峰期数据库爆炸💥
 
 // 对称加密算法，要求 value 是 String 或 Buffer，否则会报错

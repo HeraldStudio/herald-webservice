@@ -1,21 +1,20 @@
-const cheerio = require('cheerio')
+// const cheerio = require('cheerio')
 
-// 可申请奖学金、已申请奖学金、可申请助学金、已申请助学金的 URL 参数
-// 原来为 base64 编码，此处解码书写，增加可读性
-const [scholarshipList, scholarshipApplied, stipendList, stipendApplied] = [
-  'f|com.wiscom.portal.site.v2.impl.FragmentWindow|f3409|view|normal|action=list', 
-  'f|com.wiscom.portal.site.v2.impl.FragmentWindow|f3409|view|normal|action=appliedQuery', 
-  'f|com.wiscom.portal.site.v2.impl.FragmentWindow|f2187|view|normal|action=list', 
-  'f|com.wiscom.portal.site.v2.impl.FragmentWindow|f2187|view|normal|action=appliedQuery'
-].map(k => Buffer.from(k).toString('base64').replace(/=/g, '_'))
+// // 可申请奖学金、已申请奖学金、可申请助学金、已申请助学金的 URL 参数
+// // 原来为 base64 编码，此处解码书写，增加可读性
+// const [scholarshipList, scholarshipApplied, stipendList, stipendApplied] = [
+//   'f|com.wiscom.portal.site.v2.impl.FragmentWindow|f3409|view|normal|action=list',
+//   'f|com.wiscom.portal.site.v2.impl.FragmentWindow|f3409|view|normal|action=appliedQuery',
+//   'f|com.wiscom.portal.site.v2.impl.FragmentWindow|f2187|view|normal|action=list',
+//   'f|com.wiscom.portal.site.v2.impl.FragmentWindow|f2187|view|normal|action=appliedQuery'
+// ].map(k => Buffer.from(k).toString('base64').replace(/=/g, '_'))
 
 exports.route = {
   async get() {
-   // const { cardnum } = this.user
-     let { name, cardnum, schoolnum } = this.user
-    console.log(cardnum)
-    
-    let record= await this.db.execute(
+    // const { cardnum } = this.user
+    let { cardnum } = this.user
+
+    let record = await this.db.execute(
       ` SELECT 
       T_JXJ_ZL.JXJMC,
       T_JXJ_DJ.DJMC,
@@ -26,19 +25,18 @@ exports.route = {
        T_JXJ_PDXX.SHZT
       FROM TOMMY.T_JXJ_DJ,TOMMY.T_JXJ_PDXX,TOMMY.T_JXJ_ZL
       WHERE XSBH= :cardnum
-      `,[cardnum]
+      `, [cardnum]
     )
-   
-    let result = record.rows.map( Element => {
-      let [name, level, amount, startDate, startYear, startTerm, state]=Element
+
+    let result = record.rows.map(Element => {
+      let [name, level, amount, startDate, startYear, startTerm, state] = Element
 
       return { name, level, amount, startDate, startYear, startTerm, state }
-      
+
     })
-    
-    console.log(result)
+
     return result
-    
+
 
     // return await this.userCache('1h', async () => {
     //   await this.useAuthCookie({ ids6: true })

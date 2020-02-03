@@ -27,19 +27,19 @@ const transformPosition = (obj) => {
 exports.route = {
   async get () {
     return await this.publicCache('5s', async () => {
-      let buses = (await this.get('http://121.248.63.119/busservice/lines')).data.data.lines
+      let buses = JSON.parse((await this.get('http://121.248.63.119/busservice/lines')).data.toString()).data.lines
       let instant = await Promise.all(buses.map(async k => {
         k.startTime = +moment(k.startTime)
         k.endTime = +moment(k.endTime)
         let res = await this.get('http://121.248.63.119/busservice/lineDetail?lineId=' + k.id)
-        k.detail = res.data.data.line
+        k.detail = JSON.parse(res.data.toString()).data.line
         k.detail.linePoints.map(k => {
           transformPosition(k.station)
           delete k.longitude
           delete k.latitude
         })
         res = await this.get('http://121.248.63.119/busservice/queryBus?lineId=' + k.id)
-        k.buses = res.data.data.buses
+        k.buses = JSON.parse(res.data.toString()).data.buses
         k.buses.map(k => transformPosition(k.location))
         return k
       }))
