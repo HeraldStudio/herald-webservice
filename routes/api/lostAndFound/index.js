@@ -6,26 +6,28 @@ exports.route = {
     let { cardnum } = this.user
     // let lostAndFoundCollection = await mongodb('H_LOST_AND_FOUND')
     if (id) {
-      // 如果存在 id 则返回条目的信息
-      let record = await this.db.execute(`
+      return await this.publicCache(id, '1d+', async () => {
+        // 如果存在 id 则返回条目的信息
+        let record = await this.db.execute(`
         select * 
         from H_LOST_AND_FOUND
         where wid = '${id}'
-      `)
-      record = record.rows.map(Element => {
-        let [_id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished] = Element
-        return { _id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished }
-      })[0]
-      if (adminList.indexOf(cardnum) !== -1) {
-        record.canAudit = true
-      }
-      record.forEach(Element => {
-        for (let e in Element) {
-          if (Element[e] === null)
-            delete Element[e]
+        `)
+        record = record.rows.map(Element => {
+          let [_id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished] = Element
+          return { _id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished }
+        })[0]
+        if (adminList.indexOf(cardnum) !== -1) {
+          record.canAudit = true
         }
+        record.forEach(Element => {
+          for (let e in Element) {
+            if (Element[e] === null)
+              delete Element[e]
+          }
+        })
+        return record
       })
-      return record
     }
     // 确保分页的数据正确
     page = +page
@@ -198,6 +200,7 @@ exports.route = {
         `, { title: title ? title : oldRecord.title, describe: describe ? describe : oldRecord.describe })
 
     if (result.rowsAffected > 0) {
+      this.clearCache(id)
       return '修改成功'
     } else {
       throw '修改失败'
@@ -230,6 +233,7 @@ exports.route = {
     WHERE WID ='${id}'
   `)
     if (result.rowsAffected > 0) {
+      this.clearCache(id)
       return '删除成功'
     } else {
       throw '删除失败'

@@ -77,26 +77,26 @@ exports.route = {
       nextSequence = 13
     }
 
-    // let cacheKey = [ startWeek, endWeek, dayOfWeek, currentSequence, nextSequence, termId]
-    // cacheKey = cacheKey.join('-')
-    // return await this.publicCache(cacheKey, '2h+', async () => {
-    //现在的空教室
-    let forCurrent = JSON.parse((await this.get(`https://myseu.cn/ws3/api/classroom/index?startWeek=${startWeek}&endWeek=${endWeek}&dayOfWeek=${dayOfWeek}&startSequence=${currentSequence}&endSequence=${currentSequence}&termId=${termId}`)).data.toString()).result
-    //下一节课的空教室
-    let forNext = JSON.parse((await this.get(`https://myseu.cn/ws3/api/classroom/index?startWeek=${startWeek}&endWeek=${endWeek}&dayOfWeek=${dayOfWeek}&startSequence=${nextSequence}&endSequence=${nextSequence}&termId=${termId}`)).data.toString()).result
+    let cacheKey = [startWeek, endWeek, dayOfWeek, currentSequence, nextSequence, termId]
+    cacheKey = cacheKey.join('-')
+    return await this.publicCache(cacheKey, '2h+', async () => {
+      //现在的空教室
+      let forCurrent = JSON.parse((await this.get(`https://myseu.cn/ws3/api/classroom/index?startWeek=${startWeek}&endWeek=${endWeek}&dayOfWeek=${dayOfWeek}&startSequence=${currentSequence}&endSequence=${currentSequence}&termId=${termId}`)).data.toString()).result
+      //下一节课的空教室
+      let forNext = JSON.parse((await this.get(`https://myseu.cn/ws3/api/classroom/index?startWeek=${startWeek}&endWeek=${endWeek}&dayOfWeek=${dayOfWeek}&startSequence=${nextSequence}&endSequence=${nextSequence}&termId=${termId}`)).data.toString()).result
 
-    forCurrent = forCurrent.map(k => k.name)
-    forNext = forNext.map(k => k.name)
+      forCurrent = forCurrent.map(k => k.name)
+      forNext = forNext.map(k => k.name)
 
-    let currentTimeDesc = `${termName}学期 - 第${startWeek}周 - ${weekdayMap['' + dayOfWeek]} - 第${currentSequence}节`
-    let nextTimeDesc = `${termName}学期 - 第${startWeek}周 - ${weekdayMap['' + dayOfWeek]} - 第${nextSequence}节`
-    if (currentSequence === nextSequence) {
-      return { forCurrent, currentTimeDesc }
-    }
+      let currentTimeDesc = `${termName}学期 - 第${startWeek}周 - ${weekdayMap['' + dayOfWeek]} - 第${currentSequence}节`
+      let nextTimeDesc = `${termName}学期 - 第${startWeek}周 - ${weekdayMap['' + dayOfWeek]} - 第${nextSequence}节`
+      if (currentSequence === nextSequence) {
+        return { forCurrent, currentTimeDesc }
+      }
 
-    return { forCurrent, forNext, currentTimeDesc, nextTimeDesc }
+      return { forCurrent, forNext, currentTimeDesc, nextTimeDesc }
 
-    // })
+    })
   }
 
 }

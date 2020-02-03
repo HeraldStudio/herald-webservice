@@ -21,6 +21,7 @@ exports.route = {
     ISFINISHED = 1
     WHERE wid = '${id}'
     `)
+    this.clearCache(id)
     return 'success'
   }
 }
