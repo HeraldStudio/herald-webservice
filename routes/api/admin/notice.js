@@ -9,8 +9,8 @@ exports.route = {
       SELECT ID,TITLE,CONTENT,URL,SCHOOLNUM_PREFIX,PUBLISH_TIME
       FROM (SELECT tt.*, ROWNUM AS rowno
         FROM (SELECT t.* FROM TOMMY.H_NOTICE t ORDER BY PUBLISH_TIME DESC) tt
-        WHERE ROWNUM < :endRow) table_alias
-      WHERE table_alias.rowno >= :startRow`,
+        WHERE ROWNUM <= :endRow) table_alias
+      WHERE table_alias.rowno > :startRow`,
     {
       startRow: (page - 1) * pagesize,
       endRow: page * pagesize
