@@ -2,6 +2,27 @@ const { adminList } = require('./admin.json')
 const { deleteFile } = require('../../../sdk/qiniu')
 const oracledb = require('oracledb')
 exports.route = {
+  /**
+   * GET /api/lostAndFound
+   * @param { 
+   * id,                            // 返回单一条目 
+   * type : lost/found/audit,       // 分别返回失物招领，寻物启事， 待审核条目
+   * page, 
+   * pagesize } 
+   * 获取接口
+   * @returns { 
+   * result : [{ 
+   * _id : String,                  
+   * creator : String, 
+   * title : String, 
+   * lastModifiedTime : 时间戳(ms), 
+   * describe : String, 
+   * imageUrl : String(最多三张), 
+   * type : lost/found, 
+   * isAudit : Number, 
+   * isFinished : Number
+   * }]}
+   */
   async get({ id = '', type, page = 1, pagesize = 10 }) {
     let { cardnum } = this.user
     // let lostAndFoundCollection = await mongodb('H_LOST_AND_FOUND')
@@ -122,7 +143,11 @@ exports.route = {
       return record
     }
   },
-
+  /**
+     * POST /api/lostAndFound
+     * @param { type, title, describe, imageUrl } 
+     * 新建接口
+     */
   async post({ type, title, describe, imageUrl }) {
     let { cardnum } = this.user
     if (['lost', 'found'].indexOf(type) === -1) {
