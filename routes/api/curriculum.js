@@ -99,6 +99,7 @@ exports.route = {
       myResult.rows.map(Element => {
         let [courseName, teacherName, beginWeek, endWeek, dayOfWeek, flip, beginPeriod, endPeriod, location, _id] = Element
         const course = {
+          _id:_id,
           courseName: courseName,
           teacherName: teacherName,
           beginWeek: beginWeek,
