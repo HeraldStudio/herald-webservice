@@ -33,26 +33,24 @@ exports.route = {
 
     let term = await this.get('https://myseu.cn/ws3/api/classroom/term')
     let myTerm = this.term
-    let termName = myTerm['current']['name']
-
-    //转换一下termName的格式
-    let termNameStr = termName.split('-')
-    for (let i = 0; i < termNameStr.length - 1; i++) {
-      termNameStr[i] = '20'.concat(termNameStr[i])
-    }
-    termName = termNameStr.join('-')
-
+    let termName = myTerm['currentTerm']['name']
+    let result = JSON.parse(term.data.toString())
+    // //转换一下termName的格式
+    // let termNameStr = termName.split('-')
+    // for (let i = 0; i < termNameStr.length - 1; i++) {
+    //   termNameStr[i] = '20'.concat(termNameStr[i])
+    // }
+    // termName = termNameStr.join('-')
     //查询termId
     let termId
-    for (let i = 0; i < term.data.result.length; i++) {
-      if (term.data.result[i]['name'] === termName) {
-        termId = term.data.result[i]['id']
+    for (let i = 0; i < result.length; i++) {
+      if (result[i]['name'] === termName) {
+        termId = result[i]['id']
         break
       }
     }
-
     let nowDate = new Date().getTime()
-    let startDate = myTerm.current['startDate']
+    let startDate = myTerm.currentTerm['startDate']
     let aWeekInSecond = 7 * 24 * 3600 * 1000
     //获取第几周
     let startWeek = Math.ceil((nowDate - startDate) / aWeekInSecond)
@@ -66,7 +64,7 @@ exports.route = {
     let currentSequence
     let nextSequence
     let nowTime = moment().format('HH:mm')
-    
+
     for (let i = 0; i < 13; i++) {
       if (laterThan(nowTime, sequenceTimeMap[i]['start']) && laterThan(sequenceTimeMap[i]['end'], nowTime)) {
         currentSequence = sequenceTimeMap[i]['sequence']
@@ -79,13 +77,13 @@ exports.route = {
       nextSequence = 13
     }
 
-    let cacheKey = [ startWeek, endWeek, dayOfWeek, currentSequence, nextSequence, termId]
+    let cacheKey = [startWeek, endWeek, dayOfWeek, currentSequence, nextSequence, termId]
     cacheKey = cacheKey.join('-')
     return await this.publicCache(cacheKey, '2h+', async () => {
       //现在的空教室
-      let forCurrent = (await this.get(`https://myseu.cn/ws3/api/classroom/index?startWeek=${startWeek}&endWeek=${endWeek}&dayOfWeek=${dayOfWeek}&startSequence=${currentSequence}&endSequence=${currentSequence}&termId=${termId}`)).data.result
+      let forCurrent = JSON.parse((await this.get(`https://myseu.cn/ws3/api/classroom/index?startWeek=${startWeek}&endWeek=${endWeek}&dayOfWeek=${dayOfWeek}&startSequence=${currentSequence}&endSequence=${currentSequence}&termId=${termId}`)).data.toString()).result
       //下一节课的空教室
-      let forNext = (await this.get(`https://myseu.cn/ws3/api/classroom/index?startWeek=${startWeek}&endWeek=${endWeek}&dayOfWeek=${dayOfWeek}&startSequence=${nextSequence}&endSequence=${nextSequence}&termId=${termId}`)).data.result
+      let forNext = JSON.parse((await this.get(`https://myseu.cn/ws3/api/classroom/index?startWeek=${startWeek}&endWeek=${endWeek}&dayOfWeek=${dayOfWeek}&startSequence=${nextSequence}&endSequence=${nextSequence}&termId=${termId}`)).data.toString()).result
 
       forCurrent = forCurrent.map(k => k.name)
       forNext = forNext.map(k => k.name)
@@ -97,7 +95,7 @@ exports.route = {
       }
 
       return { forCurrent, forNext, currentTimeDesc, nextTimeDesc }
-            
+
     })
   }
 

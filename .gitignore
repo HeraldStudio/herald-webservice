@@ -9,6 +9,8 @@ spider_test.js
 !.gitkeep
 **/*.db
 sdk/sdk.json
+sdk/admin.json
+sdk/pe.json
 worker/captcha/models/
 *.swp
 .repl_history

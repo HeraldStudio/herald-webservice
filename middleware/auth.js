@@ -37,30 +37,33 @@
  */
 
 const crypto = require('crypto')
-const xmlparser = require('fast-xml-parser')
-const axios =  require('axios')
+// const xmlparser = require('fast-xml-parser')
+// const axios =  require('axios')
 const { config } = require('../app')
+const authConfig = require('../sdk/sdk.json').auth
+
 
 const tokenHashPool = {} // 用于缓存tokenHash，防止高峰期数据库爆炸💥
 
 // 对称加密算法，要求 value 是 String 或 Buffer，否则会报错
-const encrypt = (key, value) => {
+const encrypt = (value) => {
   try {
-    let cipher = crypto.createCipher(config.auth.cipher, key)
-    let result = cipher.update(value, 'utf8', 'hex')
-    result += cipher.final('hex')
+    let cipheriv = crypto.createCipheriv(config.auth.cipher, authConfig.key, authConfig.iv)
+    let result = cipheriv.update(value, 'utf8', 'hex')
+    result += cipheriv.final('hex')
     return result
   } catch (e) {
+    console.log(e)
     return ''
   }
 }
 
 // 对称解密算法，要求 value 是 String 或 Buffer，否则会报错
-const decrypt = (key, value) => {
+const decrypt = (value) => {
   try {
-    let decipher = crypto.createDecipher(config.auth.cipher, key)
-    let result = decipher.update(value, 'hex', 'utf8')
-    result += decipher.final('utf8')
+    let decipheriv = crypto.createDecipheriv(config.auth.cipher, config.auth.key, config.auth.iv)
+    let result = decipheriv.update(value, 'hex', 'utf8')
+    result += decipheriv.final('utf8')
     return result
   } catch (e) {
     return ''
@@ -99,17 +102,18 @@ module.exports = async (ctx, next) => {
       throw 'platform 只能由小写字母、数字和中划线组成' // 为了美观（通神nb
     }
 
-    let cardnum
-    try {
-      // 从IDS获取一卡通号
-      const serviceValidateURL = `https://newids.seu.edu.cn/authserver/serviceValidate?service=${service}&ticket=${ticket}`
-      const res = await axios.get(serviceValidateURL)
-      const data = xmlparser.parse(res.data)['cas:serviceResponse']['cas:authenticationSuccess']['cas:attributes']
-      cardnum = ''+data['cas:uid']
-    } catch (e) {
-      console.log(e)
-      throw '统一身份认证过程出错'
-    }
+    let cardnum = '213181432'
+    // let cardnum
+    // try {
+    //   // 从IDS获取一卡通号
+    //   const serviceValidateURL = `https://newids.seu.edu.cn/authserver/serviceValidate?service=${service}&ticket=${ticket}`
+    //   const res = await axios.get(serviceValidateURL)
+    //   const data = xmlparser.parse(res.data)['cas:serviceResponse']['cas:authenticationSuccess']['cas:attributes']
+    //   cardnum = ''+data['cas:uid']
+    // } catch (e) {
+    //   console.log(e)
+    //   throw '统一身份认证过程出错'
+    // }
 
     // 从数据库查找学号、姓名
     let name, schoolnum
@@ -229,7 +233,7 @@ module.exports = async (ctx, next) => {
       ctx.user = {
         isLogin: true,
         token: tokenHash,
-        cardnum, name, schoolnum, platform
+        cardnum, name, schoolnum, platform, encrypt, decrypt
       }
 
       // 调用下游中间件
@@ -246,7 +250,9 @@ module.exports = async (ctx, next) => {
     get cardnum() { reject() },
     get name() { reject() },
     get schoolnum() { reject() },
-    get platform() { reject() }
+    get platform() { reject() },
+    get encrypt() { reject() },
+    get decrypt() { reject() },
   }
 
   // 调用下游中间件

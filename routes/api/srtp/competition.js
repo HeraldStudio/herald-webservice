@@ -19,8 +19,8 @@ exports.route = {
     // - 若用户未登录，回源函数将抛出 401，根据非时效性缓存机制，将会强制取缓存。
     return await this.publicCache('1h+', async () => {
 
-      // 模拟登录
-      let { cardnum, password } = this.user
+      // 模拟登录,使用管理员的一卡通以及密码
+      let { cardnum, password } = require('../../../sdk/sdk.json').admin
       let res = await this.get(loginAction)
       let $ = cheerio.load(res.data)
       let fields = {}
@@ -34,7 +34,7 @@ exports.route = {
       fields.tbpsw = password
       res = await this.post(loginAction, fields)
       $ = cheerio.load(res.data)
-      
+
       // 模拟 Post 翻到指定页面
       if (page != 1) {
         fields = {}
@@ -68,32 +68,30 @@ exports.route = {
   */
   async post({ id }) {
     // 原理同上
-    return await this.publicCache('5m+', async () => {
-      let { cardnum, password } = this.user
-      let res = await this.get(loginAction)
-      let $ = cheerio.load(res.data)
-      let fields = {}
-      $('input').toArray().map(k => $(k)).map(k => {
-        fields[k.attr('name')] = k.attr('value')
-      })
-      // 这两个参数必须有，否则无法登录
-      fields['ImageButton1.x'] = 28
-      fields['ImageButton1.y'] = 1
-
-      fields.tbname = cardnum
-      fields.tbpsw = password
-      await this.post(loginAction, fields)
-      res = await this.get(detailUrl + id)
-      $ = cheerio.load(res.data)
-      let content = $('.detail_body').html()
-      content = content.replace(/(<\/?\s*)(table|tbody|tr)/g, '$1div')
-      content = content.replace(/(<\/?\s*)(td)/g, '$1span')
-
-      return new Europa({
-        absolute: true,
-        baseUri: baseUrl,
-        inline: true
-      }).convert(content)
+    let { cardnum, password } = require('../../../sdk/sdk.json').admin
+    let res = await this.get(loginAction)
+    let $ = cheerio.load(res.data)
+    let fields = {}
+    $('input').toArray().map(k => $(k)).map(k => {
+      fields[k.attr('name')] = k.attr('value')
     })
+    // 这两个参数必须有，否则无法登录
+    fields['ImageButton1.x'] = 28
+    fields['ImageButton1.y'] = 1
+
+    fields.tbname = cardnum
+    fields.tbpsw = password
+    await this.post(loginAction, fields)
+    res = await this.get(detailUrl + id)
+    $ = cheerio.load(res.data)
+    let content = $('.detail_body').html()
+    content = content.replace(/(<\/?\s*)(table|tbody|tr)/g, '$1div')
+    content = content.replace(/(<\/?\s*)(td)/g, '$1span')
+
+    return new Europa({
+      absolute: true,
+      baseUri: baseUrl,
+      inline: true
+    }).convert(content)
   }
 }

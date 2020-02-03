@@ -2,18 +2,17 @@
 const moment = require('moment')
 
 exports.route = {
-  async get () {
-    let now = moment()
+  async get() {
     if (!this.user.isLogin) {
       // 强制一下，必须在登录态才能获取链接
-      throw 403
+      throw 401
     }
     let bannerList = await this.db.execute(`
     SELECT ID,URL,TITLE,PIC,SCHOOLNUM_PREFIX,START_TIME,END_TIME,SCHOOLNUM_PREFIX 
     FROM TOMMY.H_BANNER p
     WHERE :nowTime between p.start_time and p.end_time ORDER BY p.START_TIME DESC`,
     {
-      nowTime:now.toDate()
+      nowTime: +moment()
     })
 
     let res = []
@@ -30,9 +29,6 @@ exports.route = {
     data.forEach(oneData => {
       let tempData = {}
       oneData.forEach((item, index) => {
-        if (index === 5 || index === 6) {
-          item = moment(item).format('YYYY-MM-DD HH:mm:ss')
-        }
         tempData[fieldName[index]] = item
       })
       res.push(tempData)
@@ -43,8 +39,8 @@ exports.route = {
       if (k.schoolnumPrefix === null) return true
       let result = false
       const prefixList = k.schoolnumPrefix.split(' ')
-      prefixList.forEach( prefix => {
-        if(this.user.schoolnum.startsWith(prefix)) result =true
+      prefixList.forEach(prefix => {
+        if (this.user.schoolnum.startsWith(prefix)) result = true
       })
       return result
     }).map(k => {
@@ -54,7 +50,7 @@ exports.route = {
       return k
     })
 
-    return res 
+    return res
   },
 
   /**
@@ -65,10 +61,9 @@ exports.route = {
    * 因此这里使用 put 请求，若前端已登录，仍然需要带着 token 来请求，以便统计点击量
    */
   async put({ id }) {
-    let now = moment()
     if (!this.user.isLogin) {
       // 强制一下，必须在登录态才能获取链接
-      throw 403
+      throw 401
     }
     if (!id) {
       throw '未指定轮播图id'
@@ -79,8 +74,8 @@ exports.route = {
         id
       }
     )
-    
-    if (banner.rows.length === 0){
+
+    if (banner.rows.length === 0) {
       throw 404
     }
     // 成功获取链接，插入一条点击链接的记录
@@ -92,7 +87,7 @@ exports.route = {
       {
         cardnum: this.user.cardnum,
         bid: id,
-        creatTime: now.toDate()
+        creatTime: +moment()
       })
     return banner.rows[0][1] ? banner.rows[0][1] : 'javascript:void(0)'
   }

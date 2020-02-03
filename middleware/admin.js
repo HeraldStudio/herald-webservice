@@ -34,5 +34,20 @@ module.exports = async (ctx, next) => {
       throw 403
     }
   }
+  // 中间件处理，允许下游获取当前用户的权限
+  ctx.listPermission = async () => {
+    if (!ctx.user.isLogin) {
+      // 还没登录就访问？直接给你401
+      throw 401
+    }
+    let { cardnum } = ctx.user
+    let permissions = await ctx.db.execute(`
+      SELECT p.PERMISSION 
+      FROM TOMMY.H_ADMIN a, TOMMY.H_ADMIN_PERMISSION p 
+      WHERE a.CARDNUM = p.CARDNUM AND a.CARDNUM = :cardnum`,
+    { cardnum })
+    permissions = permissions.rows.map(p => p[0])
+    return permissions
+  }
   await next()
 }

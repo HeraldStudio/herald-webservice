@@ -4,14 +4,14 @@ exports.route = {
   // 管理员获取 banner 列表
   async get({ page = 1, pagesize = 10 }) {
 
-    if (!(this.hasPermission('publicity') && this.user.isLogin)) {
+    if (!(await this.hasPermission('publicity'))) {
       throw 403
     }
     // 这是一个分页
     let bannerList = await this.db.execute(`
       SELECT ID,TITLE,PIC,URL,SCHOOLNUM_PREFIX,END_TIME,START_TIME
       FROM (SELECT tt.*, ROWNUM AS rowno
-        FROM (SELECT t.* FROM H_BANNER t ORDER BY END_TIME DESC) tt
+        FROM (SELECT t.* FROM TOMMY.H_BANNER t ORDER BY END_TIME DESC) tt
         WHERE ROWNUM < :endRow) table_alias
       WHERE table_alias.rowno >= :startRow`,
     {
@@ -36,7 +36,7 @@ exports.route = {
       let tempData = {}
       oneData.forEach((item, index) => {
         if (index === 5 || index === 6) {
-          item = moment(item).format('YYYY-MM-DD HH:mm:ss')
+          item = +moment(item)
         }
         tempData[fieldName[index]] = item
         tempData['click'] = 0
@@ -77,24 +77,25 @@ exports.route = {
 
   // 添加一条轮播头图
   /*
-  * 注意检查日期格式 YYYY-MM-DD HH:mm:ss
+  * 注意检查日期格式 时间戳
   * 学号前缀 schoolnumPrefix:"06 70 ..."
   */
   async post({ banner }) {
     // let bannerCollection = await mongodb('herald_banner')
-    if (!(this.user.isLogin && await this.hasPermission('publicity'))) {
+
+    if (!(await this.hasPermission('publicity'))) {
       throw 403
     }
     if (!(banner.title && banner.pic && banner.endTime && banner.startTime)) {
       throw '设置内容不完全'
     }
-    if (banner.startTime !== moment(banner.startTime, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm:ss')) {
+    if (typeof(banner.startTime) !== typeof(+moment())) {
       throw '起始日期格式不合法'
     }
-    if (banner.endTime !== moment(banner.endTime, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm:ss')) {
+    if (typeof(banner.endTime) !== typeof(+moment())) {
       throw '结束日期格式不合法'
     }
-    if (+moment(banner.endTime, 'YYYY-MM-DD HH:mm:ss') < +moment(banner.startTime, 'YYYY-MM-DD HH:mm:ss')){
+    if (banner.endTime < banner.startTime){
       throw '结束日期小于开始日期'
     }
     // 向数据库插入记录
@@ -108,8 +109,8 @@ exports.route = {
         pic: banner.pic,
         url: banner.url,
         schoolnumPrefix: banner.schoolnumPrefix,
-        endTime: moment(banner.endTime, 'YYYY-MM-DD HH:mm:ss').toDate(),
-        startTime: moment(banner.startTime, 'YYYY-MM-DD HH:mm:ss').toDate(),
+        endTime: banner.endTime,
+        startTime: banner.startTime,
       }
     )
     //await db.banner.insert(banner)
@@ -120,23 +121,22 @@ exports.route = {
 
   // 修改轮播图设置
   /*
-  * 注意检查日期格式 YYYY-MM-DD HH:mm:ss
+  * 注意检查日期格式 时间戳
   */
   async put({ banner }) {
-    //let bannerCollection = await mongodb('herald_banner')
-    if (!(this.user.isLogin && await this.hasPermission('publicity'))) {
+    if (!(await this.hasPermission('publicity'))) {
       throw 403
     }
     if (!(banner.id && banner.title && banner.pic && banner.endTime && banner.startTime)) {
       throw '设置内容不完全'
     }
-    if (banner.startTime !== moment(banner.startTime, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm:ss')) {
+    if (typeof(banner.startTime) !== typeof(+moment())) {
       throw '起始日期格式不合法'
     }
-    if (banner.endTime !== moment(banner.endTime, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm:ss')) {
+    if (typeof(banner.endTime) !== typeof(+moment())) {
       throw '结束日期格式不合法'
     }
-    if (+moment(banner.endTime, 'YYYY-MM-DD HH:mm:ss') < +moment(banner.startTime, 'YYYY-MM-DD HH:mm:ss')){
+    if (banner.endTime < banner.startTime){
       throw '结束日期小于开始日期'
     }
     // await db.banner.update({ bid: banner.bid }, banner)
@@ -153,8 +153,8 @@ exports.route = {
       pic: banner.pic,
       url: banner.url,
       schoolnumPrefix: banner.schoolnumPrefix,
-      endTime: moment(banner.endTime, 'YYYY-MM-DD HH:mm:ss').toDate(),
-      startTime: moment(banner.startTime, 'YYYY-MM-DD HH:mm:ss').toDate(),
+      endTime: banner.endTime,
+      startTime: banner.startTime,
     })
 
     // await bannerCollection.updateOne({bid: banner.bid}, {$set:banner})
@@ -163,13 +163,13 @@ exports.route = {
 
   // 删除一条轮播图并删除对应的点击记录
   async delete({ id }) {
-    if (!(this.user.isLogin && await this.hasPermission('publicity'))) {
+    if (!(await this.hasPermission('publicity'))) {
       throw 403
     }
     await this.db.execute(`DELETE FROM TOMMY.H_BANNER WHERE ID = :id`, { id })
     await this.db.execute(`DELETE FROM TOMMY.H_BANNER_CLICK WHERE BID = :id`, { id })
 
-    return 'ok'
+    return 'Ok'
 
   }
 }

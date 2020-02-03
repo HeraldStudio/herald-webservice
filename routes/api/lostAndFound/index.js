@@ -1,116 +1,242 @@
-const mongodb = require('../../../database/mongodb')
-const ObjectId = require('mongodb').ObjectId
-const {adminList} = require('./admin.json')
-const {deleteFile} = require('../../../sdk/qiniu')
+const { adminList } = require('./admin.json')
+const { deleteFile } = require('../../../sdk/qiniu')
+const oracledb = require('oracledb')
 exports.route = {
-  async get({id='', type, page=1, pagesize=10}){
+  async get({ id = '', type, page = 1, pagesize = 10 }) {
     let { cardnum } = this.user
-    let lostAndFoundCollection = await mongodb('herald_lost_and_found')
-    if(id){
-      // 如果存在 id 则返回条目的信息
-      let record = await lostAndFoundCollection.findOne({_id:ObjectId(id)})
-      if(adminList.indexOf(cardnum) !== -1){
-        record.canAudit = true
-      }
-      return record
+    // let lostAndFoundCollection = await mongodb('H_LOST_AND_FOUND')
+    if (id) {
+      return await this.publicCache(id, '1d+', async () => {
+        // 如果存在 id 则返回条目的信息
+        let record = await this.db.execute(`
+        select * 
+        from H_LOST_AND_FOUND
+        where wid = '${id}'
+        `)
+        record = record.rows.map(Element => {
+          let [_id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished] = Element
+          return { _id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished }
+        })[0]
+        if (adminList.indexOf(cardnum) !== -1) {
+          record.canAudit = true
+        }
+        record.forEach(Element => {
+          for (let e in Element) {
+            if (Element[e] === null)
+              delete Element[e]
+          }
+        })
+        return record
+      })
     }
     // 确保分页的数据正确
     page = +page
     pagesize = +pagesize
-    if(type === 'lost'){
+    if (type === 'lost') {
       // 分页返回所有的失物招领
-      return await lostAndFoundCollection.find({type:'lost', isAudit:true, isFinished:false},
-        {limit:pagesize, skip:(page-1)*pagesize, sort:[['lastModifiedTime', -1]]}).toArray()
+      let record = await this.db.execute(`
+        SELECT * FROM (
+          SELECT *
+          FROM H_LOST_AND_FOUND
+          where isAudit = 1 and isFinished = 0 and type = 'lost'
+          ORDER BY LASTMODIFIEDTIME DESC
+        ) WHERE ROWNUM > ${(page - 1) * pagesize} and ROWNUM <= ${page * pagesize}
+        `)
+      record = record.rows.map(Element => {
+        let [_id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished] = Element
+        return { _id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished }
+      })
+      record.forEach(Element => {
+        for (let e in Element) {
+          if (Element[e] === null)
+            delete Element[e]
+        }
+      })
+      return record
     } else if (type === 'found') {
       // 分页返回所有的寻物启事
-      return await lostAndFoundCollection.find({type:'found', isAudit:true, isFinished:false},
-        {limit:pagesize, skip:(page-1)*pagesize, sort:[['lastModifiedTime', -1]]}).toArray()
+      let record = await this.db.execute(`
+      SELECT * FROM (
+        SELECT *
+        FROM H_LOST_AND_FOUND
+        where isAudit = 1 and isFinished = 0 and type = 'found'
+        ORDER BY LASTMODIFIEDTIME DESC
+      ) WHERE ROWNUM > ${(page - 1) * pagesize} and ROWNUM <= ${page * pagesize}
+      `)
+      record = record.rows.map(Element => {
+        let [_id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished] = Element
+        return { _id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished }
+      })
+      record.forEach(Element => {
+        for (let e in Element) {
+          if (Element[e] === null)
+            delete Element[e]
+        }
+      })
+      return record
     } else if (type === 'audit') {
       // 分页返回所有的待审核事件
-      if(adminList.indexOf(cardnum) === -1){
+      if (adminList.indexOf(cardnum) === -1) {
         // 只允许管理员查看
         return []
       }
-      return (await lostAndFoundCollection.find({isAudit:false, isFinished:false},
-        {limit:pagesize, skip:(page-1)*pagesize, sort:[['lastModifiedTime', -1]]}).toArray()).map( i => {
-        i.canAudit = true
-        return i
+      let record = await this.db.execute(`
+      SELECT * FROM (
+        SELECT *
+        FROM H_LOST_AND_FOUND
+        where isAudit = 0 and isFinished = 0
+        ORDER BY LASTMODIFIEDTIME DESC
+      ) WHERE ROWNUM > ${(page - 1) * pagesize} and ROWNUM <= ${page * pagesize}
+      `)
+      record = record.rows.map(Element => {
+        let [_id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished] = Element
+        return { _id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished }
       })
+      record.forEach(Element => {
+        for (let e in Element) {
+          if (Element[e] === null)
+            delete Element[e]
+        }
+      })
+      return record
     } else {
       // 什么都不指定就返回由自己创建的
-      return await lostAndFoundCollection.find({creator:cardnum},
-        {limit:pagesize, skip:(page-1)*pagesize, sort:[['lastModifiedTime', -1]]}).toArray()
+      let record = await this.db.execute(`
+        SELECT * FROM (
+          SELECT *
+          FROM H_LOST_AND_FOUND
+          WHERE CREATOR = '${cardnum}'
+          ORDER BY LASTMODIFIEDTIME DESC
+        ) WHERE ROWNUM > ${(page - 1) * pagesize} and ROWNUM <= ${page * pagesize}
+        `)
+      record = record.rows.map(Element => {
+        let [_id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished] = Element
+        return { _id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished }
+      })
+      record.forEach(Element => {
+        for (let e in Element) {
+          if (Element[e] === null)
+            delete Element[e]
+        }
+      })
+      return record
     }
   },
 
-  async post({type, title, describe, imageUrl}){
+  async post({ type, title, describe, imageUrl }) {
     let { cardnum } = this.user
-    if(['lost', 'found'].indexOf(type) === -1){
+    if (['lost', 'found'].indexOf(type) === -1) {
       throw '事务类型不正确'
     }
-    if(!title || title.length <= 0){
+    if (!title || title.length <= 0) {
       throw '必须指定物品名称'
     }
-    if(imageUrl && imageUrl.indexOf(`lf-${cardnum}`) === -1 ){
+    if (imageUrl && imageUrl.indexOf(`lf-${cardnum}`) === -1) {
       throw '图片不合法'
     }
-    let lostAndFoundCollection = await mongodb('herald_lost_and_found')
-    await lostAndFoundCollection.insertOne({
-      creator: cardnum,
-      title,
-      lastModifiedTime:+moment(),
-      describe,
-      imageUrl,
-      type,
-      isAudit:false,
-      isFinished:false
-    })
-    return '提交成功'
+
+    let sql = `INSERT INTO H_LOST_AND_FOUND VALUES (sys_guid(), :1, :2, :3, :4, :5, :6, :7, :8)`
+
+    let binds = [
+      [cardnum, title, +moment(), describe ? describe : '', imageUrl ? imageUrl : '', type, 0, 0],
+    ]
+
+    let options = {
+      autoCommit: true,
+
+      bindDefs: [
+        { type: oracledb.STRING, maxSize: 20 },
+        { type: oracledb.STRING, maxSize: 100 },
+        { type: oracledb.NUMBER },
+        { type: oracledb.STRING, maxSize: 1000 },
+        { type: oracledb.STRING, maxSize: 1000 },
+        { type: oracledb.STRING, maxSize: 20 },
+        { type: oracledb.NUMBER },
+        { type: oracledb.NUMBER },
+      ]
+    }
+
+    let result = await this.db.executeMany(sql, binds, options)
+
+    if (result.rowsAffected > 0) {
+      return '提交成功'
+    } else {
+      throw '提交失败'
+    }
   },
 
-  async put({id, title, describe, imageUrl}){
+  async put({ id, title, describe, imageUrl }) {
     let { cardnum } = this.user
-    id = ObjectId(id)
-    let lostAndFoundCollection = await mongodb('herald_lost_and_found')
-    let oldRecord = await lostAndFoundCollection.findOne({creator:cardnum, _id:id})
-    if(imageUrl && imageUrl.indexOf(`lf-${cardnum}`) === -1 ){
+    let record = await this.db.execute(`
+    select * from H_LOST_AND_FOUND
+    where wid='${id}'
+  `)
+    let oldRecord = record.rows.map(Element => {
+      let [_id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished] = Element
+      return { _id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished }
+    })[0]
+    if (imageUrl && imageUrl.indexOf(`lf-${cardnum}`) === -1) {
       throw '图片不合法'
     }
-    if(!oldRecord){
+    if (!oldRecord) {
       throw '待修改事务不存在'
     }
-    if(oldRecord.isFinished || oldRecord.isAudit){
+    if (oldRecord.isFinished || oldRecord.isAudit) {
       throw '不能修改已审核或者已标记完成的事务'
     }
     // 删除旧的 record 的图片
-    if(oldRecord.imageUrl){
+    if (oldRecord.imageUrl) {
       oldRecord.imageUrl.split('|').forEach(url => deleteFile(url))
     }
-    await lostAndFoundCollection.updateOne({_id:id}, {$set:{
-      title: title ? title : oldRecord.title,
-      describe: describe ? describe : oldRecord.describe,
-      imageUrl: imageUrl,
-      lastModifiedTime:+moment()
-    }})
-    return '修改成功'
+
+    let result = await this.db.execute(`
+        UPDATE H_LOST_AND_FOUND
+        SET 
+        TITLE = :title,
+        DESCRIBE = :describe,
+        IMAGEURL = ${imageUrl ? `'${imageUrl}'` : null},
+        LASTMODIFIEDTIME = ${+moment()}
+        WHERE wid = '${id}'
+        `, { title: title ? title : oldRecord.title, describe: describe ? describe : oldRecord.describe })
+
+    if (result.rowsAffected > 0) {
+      this.clearCache(id)
+      return '修改成功'
+    } else {
+      throw '修改失败'
+    }
   },
 
-  async delete({id}){
+  async delete({ id }) {
     let { cardnum } = this.user
-    let _id = ObjectId(id)
-    let lostAndFoundCollection = await mongodb('herald_lost_and_found')
-    let record = await lostAndFoundCollection.findOne({_id})
+    let record = await this.db.execute(`
+    select * from H_LOST_AND_FOUND
+    where wid='${id}'
+  `)
+    record = record.rows.map(Element => {
+      let [_id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished] = Element
+      return { _id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished }
+    })[0]
     // 管理员可以删除所有
-    if([record.creator, ...adminList].indexOf(cardnum) === -1){
+    if ([record.creator, ...adminList].indexOf(cardnum) === -1) {
       throw 401
     }
-    if(!record){
+    if (!record) {
       throw '事务不存在'
     }
-    if(record.imageUrl){
+    if (record.imageUrl) {
       record.imageUrl.split('|').forEach(url => deleteFile(url))
     }
-    await lostAndFoundCollection.deleteOne({_id})
-    return '删除成功'
+
+    let result = await this.db.execute(`
+    DELETE from H_LOST_AND_FOUND
+    WHERE WID ='${id}'
+  `)
+    if (result.rowsAffected > 0) {
+      this.clearCache(id)
+      return '删除成功'
+    } else {
+      throw '删除失败'
+    }
   }
 }

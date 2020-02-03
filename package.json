@@ -45,6 +45,7 @@
     "prettyjson": "^1.2.1",
     "qiniu": "^7.1.2",
     "redis": "^2.8.0",
+    "sha1": "^1.1.1",
     "showapi-sdk": "^1.0.4",
     "socks-proxy-agent": "^4.0.1",
     "tough-cookie": "^3.0.1",

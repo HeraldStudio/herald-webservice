@@ -1,0 +1,48 @@
+{
+  "yunpian": {
+    "apikey": "",
+    "baseURL": ""
+  },
+  "qiniu": {
+    "access": "",
+    "secret": "",
+    "bucket": ""
+  },
+  "slack": {
+    "webhookURL": ""
+  },
+  "wechat": {
+    "wx-herald": {
+      "appid": "",
+      "appsecret": "",
+      "token": "",
+      "encodingAESKey": ""
+    },
+    "mina-herald": {
+      "appid": "",
+      "appsecret": ""
+    }
+  },
+  "captcha":{
+    "appId":"",
+    "secret":"",
+    "savePath":""
+  },
+  "email":{
+    "morningExercise":{
+      "auth": {
+        "user": "",
+        "pass": ""
+      }
+    }
+  },
+  "admin":{
+      "cardnum":"",
+      "password":""
+  },
+  "pe":{
+    "url":"",
+    "ak":"",
+    "sk":""
+  }
+}

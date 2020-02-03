@@ -1,19 +1,29 @@
-const mongodb = require('../../../database/mongodb')
-const ObjectId = require('mongodb').ObjectId
-const {adminList} = require('./admin.json')
-
 exports.route = {
+  /**
+   * POST /api/lostAndFound/audit
+   * @param { id, pass } 
+   * 审核接口
+   */
   async post({id, pass}){
-    let _id = ObjectId(id)
-    let {cardnum} = this.user
-    let lostAndFoundCollection = await mongodb('herald_lost_and_found')
-    if(adminList.indexOf(cardnum) === -1) {
-      throw 401
+    if (!(await this.hasPermission('publicity'))) {
+      throw 403
     }
     if(pass){
-      await lostAndFoundCollection.updateOne({_id}, {$set:{isAudit:true, isFinished:false}})
+      await this.db.execute(`
+      UPDATE H_LOST_AND_FOUND
+      SET 
+      ISAUDIT = 1,
+      ISFINISHED = 0
+      WHERE wid = '${id}'
+      `)
     } else {
-      await lostAndFoundCollection.updateOne({_id},{$set:{isAudit:false, isFinished:true}})
+      await this.db.execute(`
+      UPDATE H_LOST_AND_FOUND
+      SET 
+      ISAUDIT = 0,
+      ISFINISHED = 1
+      WHERE wid = '${id}'
+      `)
     }
     return 'success'
   }

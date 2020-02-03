@@ -1,13 +1,22 @@
-const mongodb = require('../../../database/mongodb')
 
 exports.route = {
-  async get({key, type}){
-    let lostAndFoundCollection = await mongodb('herald_lost_and_found')
-    return await lostAndFoundCollection.find({
-      title:{$regex:'.*'+key+'.*'}, 
-      type, 
-      isAudit:true, 
-      isFinished:false}, 
-    {sort:[['lastModifiedTime', -1]]}).toArray()
+  async get({ key, type }) {
+    let record = await this.db.execute(`
+      SELECT *
+      FROM H_LOST_AND_FOUND
+      where isAudit = 1 and isFinished = 0 and type = '${type}' and title like '%${key}%'
+      ORDER BY LASTMODIFIEDTIME DESC
+    `)
+    record =  record.rows.map(Element => {
+      let [_id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished] = Element
+      return { _id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished }
+    })
+    record.forEach(Element => {
+      for(let e in Element){
+        if (Element[e]=== null)
+          delete Element[e]
+      }
+    })
+    return record
   }
 }
