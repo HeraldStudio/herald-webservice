@@ -3,6 +3,7 @@
  */
 const wechat = require('co-wechat')
 
+
 //方便本地调试
 let config 
 try {
@@ -24,7 +25,8 @@ String.prototype.padd = function () {
 }
 
 // 生产环境更新自定义菜单
-if (program.mode === 'production') {
+// TEST:修改的过程也先自定义菜单
+if (program.mode === 'production' || program.mode === 'development') {
   const menu = require('./wx-herald-menu.json')
   api.post('/menu/create', menu).then(res => {
     console.log(chalkColored.blue('[wx-herald] 自定义菜单 ') + res.data.errmsg)
@@ -61,16 +63,18 @@ const handler = {
   },
 
   async '绑定|登录|登陆|綁定|登錄'() {
-    // this.path = '/auth'
-    // this.method = 'POST'
-    // this.params = {
-    //   cardnum, password, gpassword,
-    //   customToken: this.message.FromUserName,
-    //   platform: 'wx-herald'
-    // }
-    //await this.next()
-    // return `🔗 绑定功能`
-    return '绑定功能暂时关闭，请使用小猴偷米 App 或微信小程序'
+    this.path = '/api/wechatAuth'
+    this.method = 'POST'
+    await this.next()
+    if (this.body === '已经绑定') {
+      return `👥 ${this.user.name}（${this.user.cardnum}）`
+    }
+    else {
+      const authUrl = `https://newids.seu.edu.cn/authserver/login?goto=https://tommy.seu.edu.cn/wx-login/?sessionid=${this.body}`
+
+      return `<a href="${authUrl}">🔗点击进行统一身份验证</a>`
+    }
+
   },
 
   async '手机卡'() {
@@ -645,7 +649,6 @@ let middleware
 try {
   // 分割用户指令并进入相应 handler 函数中
   middleware = wechat(config).middleware(async (message, ctx) => {
-
     let han, args
     if (message.Content) {
       let [cmd, ...tmpArgs] = message.Content.trim().split(/\s+/g)
@@ -655,8 +658,8 @@ try {
       han = 'default'
       args = []
     }
-
-    ctx.request.headers.token = message.FromUserName
+    ctx.request.headers['x-api-token'] = message.FromUserName
+    ctx.fromWechat = true
     ctx.message = message
 
     let openid = message.FromUserName
@@ -728,6 +731,11 @@ try {
 
 module.exports = async (ctx, next) => {
   if (ctx.path.indexOf('/adapter-wx-herald/') === 0) {
+    if (program.mode === 'development' && ctx.path.endsWith('wechat') && ctx.method === 'GET') {
+      // 微信测试
+      ctx.path = '/api/wechatAuth'
+      await next()
+    }
     ctx.next = next
     await middleware.call(this, ctx, next)
     ctx.wx = true

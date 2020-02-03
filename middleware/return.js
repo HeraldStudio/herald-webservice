@@ -81,7 +81,7 @@ module.exports = async (ctx, next) => {
   }
 
   if(ctx.wx) {
-    ctx.body = 'success'
+    if(!ctx.wechatTest) ctx.body = 'success'
     ctx.status = 200
   } else {
     ctx.body = json
