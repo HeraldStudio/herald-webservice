@@ -10,10 +10,15 @@ exports.route = {
     // 这是一个分页
     let activityList = await this.db.execute(`
       SELECT ID,TITLE,PIC,URL,CONTENT,END_TIME,START_TIME
-      FROM (SELECT tt.*, ROWNUM AS rowno
-        FROM (SELECT t.* FROM TOMMY.H_ACTIVITY t WHERE (:nowTime >= t.START_TIME AND :nowTime <= t.END_TIME) ) tt
-        WHERE ROWNUM < :endRow) table_alias
-      WHERE table_alias.rowno >= :startRow`,
+      FROM (
+        SELECT tt.*, ROWNUM AS rowno
+        FROM (
+          SELECT t.* 
+          FROM TOMMY.H_ACTIVITY t 
+          WHERE (:nowTime >= t.START_TIME AND :nowTime <= t.END_TIME) 
+        ) tt
+        WHERE ROWNUM <= :endRow) table_alias
+      WHERE table_alias.rowno > :startRow`,
     {
       nowTime: now.toDate(),
       startRow: (page - 1) * pagesize,

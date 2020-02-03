@@ -12,8 +12,8 @@ exports.route = {
       SELECT ID,TITLE,PIC,URL,SCHOOLNUM_PREFIX,END_TIME,START_TIME
       FROM (SELECT tt.*, ROWNUM AS rowno
         FROM (SELECT t.* FROM TOMMY.H_BANNER t ORDER BY END_TIME DESC) tt
-        WHERE ROWNUM < :endRow) table_alias
-      WHERE table_alias.rowno >= :startRow`,
+        WHERE ROWNUM <= :endRow) table_alias
+      WHERE table_alias.rowno > :startRow`,
     {
       startRow: (page - 1) * pagesize,
       endRow: page * pagesize
@@ -53,6 +53,12 @@ exports.route = {
         })
       res[index].click = clicks.rows[0][0]
     }
+    res.forEach(Element => {
+      for (let e in Element) {
+        if (Element[e] === null)
+          delete Element[e]
+      }
+    })
     return res
 
     // 👇下面的代码的有点问题，数据库操作出现问题，暂时先放在这里
@@ -116,6 +122,7 @@ exports.route = {
     //await db.banner.insert(banner)
 
     //await bannerCollection.insertOne(banner)
+    this.clearCache('banner')
     return 'OK'
   },
 

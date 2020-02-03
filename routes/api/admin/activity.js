@@ -10,8 +10,8 @@ exports.route = {
       SELECT ID,TITLE,PIC,URL,CONTENT,END_TIME,START_TIME
       FROM (SELECT tt.*, ROWNUM AS rowno
         FROM (SELECT t.* FROM TOMMY.H_ACTIVITY t ORDER BY END_TIME DESC) tt
-        WHERE ROWNUM < :endRow) table_alias
-      WHERE table_alias.rowno >= :startRow`,
+        WHERE ROWNUM <= :endRow) table_alias
+      WHERE table_alias.rowno > :startRow`,
     {
       startRow: (page - 1) * pagesize,
       endRow: page * pagesize

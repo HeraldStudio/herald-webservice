@@ -131,12 +131,14 @@ exports.route = {
     } else {
       // 什么都不指定就返回由自己创建的
       let record = await this.db.execute(`
-        SELECT * FROM (
-          SELECT *
-          FROM H_LOST_AND_FOUND
-          WHERE CREATOR = '${cardnum}'
-          ORDER BY LASTMODIFIEDTIME DESC
-        ) WHERE ROWNUM > ${(page - 1) * pagesize} and ROWNUM <= ${page * pagesize}
+        SELECT * FROM (  
+          SELECT ROWNUM R,T.* FROM (
+            SELECT * 
+            FROM H_LOST_AND_FOUND
+            WHERE CREATOR = '${cardnum}'
+            ORDER BY LASTMODIFIEDTIME DESC
+          )T)
+        WHERE R > ${(page - 1) * pagesize} and R <= ${page * pagesize}
         `)
       record = record.rows.map(Element => {
         let [_id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished] = Element
