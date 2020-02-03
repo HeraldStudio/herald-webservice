@@ -10,55 +10,55 @@ exports.route = {
   * @apiParam date    查询日期，格式 YYYY-MM-DD
   **/
   async get({ date = '' }) {
-    return {
-      info: {
-      },
-      detail: [
-        {
-          mecrname: '梅园一楼小餐厅',
-          tranname: '持卡人消费',
-          desc: '持卡人消费：梅园一楼小餐厅',
-          amount: -11.5,
-          balance: 125.15,
-          time: 1576987744000,
-          resume: '持卡人输了消费密码！'
-        },
-        {
-          mecrname: '南京江浪梅园控水',
-          tranname: '持卡人消费',
-          desc: '持卡人消费：南京江浪梅园控水',
-          amount: -1.7,
-          balance: 136.65,
-          time: 1576847757000,
-          resume: '控水器号:1103/单价:0.01/交易水量:170 /计费单位:3.0秒',
-        },
-        {
-          mecrname: '梅园一楼小餐厅',
-          tranname: '持卡人消费',
-          desc: '持卡人消费：梅园一楼小餐厅',
-          amount: '-11.5',
-          balance: 125.15,
-          time: 1576987744000,
-          resume: ''
-        }, {
-          mecrname: '',
-          tranname: '银行转账',
-          desc: ' 银行转账',
-          amount: 200,
-          balance: 2.11,
-          time: 1576747181000,
-          resume: ''
-        }, {
-          mecrname: '',
-          tranname: '补助流水',
-          desc: '补助流水',
-          amount: 200,
-          balance: 202.11,
-          time: 1576747331000,
-          resume: '###'
-        }
-      ]
-    }
+    // return {
+    //   info: {
+    //   },
+    //   detail: [
+    //     {
+    //       mecrname: '梅园一楼小餐厅',
+    //       tranname: '持卡人消费',
+    //       desc: '持卡人消费：梅园一楼小餐厅',
+    //       amount: -11.5,
+    //       balance: 125.15,
+    //       time: 1576987744000,
+    //       resume: '持卡人输了消费密码！'
+    //     },
+    //     {
+    //       mecrname: '南京江浪梅园控水',
+    //       tranname: '持卡人消费',
+    //       desc: '持卡人消费：南京江浪梅园控水',
+    //       amount: -1.7,
+    //       balance: 136.65,
+    //       time: 1576847757000,
+    //       resume: '控水器号:1103/单价:0.01/交易水量:170 /计费单位:3.0秒',
+    //     },
+    //     {
+    //       mecrname: '梅园一楼小餐厅',
+    //       tranname: '持卡人消费',
+    //       desc: '持卡人消费：梅园一楼小餐厅',
+    //       amount: '-11.5',
+    //       balance: 125.15,
+    //       time: 1576987744000,
+    //       resume: ''
+    //     }, {
+    //       mecrname: '',
+    //       tranname: '银行转账',
+    //       desc: ' 银行转账',
+    //       amount: 200,
+    //       balance: 2.11,
+    //       time: 1576747181000,
+    //       resume: ''
+    //     }, {
+    //       mecrname: '',
+    //       tranname: '补助流水',
+    //       desc: '补助流水',
+    //       amount: 200,
+    //       balance: 202.11,
+    //       time: 1576747331000,
+    //       resume: '###'
+    //     }
+    //   ]
+    // }
     return await this.userCache('1m+', async () => {
       if (!date) {
         date = moment().add(-1, 'days').format('YYYY-MM-DD')
