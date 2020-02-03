@@ -173,10 +173,10 @@ async function internalCached (isPublic, ...args) {
   // 强制回源
   let force = this.request.headers.cache === 'update'
   // 调试模式下，强制回源
-  if (program.mode === 'development') {
-    console.log('> ' + chalkColored.magenta( '调试模式下，强制回源'))
-    force = true
-  }
+  // if (program.mode === 'development') {
+  //   console.log('> ' + chalkColored.magenta( '调试模式下，强制回源'))
+  //   force = true
+  // }
 
   /**
     将 method、地址 (路由 + querystring)、用户一卡通号和平台名、请求体四个元素进行序列化，作为缓存命中判断的依据

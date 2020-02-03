@@ -1,4 +1,3 @@
-const mongodb = require('../../database/mongodb')
 exports.route = {
 
   /**
@@ -7,21 +6,18 @@ exports.route = {
     **/
 
   async get() {
-    const { cardnum } = this.user
-    console.log(cardnum)
-    let record= await this.db.execute(
-      `select H_CET.CET_EXAM_CODE from TOMMY.H_CET
-    where CARDNUM= :cardnum
-    `,[cardnum])
-
-    let result = record.rows.map( Element => {
-      let [CET_EXAM_CODE]=Element
-      return { CET_EXAM_CODE }
+    return await this.userCache('1d+', async () => {
+      const { cardnum } = this.user
+      let record = await this.db.execute(
+        `select H_CET.CET_EXAM_CODE from TOMMY.H_CET
+      where CARDNUM= :cardnum
+      `, [cardnum])
+      let result = record.rows.map(Element => {
+        let [CET_EXAM_CODE] = Element
+        return { CET_EXAM_CODE }
+      })
+      return result
     })
-    
-    console.log(result)
-    return result
-
     // let cetCollection = await mongodb('herald_cet')
     // return await this.userCache('10h', async () => {
     //   let {  cardnum } = this.user
@@ -54,15 +50,13 @@ exports.route = {
     // })
   },
 
-  async put({examcard}) {
+  async put({ examcard }) {
     const { cardnum } = this.user
-    console.log(cardnum)
     await this.db.execute(
       `update TOMMY.H_CET set CET_EXAM_CODE = :examcard
     where CARDNUM= :cardnum
-    `,{examcard,cardnum})
-
-    console.log("修改成功")
-    return 'OK'
+    `, { examcard, cardnum })
+    this.clearCache('/api/cet')
+    return '修改成功'
   }
 }

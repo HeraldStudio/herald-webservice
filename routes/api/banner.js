@@ -7,56 +7,58 @@ exports.route = {
       // 强制一下，必须在登录态才能获取链接
       throw 401
     }
-    let bannerList = await this.db.execute(`
-    SELECT ID,URL,TITLE,PIC,SCHOOLNUM_PREFIX,START_TIME,END_TIME,SCHOOLNUM_PREFIX 
-    FROM TOMMY.H_BANNER p
-    WHERE :nowTime between p.start_time and p.end_time ORDER BY p.START_TIME DESC`,
-    {
-      nowTime: +moment()
-    })
-
-    let res = []
-    // 整理一下数据格式
-    const fieldName = bannerList.metaData.map(item => {
-      if (item.name.split('_').length === 1) {
-        return item.name.toLowerCase()
-      } else {
-        return item.name.split('_')[0].toLowerCase() +
-          (item.name.split('_')[1].charAt(0).toUpperCase() + item.name.split('_')[1].slice(1).toLowerCase())
-      }
-    })
-    const data = bannerList.rows
-    data.forEach(oneData => {
-      let tempData = {}
-      oneData.forEach((item, index) => {
-        tempData[fieldName[index]] = item
+    return await this.publicCache('1h+', async () => {
+      let bannerList = await this.db.execute(`
+      SELECT ID,URL,TITLE,PIC,SCHOOLNUM_PREFIX,START_TIME,END_TIME,SCHOOLNUM_PREFIX 
+      FROM TOMMY.H_BANNER p
+      WHERE :nowTime between p.start_time and p.end_time ORDER BY p.START_TIME DESC`,
+      {
+        nowTime: +moment()
       })
-      res.push(tempData)
-    })
 
-    // 按照学号过滤
-    res = res.filter(k => {
-      if (k.schoolnumPrefix === null) return true
-      let result = false
-      const prefixList = k.schoolnumPrefix.split(' ')
-      prefixList.forEach(prefix => {
-        if (this.user.schoolnum.startsWith(prefix)) result = true
+      let res = []
+      // 整理一下数据格式
+      const fieldName = bannerList.metaData.map(item => {
+        if (item.name.split('_').length === 1) {
+          return item.name.toLowerCase()
+        } else {
+          return item.name.split('_')[0].toLowerCase() +
+            (item.name.split('_')[1].charAt(0).toUpperCase() + item.name.split('_')[1].slice(1).toLowerCase())
+        }
       })
-      return result
-    }).map(k => {
-      // 去除链接
-      k.hasUrl = !!k.url
-      delete k.url
-      return k
+      const data = bannerList.rows
+      data.forEach(oneData => {
+        let tempData = {}
+        oneData.forEach((item, index) => {
+          tempData[fieldName[index]] = item
+        })
+        res.push(tempData)
+      })
+
+      // 按照学号过滤
+      res = res.filter(k => {
+        if (k.schoolnumPrefix === null) return true
+        let result = false
+        const prefixList = k.schoolnumPrefix.split(' ')
+        prefixList.forEach(prefix => {
+          if (this.user.schoolnum.startsWith(prefix)) result = true
+        })
+        return result
+      }).map(k => {
+        // 去除链接
+        k.hasUrl = !!k.url
+        delete k.url
+        return k
+      })
+      // 前端要求，除去值为null的字段
+      res.forEach(Element => {
+        for (let e in Element) {
+          if (Element[e] === null)
+            delete Element[e]
+        }
+      })
+      return res
     })
-    // 前端要求，除去值为null的字段
-    res.forEach(Element => {
-      for(let e in Element){
-        if (Element[e]=== null)
-          delete Element[e]
-      }
-    })
-    return res
   },
 
   /**
