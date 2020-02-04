@@ -56,7 +56,7 @@ exports.route = {
       // 分页返回所有的失物招领
       let record = await this.db.execute(`
       SELECT * FROM (  
-        SELECT ROWNUM R,T.* FROM (
+        SELECT T.*,ROWNUM R FROM (
           SELECT * 
           FROM H_LOST_AND_FOUND
           where isAudit = 1 and isFinished = 0 and type = 'lost'
@@ -80,7 +80,7 @@ exports.route = {
       // 分页返回所有的寻物启事
       let record = await this.db.execute(`
       SELECT * FROM (  
-        SELECT ROWNUM R,T.* FROM (
+        SELECT T.*,ROWNUM R FROM (
           SELECT * 
           FROM H_LOST_AND_FOUND
           where isAudit = 1 and isFinished = 0 and type = 'found'
@@ -108,7 +108,7 @@ exports.route = {
       }
       let record = await this.db.execute(`
       SELECT * FROM (  
-        SELECT ROWNUM R,T.* FROM (
+        SELECT T.*,ROWNUM R FROM (
           SELECT * 
           FROM H_LOST_AND_FOUND
           where isAudit = 0 and isFinished = 0
@@ -132,7 +132,7 @@ exports.route = {
       // 什么都不指定就返回由自己创建的
       let record = await this.db.execute(`
         SELECT * FROM (  
-          SELECT ROWNUM R,T.* FROM (
+          SELECT T.*,ROWNUM R FROM (
             SELECT * 
             FROM H_LOST_AND_FOUND
             WHERE CREATOR = '${cardnum}'
