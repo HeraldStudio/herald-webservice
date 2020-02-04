@@ -60,11 +60,12 @@ const encrypt = (value) => {
 // 对称解密算法，要求 value 是 String 或 Buffer，否则会报错
 const decrypt = (value) => {
   try {
-    let decipheriv = crypto.createDecipheriv(config.auth.cipher, config.auth.key, config.auth.iv)
+    let decipheriv = crypto.createDecipheriv(config.auth.cipher, authConfig.key, authConfig.iv)
     let result = decipheriv.update(value, 'hex', 'utf8')
     result += decipheriv.final('utf8')
     return result
   } catch (e) {
+    console.log(e)
     return ''
   }
 }

@@ -55,8 +55,8 @@ exports.route = {
   async get({ term }) {
     let currentTerm = (this.term.currentTerm || this.term.nextTerm).name
     // 若为查询未来学期，可能是在选课过程中，需要减少缓存时间
-    // return await this.userCache(term && term > currentTerm ? '15m+' : '1d+', async () => {
-    return await this.userCache('1d+', async () => {
+    return await this.userCache(term && term > currentTerm ? '15m+' : '1d+', async () => {
+    // return await this.userCache('1d+', async () => {
       let { name, cardnum, schoolnum } = this.user
       let curriculum = []
       // 新选课系统-目前使用18级本科生数据进行测试

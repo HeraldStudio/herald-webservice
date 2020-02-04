@@ -215,7 +215,6 @@ async function internalCached (isPublic, ...args) {
   ].join(' ').trim()
   
   let [cached, expired] = await cache.get(cacheKey, seconds)
-
   // 1. 无论是否过期，首先解析缓存，准确判断缓存是否可用，以便在缓存不可用时进行回源
   // 此步骤结果保证：cached 成真 <=> 缓存可用，expired 成假 <=> 缓存未过期
   if (cached && !force) {
