@@ -102,9 +102,8 @@ exports.route = {
       return record
     } else if (type === 'audit') {
       // 分页返回所有的待审核事件
-      if (adminList.indexOf(cardnum) === -1) {
-        // 只允许管理员查看
-        return []
+      if (!(await this.hasPermission('publicity'))) {
+        throw 403
       }
       let record = await this.db.execute(`
       SELECT * FROM (  
