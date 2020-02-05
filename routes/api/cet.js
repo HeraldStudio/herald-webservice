@@ -1,3 +1,4 @@
+const oracledb = require('oracledb')
 exports.route = {
 
   /**
@@ -49,13 +50,43 @@ exports.route = {
     //   }
     // })
   },
+  async post({ examCard }){
+    let { cardnum } = this.user
+    if (!examCard) {
+      throw '准考证号未定义'
+    }
 
-  async put({ examcard }) {
+    let sql, binds, options, result
+    sql = `INSERT INTO H_CET VALUES (sys_guid(), :1, :2, :3)`
+
+    binds = [
+      [cardnum, examCard, +moment()],
+    ]
+    options = {
+      autoCommit: true,
+
+      bindDefs: [
+
+        { type: oracledb.STRING, maxSize: 20 },
+        { type: oracledb.STRING, maxSize: 60 },
+        { type: oracledb.NUMBER },
+      ]
+    }
+
+    result = await this.db.executeMany(sql, binds, options)
+
+    if (result.rowsAffected > 0) {
+      return '上传CET准考证号成功'
+    } else {
+      throw '上传失败'
+    }
+  },
+  async put({ examCard }) {
     const { cardnum } = this.user
     await this.db.execute(
       `update TOMMY.H_CET set CET_EXAM_CODE = :examcard
     where CARDNUM= :cardnum
-    `, { examcard, cardnum })
+    `, { examCard, cardnum })
     this.clearCache('/api/cet')
     return '修改成功'
   }
