@@ -162,10 +162,11 @@ module.exports = async (ctx, next) => {
       const {sessionid} = ctx.params
       try{
         await ctx.db.execute(`
-        UPDATE TOMMY.H_OPENID_AND_TOKEN SET TOKEN = :token
+        UPDATE TOMMY.H_OPENID_AND_TOKEN SET TOKEN = :token, CARDNUM = :cardnum
         WHERE SESSIONID = :sessionid`,
         {
           token,
+          cardnum,
           sessionid
         })
       }catch(e){
