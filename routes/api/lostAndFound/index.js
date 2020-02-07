@@ -2,11 +2,32 @@ const { adminList } = require('./admin.json')
 const { deleteFile } = require('../../../sdk/qiniu')
 const oracledb = require('oracledb')
 exports.route = {
+  /**
+   * GET /api/lostAndFound
+   * @param { 
+   * id,                            // 返回单一条目 
+   * type : lost/found/audit,       // 分别返回失物招领，寻物启事， 待审核条目
+   * page, 
+   * pagesize } 
+   * 获取接口
+   * @returns { 
+   * result : [{ 
+   * _id : String,                  
+   * creator : String, 
+   * title : String, 
+   * lastModifiedTime : 时间戳(ms), 
+   * describe : String, 
+   * imageUrl : String(最多三张), 
+   * type : lost/found, 
+   * isAudit : Number, 
+   * isFinished : Number
+   * }]}
+   */
   async get({ id = '', type, page = 1, pagesize = 10 }) {
     let { cardnum } = this.user
     // let lostAndFoundCollection = await mongodb('H_LOST_AND_FOUND')
     if (id) {
-      return await this.publicCache(id, '1d+', async () => {
+      return await this.publicCache('1d+', async () => {
         // 如果存在 id 则返回条目的信息
         let record = await this.db.execute(`
         select * 
@@ -20,12 +41,11 @@ exports.route = {
         if (adminList.indexOf(cardnum) !== -1) {
           record.canAudit = true
         }
-        record.forEach(Element => {
-          for (let e in Element) {
-            if (Element[e] === null)
-              delete Element[e]
-          }
-        })
+        // 前端要求，除去值为null的字段
+        for (let e in record) {
+          if (record[e] === null)
+            delete record[e]
+        }
         return record
       })
     }
@@ -35,17 +55,20 @@ exports.route = {
     if (type === 'lost') {
       // 分页返回所有的失物招领
       let record = await this.db.execute(`
-        SELECT * FROM (
-          SELECT *
+      SELECT * FROM (  
+        SELECT T.*,ROWNUM R FROM (
+          SELECT * 
           FROM H_LOST_AND_FOUND
           where isAudit = 1 and isFinished = 0 and type = 'lost'
           ORDER BY LASTMODIFIEDTIME DESC
-        ) WHERE ROWNUM > ${(page - 1) * pagesize} and ROWNUM <= ${page * pagesize}
+        )T)
+      WHERE R > ${(page - 1) * pagesize} and R <= ${page * pagesize}
         `)
       record = record.rows.map(Element => {
         let [_id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished] = Element
         return { _id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished }
       })
+      // 前端要求，除去值为null的字段
       record.forEach(Element => {
         for (let e in Element) {
           if (Element[e] === null)
@@ -56,17 +79,20 @@ exports.route = {
     } else if (type === 'found') {
       // 分页返回所有的寻物启事
       let record = await this.db.execute(`
-      SELECT * FROM (
-        SELECT *
-        FROM H_LOST_AND_FOUND
-        where isAudit = 1 and isFinished = 0 and type = 'found'
-        ORDER BY LASTMODIFIEDTIME DESC
-      ) WHERE ROWNUM > ${(page - 1) * pagesize} and ROWNUM <= ${page * pagesize}
+      SELECT * FROM (  
+        SELECT T.*,ROWNUM R FROM (
+          SELECT * 
+          FROM H_LOST_AND_FOUND
+          where isAudit = 1 and isFinished = 0 and type = 'found'
+          ORDER BY LASTMODIFIEDTIME DESC
+        )T)
+      WHERE R > ${(page - 1) * pagesize} and R <= ${page * pagesize}
       `)
       record = record.rows.map(Element => {
         let [_id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished] = Element
         return { _id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished }
       })
+      // 前端要求，除去值为null的字段
       record.forEach(Element => {
         for (let e in Element) {
           if (Element[e] === null)
@@ -76,22 +102,24 @@ exports.route = {
       return record
     } else if (type === 'audit') {
       // 分页返回所有的待审核事件
-      if (adminList.indexOf(cardnum) === -1) {
-        // 只允许管理员查看
-        return []
+      if (!(await this.hasPermission('publicity'))) {
+        throw 403
       }
       let record = await this.db.execute(`
-      SELECT * FROM (
-        SELECT *
-        FROM H_LOST_AND_FOUND
-        where isAudit = 0 and isFinished = 0
-        ORDER BY LASTMODIFIEDTIME DESC
-      ) WHERE ROWNUM > ${(page - 1) * pagesize} and ROWNUM <= ${page * pagesize}
+      SELECT * FROM (  
+        SELECT T.*,ROWNUM R FROM (
+          SELECT * 
+          FROM H_LOST_AND_FOUND
+          where isAudit = 0 and isFinished = 0
+          ORDER BY LASTMODIFIEDTIME DESC
+        )T)
+      WHERE R > ${(page - 1) * pagesize} and R <= ${page * pagesize}
       `)
       record = record.rows.map(Element => {
         let [_id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished] = Element
         return { _id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished }
       })
+      // 前端要求，除去值为null的字段
       record.forEach(Element => {
         for (let e in Element) {
           if (Element[e] === null)
@@ -102,17 +130,20 @@ exports.route = {
     } else {
       // 什么都不指定就返回由自己创建的
       let record = await this.db.execute(`
-        SELECT * FROM (
-          SELECT *
-          FROM H_LOST_AND_FOUND
-          WHERE CREATOR = '${cardnum}'
-          ORDER BY LASTMODIFIEDTIME DESC
-        ) WHERE ROWNUM > ${(page - 1) * pagesize} and ROWNUM <= ${page * pagesize}
+        SELECT * FROM (  
+          SELECT T.*,ROWNUM R FROM (
+            SELECT * 
+            FROM H_LOST_AND_FOUND
+            WHERE CREATOR = '${cardnum}'
+            ORDER BY LASTMODIFIEDTIME DESC
+          )T)
+        WHERE R > ${(page - 1) * pagesize} and R <= ${page * pagesize}
         `)
       record = record.rows.map(Element => {
         let [_id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished] = Element
         return { _id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished }
       })
+      // 前端要求，除去值为null的字段
       record.forEach(Element => {
         for (let e in Element) {
           if (Element[e] === null)
@@ -122,7 +153,11 @@ exports.route = {
       return record
     }
   },
-
+  /**
+     * POST /api/lostAndFound
+     * @param { type, title, describe, imageUrl } 
+     * 新建接口
+     */
   async post({ type, title, describe, imageUrl }) {
     let { cardnum } = this.user
     if (['lost', 'found'].indexOf(type) === -1) {

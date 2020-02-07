@@ -10,10 +10,15 @@ exports.route = {
     // 这是一个分页
     let activityList = await this.db.execute(`
       SELECT ID,TITLE,PIC,URL,CONTENT,END_TIME,START_TIME
-      FROM (SELECT tt.*, ROWNUM AS rowno
-        FROM (SELECT t.* FROM TOMMY.H_ACTIVITY t WHERE (:nowTime >= t.START_TIME AND :nowTime <= t.END_TIME) ) tt
-        WHERE ROWNUM < :endRow) table_alias
-      WHERE table_alias.rowno >= :startRow`,
+      FROM (
+        SELECT tt.*, ROWNUM AS rowno
+        FROM (
+          SELECT t.* 
+          FROM TOMMY.H_ACTIVITY t 
+          WHERE (:nowTime >= t.START_TIME AND :nowTime <= t.END_TIME) 
+        ) tt
+        WHERE ROWNUM <= :endRow) table_alias
+      WHERE table_alias.rowno > :startRow`,
     {
       nowTime: now.toDate(),
       startRow: (page - 1) * pagesize,
@@ -68,13 +73,10 @@ exports.route = {
     if (!id) {
       throw '未指定活动id'
     }
-    let activity = await this.db.execute(
-      `SELECT TITLE, URL from TOMMY.H_ACTIVITY WHERE ID = :id`,
-      {
-        id
-      }
-    )
-    
+
+    let activity = await this.publicCache(id,'1d+',async () => {
+      return await this.db.execute(`SELECT TITLE, URL from TOMMY.H_ACTIVITY WHERE ID = :id`,{ id })
+    })
     if (activity.rows.length === 0){
       throw 404
     }

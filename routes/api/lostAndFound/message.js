@@ -45,13 +45,14 @@ exports.route = {
       where ITEMID = '${itemId}'
       ORDER BY LASTMODIFIEDTIME DESC
     `)
-      record =  record.rows.map(Element => {
+      record = record.rows.map(Element => {
         let [_id, itemId, message, creator, hasRead, lastModifiedTime] = Element
         return { _id, itemId, message, creator, hasRead, lastModifiedTime }
       })
+      // 前端要求，除去值为null的字段
       record.forEach(Element => {
-        for(let e in Element){
-          if (Element[e]=== null)
+        for (let e in Element) {
+          if (Element[e] === null)
             delete Element[e]
         }
       })
@@ -68,9 +69,10 @@ exports.route = {
         let [_id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished] = Element
         return { _id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished }
       })
+      // 前端要求，除去值为null的字段
       items.forEach(Element => {
-        for(let e in Element){
-          if (Element[e]=== null)
+        for (let e in Element) {
+          if (Element[e] === null)
             delete Element[e]
         }
       })

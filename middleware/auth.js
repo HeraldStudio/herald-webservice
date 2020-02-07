@@ -37,11 +37,10 @@
  */
 
 const crypto = require('crypto')
-// const xmlparser = require('fast-xml-parser')
-// const axios =  require('axios')
+const xmlparser = require('fast-xml-parser')
+const axios =  require('axios')
 const { config } = require('../app')
 const authConfig = require('../sdk/sdk.json').auth
-
 
 const tokenHashPool = {} // 用于缓存tokenHash，防止高峰期数据库爆炸💥
 
@@ -61,11 +60,12 @@ const encrypt = (value) => {
 // 对称解密算法，要求 value 是 String 或 Buffer，否则会报错
 const decrypt = (value) => {
   try {
-    let decipheriv = crypto.createDecipheriv(config.auth.cipher, config.auth.key, config.auth.iv)
+    let decipheriv = crypto.createDecipheriv(config.auth.cipher, authConfig.key, authConfig.iv)
     let result = decipheriv.update(value, 'hex', 'utf8')
     result += decipheriv.final('utf8')
     return result
   } catch (e) {
+    console.log(e)
     return ''
   }
 }
@@ -102,18 +102,20 @@ module.exports = async (ctx, next) => {
       throw 'platform 只能由小写字母、数字和中划线组成' // 为了美观（通神nb
     }
 
-    let cardnum = '213181432'
-    // let cardnum
-    // try {
-    //   // 从IDS获取一卡通号
-    //   const serviceValidateURL = `https://newids.seu.edu.cn/authserver/serviceValidate?service=${service}&ticket=${ticket}`
-    //   const res = await axios.get(serviceValidateURL)
-    //   const data = xmlparser.parse(res.data)['cas:serviceResponse']['cas:authenticationSuccess']['cas:attributes']
-    //   cardnum = ''+data['cas:uid']
-    // } catch (e) {
-    //   console.log(e)
-    //   throw '统一身份认证过程出错'
-    // }
+    // let cardnum = '213181432'
+    let cardnum
+    try {
+      // 从IDS获取一卡通号
+      const serviceValidateURL = `https://newids.seu.edu.cn/authserver/serviceValidate?service=${service}&ticket=${ticket}`
+      const res = await axios.get(serviceValidateURL)
+      console.log(res.data)
+      console.log(xmlparser.parse(res.data))
+      const data = xmlparser.parse(res.data.toString())['cas:serviceResponse']['cas:authenticationSuccess']['cas:attributes']
+      cardnum = ''+data['cas:uid']
+    } catch (e) {
+      console.log(e)
+      throw '统一身份认证过程出错'
+    }
 
     // 从数据库查找学号、姓名
     let name, schoolnum
@@ -156,6 +158,22 @@ module.exports = async (ctx, next) => {
     let token = Buffer.from(crypto.randomBytes(20)).toString('hex')
     let tokenHash = hash(token)
 
+    if (platform === 'wechat') {
+      const {sessionid} = ctx.params
+      try{
+        await ctx.db.execute(`
+        UPDATE TOMMY.H_OPENID_AND_TOKEN SET TOKEN = :token
+        WHERE SESSIONID = :sessionid`,
+        {
+          token,
+          sessionid
+        })
+      }catch(e){
+        console.log(e)
+        throw '微信绑定过程出错'
+      }
+    }
+
     // 将新用户信息插入数据库
     let now = moment()
 
@@ -181,8 +199,26 @@ module.exports = async (ctx, next) => {
     return
 
   } else if (ctx.request.headers['x-api-token']) {
-    // 对于其他请求，根据 token 的哈希值取出表项
-    let token = ctx.request.headers['x-api-token']
+    let token
+    // 首先判断是不是来自微信的请求
+    if (ctx.fromWechat) {
+      // 微信来的请求不可能带着我们的token，只有微信的openid
+      // 先把这个openid换成token
+      token = await ctx.db.execute(`
+      SELECT TOKEN FROM TOMMY.H_OPENID_AND_TOKEN WHERE OPENID = :openid
+      `,{
+        openid:ctx.request.headers['x-api-token']
+      })
+
+      if (token.rows.length > 0){
+        token = token.rows[0][0]
+      }else{
+        token = ''
+      }
+    }else{
+      // 对于来自其他平台的其他请求，根据 token 的哈希值取出表项
+      token = ctx.request.headers['x-api-token']
+    }
     let tokenHash = hash(token)
     // 第一步查内存缓存
     let record = tokenHashPool[tokenHash]
@@ -195,7 +231,7 @@ module.exports = async (ctx, next) => {
       WHERE TOKEN_HASH=:tokenHash`,
       { tokenHash }
       )
-      if(record.rows.length >= 0) {
+      if(record.rows.length > 0) {
         // 数据库找到啦
         record = {
           cardnum:record.rows[0][0],
@@ -210,7 +246,7 @@ module.exports = async (ctx, next) => {
         record = null
       }
     }
-
+    
     if (record) {
       let now = moment()
       let lastInvokedTime = record.lastInvokedTime
@@ -240,7 +276,9 @@ module.exports = async (ctx, next) => {
       await next()
       return
     }
+    
   }
+  
 
   /* eslint getter-return:off */
   // 对于没有 token 或 token 失效的请求，若下游中间件要求取 user，说明功能需要登录，抛出 401

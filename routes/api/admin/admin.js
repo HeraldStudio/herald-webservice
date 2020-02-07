@@ -145,7 +145,7 @@ exports.route = {
       cardnum: admin.cardnum,
       permission: domain
     })
-
+    this.clearCache(admin.cardnum)
     return 'OK'
   },
 
@@ -190,7 +190,7 @@ exports.route = {
       name: admin.name,
       lastInvokedTime: now.toDate(),
     })
-
+    this.clearCache(admin.cardnum)
     return 'OK'
   },
 
@@ -249,7 +249,7 @@ exports.route = {
       cardnum,
       lastInvokedTime: now.toDate(),
     })
-
+    this.clearCache(cardnum)
     return 'OK'
   }
 }

@@ -3,8 +3,9 @@
  */
 const wechat = require('co-wechat')
 
+
 //方便本地调试
-let config 
+let config
 try {
   config = require('../../sdk/sdk.json').wechat['wx-herald']
 } catch (e) {
@@ -24,7 +25,8 @@ String.prototype.padd = function () {
 }
 
 // 生产环境更新自定义菜单
-if (program.mode === 'production') {
+// TEST:修改的过程也先自定义菜单
+if (program.mode === 'production' || program.mode === 'development') {
   const menu = require('./wx-herald-menu.json')
   api.post('/menu/create', menu).then(res => {
     console.log(chalkColored.blue('[wx-herald] 自定义菜单 ') + res.data.errmsg)
@@ -61,28 +63,30 @@ const handler = {
   },
 
   async '绑定|登录|登陆|綁定|登錄'() {
-    // this.path = '/auth'
-    // this.method = 'POST'
-    // this.params = {
-    //   cardnum, password, gpassword,
-    //   customToken: this.message.FromUserName,
-    //   platform: 'wx-herald'
-    // }
-    //await this.next()
-    // return `🔗 绑定功能`
-    return '绑定功能暂时关闭，请使用小猴偷米 App 或微信小程序'
-  },
+    this.path = '/api/wechatAuth'
+    this.method = 'POST'
+    await this.next()
+    if (this.body === '已经绑定') {
+      return `👥 ${this.user.name}（${this.user.cardnum}）`
+    }
+    else {
+      const authUrl = `https://newids.seu.edu.cn/authserver/login?goto=https://tommy.seu.edu.cn/wx-login/?sessionid=${this.body}`
 
-  async '手机卡'() {
-
-
-    //let token = await accessToken('wx-herald')
-    //console.log(token)
-
-    //客服消息回复图片,永久添加图片
-    return { type: 'image', content: 'V0B7CYkN4lHoVoFrs63HZTbLCIHsvi-YgZgrctk4kU0' }
+      return `<a href="${authUrl}">🔗点击进行统一身份验证</a>`
+    }
 
   },
+
+  // async '手机卡'() {
+
+
+  //   //let token = await accessToken('wx-herald')
+  //   //console.log(token)
+
+  //   //客服消息回复图片,永久添加图片
+  //   return { type: 'image', content: 'V0B7CYkN4lHoVoFrs63HZTbLCIHsvi-YgZgrctk4kU0' }
+
+  // },
 
   async '一卡通|消费|余额|流水|消費|餘額'(date) {
     this.path = '/api/card'
@@ -99,11 +103,11 @@ const handler = {
         let amount = k.amount.toFixed(2).replace(/^(?:\d)/, '+')
         return date ? `${k.desc} ${amount}` : `${time}：${k.desc} ${amount}`
       }).join('\n'),
-      date ? '' : '💡 可查指定日期，注意日期前加空格，例如：一卡通 2018-3-17'
+      date ? '' : '💡 可查指定日期，注意日期前加空格且保证月份及日期为两位，例如：一卡通 2018-03-17'
     ].filter(k => k).join('\n\n').padd()
   },
 
-  async '课|課'() {
+  async '课|課|课程表|課程表'() {
     this.path = '/api/curriculum'
     this.method = 'GET'
     await this.next()
@@ -120,32 +124,33 @@ const handler = {
     let upcomingCount = upcoming.length
     let current = curriculum.filter(k => k.startTime <= now && k.endTime > now)
     // let currentCount = current.length
-
+    const pwaUrl = 'https://myseu.cn/#/'
     return [
       `🗓 本学期已上 ${endedCount} 课，还有 ${upcomingCount} 课`,
       current.map(k => `正在上课：${k.courseName} @ ${k.location}\n`).join(''),
       upcoming.slice(0, 5).map(k => `${moment(k.startTime).fromNow()}
         ${k.courseName} @ ${k.location}`).join('\n\n'),
-      '💡 完整课表详见网页版或小程序'
+      `💡 完整课表详见<a href="${pwaUrl}">网页版</a>或小程序`,
+      `👍你也可以回复App下载，获取最新版的小猴偷米App以及全新的界面与功能的体验`
     ].filter(k => k).join('\n\n').padd()
   },
 
-  async '预测|預測'() {
-    this.path = '/api/course'
-    this.method = 'GET'
-    this.query = this.params = { term: 'next' }
-    await this.next()
+  // async '预测|預測'() {
+  //   this.path = '/api/course'
+  //   this.method = 'GET'
+  //   this.query = this.params = { term: 'next' }
+  //   await this.next()
 
-    let courses = this.body
+  //   let courses = this.body
 
-    return courses.length ? [
-      `🗓 你下学期可能有 ${courses.length} 门课`,
-      courses.map(k => `
-        ${k.courseName} (${k.credit} 学分)
-        ${k.avgScore ? `平均参考成绩 ${k.avgScore} (样本容量 ${k.sampleCount})` : ''}
-      `.padd()).join('\n\n'),
-    ].filter(k => k).join('\n\n').padd() : '🗓 你所在的院系年级样本不足，暂无记录'
-  },
+  //   return courses.length ? [
+  //     `🗓 你下学期可能有 ${courses.length} 门课`,
+  //     courses.map(k => `
+  //       ${k.courseName} (${k.credit} 学分)
+  //       ${k.avgScore ? `平均参考成绩 ${k.avgScore} (样本容量 ${k.sampleCount})` : ''}
+  //     `.padd()).join('\n\n'),
+  //   ].filter(k => k).join('\n\n').padd() : '🗓 你所在的院系年级样本不足，暂无记录'
+  // },
 
   async '空教室|教室'(building = '') {
     let hour = +moment().format('HH')
@@ -246,21 +251,21 @@ const handler = {
     return result
   },
 
-  async '选修|選修'() {
-    this.path = '/api/course/optional'
-    this.method = 'GET'
-    await this.next()
+  // async '选修|選修'() {
+  //   this.path = '/api/course/optional'
+  //   this.method = 'GET'
+  //   await this.next()
 
-    let courses = this.body
+  //   let courses = this.body
 
-    return [
-      '🗓 选修课程排行 Top 10',
-      courses.map(k => `
-        ${k.courseName} (${k.courseType})
-        ${k.avgScore ? `平均参考成绩 ${k.avgScore} (样本容量 ${k.sampleCount})` : ''}
-      `.padd()).join('\n\n'),
-    ].filter(k => k).join('\n\n').padd()
-  },
+  //   return [
+  //     '🗓 选修课程排行 Top 10',
+  //     courses.map(k => `
+  //       ${k.courseName} (${k.courseType})
+  //       ${k.avgScore ? `平均参考成绩 ${k.avgScore} (样本容量 ${k.sampleCount})` : ''}
+  //     `.padd()).join('\n\n'),
+  //   ].filter(k => k).join('\n\n').padd()
+  // },
 
   async '跑操管理员'() {
     let md5 = crypto.createHash('md5')
@@ -438,7 +443,8 @@ const handler = {
     let { health } = this.body
     return [
       '🏓 最近一次体测成绩：',
-      health.map(k => `${k.name}：${k.value}` + (k.grade && `（${k.score}，${k.grade}）`)).join('\n')
+      health.map(k => `${k.name}：${typeof (k.value) === 'number' ? k.value.toString().slice(0, k.value.toString().indexOf('.') === -1 ? undefined : k.value.toString().indexOf('.') + 3) : k.value}` + ((k.grade || k.score) ? (k.grade && `（${k.score}，${k.grade}）`) : '')).join('\n')
+
     ].filter(k => k).join('\n\n').padd()
   },
 
@@ -453,25 +459,25 @@ const handler = {
     ].join('\n\n').padd()
   },
 
-  async '实验|實驗'() {
-    this.path = '/api/phylab'
-    this.method = 'GET'
-    await this.next()
-    let labs = this.body
-    let now = +moment()
-    let endedCount = labs.filter(k => k.endTime <= now).length
-    let upcoming = labs.filter(k => k.startTime > now).sort((a, b) => a.startTime - b.startTime)
-    let upcomingCount = upcoming.length
-    let current = labs.filter(k => k.startTime <= now && k.endTime > now)
-    //let currentCount = current.length
+  // async '实验|實驗'() {
+  //   this.path = '/api/phylab'
+  //   this.method = 'GET'
+  //   await this.next()
+  //   let labs = this.body
+  //   let now = +moment()
+  //   let endedCount = labs.filter(k => k.endTime <= now).length
+  //   let upcoming = labs.filter(k => k.startTime > now).sort((a, b) => a.startTime - b.startTime)
+  //   let upcomingCount = upcoming.length
+  //   let current = labs.filter(k => k.startTime <= now && k.endTime > now)
+  //   //let currentCount = current.length
 
-    return [
-      `🔬 已做 ${endedCount} 次实验，还有 ${upcomingCount} 次`,
-      current.map(k => `正在进行：${k.labName} @ ${k.location}\n`).join(''),
-      upcoming.map(k => `${moment(k.startTime).fromNow()}
-        ${k.labName} @ ${k.location}`).join('\n\n')
-    ].filter(k => k).join('\n\n').padd()
-  },
+  //   return [
+  //     `🔬 已做 ${endedCount} 次实验，还有 ${upcomingCount} 次`,
+  //     current.map(k => `正在进行：${k.labName} @ ${k.location}\n`).join(''),
+  //     upcoming.map(k => `${moment(k.startTime).fromNow()}
+  //       ${k.labName} @ ${k.location}`).join('\n\n')
+  //   ].filter(k => k).join('\n\n').padd()
+  // },
 
   async '考试|考試|測驗'() {
     this.path = '/api/exam'
@@ -493,11 +499,12 @@ const handler = {
     ].filter(k => k).join('\n\n').padd()
   },
 
-  async '绩|績'() {
+  async '绩|績|绩点|績點|成绩|成績'() {
     this.path = '/api/gpa'
     this.method = 'GET'
     await this.next()
     let { gpa, gpaBeforeMakeup, score, credits, detail } = this.body
+    console.log(this.body)
     let info
     if (gpa) { // 本科生
       info = `绩点：${gpa}（首修 ${gpaBeforeMakeup}）`
@@ -645,7 +652,6 @@ let middleware
 try {
   // 分割用户指令并进入相应 handler 函数中
   middleware = wechat(config).middleware(async (message, ctx) => {
-
     let han, args
     if (message.Content) {
       let [cmd, ...tmpArgs] = message.Content.trim().split(/\s+/g)
@@ -655,8 +661,8 @@ try {
       han = 'default'
       args = []
     }
-
-    ctx.request.headers.token = message.FromUserName
+    ctx.request.headers['x-api-token'] = message.FromUserName
+    ctx.fromWechat = true
     ctx.message = message
 
     let openid = message.FromUserName
@@ -717,17 +723,20 @@ try {
         }
       })
     })
-
     return ''
-
   })
-}catch(e){
+} catch (e) {
   console.log('wx-herald未配置')
 }
 
 
 module.exports = async (ctx, next) => {
   if (ctx.path.indexOf('/adapter-wx-herald/') === 0) {
+    if (program.mode === 'development' && ctx.path.endsWith('wechat') && ctx.method === 'GET') {
+      // 微信测试
+      ctx.path = '/api/wechatAuth'
+      await next()
+    }
     ctx.next = next
     await middleware.call(this, ctx, next)
     ctx.wx = true

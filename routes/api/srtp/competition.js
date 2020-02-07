@@ -18,7 +18,6 @@ exports.route = {
     // - 若用户已登录，将根据缓存时效性选择取缓存或者帮助更新缓存；
     // - 若用户未登录，回源函数将抛出 401，根据非时效性缓存机制，将会强制取缓存。
     return await this.publicCache('1h+', async () => {
-
       // 模拟登录,使用管理员的一卡通以及密码
       let { cardnum, password } = require('../../../sdk/sdk.json').admin
       let res = await this.get(loginAction)
