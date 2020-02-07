@@ -9,13 +9,19 @@ exports.route = {
         `select T_BZKS.SSFJH from TOMMY.T_BZKS
       where XH= :cardnum
       `, [cardnum])
-
       let result = record.rows.map(Element => {
         let [SSFJH] = Element
         return { SSFJH }
       })
+      result = result[0]
+      let campus = '四牌楼'
+      if (result.SSFJH.indexOf('梅园') !== -1 || result.SSFJH.indexOf('桃园') !== -1 || result.SSFJH.indexOf('橘园') !== -1) {
+        campus = '九龙湖'
+      }
+      result.campus = campus
       return result
     })
+
     // await this.useAuthCookie()
     // let res = await this.get('http://my.seu.edu.cn/pnull.portal?action=showItem&.ia=false&.pen=pe562&itemId=231&childId=240&page=1')
     // //let { name, cardnum } = this.user

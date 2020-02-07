@@ -290,7 +290,8 @@ const handler = {
         // 状态切换过程发送全体推送
         let templateMsg = {
           touser: [],
-          template_id: 'q-o8UyAeQRSQfvvue1VWrvDV933q1Sw3esCusDA8Nl4',
+          // template_id: 'q-o8UyAeQRSQfvvue1VWrvDV933q1Sw3esCusDA8Nl4',
+          template_id: 'Cy71tABe4ccV6eJp80fAFGGwme96XUNoxJWl7vL2Oqs',
           data: {
             first: {
               value: ''
@@ -543,20 +544,21 @@ const handler = {
     ].filter(k => k).join('\n\n').padd()
   },
 
-  async '奖助|獎助'() {
-    this.path = '/api/scholarship'
-    this.method = 'GET'
-    await this.next()
-    let { scholarshipList, scholarshipApplied, stipendList, stipendApplied } = this.body
-    let list = scholarshipList.concat(stipendList)
-    let applied = scholarshipApplied.concat(stipendApplied)
-    return [
-      '🔑 可申请奖助学金：',
-      list.map(k => k.name).join('\n'),
-      '🔑 已申请奖助学金：',
-      applied.map(k => `${k.name}（${k.endYear} ${k.state}）`).join('\n')
-    ].filter(k => k).join('\n\n').padd()
-  },
+  // 暂无数据
+  // async '奖助|獎助'() {
+  //   this.path = '/api/scholarship'
+  //   this.method = 'GET'
+  //   await this.next()
+  //   let { scholarshipList, scholarshipApplied, stipendList, stipendApplied } = this.body
+  //   let list = scholarshipList.concat(stipendList)
+  //   let applied = scholarshipApplied.concat(stipendApplied)
+  //   return [
+  //     '🔑 可申请奖助学金：',
+  //     list.map(k => k.name).join('\n'),
+  //     '🔑 已申请奖助学金：',
+  //     applied.map(k => `${k.name}（${k.endYear} ${k.state}）`).join('\n')
+  //   ].filter(k => k).join('\n\n').padd()
+  // },
 
   async '通知|公告'() {
     this.path = '/api/notice'
@@ -586,31 +588,31 @@ const handler = {
     this.path = '/api/dorm'
     this.method = 'GET'
     await this.next()
-    let { campus, building, room, bed } = this.body
-    if (building) {
+    let { campus, SSFJH } = this.body
+    if (SSFJH) {
       return [
         '🏠 你的宿舍：',
-        `${campus} ${building} ${room} ${bed}号床`
+        `${campus} ${SSFJH}`
       ].join('\n').padd()
     }
     return '🏠 你暂时没有分配宿舍'
   },
 
-  async 'App|APP|下载'() {
+  // async 'App|APP|下载'() {
 
-    return `🐵 小猴偷米 App 下载地址
+  //   return `🐵 小猴偷米 App 下载地址
     
-    iOS用户请直接在应用商店搜索：小猴偷米
+  //   iOS用户请直接在应用商店搜索：小猴偷米
 
-    Android用户新版下载地址：
-    https://hybrid.myseu.cn/herald-app-6.apk
-    （请复制到浏览器打开）
+  //   Android用户新版下载地址：
+  //   https://hybrid.myseu.cn/herald-app-6.apk
+  //   （请复制到浏览器打开）
 
 
-    注意：部分安卓商店提供早已过期的版本，无法正常登录。
-    `.padd()
+  //   注意：部分安卓商店提供早已过期的版本，无法正常登录。
+  //   `.padd()
 
-  },
+  // },
 
 
   // 测试统一身份认证小程序
