@@ -10,7 +10,7 @@ exports.route = {
     return await this.userCache('1d+', async () => {
       const { cardnum } = this.user
       let record = await this.db.execute(
-        `select H_CET.CET_EXAM_CODE from TOMMY.H_CET
+        `select H_CET.CET_EXAM_CODE, LOCATION, EXAMTIME from TOMMY.H_CET
       where CARDNUM= :cardnum
       `, [cardnum])
       let result
@@ -18,9 +18,9 @@ exports.route = {
         result = '暂无记录'
       } else {
         result = {
-          examCode: record.rows[0].CET_EXAM_CODE,
-          location: record.rows[0].location === '' ? null : record.rows[0].location,
-          examTime: record.rows[0].examTime === 0 ? null : record.rows[0].examTime
+          examCode: record.rows[0][0],
+          location: record.rows[0][1] === '' ? null : record.rows[0][1],
+          examTime: record.rows[0][2] === 0 ? null : record.rows[0][2]
         }
         for (let e in result) {
           if (result[e] === null)
@@ -67,14 +67,14 @@ exports.route = {
     }
     await this.db.execute(`
     DELETE from TOMMY.H_CET
-    where CARDNUM= :cardnum
+    where CARDNUM= '${cardnum}'
     `)
     let sql, binds, options, result
     sql = `INSERT INTO H_CET VALUES (sys_guid(), :1, :2, :3, :4)`
-
     binds = [
-      [cardnum, examCode, examTime ? examTime : -1, location ? location : ''],
+      [cardnum, examCode, (examTime ? examTime : -1), (location ? location : '')],
     ]
+
     options = {
       autoCommit: true,
 

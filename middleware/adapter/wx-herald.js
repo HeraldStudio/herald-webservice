@@ -362,7 +362,8 @@ const handler = {
     if (record.length === 1) {
       await api.post('message/template/send', {
         touser: openid,
-        template_id: 'q-o8UyAeQRSQfvvue1VWrvDV933q1Sw3esCusDA8Nl4',
+        // template_id: 'q-o8UyAeQRSQfvvue1VWrvDV933q1Sw3esCusDA8Nl4',
+        template_id: 'Cy71tABe4ccV6eJp80fAFGGwme96XUNoxJWl7vL2Oqs',
         data: {
           first: {
             value: '✅ 跑操提醒服务开启成功\n'
@@ -398,7 +399,8 @@ const handler = {
     if (record.length === 0) {
       await api.post('message/template/send', {
         touser: openid,
-        template_id: 'q-o8UyAeQRSQfvvue1VWrvDV933q1Sw3esCusDA8Nl4',
+        // template_id: 'q-o8UyAeQRSQfvvue1VWrvDV933q1Sw3esCusDA8Nl4'
+        template_id: 'Cy71tABe4ccV6eJp80fAFGGwme96XUNoxJWl7vL2Oqs',
         data: {
           first: {
             value: '⛔️ 跑操提醒服务已关闭\n'
@@ -630,10 +632,6 @@ const handler = {
 
     本科生格式：
     绑定 卡号 统一身份认证密码
-
-    研究生格式：
-    绑定 卡号 统一密码 研院密码
-    注：研究生院密码初始为八位生日
 
     💡 所有命令与参数之间均有空格
     🙈 密码及缓存经过交叉加密保护`.padd(),
