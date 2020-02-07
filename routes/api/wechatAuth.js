@@ -44,12 +44,13 @@ exports.route = {
       // 再新建一个openid和sessionid的记录
       await this.db.execute(`
       INSERT INTO TOMMY.H_OPENID_AND_TOKEN 
-      (OPENID, TOKEN, SESSIONID) 
-      VALUES (:openid, :token, :sessionid)
+      (OPENID, TOKEN, SESSIONID, CARDNUM) 
+      VALUES (:openid, :token, :sessionid, :cardnum)
       `, {
         openid: this.openid,
         token: 'fake',
-        sessionid
+        sessionid,
+        cardnum: 'fake'
       })
 
       return sessionid
