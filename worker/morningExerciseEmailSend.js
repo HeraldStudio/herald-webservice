@@ -17,11 +17,11 @@ const crypto = require('crypto')
 const oracle = require('../database/oracle.js')
 // 0点1分发送链接邮件
 //const job = schedule.scheduleJob('30 * * * * *', function () {
-var rule1     = new schedule.RecurrenceRule()
-var times1    = [1,6,11,16,21,26,31,36,41,46,51,56]
-rule1.second  = times1
-const job = schedule.scheduleJob(rule1,function(){
-// const job = schedule.scheduleJob('*/10 * * * * *', function () {
+// var rule1     = new schedule.RecurrenceRule()
+// var times1    = [1,6,11,16,21,26,31,36,41,46,51,56]
+// rule1.second  = times1
+// const job = schedule.scheduleJob(rule1,function(){
+const job = schedule.scheduleJob('*/10 * * * * *', function () {
   setTimeout(async () => {
     let db = await oracle.getConnection()
     let md5 = crypto.createHash('md5')
