@@ -22,7 +22,7 @@ String.prototype.padd = function () {
 
 // 生产环境更新自定义菜单
 // TEST:修改的过程也先自定义菜单
-if (program.mode === 'production' || program.mode === 'development') {
+if (program.mode === 'production') {
   const menu = require('./wx-herald-menu.json')
   api.post('/menu/create', menu).then(res => {
     console.log(chalkColored.blue('[wx-herald] 自定义菜单 ') + res.data.errmsg)
