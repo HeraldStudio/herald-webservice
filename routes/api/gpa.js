@@ -334,7 +334,6 @@ exports.route = {
         SELECT * FROM TOMMY.H_MY_SCORE
             WHERE CARDNUM = :cardnum
     `, { cardnum: cardnum })
-          console.log(myexamData)
           /*let myexamDetail = myexamData.rows.map(row => {
             return {
               _id:  row[0],
