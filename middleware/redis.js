@@ -28,7 +28,7 @@
 // job pool，用于异步获取
 const jobPool = {}
 
-console.log('Redis 中间件改造完成，使用内存 Object 作为缓存空间')
+console.log(chalkColored.green('[+] Redis 中间件改造完成，使用内存 Object 作为缓存空间'))
 
 // 缓存内容
 const pool = {}

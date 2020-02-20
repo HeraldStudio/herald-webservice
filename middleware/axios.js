@@ -125,9 +125,6 @@ module.exports = async (ctx, next) => {
       } catch (e) {
         return await _axios[k](...args)
       }
-      //} else {
-      // return await _axios[k](...args)
-      //}
     }
   })
 
