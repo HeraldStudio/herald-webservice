@@ -91,7 +91,10 @@ exports.route = {
                 where c.jasdm = t_jas_jbxx.jasdm)d
             where d.kch = t_kc_kcb.kch)e
         where e.jsh = t_jzg_jbxx.zgh
-        `)
+        `, {
+          cardnum,
+          termName: term.name
+        })
         let myResult = await this.db.execute(`
         SELECT COURSENAME, TEACHERNAME, BEGINWEEK, ENDWEEK, DAYOFWEEK, FLIP, BEGINPERIOD, ENDPERIOD, LOCATION, WID
         FROM H_MY_COURSE
@@ -232,6 +235,12 @@ exports.route = {
 
 
       } else if (!/^22/.test(cardnum)) {
+        term = term.split('-').map(Element => {
+          if (term.split('-').indexOf(Element) <= 1) {
+            Element = Element.slice(2,4)
+          }
+          return Element
+        }).join('-')
         // 非18级本科生/教师版
         // 为了兼容丁家桥格式，短学期没有课的时候需要自动查询长学期
         // 为此不得已使用了一个循环
@@ -282,11 +291,16 @@ exports.route = {
               query_xnxq: term || undefined
             }
           ))
-
-          try {
-            // 从课表页面抓取学期号
-            term = /<font class="Context_title">[\s\S]*?(\d{2}-\d{2}-\d)[\s\S]*?<\/font>/im.exec(res.data)[1]
-          } catch (e) { throw '解析失败' }
+          if (!term) {
+            try {
+              // 从课表页面抓取学期号
+              // console.log(res.data.toString())
+              term = /<font class="Context_title">[\s\S]*?(\d{2}-\d{2}-\d)[\s\S]*?<\/font>/im.exec(res.data.toString())[1]
+            } catch (e) {
+              console.log(e)
+              throw '解析失败'
+            }
+          }
           term = term.split('-').map(Element => {
             if (term.split('-').indexOf(Element) <= 1) {
               Element = '20' + Element
@@ -297,7 +311,6 @@ exports.route = {
           term = this.term.list.find(k => k.name === term) || {
             name: term
           }
-
           // 初始化侧边栏和课表解析结果
           let sidebarDict = {}, sidebarList = []
           // 解析侧边栏，先搜索侧边栏所在的 table
