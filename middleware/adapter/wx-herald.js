@@ -3,7 +3,6 @@
  */
 const wechat = require('co-wechat')
 
-
 //方便本地调试
 let config
 try {
@@ -13,11 +12,8 @@ try {
 }
 
 const api = require('../../sdk/wechat').getAxios('wx-herald')
-const accessToken = require('../../sdk/wechat').getToken
-const mongodb = require('../../database/mongodb')
 
 const crypto = require('crypto')
-const childProcess = require('child_process')
 
 
 String.prototype.padd = function () {
@@ -274,94 +270,25 @@ const handler = {
   },
 
   async '跑操通知'(message) {
-    let md5 = crypto.createHash('md5')
-    let openidHash = md5.update(this.openid).digest('hex')
-    let adminCollection = await mongodb('herald_morning_exercise_admin')
-    let adminRecord = await adminCollection.findOne({ openidHash })
-    if (adminRecord) {
-      let stateCollection = await mongodb('herald_morning_exercise')
-      let date = moment().format('YYYY-MM-DD')
-      let record = await stateCollection.findOne({ date })
-      // 包含取消则是为跑操取消，其他视为跑操正常进行
-      let state = message.indexOf('取消') !== -1 ? 'cancel' : 'set'
-      if (state !== record.state) {
-        // 防止重复推送
-        await stateCollection.updateMany({ date }, { $set: { state } })
-        // 状态切换过程发送全体推送
-        let templateMsg = {
-          touser: [],
-          template_id: 'q-o8UyAeQRSQfvvue1VWrvDV933q1Sw3esCusDA8Nl4',
-          data: {
-            first: {
-              value: ''
-            },
-            keyword1: {
-              value: '东南大学'
-            },
-            keyword2: {
-              value: '体育系'
-            },
-            keyword3: {
-              value: '' + String(moment().format('YYYY-MM-DD'))
-            },
-            keyword4: {
-              value: '\n\n' + message
-            }
-          }
-        }
-        if (state === 'set') {
-          templateMsg.data.first.value = '跑操安排提醒【今日跑操正常进行】\n'
-        } else if (state === 'cancel') {
-          templateMsg.data.first.value = '跑操安排提醒【今日跑操取消】\n'
-        }
+    this.path = '/api/pe/setMorningExercise'
+    this.method = 'POST'
+    this.params.message = message
+    await this.next()
 
-        if (record.state !== 'pending') {
-          // 跑操状态中途变更
-          templateMsg.data.first.value = '【紧急通知】跑操安排调整\n'
-        }
-
-        let subscriberCollection = await mongodb('herald_notification')
-        let users = await subscriberCollection.find({ type: 'wechat', function: '跑操提醒' }).toArray()
-        users = users.map(k => { return k.openid })
-        templateMsg.touser = users
-        templateMsg.accessToken = await accessToken('wx-herald')
-        let pushJob = new Promise((resolve) => {
-          let pushProcess = new childProcess.fork('./worker/morningExerciseNotification.js')
-          pushProcess.send(templateMsg)
-          pushProcess.on('message', (msg) => {
-            if (msg.success) {
-              resolve(`【跑操提醒推送】共 ${msg.amount} 人订阅，${msg.count} 推送成功，跑操状态设置成功`)
-            } else {
-              resolve('【跑操提醒推送】消息推送出错')
-            }
-            pushProcess.kill()
-          })
-        })
-        let result = await pushJob
-        await stateCollection.updateMany({ date }, { $set: { state } })
-        return result
-      } else {
-        return '【跑操提醒推送】跑操状态设置成功'
-      }
-    } else {
-      return '【跑操提醒推送】无权操作'
-    }
+    let result = this.body
+    return result
   },
 
   async '开启跑操提醒|设置跑操提醒|開啟跑操提醒|設置跑操提醒'() {
-
-    let openid = this.openid
-    console.log(openid)
-    let collection = await mongodb('herald_notification')
-    // 防止重复发送，清除已有记录
-    await collection.deleteMany({ type: 'wechat', function: '跑操提醒', openid })
-    await collection.insertOne({ type: 'wechat', function: '跑操提醒', openid })
-    // 检查是否设置成功
-    let record = await collection.find({ type: 'wechat', function: '跑操提醒', openid }).toArray()
-    if (record.length === 1) {
+    this.path = '/api/notification'
+    this.method = 'GET'
+    await this.next()
+    // 检测是否设置成功
+    if (this.body === '设置成功') {
       await api.post('message/template/send', {
-        touser: openid,
-        template_id: 'q-o8UyAeQRSQfvvue1VWrvDV933q1Sw3esCusDA8Nl4',
+        touser: this.openid,
+        // template_id: 'q-o8UyAeQRSQfvvue1VWrvDV933q1Sw3esCusDA8Nl4',
+        template_id: 'Cy71tABe4ccV6eJp80fAFGGwme96XUNoxJWl7vL2Oqs',
         data: {
           first: {
             value: '✅ 跑操提醒服务开启成功\n'
@@ -380,24 +307,22 @@ const handler = {
           }
         }
       })
+    }else{
+      return '开启失败，请稍后重试或联系管理员'
     }
 
   },
 
   async '关闭跑操提醒|取消跑操提醒|關閉跑操提醒|取消跑操提醒'() {
-
-
-    let openid = this.openid
-    console.log(openid)
-    let collection = await mongodb('herald_notification')
-    // 清除已有记录
-    await collection.deleteMany({ type: 'wechat', function: '跑操提醒', openid })
+    this.path = '/api/notification'
+    this.method = 'DELETE'
+    await this.next()
     // 检查是否删除成功
-    let record = await collection.find({ type: 'wechat', function: '跑操提醒', openid }).toArray()
-    if (record.length === 0) {
+    if (this.body === '删除成功') {
       await api.post('message/template/send', {
-        touser: openid,
-        template_id: 'q-o8UyAeQRSQfvvue1VWrvDV933q1Sw3esCusDA8Nl4',
+        touser: this.openid,
+        // template_id: 'q-o8UyAeQRSQfvvue1VWrvDV933q1Sw3esCusDA8Nl4'
+        template_id: 'Cy71tABe4ccV6eJp80fAFGGwme96XUNoxJWl7vL2Oqs',
         data: {
           first: {
             value: '⛔️ 跑操提醒服务已关闭\n'
@@ -416,9 +341,9 @@ const handler = {
           }
         }
       })
+    }else{
+      return '未开启跑操提醒'
     }
-
-
   },
 
   async '跑操|早操|锻炼|鍛煉'() {
@@ -543,20 +468,21 @@ const handler = {
     ].filter(k => k).join('\n\n').padd()
   },
 
-  async '奖助|獎助'() {
-    this.path = '/api/scholarship'
-    this.method = 'GET'
-    await this.next()
-    let { scholarshipList, scholarshipApplied, stipendList, stipendApplied } = this.body
-    let list = scholarshipList.concat(stipendList)
-    let applied = scholarshipApplied.concat(stipendApplied)
-    return [
-      '🔑 可申请奖助学金：',
-      list.map(k => k.name).join('\n'),
-      '🔑 已申请奖助学金：',
-      applied.map(k => `${k.name}（${k.endYear} ${k.state}）`).join('\n')
-    ].filter(k => k).join('\n\n').padd()
-  },
+  // 暂无数据
+  // async '奖助|獎助'() {
+  //   this.path = '/api/scholarship'
+  //   this.method = 'GET'
+  //   await this.next()
+  //   let { scholarshipList, scholarshipApplied, stipendList, stipendApplied } = this.body
+  //   let list = scholarshipList.concat(stipendList)
+  //   let applied = scholarshipApplied.concat(stipendApplied)
+  //   return [
+  //     '🔑 可申请奖助学金：',
+  //     list.map(k => k.name).join('\n'),
+  //     '🔑 已申请奖助学金：',
+  //     applied.map(k => `${k.name}（${k.endYear} ${k.state}）`).join('\n')
+  //   ].filter(k => k).join('\n\n').padd()
+  // },
 
   async '通知|公告'() {
     this.path = '/api/notice'
@@ -586,31 +512,31 @@ const handler = {
     this.path = '/api/dorm'
     this.method = 'GET'
     await this.next()
-    let { campus, building, room, bed } = this.body
-    if (building) {
+    let { campus, SSFJH } = this.body
+    if (SSFJH) {
       return [
         '🏠 你的宿舍：',
-        `${campus} ${building} ${room} ${bed}号床`
+        `${campus} ${SSFJH}`
       ].join('\n').padd()
     }
     return '🏠 你暂时没有分配宿舍'
   },
 
-  async 'App|APP|下载'() {
+  // async 'App|APP|下载'() {
 
-    return `🐵 小猴偷米 App 下载地址
-    
-    iOS用户请直接在应用商店搜索：小猴偷米
+  //   return `🐵 小猴偷米 App 下载地址
 
-    Android用户新版下载地址：
-    https://hybrid.myseu.cn/herald-app-6.apk
-    （请复制到浏览器打开）
+  //   iOS用户请直接在应用商店搜索：小猴偷米
+
+  //   Android用户新版下载地址：
+  //   https://hybrid.myseu.cn/herald-app-6.apk
+  //   （请复制到浏览器打开）
 
 
-    注意：部分安卓商店提供早已过期的版本，无法正常登录。
-    `.padd()
+  //   注意：部分安卓商店提供早已过期的版本，无法正常登录。
+  //   `.padd()
 
-  },
+  // },
 
 
   // 测试统一身份认证小程序
@@ -628,10 +554,6 @@ const handler = {
 
     本科生格式：
     绑定 卡号 统一身份认证密码
-
-    研究生格式：
-    绑定 卡号 统一密码 研院密码
-    注：研究生院密码初始为八位生日
 
     💡 所有命令与参数之间均有空格
     🙈 密码及缓存经过交叉加密保护`.padd(),
@@ -694,6 +616,9 @@ try {
           return han
         }
       })().then((msg) => {
+        if(!msg){
+          return ''
+        }
         if (msg === 'default') {
           return ''
         }

@@ -108,8 +108,6 @@ module.exports = async (ctx, next) => {
       // 从IDS获取一卡通号
       const serviceValidateURL = `https://newids.seu.edu.cn/authserver/serviceValidate?service=${service}&ticket=${ticket}`
       const res = await axios.get(serviceValidateURL)
-      console.log(res.data)
-      console.log(xmlparser.parse(res.data))
       const data = xmlparser.parse(res.data.toString())['cas:serviceResponse']['cas:authenticationSuccess']['cas:attributes']
       cardnum = ''+data['cas:uid']
     } catch (e) {

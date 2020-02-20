@@ -22,16 +22,6 @@
           "name": "绩点估算",
           "type": "view",
           "url": "https://myseu.cn/#/grade"
-        },
-        {
-          "name": "课表预测",
-          "type": "view",
-          "url": "https://myseu.cn/#/course-stat"
-        },
-        {
-          "name": "洗衣房查询",
-          "type": "view",
-          "url": "https://myseu.cn/#/laundry"
         }
       ]
     },
