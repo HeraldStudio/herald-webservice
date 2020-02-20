@@ -551,8 +551,8 @@ exports.route = {
   async delete({ _id }) {
     let record = await this.db.execute(`
     SELECT * FROM H_MY_SCORE
-    WHERE ID='${_id}'
-  `)
+    WHERE ID=:id
+  `, { id: _id })
     record = record.rows[0]
 
     if (!record) {
@@ -561,8 +561,8 @@ exports.route = {
 
     let result = await this.db.execute(`
     DELETE FROM H_MY_SCORE
-    WHERE ID ='${_id}'
-  `)
+    WHERE ID =:id
+    `, { id: _id })
     if (result.rowsAffected > 0) {
       return '删除成功'
     } else {
@@ -589,8 +589,8 @@ exports.route = {
 
     let record = await this.db.execute(`
     SELECT * FROM H_MY_SCORE
-    WHERE ID='${_id}'
-`)
+    WHERE ID=:id
+    `, { id: _id })
     record = record.rows[0]
 
     if (!record) {
@@ -618,14 +618,22 @@ exports.route = {
 
     let result = await this.db.execute(`
     UPDATE H_MY_SCORE SET 
-      COURSENAME='${courseName}', 
-      CREDIT='${credit}', 
-      SCORE='${score}', 
-      COURSETYPE='${courseType}', 
-      SCORETYPE='${scoreType}', 
-      SEMESTER='${semester}' 
-    WHERE ID='${_id}' 
-    `)
+      COURSENAME=:courseName, 
+      CREDIT=:credit, 
+      SCORE=:score, 
+      COURSETYPE=:courseType, 
+      SCORETYPE=:scoreType, 
+      SEMESTER=:semester 
+    WHERE ID=:id
+    `, {
+      courseName,
+      credit,
+      score,
+      courseType,
+      scoreType,
+      semester,
+      id: _id
+    })
 
     if (result.rowsAffected > 0) {
       return '更新成功'

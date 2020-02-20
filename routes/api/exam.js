@@ -132,8 +132,8 @@ exports.route = {
   async delete({ _id }) {
     let record = await this.db.execute(`
     select * from H_MY_EXAM
-    where wid='${_id}'
-  `)
+    where wid=:id
+  `, { id: _id })
     record = record.rows[0]
 
     if (!record) {
@@ -142,8 +142,8 @@ exports.route = {
 
     let result = await this.db.execute(`
     DELETE from H_MY_EXAM
-    WHERE WID ='${_id}'
-  `)
+    WHERE WID =:id
+  `, { id: _id })
     if (result.rowsAffected > 0) {
       return '删除成功'
     } else {

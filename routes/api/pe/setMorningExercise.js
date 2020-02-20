@@ -25,9 +25,9 @@ exports.route = {
     if (state !== record.state) {
       // 防止重复推送
       let updateResult = await this.db.execute(`
-              UPDATE H_MORNING_EXERCISE SET STATE = '${state}'
+              UPDATE H_MORNING_EXERCISE SET STATE = :state
               WHERE DATE_TIME = '${date}'
-              `)
+              `, { state })
       if (updateResult.rowsAffected < 1) {
         throw '数据库错误，设置失败'
       }
@@ -121,9 +121,9 @@ exports.route = {
       if (state !== record.state) {
         // 防止重复推送
         let updateResult = await this.db.execute(`
-        UPDATE H_MORNING_EXERCISE SET STATE = '${state}'
+        UPDATE H_MORNING_EXERCISE SET STATE = :state
         WHERE DATE_TIME = '${date}'
-        `)
+        `, { state })
         if (updateResult.rowsAffected < 1) {
           throw '数据库错误，设置失败'
         }

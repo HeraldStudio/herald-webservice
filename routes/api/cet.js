@@ -67,8 +67,8 @@ exports.route = {
     }
     await this.db.execute(`
     DELETE from TOMMY.H_CET
-    where CARDNUM= '${cardnum}'
-    `)
+    where CARDNUM= :cardnum
+    `,{cardnum})
     let sql, binds, options, result
     sql = `INSERT INTO H_CET VALUES (sys_guid(), :1, :2, :3, :4)`
     binds = [

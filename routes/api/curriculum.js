@@ -56,7 +56,7 @@ exports.route = {
     let currentTerm = (this.term.currentTerm || this.term.nextTerm).name
     // 若为查询未来学期，可能是在选课过程中，需要减少缓存时间
     return await this.userCache(term && term > currentTerm ? '15m+' : '1d+', async () => {
-    // return await this.userCache('1d+', async () => {
+      // return await this.userCache('1d+', async () => {
       let { name, cardnum, schoolnum } = this.user
       let curriculum = []
       // 新选课系统-目前使用18级本科生数据进行测试
@@ -85,7 +85,7 @@ exports.route = {
                         from t_rw_jsb,(
                            select jxbid
                            from t_xk_xkxs
-                           where xh='${cardnum}' and xnxqdm = '${term.name}')a
+                           where xh=:cardnum and xnxqdm = :termName  )a
                         where a.jxbid = t_rw_jsb.jxbid)b
                     where b.jxbid = t_pk_sjddb.jxbid)c
                 where c.jasdm = t_jas_jbxx.jasdm)d
@@ -95,8 +95,11 @@ exports.route = {
         let myResult = await this.db.execute(`
         SELECT COURSENAME, TEACHERNAME, BEGINWEEK, ENDWEEK, DAYOFWEEK, FLIP, BEGINPERIOD, ENDPERIOD, LOCATION, WID
         FROM H_MY_COURSE
-        WHERE OWNER = '${cardnum}' and SEMESTER = '${term.name}'
-        `)
+        WHERE OWNER = :cardnum and SEMESTER = :termName
+        `, {
+          cardnum,
+          termName: term.name
+        })
         myResult.rows.map(Element => {
           let [courseName, teacherName, beginWeek, endWeek, dayOfWeek, flip, beginPeriod, endPeriod, location, _id] = Element
           const course = {
@@ -436,8 +439,11 @@ exports.route = {
           let myResult = await this.db.execute(`
         SELECT COURSENAME, TEACHERNAME, BEGINWEEK, ENDWEEK, DAYOFWEEK, FLIP, BEGINPERIOD, ENDPERIOD, LOCATION, WID
         FROM H_MY_COURSE
-        WHERE OWNER = '${cardnum}' and SEMESTER = '${term.name}'
-        `)
+        WHERE OWNER = :cardnum and SEMESTER = :termName
+        `, {
+            cardnum,
+            termName: term.name
+          })
           myResult.rows.map(Element => {
             let [courseName, teacherName, beginWeek, endWeek, dayOfWeek, flip, beginPeriod, endPeriod, location, _id] = Element
             const course = {
@@ -640,8 +646,10 @@ exports.route = {
   async delete({ _id }) {
     let record = await this.db.execute(`
     select * from H_MY_COURSE
-    where wid='${_id}'
-  `)
+    where wid= :id
+  `, {
+      id: _id
+    })
     record = record.rows[0]
 
     if (!record) {
@@ -650,8 +658,8 @@ exports.route = {
 
     let result = await this.db.execute(`
     DELETE from H_MY_COURSE
-    WHERE WID ='${_id}'
-  `)
+    WHERE WID =:id
+  `, { id: _id })
     if (result.rowsAffected > 0) {
       return '删除成功'
     } else {
