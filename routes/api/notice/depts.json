@@ -41,7 +41,7 @@
     ],
     "name": "艺术学院",
     "dateSelector": "span.post_time",
-    "contentSelector": "[portletmode='simpleArticleAttri']"
+    "contentSelector": ".wp_articlecontent"
   },
   "automation": {
     "baseUrl": "http://automation.seu.edu.cn",
