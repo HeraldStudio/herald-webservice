@@ -1,13 +1,17 @@
 /**
  * Created by WolfTungsten on 2018/1/31.
+ * 
+ * Rebuild by ZZJ on 2020/2/7
+ * 注意：axios 中间件依赖 spider 提供的底层借口，修改的时候请务必注意
  */
 
 const ws = require('ws')
 const { config } = require('../app')
-const axios = require('axios')
 const tough = require('tough-cookie')
-const sms = require('../sdk/yunpian')
-const spiderSecret = (() => {
+const uuid = require('uuid/v4')
+const crypto = require('crypto')
+// const sms = require('../sdk/yunpian')
+const spiderCommonConfig = (() => {
   try {
     return require('./spider-secret.json')
   } catch (e) {
@@ -15,69 +19,63 @@ const spiderSecret = (() => {
   }
 })()
 
-// errcode定义
-const NO_SPIDER_ERROR = 0 // 没有可用在线爬虫
-const WEBSOCKET_TRASFER_ERROR = 1 // WS传输错误
-const SERVER_ERROR = 2 // 爬虫服务器错误
-const REQUEST_ERROR = 3 // 远端请求错误
+// 用于爬虫的加密认证
+const encryptSipder = (value) => {
+  try {
+    let cipheriv = crypto.createCipheriv(spiderCommonConfig.cipher, spiderCommonConfig.key, spiderCommonConfig.iv)
+    let result = cipheriv.update(value, 'utf8', 'hex')
+    result += cipheriv.final('hex')
+    return result
+  } catch (e) {
+    // console.log(e)
+    return ''
+  }
+}
 
-const adminPhoneNumber = ['15651975186'] // 日后和鉴权平台融合
+
+// errcode定义
+const NO_SPIDER_ERROR = 0              // 没有可用在线爬虫
+const WEBSOCKET_TRASFER_ERROR = 1      // WS传输错误
+const SERVER_ERROR = 2                 // 爬虫服务器错误
+const REQUEST_ERROR = 3                // 远端请求错误
+
+// const adminPhoneNumber = ['15651975186'] // 日后和鉴权平台融合
+
 class SpiderServer {
 
   constructor() {
-    //let that = this
-    this.connectionPool = {}  // 连接池
-    this.requestPool = {}  // 请求池
+    
+    this.connectionPool = {}   // 连接池
+    this.requestPool = {}      // 请求池
     this.socketServer = new ws.Server({port: program.port + 1000})
+  
     this.socketServer.on('connection', (connection) => {
+      // console.log('connection')
       this.handleConnection(connection)
     })
     this.socketServer.on('error', (error) => {
       error.errCode = SERVER_ERROR
-      console.log(error)
+      // console.log(error)
     })
-    console.log(chalkColored.green('[+] 分布式硬件爬虫服务正在运行...'))
+    console.log(chalkColored.green('[+] 分布式硬件爬虫服务正在启动...'))
   }
 
   handleConnection(connection) {
-    let name = this.generateSpiderName()
+    let name = this.generateSpiderName()     // 爬虫名称
     connection.spiderName = name
     this.connectionPool[name] = connection
     connection.active = false
-    let token = this.generateToken()
-    console.log(`[I] 硬件爬虫 ${chalkColored.blue(`<${name}>`)} 连接建立，请使用口令 ${chalkColored.blue(`<${token}>`)} 完成配对`)
-    sms.spiderToken(adminPhoneNumber, name, token)
-
-    // 使用 slack 认证的部分
-    // new slackMessage().send(`分布式硬件爬虫 ${name} 请求连接认证，请核实是否内部人员操作`, [
-    //     {
-    //       name: 'accept',
-    //       text: '接受',
-    //       style: 'primary',
-    //       response: `👌分布式硬件爬虫 ${name} 已连接`,
-    //       confirm: {
-    //         title: "⚠️警告",
-    //         text: "连接的爬虫会截获webservice3发起请求包含的所有数据，请务必确认该操作由内部人员操作以保证信息安全！",
-    //         ok_text: "确认连接",
-    //         dismiss_text: "容我思考下"
-    //       }
-    //     }, {
-    //       name: 'refuse',
-    //       text: '拒绝',
-    //       response: `❌已拒绝分布式硬件爬虫 ${name} 连接`
-    //     }
-    //   ]).then((tag) => {
-    //     try {
-    //       if (tag === 'accept') {
-    //         this.acceptSpider(connection)
-    //       } else {
-    //         this.rejectSpider(connection)
-    //       }
-    //     } catch (e) {}
-    //   })
-
+    let token = this.generateToken()         // 爬虫token
     connection.token = token
-    let message = {spiderName: name}
+    
+    console.log(`[I] 硬件爬虫 ${chalkColored.blue(`<${name}>`)} 连接建立，配对中.....`)
+   
+    let message = {
+      spiderName: name,
+      secret: encryptSipder(token)
+    }
+    
+    // token 加密后发送给硬件爬虫
     connection.send(JSON.stringify(message))
 
     // 来自硬件爬虫数据的处理
@@ -92,30 +90,14 @@ class SpiderServer {
       if (connection.active) {
         this.handleResponse(data)
       } else {
-        // token 认证的部分
-        let { token } = JSON.parse(data)
-
-        // 老版密令主动认证
-        if (token in spiderSecret) {
-          this.acceptSpider(connection)
-          console.log(`爬虫 ${connection.spiderName} 主动认证成功`)
-          // new slackMessage().send(`爬虫 ${connection.spiderName} 主动认证成功，身份标识 ${spiderSecret[token]}`)
-        }
-        
-        // 新版运维登录 token 认证
-        else try {
-          let res = await axios.get(`http://localhost:${config.port}/api/admin/admin`, {
-            headers: { token }
-          })
-          if (res.data.result.maintenance) {
-            let name = res.data.result.maintenance.name
+        // 爬虫认证
+        try{
+          if(connection.spiderName === JSON.parse(data).spiderName && connection.token === JSON.parse(data).token){
             this.acceptSpider(connection)
-            console.log(`爬虫 ${connection.spiderName} 运维认证成功，操作者${name}`)
-            // new slackMessage().send(`爬虫 ${connection.spiderName} 运维认证成功，操作者${name}`)
-          } else {
+          }else{
             this.rejectSpider(connection)
           }
-        } catch (e) {
+        }catch(e){
           this.rejectSpider(connection)
         }
       }
@@ -126,7 +108,8 @@ class SpiderServer {
       // console.log(`[I]硬件爬虫 <${connection.spiderName}> 连接关闭,code=${code}, reason=${reason}`)
       delete this.connectionPool[connection.spiderName]
     })
-
+    
+    // 硬件爬虫错误相应
     connection.on('error', (error) => {
 
       console.log(chalkColored.red(`[W]硬件爬虫 <${connection.spiderName}> 连接出错, 错误信息：`))
@@ -136,12 +119,14 @@ class SpiderServer {
     })
   }
 
+  // 接受硬件爬虫，也就是认证成功
   acceptSpider(connection) {
     connection.active = true
-    console.log(`[I] 硬件爬虫 <${connection.spiderName}> ${chalkColored.green('认证成功')}`)
+    console.log(`[I] 硬件爬虫 ${chalkColored.blue(`<${connection.spiderName}>`)} ${chalkColored.green('认证成功')}`)
     connection.send('Auth_Success')
   }
 
+  // 拒绝硬件爬虫，也就是认证失败
   rejectSpider(connection) {
     console.log(`[W] 硬件爬虫 <${connection.spiderName}> ${chalkColored.red('认证失败')}`)
     delete this.connectionPool[connection.spiderName]
@@ -149,14 +134,22 @@ class SpiderServer {
     connection.terminate()
   }
 
+  // 生成爬虫名称
   generateSpiderName() {
     let name
     do {
       name = Math.random().toString(36).substr(2)
+      console.log(name)
     } while (this.connectionPool[name])
     return name
   }
 
+  // 生成爬虫认证 token
+  generateToken() {
+    return uuid()
+  }
+
+  // 生成请求名称
   generateRequestName() {
     let name
     do {
@@ -165,15 +158,7 @@ class SpiderServer {
     return name
   }
 
-  generateToken() {
-    let token = ''
-    token += parseInt((Math.random() * 4 + 1).toString())
-    token += parseInt((Math.random() * 4 + 1).toString())
-    token += parseInt((Math.random() * 4 + 1).toString())
-    token += parseInt((Math.random() * 4 + 1).toString())
-    return token
-  }
-
+  // request 请求编码，按照axios的格式编码
   requestEncoder(request) {
     // 对于 Axios 库标准请求对象进行编码
     let perEncode = {
@@ -200,6 +185,7 @@ class SpiderServer {
     // 返回 String
   }
 
+  // 私有的 request 方法
   _request(ctx, request) {
     let name = this.generateRequestName()
     request.requestName = name
@@ -240,11 +226,20 @@ class SpiderServer {
     })
   }
 
+  // 对外暴露的 request 的方法
   async request(ctx, method, arg, config, transformRequest, transformResponse) {
+    
+    // axios 中间传来的两个处理函数
+    // transformRequest 请求格式处理函数
+    // transformResponse 响应格式处理函数
     let request = {transformRequest, transformResponse}
+
     request.cookie = ctx.cookieJar.toJSON()
+    // console.log('request.cookie:',request.cookie)
     request.method = method.toLowerCase()
     request = this.merge(config, request)
+    
+    // 根据请求方法处理参数
     if (method === 'get' || method === 'delete') {
       // get\delete方法对应处理
       if (arg.length === 1) {
@@ -267,13 +262,18 @@ class SpiderServer {
         request = this.merge(request, arg[2], {url: arg[0], data: arg[1]})
       }
     }
+
+    // 强制本地执行
     if (request.forceLocal) {
       console.log('[+] 该请求强制本地执行')
       throw new Error('force_local')
     }
+
+    // console.log('request:',request)
     return this._request(ctx, request) // 传入ctx以满足cookieJar自动添加和实现
   }
 
+  // 获取可以用的硬件爬虫列表
   getAvailableSpiders() {
     let timestamp = +moment()
     let availableList = []
@@ -286,6 +286,7 @@ class SpiderServer {
     return availableList
   }
 
+  // 选一个可用的硬件爬虫
   pickSpider() {
     let availableList = this.getAvailableSpiders()
     let length = availableList.length
@@ -315,12 +316,8 @@ class SpiderServer {
     if (data.succ) {
       clearTimeout(requestObj.timeout)
       // 将data域解码为原始状态
+      // 相应结果是 buffer
       data.data = requestObj.transformResponse(Buffer.from(data.data.data))
-      try {
-        data.data = JSON.parse(data.data)
-      } catch (e) {
-        // ignore
-      }
       // 自动更新cookieJar
       requestObj.ctx.cookieJar = tough.CookieJar.fromJSON(data.cookie)
       requestObj.resolve(data)

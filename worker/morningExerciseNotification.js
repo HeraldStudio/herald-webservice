@@ -19,7 +19,6 @@ process.on('message', async (templateMessage) => {
     } catch (e) {
       console.log(e.message)
     }
-
   }
   process.send({ success: true, amount, count })
 })

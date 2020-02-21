@@ -56,7 +56,7 @@ exports.route = {
     let currentTerm = (this.term.currentTerm || this.term.nextTerm).name
     // 若为查询未来学期，可能是在选课过程中，需要减少缓存时间
     return await this.userCache(term && term > currentTerm ? '15m+' : '1d+', async () => {
-    // return await this.userCache('1d+', async () => {
+      // return await this.userCache('1d+', async () => {
       let { name, cardnum, schoolnum } = this.user
       let curriculum = []
       // 新选课系统-目前使用18级本科生数据进行测试
@@ -85,193 +85,24 @@ exports.route = {
                         from t_rw_jsb,(
                            select jxbid
                            from t_xk_xkxs
-                           where xh='${cardnum}' and xnxqdm = '${term.name}')a
+                           where xh=:cardnum and xnxqdm = :termName  )a
                         where a.jxbid = t_rw_jsb.jxbid)b
                     where b.jxbid = t_pk_sjddb.jxbid)c
                 where c.jasdm = t_jas_jbxx.jasdm)d
             where d.kch = t_kc_kcb.kch)e
         where e.jsh = t_jzg_jbxx.zgh
-        `)
+        `, {
+          cardnum,
+          termName: term.name
+        })
         let myResult = await this.db.execute(`
         SELECT COURSENAME, TEACHERNAME, BEGINWEEK, ENDWEEK, DAYOFWEEK, FLIP, BEGINPERIOD, ENDPERIOD, LOCATION, WID
         FROM H_MY_COURSE
-        WHERE OWNER = '${cardnum}' and SEMESTER = '${term.name}'
-        `)
-<<<<<<< HEAD
-      myResult.rows.map(Element => {
-        let [courseName, teacherName, beginWeek, endWeek, dayOfWeek, flip, beginPeriod, endPeriod, location, _id] = Element
-        const course = {
-          _id:_id,
-          courseName: courseName,
-          teacherName: teacherName,
-          beginWeek: beginWeek,
-          endWeek: endWeek,
-          dayOfWeek: dayOfWeek,
-          flip: flip,
-          beginPeriod: beginPeriod,
-          endPeriod: endPeriod,
-          location: location,
-          credit: '学分未知'
-        }
-        curriculum.push(course)
-      })
-      result.rows.map(Element => {
-        let [SKZC, SKXQ, KSJC, JSJC, JASMC, KCM, XM] = Element
-        const course = {
-          courseName: KCM,
-          teacherName: XM,
-          beginWeek: SKZC.indexOf('1') + 1,
-          endWeek: SKZC.lastIndexOf('1') + 1,
-          dayOfWeek: parseInt(SKXQ),
-          flip: SKZC.startsWith('1010') ?
-            'odd' :
-            SKZC.startsWith('0101') ?
-              'even' :
-              'none',
-          beginPeriod: parseInt(KSJC),
-          endPeriod: parseInt(JSJC),
-          location: JASMC,
-          credit: '学分未知'
-        }
-        curriculum.push(course)
-      })
-      curriculum.forEach(Element => {
-        for(let e in Element){
-          if (Element[e]=== null)
-            delete Element[e]
-        }
-      })
-      // const rows = curriculumRes.data.datas.xskcb.rows
-      // rows.forEach(rawCourse => {
-      //   const course = {
-      //     courseName: rawCourse.KCM,
-      //     teacherName: rawCourse.SKJS,
-      //     beginWeek: rawCourse.SKZC.indexOf('1') + 1,
-      //     endWeek: rawCourse.SKZC.lastIndexOf('1') + 1,
-      //     dayOfWeek: parseInt(rawCourse.SKXQ),
-      //     flip: rawCourse.SKZC.startsWith('1010') ?
-      //       'odd' :
-      //       rawCourse.SKZC.startsWith('0101') ?
-      //         'even' :
-      //         'none',
-      //     beginPeriod: parseInt(rawCourse.KSJC),
-      //     endPeriod: parseInt(rawCourse.JSJC),
-      //     location: rawCourse.JASMC,
-      //     credit: '学分未知'
-      //   }
-      //   curriculum.push(course)
-      // })
-
-      //////////////////////////////////////////////////////////////
-      // term = this.term.list.find( t => t.name === '18-19-2')
-      // term.maxWeek = 16
-      // let attp = 0
-      // let token
-      // // 进行登录尝试，验证码有可能识别失败/识别错误。
-      // while (true) {
-      //   // 获取验证码vcode
-      //   attp++
-      //   if (attp >= 10) {
-      //     // 最大尝试次数10次若还不成功，放弃本次请求
-      //     throw 400
-      //   }
-      //   let res = await this.get('http://newxk.urp.seu.edu.cn/xsxkapp/sys/xsxkapp/student/4/vcode.do', { timestamp: now })
-      //   let vtoken = res.data.data.token // vtoken后面登录的时候还要用
-      //   console.log(vtoken)
-      //   // 获取验证码
-      //   let headers = {
-      //     Accept: 'image/webp,image/apng,image/*,*/*;q=0.8',
-      //     Referer: 'http://newxk.urp.seu.edu.cn/xsxkapp/sys/xsxkapp/*default/index.do'
-      //   }
-      //   let captchaCode = await this.get('http://newxk.urp.seu.edu.cn/xsxkapp/sys/xsxkapp/student/vcode/image.do?vtoken=' + vtoken)
-      //   let vcode = await recognizeCaptcha(captchaCode.data, vtoken)
-      //   if (vcode) {
-      //     try {
-      //       let loginRes = await this.get(`http://newxk.urp.seu.edu.cn/xsxkapp/sys/xsxkapp/student/check/login.do?timestrap=${now}&loginName=${cardnum}&loginPwd=${password}&verifyCode=${vcode}&vtoken=${vtoken}`)
-      //       if (loginRes.data.msg === '登录成功') {
-      //         token = loginRes.data.data.token
-      //         break
-      //       }
-      //     } catch (e) { console.log(e) }
-      //   }
-      // };
-      // console.log('登录成功')
-      // // 执行到此处即登录新选课系统成功，开始抓取课表数据
-      // now = +moment()
-      // let headers = { token }
-      // let rawCurriculum = await this.get(`http://newxk.urp.seu.edu.cn/xsxkapp/sys/xsxkapp/elective/teachingTime.do?timestamp=${now}&studentCode=${cardnum}`,{ headers })
-      // let extraInfo = await this.get(`http://newxk.urp.seu.edu.cn/xsxkapp/sys/xsxkapp/elective/courseResult.do?timestamp=${now}&studentCode=${cardnum}`, { headers })
-      // let extraInfoMap = {}
-      // extraInfo.data.dataList.map((k, i, a) => {
-      //   extraInfoMap[k.courseNumber] = k
-      // })
-
-      // rawCurriculum.data.dataList.map((k, i, a) => {
-      //   let course = {}
-      //   course.courseName = k.courseName
-      //   course.teacherName = k.teacherName
-      //   course.credit = parseFloat(extraInfoMap[k.courseNumber].credit)
-      //   course.beginWeek = k.week.indexOf('1') + 1
-      //   course.endWeek = k.week.lastIndexOf('1') + 1
-      //   course.dayOfWeek = parseInt(k.dayOfWeek)
-      //   if (k.week.startsWith('1010')) {
-      //     course.flip = 'odd'
-      //   } else if (k.week.startsWith('0101')){
-      //     course.flip = 'even'
-      //   } else {
-      //     course.flip = 'none'
-      //   }
-      //   course.beginPeriod = parseInt(k.beginSection)
-      //   course.endPeriod = parseInt(k.endSection)
-      //   course.location = k.teachingPlace
-      //   curriculum.push(course)
-      // })
-
-
-    } else if (!/^22/.test(cardnum)) {
-      // 非18级本科生/教师版
-      // 为了兼容丁家桥格式，短学期没有课的时候需要自动查询长学期
-      // 为此不得已使用了一个循环
-      do {
-        // 老师的号码是1开头的九位数
-        // 考虑到学号是八位数的情况
-        let isStudent = !(/^1\d{8}$/.exec(cardnum))
-        // if (isStudent) {
-        //   // 处理 curriculum
-        //   // 获取课表
-        //   let result = await this.db.execute(`
-        //   SELECT XKJXB, XKKCDM, JSXM, SKAP
-        //   FROM T_XK_XKJG
-        //   WHERE XH = '${cardnum}' AND XN='${currentTerm.split('-')[0]}'
-        // `)
-        //   result.rows.map(Element => {
-        //     let [XKJXB, XKKCDM, JSXM, SKAP] = Element
-        //     // const course = {
-        //     //   courseName: KCM,
-        //     //   teacherName: XM,
-        //     //   beginWeek: SKZC.indexOf('1') + 1,
-        //     //   endWeek: SKZC.lastIndexOf('1') + 1,
-        //     //   dayOfWeek: parseInt(SKXQ),
-        //     //   flip: SKZC.startsWith('1010') ?
-        //     //     'odd' :
-        //     //     startsWith('0101') ?
-        //     //       'even' :
-        //     //       'none',
-        //     //   beginPeriod: parseInt(KSJC),
-        //     //   endPeriod: parseInt(JSJC),
-        //     //   location: JASMC,
-        //     //   credit: '学分未知'
-        //     // }
-        //     // curriculum.push(course)
-
-        //   })
-        // 抓取课表页面
-        let res = await (isStudent ? this.post(
-          'http://xk.urp.seu.edu.cn/jw_service/service/stuCurriculum.action',
-          {
-            queryStudentId: cardnum,
-            queryAcademicYear: term || undefined
-=======
+        WHERE OWNER = :cardnum and SEMESTER = :termName
+        `, {
+          cardnum,
+          termName: term.name
+        })
         myResult.rows.map(Element => {
           let [courseName, teacherName, beginWeek, endWeek, dayOfWeek, flip, beginPeriod, endPeriod, location, _id] = Element
           const course = {
@@ -286,7 +117,6 @@ exports.route = {
             endPeriod: endPeriod,
             location: location,
             credit: '学分未知'
->>>>>>> c8fc2e6e66009f75fd4e5a53bec7882f63a372ea
           }
           curriculum.push(course)
         })
@@ -405,6 +235,12 @@ exports.route = {
 
 
       } else if (!/^22/.test(cardnum)) {
+        term = term.split('-').map(Element => {
+          if (term.split('-').indexOf(Element) <= 1) {
+            Element = Element.slice(2,4)
+          }
+          return Element
+        }).join('-')
         // 非18级本科生/教师版
         // 为了兼容丁家桥格式，短学期没有课的时候需要自动查询长学期
         // 为此不得已使用了一个循环
@@ -455,11 +291,16 @@ exports.route = {
               query_xnxq: term || undefined
             }
           ))
-
-          try {
-            // 从课表页面抓取学期号
-            term = /<font class="Context_title">[\s\S]*?(\d{2}-\d{2}-\d)[\s\S]*?<\/font>/im.exec(res.data)[1]
-          } catch (e) { throw '解析失败' }
+          if (!term) {
+            try {
+              // 从课表页面抓取学期号
+              // console.log(res.data.toString())
+              term = /<font class="Context_title">[\s\S]*?(\d{2}-\d{2}-\d)[\s\S]*?<\/font>/im.exec(res.data.toString())[1]
+            } catch (e) {
+              console.log(e)
+              throw '解析失败'
+            }
+          }
           term = term.split('-').map(Element => {
             if (term.split('-').indexOf(Element) <= 1) {
               Element = '20' + Element
@@ -470,7 +311,6 @@ exports.route = {
           term = this.term.list.find(k => k.name === term) || {
             name: term
           }
-
           // 初始化侧边栏和课表解析结果
           let sidebarDict = {}, sidebarList = []
           // 解析侧边栏，先搜索侧边栏所在的 table
@@ -612,8 +452,11 @@ exports.route = {
           let myResult = await this.db.execute(`
         SELECT COURSENAME, TEACHERNAME, BEGINWEEK, ENDWEEK, DAYOFWEEK, FLIP, BEGINPERIOD, ENDPERIOD, LOCATION, WID
         FROM H_MY_COURSE
-        WHERE OWNER = '${cardnum}' and SEMESTER = '${term.name}'
-        `)
+        WHERE OWNER = :cardnum and SEMESTER = :termName
+        `, {
+            cardnum,
+            termName: term.name
+          })
           myResult.rows.map(Element => {
             let [courseName, teacherName, beginWeek, endWeek, dayOfWeek, flip, beginPeriod, endPeriod, location, _id] = Element
             const course = {
@@ -816,8 +659,10 @@ exports.route = {
   async delete({ _id }) {
     let record = await this.db.execute(`
     select * from H_MY_COURSE
-    where wid='${_id}'
-  `)
+    where wid= :id
+  `, {
+      id: _id
+    })
     record = record.rows[0]
 
     if (!record) {
@@ -826,8 +671,8 @@ exports.route = {
 
     let result = await this.db.execute(`
     DELETE from H_MY_COURSE
-    WHERE WID ='${_id}'
-  `)
+    WHERE WID =:id
+  `, { id: _id })
     if (result.rowsAffected > 0) {
       return '删除成功'
     } else {

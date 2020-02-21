@@ -1,12 +1,16 @@
 
 exports.route = {
   async get({ key, type }) {
+    key = '%' + key + '%'
     let record = await this.db.execute(`
       SELECT *
       FROM H_LOST_AND_FOUND
-      where isAudit = 1 and isFinished = 0 and type = '${type}' and title like '%${key}%'
+      where isAudit = 1 and isFinished = 0 and type = :type and title like :key
       ORDER BY LASTMODIFIEDTIME DESC
-    `)
+    `, {
+      type,
+      key
+    })
     record = record.rows.map(Element => {
       let [_id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished] = Element
       return { _id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished }

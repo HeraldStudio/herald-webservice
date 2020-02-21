@@ -83,6 +83,7 @@ exports.route = {
       && /^21/.test(this.user.cardnum)) { // 只处理本科生，似乎研究生从学号无法获取学院信息
       keys = keys.concat(deptCodeFromSchoolNum(this.user.schoolnum))
     }
+
     let ret = await Promise.all(keys.map(async (site) =>
       await this.publicCache(site, '1m+', async () => {
         if (!sites[site]) {
@@ -250,7 +251,6 @@ exports.route = {
                 ${heraldNotice.content}\n\n 
                 ${heraldNotice.url ? '相关链接:' + heraldNotice.url : ''}
                 `
-
     } else {
       throw '无转换结果'
     }

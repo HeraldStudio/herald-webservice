@@ -54,8 +54,6 @@ exports.route = {
       })
 
       return sessionid
-
     }
-
   }
 }

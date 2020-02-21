@@ -4,26 +4,26 @@ exports.route = {
    * @param { id, pass } 
    * 审核接口
    */
-  async post({id, pass}){
+  async post({ id, pass }) {
     if (!(await this.hasPermission('publicity'))) {
       throw 403
     }
-    if(pass){
+    if (pass) {
       await this.db.execute(`
       UPDATE H_LOST_AND_FOUND
       SET 
       ISAUDIT = 1,
       ISFINISHED = 0
-      WHERE wid = '${id}'
-      `)
+      WHERE wid = :id
+      `, { id })
     } else {
       await this.db.execute(`
       UPDATE H_LOST_AND_FOUND
       SET 
       ISAUDIT = 0,
       ISFINISHED = 1
-      WHERE wid = '${id}'
-      `)
+      WHERE wid = :id
+      `, { id })
     }
     return 'success'
   }

@@ -32,8 +32,8 @@ exports.route = {
         let record = await this.db.execute(`
         select * 
         from H_LOST_AND_FOUND
-        where wid = '${id}'
-        `)
+        where wid = :id
+        `, { id })
         record = record.rows.map(Element => {
           let [_id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished] = Element
           return { _id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished }
@@ -134,11 +134,11 @@ exports.route = {
           SELECT T.*,ROWNUM R FROM (
             SELECT * 
             FROM H_LOST_AND_FOUND
-            WHERE CREATOR = '${cardnum}'
+            WHERE CREATOR = :cardnum
             ORDER BY LASTMODIFIEDTIME DESC
           )T)
         WHERE R > ${(page - 1) * pagesize} and R <= ${page * pagesize}
-        `)
+        `, { cardnum })
       record = record.rows.map(Element => {
         let [_id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished] = Element
         return { _id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished }
@@ -204,8 +204,8 @@ exports.route = {
     let { cardnum } = this.user
     let record = await this.db.execute(`
     select * from H_LOST_AND_FOUND
-    where wid='${id}'
-  `)
+    where wid=:id
+  `, { id })
     let oldRecord = record.rows.map(Element => {
       let [_id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished] = Element
       return { _id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished }
@@ -229,10 +229,15 @@ exports.route = {
         SET 
         TITLE = :title,
         DESCRIBE = :describe,
-        IMAGEURL = ${imageUrl ? `'${imageUrl}'` : null},
+        IMAGEURL = :imageUrl,
         LASTMODIFIEDTIME = ${+moment()}
-        WHERE wid = '${id}'
-        `, { title: title ? title : oldRecord.title, describe: describe ? describe : oldRecord.describe })
+        WHERE wid = :id
+        `, {
+      title: title ? title : oldRecord.title,
+      describe: describe ? describe : oldRecord.describe,
+      imageUrl: imageUrl ? imageUrl : null,
+      id
+    })
 
     if (result.rowsAffected > 0) {
       this.clearCache(id)
@@ -246,8 +251,8 @@ exports.route = {
     let { cardnum } = this.user
     let record = await this.db.execute(`
     select * from H_LOST_AND_FOUND
-    where wid='${id}'
-  `)
+    where wid=:id
+    `, { id })
     record = record.rows.map(Element => {
       let [_id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished] = Element
       return { _id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished }
@@ -265,8 +270,8 @@ exports.route = {
 
     let result = await this.db.execute(`
     DELETE from H_LOST_AND_FOUND
-    WHERE WID ='${id}'
-  `)
+    WHERE WID =:id
+    `, { id })
     if (result.rowsAffected > 0) {
       this.clearCache(id)
       return '删除成功'

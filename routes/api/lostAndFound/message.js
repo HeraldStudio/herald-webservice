@@ -7,8 +7,8 @@ exports.route = {
       let record = await this.db.execute(`
       select * 
       from H_LOST_AND_FOUND
-      where wid = '${itemId}'
-    `)
+      where wid = :itemId
+    `, { itemId })
       record = record.rows.map(Element => {
         let [_id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished] = Element
         return { _id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished }
@@ -22,9 +22,12 @@ exports.route = {
         let record = await this.db.execute(`
           SELECT *
           FROM H_LOST_AND_FOUND_message
-          where ITEMID = '${itemId}' and creator = '${cardnum}'
+          where ITEMID = :itemId and creator = :cardnum
           ORDER BY LASTMODIFIEDTIME DESC
-        `)
+        `, {
+          itemId,
+          cardnum
+        })
         return record.rows.map(Element => {
           let [_id, itemId, message, creator, hasRead, lastModifiedTime] = Element
           return { _id, itemId, message, creator, hasRead, lastModifiedTime }
@@ -36,15 +39,15 @@ exports.route = {
       UPDATE H_LOST_AND_FOUND_message
       SET 
       HASREAD = 1
-      WHERE ITEMID = '${itemId}'
-      `)
+      WHERE ITEMID = :itemId
+      `, { itemId })
       // return await messageCollection.find({ itemId }, { sort: [['lastModifiedTime', -1]] }).toArray()
       record = await this.db.execute(`
       SELECT *
       FROM H_LOST_AND_FOUND_message
-      where ITEMID = '${itemId}'
+      where ITEMID = :itemId
       ORDER BY LASTMODIFIEDTIME DESC
-    `)
+      `, { itemId })
       record = record.rows.map(Element => {
         let [_id, itemId, message, creator, hasRead, lastModifiedTime] = Element
         return { _id, itemId, message, creator, hasRead, lastModifiedTime }
@@ -63,8 +66,8 @@ exports.route = {
       let items = await this.db.execute(`
       select * 
       from H_LOST_AND_FOUND
-      where creator = '${cardnum}' and isAudit = 1 and isFinished = 0
-    `)
+      where creator = :cardnum and isAudit = 1 and isFinished = 0
+    `, { cardnum })
       items = items.rows.map(Element => {
         let [_id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished] = Element
         return { _id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished }
@@ -99,8 +102,8 @@ exports.route = {
     let record = await this.db.execute(`
     select * 
     from H_LOST_AND_FOUND
-    where wid = '${itemId}'
-  `)
+    where wid = :itemId
+  `, { itemId })
     record = record.rows.map(Element => {
       let [_id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished] = Element
       return { _id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished }

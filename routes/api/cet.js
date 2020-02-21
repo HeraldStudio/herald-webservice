@@ -10,13 +10,23 @@ exports.route = {
     return await this.userCache('1d+', async () => {
       const { cardnum } = this.user
       let record = await this.db.execute(
-        `select H_CET.CET_EXAM_CODE from TOMMY.H_CET
+        `select H_CET.CET_EXAM_CODE, LOCATION, EXAMTIME from TOMMY.H_CET
       where CARDNUM= :cardnum
       `, [cardnum])
-      let result = record.rows.map(Element => {
-        let [CET_EXAM_CODE] = Element
-        return { CET_EXAM_CODE }
-      })
+      let result
+      if (record.rows.length === 0) {
+        result = '暂无记录'
+      } else {
+        result = {
+          examCode: record.rows[0][0],
+          location: record.rows[0][1] === '' ? null : record.rows[0][1],
+          examTime: record.rows[0][2] === 0 ? null : record.rows[0][2]
+        }
+        for (let e in result) {
+          if (result[e] === null)
+            delete result[e]
+        }
+      }
       return result
     })
     // let cetCollection = await mongodb('herald_cet')
@@ -50,18 +60,21 @@ exports.route = {
     //   }
     // })
   },
-  async post({ examCard }){
+  async post({ examCode, location, examTime }) {
     let { cardnum } = this.user
-    if (!examCard) {
+    if (!examCode) {
       throw '准考证号未定义'
     }
-
+    await this.db.execute(`
+    DELETE from TOMMY.H_CET
+    where CARDNUM= :cardnum
+    `,{cardnum})
     let sql, binds, options, result
-    sql = `INSERT INTO H_CET VALUES (sys_guid(), :1, :2, :3)`
-
+    sql = `INSERT INTO H_CET VALUES (sys_guid(), :1, :2, :3, :4)`
     binds = [
-      [cardnum, examCard, +moment()],
+      [cardnum, examCode, (examTime ? examTime : -1), (location ? location : '')],
     ]
+
     options = {
       autoCommit: true,
 
@@ -70,6 +83,7 @@ exports.route = {
         { type: oracledb.STRING, maxSize: 20 },
         { type: oracledb.STRING, maxSize: 60 },
         { type: oracledb.NUMBER },
+        { type: oracledb.STRING, maxSize: 20 },
       ]
     }
 
@@ -81,13 +95,4 @@ exports.route = {
       throw '上传失败'
     }
   },
-  async put({ examCard }) {
-    const { cardnum } = this.user
-    await this.db.execute(
-      `update TOMMY.H_CET set CET_EXAM_CODE = :examcard
-    where CARDNUM= :cardnum
-    `, { examCard, cardnum })
-    this.clearCache('/api/cet')
-    return '修改成功'
-  }
 }
