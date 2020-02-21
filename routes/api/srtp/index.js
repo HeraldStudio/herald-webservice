@@ -7,23 +7,6 @@ exports.route = {
   * SRTP查询
   **/
   async get() {
-    // return {
-    //   info: {
-    //     points: '2.0',
-    //     grade: '及格'
-    //   },
-    //   projects: [
-    //     {
-    //       type: '竞赛获奖',
-    //       project: '华为杯’东南大学第十五届大学生程序设计竞赛 校级 类 校级优秀奖',
-    //       date: '2019年10月',
-    //       department: '',
-    //       total: 0.5,
-    //       proportion: 1,
-    //       credit: 0.5
-    //     }
-    //   ]
-    // }
     return await this.userCache('30m+', async () => {
       let { schoolnum } = this.user
 
