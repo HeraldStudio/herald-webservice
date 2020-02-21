@@ -1,6 +1,6 @@
 {
   "arch": {
-    "baseUrl": "http://arch.seu.edu.cn",
+    "baseUrl": "https://arch.seu.edu.cn",
     "codes": [
       "01"
     ],
@@ -12,7 +12,8 @@
       ]
     ],
     "name": "建筑学院",
-    "dateSelector": "em"
+    "dateSelector": "em",
+    "contentSelector": ".info-box"
   },
   "arts": {
     "baseUrl": "http://arts.seu.edu.cn",
@@ -39,7 +40,8 @@
       ]
     ],
     "name": "艺术学院",
-    "dateSelector": "span.post_time"
+    "dateSelector": "span.post_time",
+    "contentSelector": "[portletmode='simpleArticleAttri']"
   },
   "automation": {
     "baseUrl": "http://automation.seu.edu.cn",
@@ -74,7 +76,8 @@
       ]
     ],
     "name": "自动化学院",
-    "dateSelector": "div.news_date"
+    "dateSelector": "div.news_date",
+    "contentSelector": "[frag='窗口4']"
   },
   "bme": {
     "baseUrl": "http://bme.seu.edu.cn",
@@ -105,7 +108,8 @@
       ]
     ],
     "name": "生物科学与医学工程学院",
-    "dateSelector": "span.news_meta"
+    "dateSelector": "span.news_meta",
+    "contentSelector": "[frag='窗口3']"
   },
   "chem": {
     "baseUrl": "http://chem.seu.edu.cn",
@@ -156,7 +160,8 @@
       ]
     ],
     "name": "化学化工学院",
-    "dateSelector": "span.date"
+    "dateSelector": "span.date",
+    "contentSelector": "[frag='窗口32']"
   },
   "cis": {
     "baseUrl": "http://cis.seu.edu.cn",
@@ -171,7 +176,8 @@
       ]
     ],
     "name": "海外教育学院",
-    "dateSelector": ".date-day"
+    "dateSelector": ".date-day",
+    "contentSelector": "[frag='窗口3']"
   },
   "civil": {
     "baseUrl": "http://civil.seu.edu.cn",
@@ -218,7 +224,8 @@
       ]
     ],
     "name": "土木工程学院",
-    "dateSelector": ".Article_PublishDate"
+    "dateSelector": ".Article_PublishDate",
+    "contentSelector": "[frag='窗口3']"
   },
   "cose": {
     "baseUrl": "http://cose.seu.edu.cn",
@@ -250,7 +257,7 @@
     ],
     "name": "软件学院",
     "dateSelector": "span.Article_PublishDate",
-    "contentSelector": "#infocontent"
+    "contentSelector": "[frag='窗口3']"
   },
   "cse": {
     "baseUrl": "http://cse.seu.edu.cn",
@@ -282,7 +289,7 @@
     ],
     "name": "计算机学院",
     "dateSelector": "span.news_meta",
-    "contentSelector": ".notice-content"
+    "contentSelector": "[frag='窗口3']"
   },
   "cyber": {
     "baseUrl": "http://cyber.seu.edu.cn",
@@ -314,7 +321,6 @@
     ],
     "name": "网络空间安全学院",
     "dateSelector": "span.news_meta"
-    
   },
   "ee": {
     "baseUrl": "http://ee.seu.edu.cn",
@@ -422,7 +428,8 @@
         "学院新闻"
       ]
     ],
-    "name": "经济管理学院"
+    "name": "经济管理学院",
+    "contentSelector": ".entry"
   },
   "gw": {
     "baseUrl": "http://gw.seu.edu.cn",
@@ -457,7 +464,8 @@
       ]
     ],
     "name": "公共卫生学院",
-    "dateSelector": "span, h3.small-title"
+    "dateSelector": "span, h3.small-title",
+    "contentSelector": ".wp_articlecontent"
   },
   "ic": {
     "baseUrl": "http://ic.seu.edu.cn",
@@ -490,7 +498,8 @@
       ]
     ],
     "name": "微电子学院",
-    "dateSelector": "span.Article_PublishDate"
+    "dateSelector": "span.Article_PublishDate",
+    "contentSelector": ".wp_articlecontent"
   },
   "ils": {
     "baseUrl": "http://ils.seu.edu.cn",
@@ -515,7 +524,8 @@
       ]
     ],
     "name": "生命科学研究院",
-    "dateSelector":"span.news_meta"
+    "dateSelector":"span.news_meta",
+    "contentSelector": ".wp_articlecontent"
   },
   "ins": {
     "baseUrl": "http://ins.seu.edu.cn/#/",
@@ -538,11 +548,11 @@
     "contentSelector": ".article"
   },
   "law": {
-    "baseUrl": "http://law.seu.edu.cn",
+    "baseUrl": "https://law.seu.edu.cn",
     "codes": [
       "25"
     ],
-    "infoUrl": "http://law.seu.edu.cn/",
+    "infoUrl": "https://law.seu.edu.cn/",
     "list": [
       [
         "#wp_news_w230",
@@ -561,12 +571,13 @@
         "学生工作"
       ],
       [
-        "法学院也是个特例，页面结构和其他的网站不同",
+        "法学院也是个特例，页面结构和其他的网站不同，算了不管啦",
         "学生工作"
       ]
     ],
     "name": "法学院",
-    "dateSelector":"a"
+    "dateSelector":"a",
+    "contentSelector": ".wp_articlecontent"
   },
   "marxism": {
     "baseUrl": "http://marxism.seu.edu.cn",
@@ -597,7 +608,8 @@
       ]
     ],
     "name": "马克思主义学院",
-    "dateSelector":"span.news_meta"
+    "dateSelector":"span.news_meta",
+    "contentSelector": ".entry"
   },
   "math": {
     "baseUrl": "http://math.seu.edu.cn",
@@ -627,7 +639,8 @@
         "教务信息"
       ]
     ],
-    "name": "数学学院"
+    "name": "数学学院",
+    "contentSelector": ".wp_articlecontent"
   },
   "me": {
     "baseUrl": "http://me.seu.edu.cn",
@@ -666,7 +679,8 @@
       ]
     ],
     "name": "机械工程学院",
-    "dateSelector": "span.date"
+    "dateSelector": "span.date",
+    "contentSelector": ".wp_articlecontent"
   },
   "med": {
     "baseUrl": "http://med.seu.edu.cn",
@@ -696,10 +710,15 @@
       [
         "#wp_news_w32",
         "学生园地"
+      ],
+      [
+        "医学院也是也个奇葩，自己的网站直接跳转微信推送的页面，这个想法很可以",
+        ""
       ]
     ],
     "name": "医学院",
-    "dateSelector": "span.Article_PublishDate"
+    "dateSelector": "span.Article_PublishDate",
+    "contentSelector": "wp_articlecontent"
   },
   "physics": {
     "baseUrl": "http://physics.seu.edu.cn",
