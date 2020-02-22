@@ -391,8 +391,9 @@ Object.defineProperty(module.exports, 'spiders', {
     let inactiveList = connections.filter(k => !k[1].active).map(k => k[0])
     let inactiveCount = inactiveList.length
     let activeCount = spiderServer.getAvailableSpiders().length
+    let activeList = spiderServer.getAvailableSpiders().map(k => k.spiderName)
     return {
-      activeCount, inactiveCount, inactiveList
+      activeCount, activeList, inactiveCount, inactiveList
     }
   }
 })
