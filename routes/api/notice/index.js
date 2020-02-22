@@ -24,7 +24,7 @@ const sites = {
     baseUrl: 'http://zwc.seu.edu.cn',
     infoUrl: 'http://zwc.seu.edu.cn/4297/list.htm',
     list: [['#wp_news_w6', '公告']],
-    contentSelector: '[portletmode="simpleArticleContent"]', // 两个平台的正文选择器是一样的
+    contentSelector: '[portletmode="simpleArticleAttri"]', // 两个平台的正文选择器是一样的
     dateSelector: 'span.news_meta'
   },
   ...require('./depts.json') // FIXME 各个学院网站不能保证都能获取到通知，需要测试
@@ -221,38 +221,39 @@ exports.route = {
   * @apiReturn <string> 转换结果
   */
   async post({ url = '', id = '' }) {
-    console.log(url)
-    console.log(id)
-    if (url) {
-      let typeObj = Object.keys(sites).map(k => sites[k]).find(k => url.indexOf(k.baseUrl) + 1)
+    // 1小时的缓存
+    return await this.publicCache('1d', async() => {
+      if (url) {
+        let typeObj = Object.keys(sites).map(k => sites[k]).find(k => url.indexOf(k.baseUrl) + 1)
+        // 不包含在白名单中的网站不予处理
+      
+        if (!typeObj) {
+          throw 403
+        }
+        let { data } = await this.get(url)
+        let $ = cheerio.load(data)
+        let ret = new Europa({
+          absolute: true,
+          baseUri: typeObj.baseUrl,
+          inline: true
+        }).convert($(typeObj.contentSelector || "[frag='窗口3']").html())
+        return ret
+      } else if (id) {
+        let notice = await this.db.execute(`SELECT TITLE,CONTENT,URL FROM TOMMY.H_NOTICE WHERE ID =:id`, { id })
 
-      // 不包含在白名单中的网站不予处理
-      if (!typeObj) {
-        throw 403
-      }
+        // 处理一下返回数据
+        let heraldNotice = {}
+        heraldNotice['title'] = notice.rows[0][0]
+        heraldNotice['content'] = notice.rows[0][1]
+        heraldNotice['url'] = notice.rows[0][2]
 
-      let { data } = await this.get(url)
-      let $ = cheerio.load(data)
-      return new Europa({
-        absolute: true,
-        baseUri: typeObj.baseUrl,
-        inline: true
-      }).convert($(typeObj.contentSelector || 'body').html())
-    } else if (id) {
-      let notice = await this.db.execute(`SELECT TITLE,CONTENT,URL FROM TOMMY.H_NOTICE WHERE ID =:id`, { id })
-
-      // 处理一下返回数据
-      let heraldNotice = {}
-      heraldNotice['title'] = notice.rows[0][0]
-      heraldNotice['content'] = notice.rows[0][1]
-      heraldNotice['url'] = notice.rows[0][2]
-
-      return `# ${heraldNotice.title}\n\n
+        return `# ${heraldNotice.title}\n\n
                 ${heraldNotice.content}\n\n 
                 ${heraldNotice.url ? '相关链接:' + heraldNotice.url : ''}
                 `
-    } else {
-      throw '无转换结果'
-    }
+      } else {
+        throw '无转换结果'
+      }
+    })
   }
 }
