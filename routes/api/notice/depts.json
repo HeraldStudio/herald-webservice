@@ -980,14 +980,15 @@
       ]
     ],
     "name": "体育系",
-    "dateSelector" : "span.news_meta"
+    "dateSelector" : "span.news_meta",
+    "contentSelector": ".wp_articlecontent"
   },
   "wjx": {
-    "baseUrl": "http://wjx.seu.edu.cn",
+    "baseUrl": "https://wjx.seu.edu.cn",
     "codes": [
       "61"
     ],
-    "infoUrl": "http://wjx.seu.edu.cn/",
+    "infoUrl": "https://wjx.seu.edu.cn/",
     "list": [
       [
         "#wp_news_w24",
@@ -1030,10 +1031,11 @@
         "人物风采"
       ],
       [
-        "#wp_news_w37",
+        "#wp_news_w38",
         "媒体视角"
       ]
     ],
-    "name": "吴健雄学院"
+    "name": "吴健雄学院",
+    "contentSelector": ".wp_articlecontent"
   }
 }
