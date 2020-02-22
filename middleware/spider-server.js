@@ -105,7 +105,7 @@ class SpiderServer {
 
     // 硬件爬虫关闭响应
     connection.on('close', () => {
-      // console.log(`[I]硬件爬虫 <${connection.spiderName}> 连接关闭,code=${code}, reason=${reason}`)
+      console.log(`[I] 硬件爬虫 <${connection.spiderName}> 连接关闭`)
       delete this.connectionPool[connection.spiderName]
     })
     
