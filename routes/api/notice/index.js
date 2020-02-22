@@ -226,7 +226,6 @@ exports.route = {
       if (url) {
         let typeObj = Object.keys(sites).map(k => sites[k]).find(k => url.indexOf(k.baseUrl) + 1)
         // 不包含在白名单中的网站不予处理
-      
         if (!typeObj) {
           throw 403
         }

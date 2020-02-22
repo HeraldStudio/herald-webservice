@@ -745,7 +745,8 @@
       ]
     ],
     "name": "物理学院",
-    "dateSelector": "span.news_meta"
+    "dateSelector": "span.news_meta",
+    "contentSelector": ".wp_articlecontent"
   },
   "power": {
     "baseUrl": "http://power.seu.edu.cn",
@@ -784,7 +785,8 @@
       ]
     ],
     "name": "能源与环境学院",
-    "dateSelector": "span.Article_PublishDate"
+    "dateSelector": "span.Article_PublishDate",
+    "contentSelector": ".wp_articlecontent"
   },
   "radio": {
     "baseUrl": "http://radio.seu.edu.cn",
@@ -823,7 +825,8 @@
       ]
     ],
     "name": "信息科学与工程学院",
-    "dateSelector": ".news_time"
+    "dateSelector": ".news_time",
+    "contentSelector": ".wp_articlecontent"
   },
   "rcls": {
     "baseUrl": "http://rcls.seu.edu.cn",
@@ -846,7 +849,8 @@
       ]
     ],
     "name": "学习科学研究中心",
-    "dateSelector": ".post-time"
+    "dateSelector": ".post-time",
+    "contentSelector": ".wp_articlecontent"
   },
   "rwxy": {
     "baseUrl": "http://rwxy.seu.edu.cn",
@@ -877,8 +881,8 @@
       ]
     ],
     "name": "人文学院",
-    "dateSelector": "span.news_meta"
-
+    "dateSelector": "span.news_meta",
+    "contentSelector": ".wp_articlecontent"
   },
   "sfl": {
     "baseUrl": "http://sfl.seu.edu.cn",
@@ -909,7 +913,8 @@
       ]
     ],
     "name": "外国语学院",
-    "dateSelector":"span.news_meta"
+    "dateSelector":"span.news_meta",
+    "contentSelector": ".wp_articlecontent"
 
   },
   "smjgs": {
@@ -926,7 +931,8 @@
         "招生信息"
       ]
     ],
-    "name": "东南大学—蒙纳士大学苏州联合研究生院"
+    "name": "东南大学—蒙纳士大学苏州联合研究生院",
+    "contentSelector": ".wp_articlecontent"
   },
   "smse": {
     "baseUrl": "http://smse.seu.edu.cn",
@@ -941,7 +947,8 @@
       ]
     ],
     "name": "材料科学与工程学院",
-    "dateSelector": "span.Article_PublishDate"
+    "dateSelector": "span.Article_PublishDate",
+    "contentSelector": ".wp_articlecontent"
   },
   "tc": {
     "baseUrl": "http://tc.seu.edu.cn",
@@ -950,10 +957,6 @@
     ],
     "infoUrl": "http://tc.seu.edu.cn/",
     "list": [
-      [
-        "#wp_news_w7",
-        "学院动态"
-      ],
       [
         "#wp_news_w38",
         "信息公告"
@@ -972,7 +975,8 @@
       ]
     ],
     "name": "交通学院",
-    "dateSelector": ".meta-time"
+    "dateSelector": ".meta-time",
+    "contentSelector": ".wp_articlecontent"
   },
   "tyx": {
     "baseUrl": "http://tyx.seu.edu.cn",
