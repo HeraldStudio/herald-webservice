@@ -32,20 +32,33 @@ exports.route = {
       throw 403
     }
   },
-  async put(id) {
+  async put(id, isPassed) {
     if (await this.hasPermission('teamproject')) {
-      try {
-        await this.db.execute(`
-        UPDATE H_TEAM_PROJECT
-        SET AUDITSTATUS = 'PASSED'
-        WHERE ID = :id
-        `, { id })
-      } catch (err) {
-        throw '审核失败'
+      if (isPassed) {
+        try {
+          await this.db.execute(`
+          UPDATE H_TEAM_PROJECT
+          SET AUDITSTATUS = 'PASSED'
+          WHERE ID = :id
+          `, { id })
+        } catch (err) {
+          throw '审核失败'
+        }
+      } else {
+        try {
+          await this.db.execute(`
+          UPDATE H_TEAM_PROJECT
+          SET AUDITSTATUS = 'REFUSED'
+          WHERE ID = :id
+          `, { id })
+        } catch (err) {
+          throw '审核失败'
+        }
       }
+
     } else {
       throw 403
     }
+    return '审核成功'
   }
-
 }

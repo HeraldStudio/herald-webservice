@@ -72,6 +72,7 @@ exports.route = {
   * 目前没有使用缓存，但是根据时间消耗，还是应该使用缓存提升用户体验
   */
   async get() {
+    // return await this.publicCache(,'1d', async () => {
     let now = +moment()
     // 调试环境下接受 site 参数用于单独获取某网站的通知
     let argSite = program.mode === 'development' ? this.params.site : undefined
@@ -153,9 +154,9 @@ exports.route = {
     // 小猴系统通知
     let res = []
     let noticeList = await this.db.execute(`
-    SELECT ID,TITLE,CONTENT,URL,SCHOOLNUM_PREFIX,PUBLISH_TIME AS TIME
-      FROM TOMMY.H_NOTICE ORDER BY PUBLISH_TIME DESC
-    `)
+      SELECT ID,TITLE,CONTENT,URL,SCHOOLNUM_PREFIX,PUBLISH_TIME AS TIME
+        FROM TOMMY.H_NOTICE ORDER BY PUBLISH_TIME DESC
+      `)
     // 对数据查询结果格式处理
     const fieldName = noticeList.metaData.map(item => {
       if (item.name.split('_').length === 1) {
@@ -211,6 +212,8 @@ exports.route = {
     })
 
     return ret
+    // })
+
   },
 
   /**
@@ -222,7 +225,7 @@ exports.route = {
   */
   async post({ url = '', id = '' }) {
     // 1小时的缓存
-    return await this.publicCache('1d', async() => {
+    return await this.publicCache('1d', async () => {
       if (url) {
         let typeObj = Object.keys(sites).map(k => sites[k]).find(k => url.indexOf(k.baseUrl) + 1)
         // 不包含在白名单中的网站不予处理
