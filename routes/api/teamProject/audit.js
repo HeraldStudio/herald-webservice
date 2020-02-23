@@ -34,7 +34,7 @@ exports.route = {
   },
   async put(id, isPassed) {
     if (await this.hasPermission('teamproject')) {
-      if (isPassed === true) {
+      if (isPassed) {
         try {
           await this.db.execute(`
           UPDATE H_TEAM_PROJECT
