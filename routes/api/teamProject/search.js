@@ -1,29 +1,62 @@
-const mongodb = require('../../../database/mongodb')
-
 exports.route = {
-  async get({ key,selectedType, page=1, pagesize=10}) {
+  async get({ key, selectedType, page = 1, pagesize = 10 }) {
+    key = '%' + key + '%'
     //搜索组队项目
+    pagesize = +pagesize
+    page = +page
+    let startRow = (page - 1) * pagesize
+    let endRow = page * pagesize
     let now = +moment()
-    let teamProjectCollection = await mongodb('herald_team_project')
-    if(!selectedType){
-      return await teamProjectCollection.find({
-        title: { $regex: '.*' + key + '.*' },
-        auditStatus: 'PASSED',
-        endTime: { $gt: now }
-      }, {
-        limit: pagesize, skip: (page - 1) * pagesize,
-        sort: [['createdTime', -1]]
-      }).toArray()
-    }else{
-      return await teamProjectCollection.find({
-        title: { $regex: '.*' + key + '.*' },
-        type: selectedType,
-        auditStatus: 'PASSED',
-        endTime: { $gt: now }
-      }, {
-        limit: pagesize, skip: (page - 1) * pagesize,
-        sort: [['createdTime', -1]]
-      }).toArray()
+    // let teamProjectCollection = await mongodb('herald_team_project')
+    if (!selectedType) {
+      let record = await this.db.execute(`
+      SELECT * FROM (  
+        SELECT T.*,ROWNUM R FROM (
+          SELECT *
+          FROM H_TEAM_PROJECT
+          WHERE TITLE LIKE :key AND AUDITSTATUS = 'PASSED' AND ENDTIME > :now
+          ORDER BY CREATEDTIME DESC
+      )T)
+      WHERE R > :startRow and R <= endRow
+      `, {
+        key,
+        now,
+        startRow,
+        endRow
+      })
+      return record.rows.map(Element => {
+        let [id, title, createdTime, creatorCardnum, creatorName, projectDesc, skillRequirement, duartion, campus,
+          category, otherRequirement, wantedNumber, nowNeedNumber, endTime, auditStatus] = Element
+        return {
+          id, title, createdTime, creatorCardnum, creatorName, projectDesc, skillRequirement, duartion, campus,
+          category, otherRequirement, wantedNumber, nowNeedNumber, endTime, auditStatus
+        }
+      })
+    } else {
+      let record = await this.db.execute(`
+      SELECT * FROM (  
+        SELECT T.*,ROWNUM R FROM (
+          SELECT *
+          FROM H_TEAM_PROJECT
+          WHERE TITLE LIKE :key AND AUDITSTATUS = 'PASSED' AND ENDTIME > :now AND category = :selectedType
+          ORDER BY CREATEDTIME DESC
+      )T)
+      WHERE R > :startRow and R <= endRow
+      `, {
+        key,
+        now,
+        selectedType,
+        startRow,
+        endRow
+      })
+      return record.rows.map(Element => {
+        let [id, title, createdTime, creatorCardnum, creatorName, projectDesc, skillRequirement, duartion, campus,
+          category, otherRequirement, wantedNumber, nowNeedNumber, endTime, auditStatus] = Element
+        return {
+          id, title, createdTime, creatorCardnum, creatorName, projectDesc, skillRequirement, duartion, campus,
+          category, otherRequirement, wantedNumber, nowNeedNumber, endTime, auditStatus
+        }
+      })
     }
   }
 }

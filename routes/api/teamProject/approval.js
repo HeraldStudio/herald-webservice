@@ -1,49 +1,69 @@
-const mongodb = require('../../../database/mongodb')
-const ObjectId = require('mongodb').ObjectId
-
 exports.route = {
   //同意组队申请
   async post({ participationId, isAgree = false }) {
-    let teamParticipationCollection = await mongodb('herald_team_participation')
-    let teamProjectCollection = await mongodb('herald_team_project')
+    if(!participationId){
+      throw '参数缺失'
+    }
+    let recordOfParticipation = await this.db.execute(`
+    SELECT TEAMPROJECTID
+    FROM H_TEAM_PARTICIPATION
+    WHERE ID = :wid
+    `, { wid: participationId })
 
-    let recordOfParticipation = await teamParticipationCollection.findOne({
-      _id: ObjectId(participationId)
-    })
-    if (!recordOfParticipation) {
+    if (recordOfParticipation.rows.length === 0) {
       throw '申请不存在'
     }
-
-    let recordOfProject = await teamProjectCollection.findOne({
-      _id: ObjectId(recordOfParticipation.teamProjectId)
+    let participation
+    recordOfParticipation.rows.map(Element => {
+      let [teamProjectId] = Element
+      participation = { teamProjectId }
     })
-    if (!recordOfProject) {
+
+    let recordOfProject = await this.db.execute(`
+    SELECT NOWNEEDNUMBER, ID
+    FROM H_TEAM_PROJECT
+    WHERE ID = :wid
+    `, { wid: participation.teamProjectId })
+    if (recordOfProject.rows.length === 0) {
       throw '项目不存在'
     }
-
-
+    let project
+    recordOfProject.rows.map(Element => {
+      let [nowNeedNumber, id] = Element
+      project = { nowNeedNumber, id }
+    })
     // isAgree 同意申请
     if (isAgree) {
 
-      if (recordOfProject.nowNeedNumber <= 0) {
+      if (project.nowNeedNumber <= 0) {
         throw '项目人数已满'
       }
 
-      await teamParticipationCollection.update(
-        { _id: ObjectId(participationId) },
-        { $set: { isAccepted: true, isRead: true } }
-      )
+      await this.db.execute(`
+      UPDATE H_TEAM_PARTICIPATION
+      SET ISACCEPTED = 1, ISREAD = 1
+      WHERE ID = :wid
+      `, {
+        wid: participationId
+      })
+      await this.db.execute(`
+      UPDATE H_TEAM_PROJECT
+      SET NOWNEEDNUMBER = :num
+      WHERE ID = :wid
+      `,{
+        num: project.nowNeedNumber - 1,
+        wid: project.id
+      })
 
-      await teamProjectCollection.update(
-        { _id: ObjectId(participationId) },
-        { $set: { nowNeedNumber: recordOfProject.nowNeedNumber - 1 } }
-      )
       return '同意申请成功'
     } else {
-      await teamParticipationCollection.update(
-        { _id: ObjectId(participationId) },
-        { $set: { isRead: true } }
-      )
+      await this.db.execute(`
+      UPDATE H_TEAM_PARTICIPATION
+      SET ISREAD = 1
+      WHERE ID = :wid
+      `, {
+        wid: participationId
+      })
       return '已读'
     }
   }

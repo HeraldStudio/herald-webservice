@@ -105,7 +105,7 @@ class SpiderServer {
 
     // 硬件爬虫关闭响应
     connection.on('close', () => {
-      // console.log(`[I]硬件爬虫 <${connection.spiderName}> 连接关闭,code=${code}, reason=${reason}`)
+      console.log(`[I] 硬件爬虫 <${connection.spiderName}> 连接关闭`)
       delete this.connectionPool[connection.spiderName]
     })
     
@@ -391,8 +391,9 @@ Object.defineProperty(module.exports, 'spiders', {
     let inactiveList = connections.filter(k => !k[1].active).map(k => k[0])
     let inactiveCount = inactiveList.length
     let activeCount = spiderServer.getAvailableSpiders().length
+    let activeList = spiderServer.getAvailableSpiders().map(k => k.spiderName)
     return {
-      activeCount, inactiveCount, inactiveList
+      activeCount, activeList, inactiveCount, inactiveList
     }
   }
 })
