@@ -62,7 +62,14 @@ exports.route = {
       // 新选课系统-目前使用18级本科生数据进行测试
       if (/^21318/.test(cardnum) || /^[0-9A-Z]{3}18/.test(schoolnum)||/^21319/.test(cardnum)||/^[0-9A-Z]{3}19/.test(schoolnum)) {
         // 处理 term
-        if(!term){term='19-20-2'}
+        if(!term){term='19-20-3'}
+        let queryTerm = term.split('-').map(Element => {
+          if (term.split('-').indexOf(Element) <= 1) {
+            Element = '20' + Element
+          }
+          return Element
+        }).join('-')
+        console.log(queryTerm)
         term = this.term.list.find( t => t.name === term )
         
         if(term.name.endsWith('1')){
@@ -76,14 +83,13 @@ exports.route = {
         await this.useEHallAuth('4770397878132218')
         // 处理 curriculum
         // 获取课表
-        let queryTerm = '2019-2020-2'
-        if (term.name === '19-20-1') {
-          queryTerm = '2019-2020-1'
-        }
-        if(term.name === '18-19-3'){
-          queryTerm = '2018-2019-3'
-        }
-        //console.log(queryTerm)
+        // let queryTerm = '2019-2020-3'
+        // if (term.name === '19-20-1') {
+        //   queryTerm = '2019-2020-1'
+        // }
+        // if(term.name === '18-19-3'){
+        //   queryTerm = '2018-2019-3'
+        // }
         const curriculumRes = await this.post('http://ehall.seu.edu.cn/jwapp/sys/wdkb/modules/xskcb/xskcb.do', {
           'XNXQDM': queryTerm,
         })
