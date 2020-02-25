@@ -19,7 +19,7 @@ global.moment = require('moment')
 global.program = program
 
 // 控制台输出的样式颜色
-global.chalkColored = new chalk.constructor({level: 2})
+global.chalkColored = new chalk.Instance({level: 2})
 
 // 解析 YAML 配置文件
 const config = require('js-yaml').load(fs.readFileSync('./config.yml'))

@@ -20,7 +20,7 @@ exports.route = {
     })
 
     let recordOfProject = await this.db.execute(`
-    SELECT NOWNEEDNUMBER, ID
+    SELECT NOWNEEDNUMBER, ID, CREATORCARDNUM
     FROM H_TEAM_PROJECT
     WHERE ID = :wid
     `, { wid: participation.teamProjectId })
@@ -29,12 +29,14 @@ exports.route = {
     }
     let project
     recordOfProject.rows.map(Element => {
-      let [nowNeedNumber, id] = Element
-      project = { nowNeedNumber, id }
+      let [nowNeedNumber, id, creator] = Element
+      project = { nowNeedNumber, id, creator }
     })
+    if(recordOfParticipation.creator !== this.user.cardnum){
+      throw 403
+    }
     // isAgree 同意申请
     if (isAgree) {
-
       if (project.nowNeedNumber <= 0) {
         throw '项目人数已满'
       }
