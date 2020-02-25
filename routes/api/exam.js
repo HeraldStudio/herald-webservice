@@ -70,7 +70,11 @@ exports.route = {
       })
       return result
     })
-    response = response.filter(e => e.endTime > now)// 防止个别考生考试开始了还没找到考场🤔
+    response = response.filter(e => {
+      return  ('_id' in e) || e.endTime > now
+      // 自定义的考试/事务一直存在，除非手动删除
+      // 学校的考试安排，考试结束后过滤
+    })
     return response
   },
 
