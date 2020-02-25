@@ -4,7 +4,7 @@ exports.route = {
     let { cardnum, name } = this.user
     let grade = cardnum.slice(3, 5) + '级'
     let record = await this.db.execute(`
-    SELECT CREATORCARDNUM
+    SELECT CREATORCARDNUM, ID, TITLE
     FROM H_TEAM_PROJECT
     WHERE ID = :id
     `, { id: teamProjectId })
@@ -12,6 +12,7 @@ exports.route = {
       throw '项目不存在'
     }
     let creatorCardnum = record.rows[0][0]
+    let teamProjectTitle = record.rows[0][2]
     if (!(qqNum && email && phoneNum)) {
       throw '缺少联系方式'
     }
@@ -21,8 +22,8 @@ exports.route = {
     try {
       await this.db.execute(`
       INSERT INTO H_TEAM_PARTICIPATION
-      (CARDNUM, NAME, MAJOR, GRADE, SKILL, QQNUM, EMAIL, PHONENUM, DESCRIPTION, CREATOR, TEAMPROJECTID)
-      VALUES (:cardnum, :name, :major, :grade, :skill, :qqNum, :email, :phoneNum, :desc, :creator, :teamProjectId)
+      (CARDNUM, NAME, MAJOR, GRADE, SKILL, QQNUM, EMAIL, PHONENUM, DESCRIPTION, CREATOR, TEAMPROJECTID, TEAMPROJECTTITLE)
+      VALUES (:cardnum, :name, :major, :grade, :skill, :qqNum, :email, :phoneNum, :desc, :creator, :teamProjectId, teamProjectTitle)
       `, {
         cardnum,
         name,
@@ -34,7 +35,8 @@ exports.route = {
         phoneNum,
         desc,
         creator: creatorCardnum,
-        teamProjectId
+        teamProjectId,
+        teamProjectTitle
       })
     } catch (err) {
       throw '组队申请提交失败'
@@ -77,12 +79,12 @@ exports.route = {
       let record = await this.db.execute(`
       SELECT *
       FROM H_TEAM_PARTICIPATION
-      WHERE ID = :id
+      WHERE TEAMPROJECTID = :id
       `, { id })
-      return [{ 'isAdmin': true }, record.rows.map(Element => {
+      return { 'isAdmin': true , participation:record.rows.map(Element => {
         let [id, isAccepted, isRead, cardnum, name, major, grade, skill, qqNum, email, phoneNum, desc, creator, teamProjectId] = Element
         return { id, isAccepted, isRead, cardnum, name, major, grade, skill, qqNum, email, phoneNum, desc, creator, teamProjectId }
-      })[0]]
+      })}
     }
     // 查看本人的申请
     else if (fromMe) {
