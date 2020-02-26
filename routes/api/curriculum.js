@@ -457,8 +457,10 @@ exports.route = {
             cardnum,
             termName: term.name
           })
+          
+          
           myResult.rows.map(Element => {
-            let [courseName, teacherName, beginWeek, endWeek, dayOfWeek, flip, beginPeriod, endPeriod, location, _id] = Element
+            let [courseName, teacherName, beginWeek, endWeek, dayOfWeek, flip, beginPeriod, endPeriod, location, id] = Element
             const course = {
               courseName: courseName,
               teacherName: teacherName,
@@ -469,7 +471,8 @@ exports.route = {
               beginPeriod: beginPeriod,
               endPeriod: endPeriod,
               location: location,
-              credit: '学分未知'
+              credit: '学分未知',
+              _id:id
             }
             curriculum.push(course)
           })
