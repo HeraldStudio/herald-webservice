@@ -63,7 +63,7 @@ exports.route = {
   },
   async delete({ id, deleted }) {
     let { cardnum } = this.user
-    if (deleted) {
+    if (deleted === 'true') {
       let record = await this.db.execute(`
       SELECT CREATORCARDNUM
       FROM H_TEAM_PROJECT
@@ -81,10 +81,10 @@ exports.route = {
         DELETE FROM H_TEAM_PROJECT
         WHERE ID = :id
       `, {
-          now: +moment(),
           id
         })
       } catch (err) {
+        console.log(err)
         throw '删除失败'
       }
 
@@ -112,6 +112,7 @@ exports.route = {
           id
         })
       } catch (err) {
+        console.log(err)
         throw '结束失败'
       }
 
