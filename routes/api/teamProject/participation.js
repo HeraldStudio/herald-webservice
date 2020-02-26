@@ -86,12 +86,12 @@ exports.route = {
       let record = await this.db.execute(`
       SELECT *
       FROM H_TEAM_PROJECT
-      WHERE ID =:id
+      WHERE ID =:id AND AUDITSTATUS = 'PASSED' 
       `, {
         id: teamProjectId
       })
       if (record.rows.length === 0) {
-        throw '条目不存在'
+        throw '条目不存在或未审核'
       }
       // 如果是自己发布的
       if (record.rows[0][3] === this.user.cardnum) {
