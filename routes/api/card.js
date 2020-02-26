@@ -17,7 +17,7 @@ exports.route = {
         throw '日期格式不合法'
       }
 
-      console.log('ass')
+      
 
       const { cardnum } = this.user
       const db = await oracle.getAllinoneCardConnection()
