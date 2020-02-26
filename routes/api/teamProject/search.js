@@ -33,7 +33,7 @@ exports.route = {
         }
       })
     } else {
-      if (selectedType !== 'SRTP' || selectedType !== '竞赛' || selectedType !== '其它') {
+      if (selectedType !== 'SRTP' && selectedType !== '竞赛' && selectedType !== '其它') {
         throw '参数不符合规范'
       }
       let record = await this.db.execute(`

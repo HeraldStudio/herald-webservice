@@ -23,7 +23,7 @@ exports.route = {
     if (!(title && projectDesc && skillRequirement && campus && category && duartion && otherRequirement && (wantedNumber > 0))) {
       throw '项目信息不完整或不正确,请补全或者修改项目信息'
     }
-    if (category !== 'SRTP' || category !== '竞赛' || category !== '其它') {
+    if (category !== 'SRTP' && category !== '竞赛' && category !== '其它') {
       throw '参数不符合规范'
     }
     if (!(qqNum || email || phoneNum)) {
@@ -186,11 +186,11 @@ exports.route = {
           endRow
         })
         return record.rows.map(Element => {
-          let [id, title, createdTime, creatorCardnum, creatorName, projectDesc, qqNum, email, phoneNum, skillRequirement, duartion, campus,
-            category, otherRequirement, wantedNumber, nowNeedNumber, endTime, auditStatus] = Element
+          let [id, title, createdTime, creatorCardnum, creatorName, projectDesc, skillRequirement, duartion, campus,
+            category, otherRequirement, wantedNumber, nowNeedNumber, endTime, auditStatus, qqNum, email, phoneNum] = Element
           return {
-            id, title, createdTime, creatorCardnum, creatorName, projectDesc, qqNum, email, phoneNum, skillRequirement, duartion, campus,
-            category, otherRequirement, wantedNumber, nowNeedNumber, endTime, auditStatus
+            id, title, createdTime, creatorCardnum, creatorName, projectDesc, skillRequirement, duartion, campus,
+            category, otherRequirement, wantedNumber, nowNeedNumber, endTime, auditStatus, qqNum, email, phoneNum
           }
         })
       }
