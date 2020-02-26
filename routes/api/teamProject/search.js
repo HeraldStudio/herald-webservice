@@ -1,5 +1,6 @@
 exports.route = {
   async get({ key, selectedType, page = 1, pagesize = 10 }) {
+    key = key ? key : ''
     key = '%' + key + '%'
     //搜索组队项目
     pagesize = +pagesize
@@ -7,7 +8,6 @@ exports.route = {
     let startRow = (page - 1) * pagesize
     let endRow = page * pagesize
     let now = +moment()
-    // let teamProjectCollection = await mongodb('herald_team_project')
     if (!selectedType) {
       let record = await this.db.execute(`
       SELECT * FROM (  
@@ -17,7 +17,7 @@ exports.route = {
           WHERE TITLE LIKE :key AND AUDITSTATUS = 'PASSED' AND ENDTIME > :now
           ORDER BY CREATEDTIME DESC
       )T)
-      WHERE R > :startRow and R <= endRow
+      WHERE R > :startRow and R <= :endRow
       `, {
         key,
         now,
@@ -33,6 +33,9 @@ exports.route = {
         }
       })
     } else {
+      if (selectedType !== 'SRTP' || selectedType !== '竞赛' || selectedType !== '其它') {
+        throw '参数不符合规范'
+      }
       let record = await this.db.execute(`
       SELECT * FROM (  
         SELECT T.*,ROWNUM R FROM (
@@ -41,7 +44,7 @@ exports.route = {
           WHERE TITLE LIKE :key AND AUDITSTATUS = 'PASSED' AND ENDTIME > :now AND category = :selectedType
           ORDER BY CREATEDTIME DESC
       )T)
-      WHERE R > :startRow and R <= endRow
+      WHERE R > :startRow and R <= :endRow
       `, {
         key,
         now,
