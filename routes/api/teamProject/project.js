@@ -140,11 +140,12 @@ exports.route = {
       let participation = await this.db.execute(`
       SELECT *
       FROM H_TEAM_PARTICIPATION
-      WHERE TEAMPROJECTID = :teamprojectId
+      WHERE TEAMPROJECTID = :teamprojectId AND CARDNUM = :cardnum
       `, {
+        cardnum,
         teamprojectId: record.rows[0][0]
       })
-      if (record.rows[0][3] === this.user.cardnum || participation.rows.length !== 0) {
+      if (record.rows[0][3] === cardnum || participation.rows.length !== 0) {
         return {
           hasJoined: true,
           project: record.rows.map(Element => {
