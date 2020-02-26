@@ -186,11 +186,11 @@ exports.route = {
           endRow
         })
         return record.rows.map(Element => {
-          let [id, title, createdTime, creatorCardnum, creatorName, projectDesc, qqNum, email, phoneNum, skillRequirement, duartion, campus,
-            category, otherRequirement, wantedNumber, nowNeedNumber, endTime, auditStatus] = Element
+          let [id, title, createdTime, creatorCardnum, creatorName, projectDesc, skillRequirement, duartion, campus,
+            category, otherRequirement, wantedNumber, nowNeedNumber, endTime, auditStatus, qqNum, email, phoneNum] = Element
           return {
-            id, title, createdTime, creatorCardnum, creatorName, projectDesc, qqNum, email, phoneNum, skillRequirement, duartion, campus,
-            category, otherRequirement, wantedNumber, nowNeedNumber, endTime, auditStatus
+            id, title, createdTime, creatorCardnum, creatorName, projectDesc, skillRequirement, duartion, campus,
+            category, otherRequirement, wantedNumber, nowNeedNumber, endTime, auditStatus, qqNum, email, phoneNum
           }
         })
       }
