@@ -11,7 +11,7 @@ exports.route = {
       SELECT * FROM (  
         SELECT T.*,ROWNUM R FROM (
           SELECT ID, title, createdTime, creatorCardnum, creatorName, projectDesc, skillRequirement, 
-          duration, campus, category, otherRequirement, wantedNumber, nowNeedNumber, endTime
+          duration, campus, category, otherRequirement, wantedNumber, nowNeedNumber, endTime, qqNum, email, phoneNum
           FROM H_TEAM_PROJECT
           WHERE AUDITSTATUS = 'WAITING' AND ENDTIME > :now
       )T)
@@ -23,10 +23,10 @@ exports.route = {
       })
       record = record.rows.map(Element => {
         let [teamProjectId, title, createdTime, creatorCardnum, creatorName, projectDesc, skillRequirement,
-          duration, campus, category, otherRequirement, wantedNumber, nowNeedNumber, endTime] = Element
+          duration, campus, category, otherRequirement, wantedNumber, nowNeedNumber, endTime, qqNum, email, phoneNum] = Element
         return {
           teamProjectId, title, createdTime, creatorCardnum, creatorName, projectDesc, skillRequirement,
-          duration, campus, category, otherRequirement, wantedNumber, nowNeedNumber, endTime
+          duration, campus, category, otherRequirement, wantedNumber, nowNeedNumber, endTime, qqNum, email, phoneNum
         }
       })
       return record
@@ -39,7 +39,7 @@ exports.route = {
       let record = await this.db.execute(`
       SELECT *
       FROM H_TEAM_PROJECT
-      WHERE ID = :teamProjectId AND ENDTIME > :now
+      WHERE ID = :teamProjectId AND ENDTIME > :now AND AUDITSTATUS = 'WAITING'
       `, {
         teamProjectId,
         now: +moment()

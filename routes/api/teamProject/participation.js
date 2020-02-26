@@ -136,7 +136,7 @@ exports.route = {
       }
     }
     // 查看本人的申请
-    else if (fromMe) {
+    else if (fromMe === 'true') {
       let record = await this.db.execute(`
       SELECT * FROM (  
         SELECT T.*,ROWNUM R FROM (
