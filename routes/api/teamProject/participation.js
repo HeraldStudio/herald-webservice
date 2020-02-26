@@ -26,20 +26,6 @@ exports.route = {
       throw '内容不完整'
     }
     try {
-      console.log({
-        cardnum,
-        name,
-        major,
-        grade,
-        skill,
-        qqNum: qqNum ? qqNum : null,
-        email: email ? email : null,
-        phoneNum: phoneNum ? phoneNum : null,
-        description,
-        creator: creatorCardnum,
-        teamProjectId,
-        teamProjectTitle
-      })
       await this.db.execute(`
       INSERT INTO H_TEAM_PARTICIPATION
       (CARDNUM, NAME, MAJOR, GRADE, SKILL, QQNUM, EMAIL, PHONENUM, DESCRIPTION, CREATOR, TEAMPROJECTID, TITLE)
@@ -99,14 +85,54 @@ exports.route = {
     if (teamProjectId) {
       let record = await this.db.execute(`
       SELECT *
-      FROM H_TEAM_PARTICIPATION
-      WHERE TEAMPROJECTID = :teamProjectId
-      `, { teamProjectId })
-      return {
-        'isAdmin': true, participation: record.rows.map(Element => {
-          let [id, isAccepted, isRead, cardnum, name, major, grade, skill, qqNum, email, phoneNum, desc, creator, teamProjectId] = Element
-          return { id, isAccepted, isRead, cardnum, name, major, grade, skill, qqNum, email, phoneNum, desc, creator, teamProjectId }
+      FROM H_TEAM_PROJECT
+      WHERE ID =:id
+      `, {
+        id: teamProjectId
+      })
+      if (record.rows.length === 0) {
+        throw '条目不存在'
+      }
+      // 如果是自己发布的
+      if (record.rows[0][3] === this.user.cardnum) {
+        let participation = await this.db.execute(`
+        SELECT *
+        FROM H_TEAM_PARTICIPATION
+        WHERE TEAMPROJECTID = :teamProjectId
+        `, { teamProjectId })
+        if (participation.rows.length !== 0) {
+          return {
+            isCreater: true, participation: participation.rows.map(Element => {
+              let [id, isAccepted, isRead, cardnum, name, major, grade, skill, qqNum, email, phoneNum, desc, creator, teamProjectId] = Element
+              return { id, isAccepted, isRead, cardnum, name, major, grade, skill, qqNum, email, phoneNum, desc, creator, teamProjectId }
+            })
+          }
+        } else {
+          return {
+            isCreater: true, participation: []
+          }
+        }
+      } else {
+        let participation = await this.db.execute(`
+        SELECT *
+        FROM H_TEAM_PARTICIPATION
+        WHERE TEAMPROJECTID = :teamProjectId AND CARDNUM = :cardnum
+        `, {
+          teamProjectId,
+          cardnum
         })
+        if (participation.rows.length !== 0) {
+          return {
+            isCreater: false, participation: participation.rows.map(Element => {
+              let [id, isAccepted, isRead, cardnum, name, major, grade, skill, qqNum, email, phoneNum, desc, creator, teamProjectId] = Element
+              return { id, isAccepted, isRead, cardnum, name, major, grade, skill, qqNum, email, phoneNum, desc, creator, teamProjectId }
+            })
+          }
+        } else {
+          return {
+            isCreater: false, participation: []
+          }
+        }
       }
     }
     // 查看本人的申请
