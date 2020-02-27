@@ -34,11 +34,15 @@ for (let key in console) {
 
 
 module.exports = async (ctx, next) => {
-  updateConnections(++connections)
+  if(program.mode === 'profile'){
+    updateConnections(++connections)
+  }
   try {
     await next()
   } finally {
-    updateConnections(--connections)
+    if(program.mode === 'profile'){
+      updateConnections(++connections)
+    }
   }
 }
 
