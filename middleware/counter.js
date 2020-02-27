@@ -32,7 +32,6 @@ for (let key in console) {
   }]
 }
 
-console.log('')
 
 module.exports = async (ctx, next) => {
   updateConnections(++connections)
