@@ -3,20 +3,33 @@ exports.route = {
   async post({ teamProjectId, major, skill, qqNum, email, phoneNum, description }) {
     let { cardnum, name } = this.user
     let grade = cardnum.slice(3, 5) + '级'
+    let now = +moment()
     let record = await this.db.execute(`
     SELECT CREATORCARDNUM, ID, TITLE
     FROM H_TEAM_PROJECT
     WHERE ID = :id AND ENDTIME > :now AND AUDITSTATUS = 'PASSED'
     `, {
       id: teamProjectId,
-      now: +moment()
+      now
     })
     if (record.rows.length === 0) {
       throw '项目不存在或未通过审核'
     }
     let creatorCardnum = record.rows[0][0]
     let teamProjectTitle = record.rows[0][2]
-    if (creatorCardnum === this.user.cardnum) {
+    record = await this.db.execute(`
+    SELECT *
+    FROM H_TEAM_PARTICIPATION
+    WHERE CARDNUM = :cardnum AND to_char(CREATEDTIME,'yyyy-MM-dd') = :now
+    `, {
+      cardnum,
+      now: moment().format('YYYY-MM-DD')
+    })
+    let recordCount = record.rows.length
+    if (recordCount >= 3) {
+      throw '发布的申请过多'
+    }
+    if (creatorCardnum === cardnum) {
       throw '搞事情？自己申请自己？'
     }
     if (!(qqNum || email || phoneNum)) {
@@ -45,6 +58,9 @@ exports.route = {
         teamProjectTitle
       })
     } catch (err) {
+      if(err.errorNum === 1){
+        throw '请勿重复申请同一项目'
+      }
       console.log(err)
       throw '组队申请提交失败'
     }
