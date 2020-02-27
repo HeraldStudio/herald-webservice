@@ -60,16 +60,16 @@ exports.route = {
     let curriculum = []
     // 新选课系统-目前使用18级本科生数据进行测试
     if (/^21318/.test(cardnum) || /^[0-9A-Z]{3}18/.test(schoolnum) || /^21319/.test(cardnum) || /^[0-9A-Z]{3}19/.test(schoolnum)) {
+      // 处理 term
+      if (!term) { term = currentTerm }
+      term = this.term.list.find(t => t.name === term)
+      if (term.name.endsWith('1')) {
+        term.maxWeek = 4
+      }
+      if (term.name.endsWith('2') || term.name.endsWith('3')) {
+        term.maxWeek = 16
+      }
       curriculum = await this.userCache('1d+', async () => {
-        // 处理 term
-        if (!term) { term = currentTerm }
-        term = this.term.list.find(t => t.name === term)
-        if (term.name.endsWith('1')) {
-          term.maxWeek = 4
-        }
-        if (term.name.endsWith('2') || term.name.endsWith('3')) {
-          term.maxWeek = 16
-        }
         // 处理 curriculum
         // 获取课表
         let result = await this.db.execute(`
