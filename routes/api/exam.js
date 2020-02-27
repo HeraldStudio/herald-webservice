@@ -9,8 +9,8 @@ exports.route = {
 
   async get() {
     let now = +moment()
+    let { cardnum } = this.user
     let response = await this.userCache('10m+', async () => {
-      let { cardnum } = this.user
       // 获取考试数据
       let record = await this.db.execute(`
       select h.XNXQDM, MC, KCM, T_KW_KSPC.KSMC, h.XM, KSSJMS, JASMC, KSSC
@@ -49,29 +49,28 @@ exports.route = {
         courseName = courseName + ' ' + courseType.split(' ')[1]
         return { semester, campus, courseName, teacherName, startTime, endTime, location, duration }
       })
-
-      // 获取自定义考试数据
-      let customExam = await this.db.execute(`
-        select semester, campus, courseName, teacherName, startTime, endTime, location, duration, wid
-        from h_my_exam
-        where cardnum=:cardnum
-      `, [cardnum])
-
-      customExam.rows.map(Element => {
-        let [semester, campus, courseName, teacherName, startTime, endTime, location, duration, _id] = Element
-        result.push({ semester, campus, courseName, teacherName, startTime, endTime, location, duration, _id })
-      })
-      // 前端要求，除去值为null的字段
-      result.forEach(Element => {
-        for (let e in Element) {
-          if (Element[e] === null)
-            delete Element[e]
-        }
-      })
       return result
     })
+    // 获取自定义考试数据
+    let customExam = await this.db.execute(`
+          select semester, campus, courseName, teacherName, startTime, endTime, location, duration, wid
+          from h_my_exam
+          where cardnum=:cardnum
+        `, [cardnum])
+
+    customExam.rows.map(Element => {
+      let [semester, campus, courseName, teacherName, startTime, endTime, location, duration, _id] = Element
+      response.push({ semester, campus, courseName, teacherName, startTime, endTime, location, duration, _id })
+    })
+    // 前端要求，除去值为null的字段
+    response.forEach(Element => {
+      for (let e in Element) {
+        if (Element[e] === null)
+          delete Element[e]
+      }
+    })
     response = response.filter(e => {
-      return  ('_id' in e) || e.endTime > now
+      return ('_id' in e) || e.endTime > now
       // 自定义的考试/事务一直存在，除非手动删除
       // 学校的考试安排，考试结束后过滤
     })
