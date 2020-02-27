@@ -23,16 +23,17 @@ const updateConnections = (count) => {
 let connections = 0
 if(program.mode === 'profile'){
   updateConnections(0)
+  for (let key in console) {
+    [console['_' + key], console[key]] = [console[key], function() {
+      spinner.stop()
+      console['_' + key].apply(undefined, arguments)
+      if (program.mode === 'production' || program.mode === 'profile') {
+        spinner.start()
+      }
+    }]
+  }
 }
-for (let key in console) {
-  [console['_' + key], console[key]] = [console[key], function() {
-    spinner.stop()
-    console['_' + key].apply(undefined, arguments)
-    if (program.mode === 'production' || program.mode === 'profile') {
-      spinner.start()
-    }
-  }]
-}
+
 
 
 module.exports = async (ctx, next) => {
