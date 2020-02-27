@@ -21,25 +21,31 @@ const updateConnections = (count) => {
 }
 
 let connections = 0
-updateConnections(0)
-for (let key in console) {
-  [console['_' + key], console[key]] = [console[key], function() {
-    spinner.stop()
-    console['_' + key].apply(undefined, arguments)
-    if (program.mode === 'production' || program.mode === 'profile') {
-      spinner.start()
-    }
-  }]
+if(program.mode === 'profile'){
+  updateConnections(0)
+  for (let key in console) {
+    [console['_' + key], console[key]] = [console[key], function() {
+      spinner.stop()
+      console['_' + key].apply(undefined, arguments)
+      if (program.mode === 'production' || program.mode === 'profile') {
+        spinner.start()
+      }
+    }]
+  }
 }
 
-console.log('')
+
 
 module.exports = async (ctx, next) => {
-  updateConnections(++connections)
+  if(program.mode === 'profile'){
+    updateConnections(++connections)
+  }
   try {
     await next()
   } finally {
-    updateConnections(--connections)
+    if(program.mode === 'profile'){
+      updateConnections(++connections)
+    }
   }
 }
 
