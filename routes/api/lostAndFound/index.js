@@ -27,27 +27,26 @@ exports.route = {
     let { cardnum } = this.user
     // let lostAndFoundCollection = await mongodb('H_LOST_AND_FOUND')
     if (id) {
-      return await this.publicCache('1d+', async () => {
-        // 如果存在 id 则返回条目的信息
-        let record = await this.db.execute(`
+      // 如果存在 id 则返回条目的信息
+      let record = await this.db.execute(`
         select * 
         from H_LOST_AND_FOUND
         where wid = :id
         `, { id })
-        record = record.rows.map(Element => {
-          let [_id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished] = Element
-          return { _id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished }
-        })[0]
-        if (adminList.indexOf(cardnum) !== -1) {
-          record.canAudit = true
-        }
-        // 前端要求，除去值为null的字段
-        for (let e in record) {
-          if (record[e] === null)
-            delete record[e]
-        }
-        return record
-      })
+      record = record.rows.map(Element => {
+        let [_id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished] = Element
+        return { _id, creator, title, lastModifiedTime, describe, imageUrl, type, isAudit, isFinished }
+      })[0]
+      if (adminList.indexOf(cardnum) !== -1) {
+        record.canAudit = true
+      }
+      // 前端要求，除去值为null的字段
+      for (let e in record) {
+        if (record[e] === null)
+          delete record[e]
+      }
+      return record
+
     }
     // 确保分页的数据正确
     page = +page
@@ -240,7 +239,6 @@ exports.route = {
     })
 
     if (result.rowsAffected > 0) {
-      this.clearCache(id)
       return '修改成功'
     } else {
       throw '修改失败'
@@ -273,7 +271,6 @@ exports.route = {
     WHERE WID =:id
     `, { id })
     if (result.rowsAffected > 0) {
-      this.clearCache(id)
       return '删除成功'
     } else {
       throw '删除失败'
