@@ -156,7 +156,7 @@ exports.route = {
         }
         return Element
       }).join('-')
-      curriculum = await this.userCache('1d+', async () => {
+      let result = await this.userCache('1d+', async () => {
         // 非18级本科生/教师版
         // 为了兼容丁家桥格式，短学期没有课的时候需要自动查询长学期
         // 为此不得已使用了一个循环
@@ -354,8 +354,10 @@ exports.route = {
           /-1$/.test(term.name) && // 而且当前查询的是短学期
           (term = term.name.replace(/-1$/, '-2')) // 则改为查询秋季学期，重新执行
         )
-        return curriculum
+        return {term,curriculum}
       })
+      term = result.term
+      curriculum = result.curriculum
       // 添加自定义课程
       let myResult = await this.db.execute(`
 SELECT COURSENAME, TEACHERNAME, BEGINWEEK, ENDWEEK, DAYOFWEEK, FLIP, BEGINPERIOD, ENDPERIOD, LOCATION, WID
@@ -483,7 +485,6 @@ WHERE OWNER = :cardnum and SEMESTER = :termName
       k.beginWeek = k.beginWeek ? k.beginWeek : 1
       k.endWeek = k.endWeek ? k.endWeek : term.maxWeek
     })
-
     this.logMsg = `${name} (${cardnum}) - 查询课程表`
     return { term, curriculum }
 
