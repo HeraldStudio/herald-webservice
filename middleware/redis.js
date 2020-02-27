@@ -51,12 +51,16 @@ const summarize = (obj, length) => {
 const client = {
   set (key, value) {
     pool[key] = value
-    console.log('Pseudo-cache [set]', chalkColored.cyan(key), summarize(value, 32))
+    if (program.mode === 'profile' || program.mode === 'development'){
+      console.log('Pseudo-cache [set]', chalkColored.cyan(key), summarize(value, 32))
+    }
     // console.log('Pseudo-cache [set]', chalkColored.cyan(key), value)
   },
   async getAsync (key) {
     let value = pool[key] || 'null'
-    console.log('Pseudo-cache [get]', chalkColored.cyan(key), summarize(value, 32))
+    if (program.mode === 'profile' || program.mode === 'development'){
+      console.log('Pseudo-cache [get]', chalkColored.cyan(key), summarize(value, 32))
+    }
     // console.log('Pseudo-cache [get]', chalkColored.cyan(key), value)
     return value
   },
