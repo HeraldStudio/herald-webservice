@@ -208,7 +208,8 @@ exports.route = {
 
         // 解决转系生课程全为任选或限选的状况
         let courseTypes = detail.map(k => k.courseType)
-        courseTypes = courseTypes.filter(k => k.courseType === '')
+
+        courseTypes = courseTypes.filter(k => k === '')
 
         if (courseTypes.length === 0) {
           detail.map(k => {
