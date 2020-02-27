@@ -38,7 +38,7 @@
 
 const crypto = require('crypto')
 const xmlparser = require('fast-xml-parser')
-const axios =  require('axios')
+//const axios =  require('axios')
 const { config } = require('../app')
 const authConfig = require('../sdk/sdk.json').auth
 
@@ -102,12 +102,12 @@ module.exports = async (ctx, next) => {
       throw 'platform 只能由小写字母、数字和中划线组成' // 为了美观（通神nb
     }
 
-    // let cardnum = '213181432'
+
     let cardnum
     try {
       // 从IDS获取一卡通号
       const serviceValidateURL = `https://newids.seu.edu.cn/authserver/serviceValidate?service=${service}&ticket=${ticket}`
-      const res = await axios.get(serviceValidateURL)
+      const res = await this.get(serviceValidateURL)
       const data = xmlparser.parse(res.data.toString())['cas:serviceResponse']['cas:authenticationSuccess']['cas:attributes']
       cardnum = ''+data['cas:uid']
     } catch (e) {
