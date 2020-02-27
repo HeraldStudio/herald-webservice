@@ -107,7 +107,7 @@ module.exports = async (ctx, next) => {
     try {
       // 从IDS获取一卡通号
       const serviceValidateURL = `https://newids.seu.edu.cn/authserver/serviceValidate?service=${service}&ticket=${ticket}`
-      const res = await this.get(serviceValidateURL)
+      const res = await ctx.get(serviceValidateURL)
       const data = xmlparser.parse(res.data.toString())['cas:serviceResponse']['cas:authenticationSuccess']['cas:attributes']
       cardnum = ''+data['cas:uid']
     } catch (e) {

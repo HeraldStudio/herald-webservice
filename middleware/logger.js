@@ -13,7 +13,6 @@ module.exports = async (ctx, next) => {
   let end = moment()
   let duration = end - begin
   let time = end.format('H:mm:ss')
-  console.log('logggggg')
   let cardnum = '未登录'
   let name = '未登录'
   let platform = '未登录'
