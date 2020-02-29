@@ -86,7 +86,7 @@ exports.route = {
     let content = $('.detail_body').html()
     content = content.replace(/(<\/?\s*)(table|tbody|tr)/g, '$1div')
     content = content.replace(/(<\/?\s*)(td)/g, '$1span')
-    if(this.user.platform === 'app'){
+    if(this.user.platform === 'app' || this.user.platform === 'app-debug'){
       return content
     }
     return new Europa({
