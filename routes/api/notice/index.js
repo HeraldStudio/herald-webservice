@@ -14,7 +14,6 @@ const sites = {
       ['#wp_news_w9', '实践教学'],
       ['#wp_news_w10', '国际交流'],
       ['#wp_news_w8', '教学研究'],
-      ['#wp_news_w11', '文化素质教育']
     ],
     contentSelector: '.wp_articlecontent'
   },
