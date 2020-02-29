@@ -234,6 +234,9 @@ exports.route = {
         }
         let { data } = await this.get(url)
         let $ = cheerio.load(data)
+        if(this.user.platform === 'app'){
+          return $(typeObj.contentSelector || "[frag='窗口3']").html()
+        }
         let ret = new Europa({
           absolute: true,
           baseUri: typeObj.baseUrl,
