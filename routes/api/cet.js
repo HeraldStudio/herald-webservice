@@ -7,28 +7,26 @@ exports.route = {
     **/
 
   async get() {
-    return await this.userCache('1d+', async () => {
-      const { cardnum } = this.user
-      let record = await this.db.execute(
-        `select H_CET.CET_EXAM_CODE, LOCATION, EXAMTIME from TOMMY.H_CET
+    const { cardnum } = this.user
+    let record = await this.db.execute(
+      `select H_CET.CET_EXAM_CODE, LOCATION, EXAMTIME from TOMMY.H_CET
       where CARDNUM= :cardnum
       `, [cardnum])
-      let result
-      if (record.rows.length === 0) {
-        result = '暂无记录'
-      } else {
-        result = {
-          examCode: record.rows[0][0],
-          location: record.rows[0][1] === '' ? null : record.rows[0][1],
-          examTime: record.rows[0][2] === 0 ? null : record.rows[0][2]
-        }
-        for (let e in result) {
-          if (result[e] === null)
-            delete result[e]
-        }
+    let result
+    if (record.rows.length === 0) {
+      result = '暂无记录'
+    } else {
+      result = {
+        examCode: record.rows[0][0],
+        location: record.rows[0][1] === '' ? null : record.rows[0][1],
+        examTime: record.rows[0][2] === 0 ? null : record.rows[0][2]
       }
-      return result
-    })
+      for (let e in result) {
+        if (result[e] === null)
+          delete result[e]
+      }
+    }
+
     // let cetCollection = await mongodb('herald_cet')
     // return await this.userCache('10h', async () => {
     //   let {  cardnum } = this.user
@@ -68,7 +66,7 @@ exports.route = {
     await this.db.execute(`
     DELETE from TOMMY.H_CET
     where CARDNUM= :cardnum
-    `,{cardnum})
+    `, { cardnum })
     let sql, binds, options, result
     sql = `INSERT INTO H_CET VALUES (sys_guid(), :1, :2, :3, :4)`
     binds = [
