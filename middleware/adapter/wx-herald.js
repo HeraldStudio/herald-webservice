@@ -280,7 +280,7 @@ const handler = {
   },
 
   async '开启跑操提醒|设置跑操提醒|開啟跑操提醒|設置跑操提醒'() {
-    this.path = '/api/notification'
+    this.path = '/api/exerciseNotification'
     this.method = 'GET'
     await this.next()
     // 检测是否设置成功
@@ -314,7 +314,7 @@ const handler = {
   },
 
   async '关闭跑操提醒|取消跑操提醒|關閉跑操提醒|取消跑操提醒'() {
-    this.path = '/api/notification'
+    this.path = '/api/exerciseNotification'
     this.method = 'DELETE'
     await this.next()
     // 检查是否删除成功

@@ -85,7 +85,7 @@ exports.route = {
         templateMsg.data.first.value = '【紧急通知】跑操安排调整\n'
       }
       let subscriber = await this.db.execute(`
-      SELECT OPENID FROM H_NOTIFICATION
+      SELECT OPENID FROM H_EXERCISE_NOTIFICATION
       WHERE TYPE = 'wechat' AND FUNCTION ='跑操提醒'
       `)
       let users = subscriber.rows.map(Element => {
