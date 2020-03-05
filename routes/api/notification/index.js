@@ -1,7 +1,7 @@
 exports.route = {
 
   async post({ title, content, tag, target, annex, role, cardnum, source }) {
-    if (!(title || content)) {
+    if (!(title && content)) {
       throw '参数不全'
     }
     if (title.length > 60) {
