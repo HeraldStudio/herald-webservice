@@ -109,7 +109,8 @@ app.use(require('./middleware/admin'))
 app.use(require('./middleware/redis'))
 // 8. 学期信息 term API
 app.use(require('./middleware/term'))
-
+// 9. 静态文件
+app.use(require('./middleware/minio'))
 
 /**
   ## F. 路由层

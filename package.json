@@ -31,6 +31,7 @@
     "kf-router": "^2.2.2",
     "koa": "^2.11.0",
     "koa-bodyparser": "^4.2.1",
+    "minio": "^7.0.14",
     "moment": "^2.24.0",
     "mongodb": "^3.5.3",
     "node-europa": "^4.0.0",
