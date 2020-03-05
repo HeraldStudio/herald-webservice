@@ -30,6 +30,7 @@
     "jschardet-eastasia": "^1.4.1",
     "kf-router": "^2.2.2",
     "koa": "^2.11.0",
+    "koa-body": "^4.1.1",
     "koa-bodyparser": "^4.2.1",
     "minio": "^7.0.14",
     "moment": "^2.24.0",

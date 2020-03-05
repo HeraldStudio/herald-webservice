@@ -12,12 +12,22 @@
 
   ctx.params          object
  */
-const bodyparser = require('koa-bodyparser')({
-  enableTypes: ['json', 'form', 'text']
+// const bodyparser = require('koa-bodyparser')({
+//   enableTypes: ['json', 'form', 'text']
+// })
+
+const body = require('koa-body')({
+  multipart:true, // 支持文件上传
+  textLimit:'1mb',
+  formidable:{
+    keepExtensions: true,    // 保持文件的后缀
+    maxFieldsSize:2 * 1024 * 1024, // 文件上传大小
+  },
+  parsedMethods:['POST','GET','PUT','DELETE']
 })
 
 module.exports = async (ctx, next) => {
-  await bodyparser(ctx, async () => {
+  await body(ctx, async () => {
     if (/^get|delete$/i.test(ctx.method)) {
       ctx.params = ctx.query
     } else {
