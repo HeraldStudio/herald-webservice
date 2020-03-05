@@ -13,20 +13,25 @@ exports.route = {
     if (!role) {
       throw 403
     }
+
     let time = +moment()
-    await this.db.execute(`
-      INSERT INTO H_NOTIFICATION
-      (TITLE, CONTENT, PUBLISHER, PUBLISHTIME, ROLE, TAG, ANNEX, SOURCE)
-      VALUES(:title, :content, :cardnum, :time, :role, :tag, :annex, :source)
-      `, {
-      title,
-      content,
-      cardnum,
-      time,
-      role,
-      tag,
-      annex,
-      source
-    })
+    // await this.db.execute(`
+    //   INSERT INTO H_NOTIFICATION
+    //   (TITLE, CONTENT, PUBLISHER, PUBLISHTIME, ROLE, TAG, ANNEX, SOURCE)
+    //   VALUES(:title, :content, :cardnum, :time, :role, :tag, :annex, :source)
+    //   `, {
+    //   title,
+    //   content,
+    //   cardnum,
+    //   time,
+    //   role,
+    //   tag,
+    //   annex,
+    //   source
+    // })
+    return {
+      a:'111',
+      b:111
+    } 
   }
 }
