@@ -77,25 +77,28 @@ exports.route = {
 
     // 向app推送通知
     if (isAll) {
-      this.post('https://api.jpush.cn/v3/push', {
+      this.post('https://api.jpush.cn/v3/push', JSON.stringify({
         platform: 'all',
         audience: 'all',
         notification: {
           android: {
             alert: '',// 通知内容
             title: '',// 通知标题
-            intent: {
-              url: ''// 跳转
+            extras: {
+              notificationId
             }
           },
           ios: {
-            alert: '有一条新的通知~要记得看噢~'
+            alert: '有一条新的通知~要记得看噢~',
+            extras: {
+              notificationId
+            }
           }
         }
-      }, { headers: { 'Authorization': Base64.encode(JPushKeys.appKey + ':' + JPushKeys.masterSecret) } })
+      }), { headers: { 'Authorization': Base64.encode(JPushKeys.appKey + ':' + JPushKeys.masterSecret) } })
     } else {
       for (let i = 0; i < target.length; i += 900) {
-        this.post('https://api.jpush.cn/v3/push', {
+        this.post('https://api.jpush.cn/v3/push', JSON.stringify({
           platform: 'all',
           audience: {
             alias: target.slice(i, i + 900)
@@ -104,15 +107,18 @@ exports.route = {
             android: {
               alert: '',// 通知内容
               title: '',// 通知标题
-              intent: {
-                url: ''// 跳转
+              extras: {
+                notificationId
               }
             },
             ios: {
-              alert: '有一条新的通知~要记得看噢~'
+              alert: '有一条新的通知~要记得看噢~',
+              extras: {
+                notificationId
+              }
             }
           }
-        }, { headers: { 'Authorization': Base64.encode(JPushKeys.appKey + ':' + JPushKeys.masterSecret) } })
+        }), { headers: { 'Authorization': Base64.encode(JPushKeys.appKey + ':' + JPushKeys.masterSecret) } })
       }
 
     }
@@ -148,7 +154,8 @@ exports.route = {
           tag,
           annex,
           source,
-          isRead: readTime === null ? false : true
+          isRead: readTime === null ? false : true,
+          readTime
         }
       })
     } else {
