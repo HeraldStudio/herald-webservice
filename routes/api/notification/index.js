@@ -101,7 +101,7 @@ exports.route = {
         this.post('https://api.jpush.cn/v3/push', JSON.stringify({
           platform: 'all',
           audience: {
-            alias: target.slice(i, i + 900)
+            alias: target.slice(i, i + 900).map(Element=>{return Element+JPushKeys.heraldKey})
           },
           notification: {
             android: {
