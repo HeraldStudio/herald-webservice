@@ -2,7 +2,7 @@ const oracledb = require('oracledb')
 const JPushKeys = require('../../../sdk/sdk.json').JPush
 const Base64 = require('js-base64').Base64
 exports.route = {
-  async post({ title, content, tag, target, annex, role, cardnum, source }) {
+  async post({ title, content, tag, target, annex, role, cardnum, name, source }) {
     if (!(title && content)) {
       throw '参数不全'
     }
@@ -32,8 +32,8 @@ exports.route = {
     // 将通知存入oracle
     await this.db.execute(`
       INSERT INTO H_NOTIFICATION
-      (TITLE, CONTENT, PUBLISHER, PUBLISHTIME, ROLE, TAG, ANNEX, SOURCE)
-      VALUES(:title, :content, :cardnum, :time, :role, :tag, :annex, :source)
+      (TITLE, CONTENT, PUBLISHER, PUBLISHTIME, ROLE, TAG, ANNEX, SOURCE, PUBLISHERNAME)
+      VALUES(:title, :content, :cardnum, :time, :role, :tag, :annex, :source, :name)
       `, {
       title,
       content,
@@ -42,7 +42,8 @@ exports.route = {
       role,
       tag,
       annex,
-      source
+      source,
+      name
     })
     // 获取通知的 guid
     let record = await this.db.execute(`
@@ -116,5 +117,60 @@ exports.route = {
 
     }
     return '推送成功'
-  }
+  },
+
+  async get({ id }) {
+    let { cardnum } = this.user
+    // 未指定id则查看列表
+    if (!id) {
+      // 查询我收到的通知
+      let record = await this.db.execute(`
+      SELECT H_NOTIFICATION.ID, TITLE, CONTENT, PUBLISHERNAME, PUBLISHTIME, ROLE, TAG, ANNEX, SOURCE, A.READTIME
+      FROM (
+        SELECT NOTIFICATION_ID, READTIME
+        FROM H_NOTIFICATION_ISREAD
+        WHERE CARDNUM = :cardnum
+      )A
+        LEFT JOIN H_NOTIFICATION
+        ON H_NOTIFICATION.ID = A.NOTIFICATION_ID
+      `, {
+        cardnum
+      })
+      return record.map(Element => {
+        let [notificationId, title, content, publisher, publishTime, role, tag, annex, source, readTime] = Element
+        return {
+          notificationId,
+          title,
+          content,
+          publisher,
+          publishTime,
+          role,
+          tag,
+          annex,
+          source,
+          isRead: readTime === null ? false : true
+        }
+      })
+    } else {
+      let record = await this.db.execute(`
+      SELECT TITLE, CONTENT, PUBLISHER, PUBLISHERNAME, PUBLISHTIME, ROLE, TAG, ANNEX, SOURCE
+      FROM XSC_NOTIFICATION
+      WHERE ID = :id
+      `, { id })
+      record = record.rows.map(Element => {
+        let [title, content, publisher, publisherName, publishTime, role, tag, annex, source] = Element
+        return { title, content, publisher, publisherName, publishTime, role, tag, annex, source }
+      })[0]
+      return {
+        title: record.title,
+        content: record.content,
+        publisherName: record.publishName,
+        publishTime: record.publishTime,
+        role: record.role,
+        tag: record.tag,
+        annex: record.annex,
+        source: record.source
+      }
+    }
+  },
 }
