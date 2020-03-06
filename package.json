@@ -26,6 +26,7 @@
     "form-data": "^3.0.0",
     "iconv-lite": "^0.5.1",
     "imap-simple": "^4.3.0",
+    "js-base64": "^2.5.2",
     "js-yaml": "^3.13.1",
     "jschardet-eastasia": "^1.4.1",
     "kf-router": "^2.2.2",
