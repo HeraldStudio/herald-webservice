@@ -2,8 +2,8 @@ const oracledb = require('oracledb')
 const JPushKeys = require('../../../sdk/sdk.json').JPush
 const Base64 = require('js-base64').Base64
 exports.route = {
-  async post({ title, content, tag, target, annex, role, cardnum, name, source }) {
-    if (!(title && content)) {
+  async post({ title, content, tag, target, annex, role, key, name, source }) {
+    if (!(title && content && key)) {
       throw '参数不全'
     }
     if (title.length > 60) {
@@ -15,6 +15,7 @@ exports.route = {
     if (!role) {
       throw 403
     }
+    let cardnum = this.user.encrypt(key)
     let isAll = false
     let time = +moment()
     if (target === 'all') {
@@ -101,7 +102,7 @@ exports.route = {
         this.post('https://api.jpush.cn/v3/push', JSON.stringify({
           platform: 'all',
           audience: {
-            alias: target.slice(i, i + 900).map(Element=>{return Element+JPushKeys.heraldKey})
+            alias: target.slice(i, i + 900).map(Element => { return Element + JPushKeys.heraldKey })
           },
           notification: {
             android: {
@@ -168,6 +169,9 @@ exports.route = {
         let [title, content, publisher, publisherName, publishTime, role, tag, annex, source] = Element
         return { title, content, publisher, publisherName, publishTime, role, tag, annex, source }
       })[0]
+      if (record.rows.length === 0) {
+        throw '没有您想要查看的通知'
+      }
       return {
         title: record.title,
         content: record.content,

@@ -22,11 +22,16 @@ exports.route = {
       }
     }
   },
-  async post({ id }) {
+  async post({ id, key }) {
     if (!id) {
       throw '参数不全'
     }
-    let { cardnum } = this.user
+    let cardnum
+    if (!key) {
+      cardnum = this.user.cardnum
+    } else {
+      cardnum = this.user.encrypt(key)
+    }
     let record = await this.db.execute(`
     SELECT READ_TIME
     FROM H_NOTIFICATION_ISREAD
@@ -51,6 +56,10 @@ exports.route = {
           readTime,
           cardnum,
           id
+        })
+        await this.post('https://xgbxscwx.seu.edu.cn' + '/api/notification/read', {
+          id,
+          key: this.user.decrypt(cardnum),
         })
       }
     }
