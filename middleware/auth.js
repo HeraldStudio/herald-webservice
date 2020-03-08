@@ -290,6 +290,7 @@ module.exports = async (ctx, next) => {
     get platform() { reject() },
     // get encrypt() { reject() },
     // get decrypt() { reject() },
+    encrypt, decrypt
   }
 
   // 调用下游中间件
