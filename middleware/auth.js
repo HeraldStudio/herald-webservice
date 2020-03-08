@@ -288,8 +288,8 @@ module.exports = async (ctx, next) => {
     get name() { reject() },
     get schoolnum() { reject() },
     get platform() { reject() },
-    get encrypt() { reject() },
-    get decrypt() { reject() },
+    // get encrypt() { reject() },
+    // get decrypt() { reject() },
   }
 
   // 调用下游中间件
