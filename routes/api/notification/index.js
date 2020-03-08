@@ -16,7 +16,7 @@ exports.route = {
     if (!role) {
       throw 403
     }
-    let cardnum = this.user.encrypt(key)
+    let cardnum = this.user.decrypt(key)
     let isAll = false
     let time = +moment()
     if (target === 'all') {
