@@ -3,7 +3,7 @@ const JPushKeys = require('../../../sdk/sdk.json').JPush
 const Base64 = require('js-base64').Base64
 exports.route = {
   async post({ title, content, tag, target, annex, role, key, name, source }) {
-    console.log({title, content, tag, target, annex, role, key, name, source})
+    console.log({ title, content, tag, target, annex, role, key, name, source })
     if (!(title && content && key)) {
       throw '参数不全'
     }
@@ -61,12 +61,12 @@ exports.route = {
     // 插入与接受者的绑定记录
     const sql = 'INSERT INTO H_NOTIFICATION_ISREAD VALUES (:notificationId, :cardnum)'
 
-    let binds = target.map(Element => {
+    let binds = (typeof target === 'object') ? target.map(Element => {
       return {
         notificationId,
         cardnum: Element
       }
-    })
+    }) : [{ notificationId, cardnum: target }]
 
     const options = {
       autoCommit: true,
