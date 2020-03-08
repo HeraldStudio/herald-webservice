@@ -3,6 +3,7 @@ const JPushKeys = require('../../../sdk/sdk.json').JPush
 const Base64 = require('js-base64').Base64
 exports.route = {
   async post({ title, content, tag, target, annex, role, key, name, source }) {
+    console.log({title, content, tag, target, annex, role, key, name, source})
     if (!(title && content && key)) {
       throw '参数不全'
     }
