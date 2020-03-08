@@ -58,7 +58,7 @@ exports.route = {
     let notificationId = record.rows[0][0]
 
     // 插入与接受者的绑定记录
-    const sql = 'INSERT INTO H_NOTIFICATION_ISREAD VALUES (:notificationId, :cardnum)'
+    const sql = 'INSERT INTO H_NOTIFICATION_ISREAD （NOTIFICATION_ID, CARDNUM） VALUES (:notificationId, :cardnum)'
 
     let binds = (typeof target === 'object') ? target.map(Element => {
       return {
@@ -66,7 +66,6 @@ exports.route = {
         cardnum: Element
       }
     }) : [{ notificationId, cardnum: target }]
-    console.log(binds)
     const options = {
       autoCommit: true,
       bindDefs: {
