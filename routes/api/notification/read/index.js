@@ -30,7 +30,7 @@ exports.route = {
     if (!key) {
       cardnum = this.user.cardnum
     } else {
-      cardnum = this.user.encrypt(key)
+      cardnum = this.user.decrypt(key)
     }
     let record = await this.db.execute(`
     SELECT READ_TIME
@@ -59,7 +59,7 @@ exports.route = {
         })
         await this.post('https://xgbxscwx.seu.edu.cn' + '/api/notification/read', {
           id,
-          key: this.user.decrypt(cardnum),
+          key: this.user.encrypt(cardnum),
         })
       }
     }
