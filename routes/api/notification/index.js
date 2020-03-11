@@ -131,9 +131,9 @@ exports.route = {
     if (!id) {
       // 查询我收到的通知
       let record = await this.db.execute(`
-      SELECT H_NOTIFICATION.ID, TITLE, CONTENT, PUBLISHERNAME, PUBLISHTIME, ROLE, TAG, ANNEX, SOURCE, A.READTIME
+      SELECT H_NOTIFICATION.ID, TITLE, CONTENT, PUBLISHERNAME, PUBLISHTIME, ROLE, TAG, ANNEX, SOURCE, A.READ_TIME
       FROM (
-        SELECT NOTIFICATION_ID, READTIME
+        SELECT NOTIFICATION_ID, READ_TIME
         FROM H_NOTIFICATION_ISREAD
         WHERE CARDNUM = :cardnum
       )A
@@ -142,7 +142,7 @@ exports.route = {
       `, {
         cardnum
       })
-      return record.map(Element => {
+      return record.rows.map(Element => {
         let [notificationId, title, content, publisher, publishTime, role, tag, annex, source, readTime] = Element
         return {
           notificationId,
