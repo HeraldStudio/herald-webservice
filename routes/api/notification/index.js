@@ -1,7 +1,7 @@
 const oracledb = require('oracledb')
 const JPushKeys = require('../../../sdk/sdk.json').JPush
 const Base64 = require('js-base64').Base64
-const secretKey = require('../sdk/sdk.json').herald.secretKey
+const secretKey = require('../../../sdk/sdk.json').herald.secretKey
 exports.route = {
   // key 为包括发布者姓名，一卡通，角色，来源的密钥
   // signature 为包括secretKey，发布者姓名，一卡通，角色的密钥
