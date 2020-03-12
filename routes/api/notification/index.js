@@ -127,14 +127,14 @@ exports.route = {
   },
 
   async get({ id }) {
-    let { cardnum } = this.user
     // 未指定id则查看列表
     if (!id) {
       // 查询我收到的通知
+      let { cardnum } = this.user
       let record = await this.db.execute(`
-      SELECT H_NOTIFICATION.ID, TITLE, CONTENT, PUBLISHERNAME, PUBLISHTIME, ROLE, TAG, ANNEX, SOURCE, A.READTIME
+      SELECT H_NOTIFICATION.ID, TITLE, CONTENT, PUBLISHERNAME, PUBLISHTIME, ROLE, TAG, ANNEX, SOURCE, A.READ_TIME
       FROM (
-        SELECT NOTIFICATION_ID, READTIME
+        SELECT NOTIFICATION_ID, READ_TIME
         FROM H_NOTIFICATION_ISREAD
         WHERE CARDNUM = :cardnum
       )A
@@ -143,7 +143,7 @@ exports.route = {
       `, {
         cardnum
       })
-      return record.map(Element => {
+      return record.rows.map(Element => {
         let [notificationId, title, content, publisher, publishTime, role, tag, annex, source, readTime] = Element
         return {
           notificationId,
@@ -162,16 +162,17 @@ exports.route = {
     } else {
       let record = await this.db.execute(`
       SELECT TITLE, CONTENT, PUBLISHER, PUBLISHERNAME, PUBLISHTIME, ROLE, TAG, ANNEX, SOURCE
-      FROM XSC_NOTIFICATION
+      FROM H_NOTIFICATION
       WHERE ID = :id
       `, { id })
+      if (record.rows.length === 0) {
+        throw '没有您想要查看的通知'
+      }
       record = record.rows.map(Element => {
         let [title, content, publisher, publisherName, publishTime, role, tag, annex, source] = Element
         return { title, content, publisher, publisherName, publishTime, role, tag, annex, source }
       })[0]
-      if (record.rows.length === 0) {
-        throw '没有您想要查看的通知'
-      }
+      
       return {
         title: record.title,
         content: record.content,
