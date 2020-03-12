@@ -1,25 +1,30 @@
 const oracledb = require('oracledb')
 const JPushKeys = require('../../../sdk/sdk.json').JPush
 const Base64 = require('js-base64').Base64
+const secretKey = require('../sdk/sdk.json').herald.secretKey
 exports.route = {
-  async post({ id, title, content, tag, target, annex, role, key, name, source }) {
-    if (!(id && title && content && key)) {
+  // key 为包括发布者姓名，一卡通，角色，来源的密钥
+  // signature 为包括secretKey，发布者姓名，一卡通，角色的密钥
+  // 两者比对确定请求正确
+  async post({ notificationId, title, content, tag, target, annex, key, signature }) {
+    if (!(notificationId && title && content && target && key && signature)) {
       throw '参数不全'
     }
-    if (title.length > 60) {
-      throw '标题过长'
+    if (title.length > 60 || content.length > 1200 || annex.length > 500 || tag.length > 100) {
+      throw '参数过长'
     }
-    if (content.length > 1200) {
-      throw '内容过长'
+    // 解码鉴权
+    key = JSON.parse(this.decrypt(key))
+    signature = JSON.parse(this.decrypt(signature))
+    if (signature.secretKey !== secretKey ||
+      key.name !== signature.name ||
+      key.cardnum !== signature.cardnum ||
+      key.role !== signature.role) {
+      throw '非法操作'
     }
-    if (!role) {
-      throw 403
-    }
-    let cardnum = this.user.decrypt(key)
-    let isAll = false
+    let { cardnum, name, role, source } = key
     let time = +moment()
     if (target === 'all') {
-      isAll = true
       let record = await this.db.execute(`
       SELECT DISTINCT(CARDNUM)
       FROM H_AUTH 
@@ -34,9 +39,9 @@ exports.route = {
     await this.db.execute(`
       INSERT INTO H_NOTIFICATION
       (ID, TITLE, CONTENT, PUBLISHER, PUBLISHTIME, ROLE, TAG, ANNEX, SOURCE, PUBLISHERNAME)
-      VALUES(:id, :title, :content, :cardnum, :time, :role, :tag, :annex, :source, :name)
+      VALUES(:notificationId, :title, :content, :cardnum, :time, :role, :tag, :annex, :source, :name)
       `, {
-      id,
+      notificationId,
       title,
       content,
       cardnum,
@@ -47,82 +52,55 @@ exports.route = {
       source,
       name
     })
-    // 获取通知的 guid
-    let record = await this.db.execute(`
-    SELECT ID 
-    FROM H_NOTIFICATION
-    WHERE TITLE = :title AND PUBLISHTIME = :time
-    `, {
-      title,
-      time
-    })
-    let notificationId = record.rows[0][0]
-
-    // 插入与接受者的绑定记录
-    const sql = 'INSERT INTO H_NOTIFICATION_ISREAD （NOTIFICATION_ID, CARDNUM） VALUES (:notificationId, :cardnum)'
-
-    let binds = (typeof target === 'object') ? target.map(Element => {
-      return {
-        notificationId,
-        cardnum: Element
-      }
-    }) : [{ notificationId, cardnum: target }]
-    const options = {
-      autoCommit: true,
-      bindDefs: {
-        notificationId: { type: oracledb.STRING, maxSize: 40 },
-        cardnum: { type: oracledb.STRING, maxSize: 10 }
-      }
+    // 为了处理在target仅有一位时，数组退化为字符串的现象
+    if (typeof target !== 'object') {
+      target = [target]
     }
-    await this.db.executeMany(sql, binds, options)
+    // 插入与接受者的绑定记录
+    for (let i = 0; i < target.length; i += 900) {
+      let cardnums = target.slice(i, i + 900)
+      const sql = 'INSERT INTO H_NOTIFICATION_ISREAD （NOTIFICATION_ID, CARDNUM） VALUES (:notificationId, :cardnum)'
 
-    // // 向app推送通知
-    // if (isAll) {
-    //   this.post('https://api.jpush.cn/v3/push', JSON.stringify({
-    //     platform: 'all',
-    //     audience: 'all',
-    //     notification: {
-    //       android: {
-    //         alert: '',// 通知内容
-    //         title: '',// 通知标题
-    //         extras: {
-    //           notificationId
-    //         }
-    //       },
-    //       ios: {
-    //         alert: '有一条新的通知~要记得看噢~',
-    //         extras: {
-    //           notificationId
-    //         }
-    //       }
-    //     }
-    //   }), { headers: { 'Authorization': Base64.encode(JPushKeys.appKey + ':' + JPushKeys.masterSecret) } })
-    // } else {
-    //   for (let i = 0; i < target.length; i += 900) {
-    //     this.post('https://api.jpush.cn/v3/push', JSON.stringify({
-    //       platform: 'all',
-    //       audience: {
-    //         alias: target.slice(i, i + 900).map(Element => { return Element + JPushKeys.heraldKey })
-    //       },
-    //       notification: {
-    //         android: {
-    //           alert: '',// 通知内容
-    //           title: '',// 通知标题
-    //           extras: {
-    //             notificationId
-    //           }
-    //         },
-    //         ios: {
-    //           alert: '有一条新的通知~要记得看噢~',
-    //           extras: {
-    //             notificationId
-    //           }
-    //         }
-    //       }
-    //     }), { headers: { 'Authorization': Base64.encode(JPushKeys.appKey + ':' + JPushKeys.masterSecret) } })
-    //   }
+      let binds = cardnums.map(Element => {
+        return {
+          notificationId,
+          cardnum: Element
+        }
+      })
+      const options = {
+        autoCommit: true,
+        bindDefs: {
+          notificationId: { type: oracledb.STRING, maxSize: 40 },
+          cardnum: { type: oracledb.STRING, maxSize: 10 }
+        }
+      }
+      await this.db.executeMany(sql, binds, options)
+    }
 
-    // }
+    // 向app推送通知
+    for (let i = 0; i < target.length; i += 900) {
+      this.post('https://api.jpush.cn/v3/push', JSON.stringify({
+        platform: 'all',
+        audience: {
+          alias: target.slice(i, i + 900).map(Element => { return Element + JPushKeys.heraldKey })
+        },
+        notification: {
+          android: {
+            alert: content,// 通知内容
+            title: title,// 通知标题
+            extras: {
+              notificationId
+            }
+          },
+          ios: {
+            alert: '有一条新的通知~要记得看噢~',
+            extras: {
+              notificationId
+            }
+          }
+        }
+      }), { headers: { 'Authorization': 'Basic ' + Base64.encode(JPushKeys.appKey + ':' + JPushKeys.masterSecret) } })
+    }
     return '推送成功'
   },
 
@@ -172,7 +150,7 @@ exports.route = {
         let [title, content, publisher, publisherName, publishTime, role, tag, annex, source] = Element
         return { title, content, publisher, publisherName, publishTime, role, tag, annex, source }
       })[0]
-      
+
       return {
         title: record.title,
         content: record.content,
