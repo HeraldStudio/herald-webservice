@@ -35,23 +35,30 @@ exports.route = {
         return cardnum
       })
     }
-    // 将通知存入oracle
-    await this.db.execute(`
+    try {
+      // 将通知存入oracle
+      await this.db.execute(`
       INSERT INTO H_NOTIFICATION
       (ID, TITLE, CONTENT, PUBLISHER, PUBLISHTIME, ROLE, TAG, ANNEX, SOURCE, PUBLISHERNAME)
       VALUES(:notificationId, :title, :content, :cardnum, :time, :role, :tag, :annex, :source, :name)
       `, {
-      notificationId,
-      title,
-      content,
-      cardnum,
-      time,
-      role,
-      tag,
-      annex,
-      source,
-      name
-    })
+        notificationId,
+        title,
+        content,
+        cardnum,
+        time,
+        role,
+        tag,
+        annex,
+        source,
+        name
+      })
+    } catch (err) {
+      if(err.errorNum === 1){
+        throw '主键重复'
+      }
+    }
+
     // 为了处理在target仅有一位时，数组退化为字符串的现象
     if (typeof target !== 'object') {
       target = [target]
