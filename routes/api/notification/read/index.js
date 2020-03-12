@@ -63,5 +63,6 @@ exports.route = {
         })
       }
     }
+    return '通知查阅成功'
   }
 }

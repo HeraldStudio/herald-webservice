@@ -2,8 +2,8 @@ const oracledb = require('oracledb')
 const JPushKeys = require('../../../sdk/sdk.json').JPush
 const Base64 = require('js-base64').Base64
 exports.route = {
-  async post({ title, content, tag, target, annex, role, key, name, source }) {
-    if (!(title && content && key)) {
+  async post({ id, title, content, tag, target, annex, role, key, name, source }) {
+    if (!(id && title && content && key)) {
       throw '参数不全'
     }
     if (title.length > 60) {
@@ -33,9 +33,10 @@ exports.route = {
     // 将通知存入oracle
     await this.db.execute(`
       INSERT INTO H_NOTIFICATION
-      (TITLE, CONTENT, PUBLISHER, PUBLISHTIME, ROLE, TAG, ANNEX, SOURCE, PUBLISHERNAME)
-      VALUES(:title, :content, :cardnum, :time, :role, :tag, :annex, :source, :name)
+      (ID, TITLE, CONTENT, PUBLISHER, PUBLISHTIME, ROLE, TAG, ANNEX, SOURCE, PUBLISHERNAME)
+      VALUES(:id, :title, :content, :cardnum, :time, :role, :tag, :annex, :source, :name)
       `, {
+      id,
       title,
       content,
       cardnum,
