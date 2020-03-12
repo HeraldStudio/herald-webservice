@@ -14,8 +14,8 @@ exports.route = {
       throw '参数过长'
     }
     // 解码鉴权
-    key = JSON.parse(this.decrypt(key))
-    signature = JSON.parse(this.decrypt(signature))
+    key = JSON.parse(this.user.decrypt(key))
+    signature = JSON.parse(this.user.decrypt(signature))
     if (signature.secretKey !== secretKey ||
       key.name !== signature.name ||
       key.cardnum !== signature.cardnum ||
