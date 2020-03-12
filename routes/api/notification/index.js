@@ -54,7 +54,7 @@ exports.route = {
         name
       })
     } catch (err) {
-      if(err.errorNum === 1){
+      if (err.errorNum === 1) {
         throw '主键重复'
       }
     }
@@ -84,30 +84,30 @@ exports.route = {
       await this.db.executeMany(sql, binds, options)
     }
 
-    // 向app推送通知
-    for (let i = 0; i < target.length; i += 900) {
-      this.post('https://api.jpush.cn/v3/push', JSON.stringify({
-        platform: 'all',
-        audience: {
-          alias: target.slice(i, i + 900).map(Element => { return Element + JPushKeys.heraldKey })
-        },
-        notification: {
-          android: {
-            alert: content,// 通知内容
-            title: title,// 通知标题
-            extras: {
-              notificationId
-            }
-          },
-          ios: {
-            alert: '有一条新的通知~要记得看噢~',
-            extras: {
-              notificationId
-            }
-          }
-        }
-      }), { headers: { 'Authorization': 'Basic ' + Base64.encode(JPushKeys.appKey + ':' + JPushKeys.masterSecret) } })
-    }
+    // // 向app推送通知
+    // for (let i = 0; i < target.length; i += 900) {
+    //   this.post('https://api.jpush.cn/v3/push', JSON.stringify({
+    //     platform: 'all',
+    //     audience: {
+    //       alias: target.slice(i, i + 900).map(Element => { return Element + JPushKeys.heraldKey })
+    //     },
+    //     notification: {
+    //       android: {
+    //         alert: content,// 通知内容
+    //         title: title,// 通知标题
+    //         extras: {
+    //           notificationId
+    //         }
+    //       },
+    //       ios: {
+    //         alert: '有一条新的通知~要记得看噢~',
+    //         extras: {
+    //           notificationId
+    //         }
+    //       }
+    //     }
+    //   }), { headers: { 'Authorization': 'Basic ' + Base64.encode(JPushKeys.appKey + ':' + JPushKeys.masterSecret) } })
+    // }
     return '推送成功'
   },
 
@@ -170,4 +170,8 @@ exports.route = {
       }
     }
   },
+
+  // async delete({ key }) {
+
+  // }
 }
