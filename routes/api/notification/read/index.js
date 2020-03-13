@@ -6,7 +6,7 @@ exports.route = {
     }
     let { cardnum } = this.user
     let record = await this.db.execute(`
-    SELECT READ_TIME
+    SELECT READTIME
     FROM H_NOTIFICATION_ISREAD
     WHERE NOTIFICATION_ID = :id AND CARDNUM = :cardnum
     `, {

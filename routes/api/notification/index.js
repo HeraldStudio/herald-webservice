@@ -117,9 +117,9 @@ exports.route = {
       // 查询我收到的通知
       let { cardnum } = this.user
       let record = await this.db.execute(`
-      SELECT H_NOTIFICATION.ID, TITLE, CONTENT, PUBLISHERNAME, PUBLISHTIME, ROLE, TAG, ANNEX, SOURCE, A.READ_TIME
+      SELECT H_NOTIFICATION.ID, TITLE, CONTENT, PUBLISHERNAME, PUBLISHTIME, ROLE, TAG, ANNEX, SOURCE, A.READTIME
       FROM (
-        SELECT NOTIFICATION_ID, READ_TIME
+        SELECT NOTIFICATION_ID, READTIME
         FROM H_NOTIFICATION_ISREAD
         WHERE CARDNUM = :cardnum
       )A
