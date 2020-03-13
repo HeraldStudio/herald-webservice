@@ -1,4 +1,10 @@
-const secretKey = require('../../../../sdk/sdk.json').herald.secretKey
+let secretKey 
+try{
+  secretKey = require('../../../sdk/sdk.json').herald.secretKey
+}catch(err){
+  secretKey =''
+}
+
 exports.route = {
   async get({ id }) {
     if (!id) {

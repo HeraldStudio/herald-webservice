@@ -1,7 +1,13 @@
 const oracledb = require('oracledb')
 const JPushKeys = require('../../../sdk/sdk.json').JPush
 const Base64 = require('js-base64').Base64
-const secretKey = require('../../../sdk/sdk.json').herald.secretKey
+let secretKey 
+try{
+  secretKey = require('../../../sdk/sdk.json').herald.secretKey
+}catch(err){
+  secretKey =''
+}
+
 exports.route = {
   // key 为包括发布者姓名，一卡通，角色，来源的密钥
   // signature 为包括secretKey，发布者姓名，一卡通，角色的密钥
@@ -112,10 +118,10 @@ exports.route = {
   },
 
   async get({ id }) {
+    let { cardnum } = this.user
     // 未指定id则查看列表
     if (!id) {
       // 查询我收到的通知
-      let { cardnum } = this.user
       let record = await this.db.execute(`
       SELECT H_NOTIFICATION.ID, TITLE, CONTENT, PUBLISHERNAME, PUBLISHTIME, ROLE, TAG, ANNEX, SOURCE, A.READTIME
       FROM (
@@ -146,28 +152,32 @@ exports.route = {
       })
     } else {
       let record = await this.db.execute(`
-      SELECT TITLE, CONTENT, PUBLISHER, PUBLISHERNAME, PUBLISHTIME, ROLE, TAG, ANNEX, SOURCE
-      FROM H_NOTIFICATION
-      WHERE ID = :id
+      SELECT H_NOTIFICATION.ID, TITLE, CONTENT, PUBLISHERNAME, PUBLISHTIME, ROLE, TAG, ANNEX, SOURCE, A.READTIME
+      FROM (
+        SELECT NOTIFICATION_ID, READTIME
+        FROM H_NOTIFICATION_ISREAD
+        WHERE NOTIFICATION_ID = :id
+      )A
+        LEFT JOIN H_NOTIFICATION
+        ON H_NOTIFICATION.ID = A.NOTIFICATION_ID
       `, { id })
-      if (record.rows.length === 0) {
-        throw '没有您想要查看的通知'
-      }
-      record = record.rows.map(Element => {
-        let [title, content, publisher, publisherName, publishTime, role, tag, annex, source] = Element
-        return { title, content, publisher, publisherName, publishTime, role, tag, annex, source }
-      })[0]
-
-      return {
-        title: record.title,
-        content: record.content,
-        publisherName: record.publishName,
-        publishTime: record.publishTime,
-        role: record.role,
-        tag: record.tag,
-        annex: record.annex,
-        source: record.source
-      }
+      
+      return record.rows.map(Element => {
+        let [notificationId, title, content, publisher, publishTime, role, tag, annex, source, readTime] = Element
+        return {
+          notificationId,
+          title,
+          content,
+          publisher,
+          publishTime,
+          role,
+          tag,
+          annex,
+          source,
+          isRead: readTime === null ? false : true,
+          readTime
+        }
+      })
     }
   },
 
