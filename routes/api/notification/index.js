@@ -162,7 +162,8 @@ exports.route = {
         ON H_NOTIFICATION.ID = A.NOTIFICATION_ID
       `, { id })
       
-      return record.rows.map(Element => {
+      // 此处返回的是object不是array
+      let ret = record.rows.map(Element => {
         let [notificationId, title, content, publisher, publishTime, role, tag, annex, source, readTime] = Element
         return {
           notificationId,
@@ -178,6 +179,8 @@ exports.route = {
           readTime
         }
       })
+
+      return ret[0]? ret[0] : {}
     }
   },
 
