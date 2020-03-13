@@ -131,7 +131,6 @@ exports.route = {
     // 计算起始和终止条目index,闭区间
     let startIndex = ( +page - 1 )  * + pageSize
     let endIndex = +page * +pageSize - 1
-    console.log({startIndex, endIndex})
     
     // 未指定id则查看列表
     if (!id) {
@@ -156,7 +155,6 @@ exports.route = {
         cardnum
       })
       let unReadCount = unReadRecord.rows.length
-      console.log(unReadCount)
       // 接下来根据「未读通知」的数量分页查询「已读通知」
       if(unReadCount >= endIndex + 1){
         let ret = unReadRecord.rows.slice(startIndex, endIndex + 1).map(item =>{
@@ -269,7 +267,7 @@ exports.route = {
       FROM (
         SELECT NOTIFICATION_ID, READTIME
         FROM H_NOTIFICATION_ISREAD
-        WHERE NOTIFICATION_ID = :id AND READTIME
+        WHERE NOTIFICATION_ID = :id 
       )A
         LEFT JOIN H_NOTIFICATION
         ON H_NOTIFICATION.ID = A.NOTIFICATION_ID
