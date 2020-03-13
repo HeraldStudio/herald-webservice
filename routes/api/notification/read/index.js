@@ -46,12 +46,12 @@ exports.route = {
       }
       await this.post('https://xgbxscwx.seu.edu.cn' + '/api/notification/read', {
         id,
-        key: this.user.encrypt(key),
-        signature: this.user.encrypt(signature)
+        key: this.user.encrypt(JSON.parse(key)),
+        signature: this.user.encrypt(JSON.parse(signature))
       })
     } else {
-      key = this.user.decrypt(key)
-      signature = this.user.decrypt(signature)
+      key = this.user.decrypt(JSON.stringify(key))
+      signature = this.user.decrypt(JSON.stringify(signature))
       if(key.cardnum!==signature.cardnum || key.name !== signature.name || signature.secretKey !== secretKey){
         throw '非法操作'
       }
