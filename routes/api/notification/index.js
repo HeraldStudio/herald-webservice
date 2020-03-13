@@ -131,10 +131,24 @@ exports.route = {
     // 计算起始和终止条目index,闭区间
     let startIndex = ( +page - 1 )  * + pageSize
     let endIndex = +page * +pageSize - 1
-    
+    // console.log(endIndex)
     // 未指定id则查看列表
     if (!id) {
       let { cardnum } = this.user
+      let count = await this.db.execute(`
+      SELECT COUNT (*)
+      FROM (
+        SELECT NOTIFICATION_ID, READTIME
+        FROM H_NOTIFICATION_ISREAD
+        WHERE CARDNUM = :cardnum 
+      )A
+        LEFT JOIN H_NOTIFICATION
+        ON H_NOTIFICATION.ID = A.NOTIFICATION_ID 
+      `, {
+        cardnum
+      })
+      // console.log(count.rows[0][0])
+      const hasMore = endIndex + 1 < count.rows[0][0]
       // 查看列表
       /**
        * 分页返回的策略：
@@ -173,7 +187,10 @@ exports.route = {
             readTime
           }
         })
-        return ret
+        return {
+          list:ret,
+          hasMore
+        }
       }
       if((unReadCount >= (startIndex +1))&& (unReadCount < (endIndex +1))){
         endIndex = endIndex - (unReadCount - startIndex)
@@ -215,7 +232,10 @@ exports.route = {
             readTime
           }
         })
-        return ret
+        return {
+          list:ret,
+          hasMore
+        }
 
       }
       if(unReadCount < (startIndex +1)){
@@ -257,7 +277,10 @@ exports.route = {
             readTime
           }
         })
-        return ret
+        return {
+          list:ret,
+          hasMore
+        }
       }
       
     } else {
