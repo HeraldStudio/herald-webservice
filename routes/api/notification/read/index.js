@@ -59,7 +59,7 @@ exports.route = {
     }
     let record = await this.db.execute(`
     SELECT READTIME
-    FROM XSC_NOTIFICATION_ISREAD
+    FROM H_NOTIFICATION_ISREAD
     WHERE NOTIFICATION_ID = :id AND CARDNUM = :cardnum
     `, {
       id,
@@ -74,7 +74,7 @@ exports.route = {
       } else {
         readTime = +moment()
         await this.db.execute(`
-        UPDATE XSC_NOTIFICATION_ISREAD
+        UPDATE H_NOTIFICATION_ISREAD
         SET READTIME = :readTime
         WHERE CARDNUM = :cardnum AND NOTIFICATION_ID = :id
         `, {
