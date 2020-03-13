@@ -117,46 +117,154 @@ exports.route = {
     return '推送成功'
   },
 
-  async get({ id }) {
-    let { cardnum } = this.user
+  async get({ id, page = 1, pageSize = 10}) {
+    // 检查参数，id 和 page、pageSize不能同时存在
+    if(id && page && pageSize){
+      throw '调用方法错误'
+    }
+
+    // 计算起始和终止条目index,闭区间
+    let startIndex = ( +page - 1 )  * + pageSize
+    let endIndex = +page * +pageSize - 1
+    console.log({startIndex, endIndex})
+    
     // 未指定id则查看列表
     if (!id) {
-      // 查询我收到的通知
-      let record = await this.db.execute(`
+      let { cardnum } = this.user
+      // 查看列表
+      /**
+       * 分页返回的策略：
+       * 优先返回「未读取」的通知, 剩余的用「读取过」的通知填充
+       * 通知按照时间顺序返回, PUBLISHTIME 越大, index 越小
+       */
+      // 查询我收到的未读通知
+      let unReadRecord = await this.db.execute(`
       SELECT H_NOTIFICATION.ID, TITLE, CONTENT, PUBLISHERNAME, PUBLISHTIME, ROLE, TAG, ANNEX, SOURCE, A.READTIME
       FROM (
         SELECT NOTIFICATION_ID, READTIME
         FROM H_NOTIFICATION_ISREAD
-        WHERE CARDNUM = :cardnum
+        WHERE CARDNUM = :cardnum AND READTIME IS NULL
       )A
         LEFT JOIN H_NOTIFICATION
-        ON H_NOTIFICATION.ID = A.NOTIFICATION_ID
+        ON H_NOTIFICATION.ID = A.NOTIFICATION_ID ORDER BY PUBLISHTIME DESC
       `, {
         cardnum
       })
-      return record.rows.map(Element => {
-        let [notificationId, title, content, publisher, publishTime, role, tag, annex, source, readTime] = Element
-        return {
-          notificationId,
-          title,
-          content,
-          publisher,
-          publishTime,
-          role,
-          tag,
-          annex,
-          source,
-          isRead: readTime === null ? false : true,
-          readTime
-        }
-      })
+      let unReadCount = unReadRecord.rows.length
+      console.log(unReadCount)
+      // 接下来根据「未读通知」的数量分页查询「已读通知」
+      if(unReadCount >= endIndex + 1){
+        let ret = unReadRecord.rows.slice(startIndex, endIndex + 1).map(item =>{
+          let [notificationId, title, content, publisher, publishTime, role, tag, annex, source, readTime] = item
+          return {
+            notificationId,
+            title,
+            content,
+            publisher,
+            publishTime,
+            role,
+            tag,
+            annex,
+            source,
+            isRead: readTime === null ? false : true,
+            readTime
+          }
+        })
+        return ret
+      }
+      if((unReadCount >= (startIndex +1))&& (unReadCount < (endIndex +1))){
+        endIndex = endIndex - (unReadCount - startIndex)
+        let hasReadRecord = await this.db.execute(/*sql*/`
+        SELECT ID, TITLE, CONTENT, PUBLISHERNAME, PUBLISHTIME, ROLE, TAG, ANNEX, SOURCE,READTIME
+          FROM (SELECT tt.*, ROWNUM AS rowno
+            FROM (
+              SELECT H_NOTIFICATION.ID, TITLE, CONTENT, PUBLISHERNAME, PUBLISHTIME, ROLE, TAG, ANNEX, SOURCE, A.READTIME
+                FROM (
+                  SELECT NOTIFICATION_ID, READTIME
+                  FROM H_NOTIFICATION_ISREAD
+                  WHERE CARDNUM = :cardnum AND READTIME IS NOT NULL
+                ) A
+              LEFT JOIN H_NOTIFICATION
+              ON H_NOTIFICATION.ID = A.NOTIFICATION_ID ORDER BY PUBLISHTIME DESC
+            ) tt
+            WHERE ROWNUM <= :endRow
+          ) table_alias
+        WHERE table_alias.rowno >= :startRow
+        `,{
+          cardnum,
+          endRow: endIndex + 1 - startIndex,
+          startRow: 1
+        })
+
+        let ret = unReadRecord.rows.slice(startIndex).concat(hasReadRecord.rows).map(item => {
+          let [notificationId, title, content, publisher, publishTime, role, tag, annex, source, readTime] = item
+          return {
+            notificationId,
+            title,
+            content,
+            publisher,
+            publishTime,
+            role,
+            tag,
+            annex,
+            source,
+            isRead: readTime === null ? false : true,
+            readTime
+          }
+        })
+        return ret
+
+      }
+      if(unReadCount < (startIndex +1)){
+        let hasReadRecord = await this.db.execute(/*sql*/`
+        SELECT ID, TITLE, CONTENT, PUBLISHERNAME, PUBLISHTIME, ROLE, TAG, ANNEX, SOURCE,READTIME
+          FROM (SELECT tt.*, ROWNUM AS rowno
+            FROM (
+              SELECT H_NOTIFICATION.ID, TITLE, CONTENT, PUBLISHERNAME, PUBLISHTIME, ROLE, TAG, ANNEX, SOURCE, A.READTIME
+                FROM (
+                  SELECT NOTIFICATION_ID, READTIME
+                  FROM H_NOTIFICATION_ISREAD
+                  WHERE CARDNUM = :cardnum AND READTIME IS NOT NULL
+                ) A
+              LEFT JOIN H_NOTIFICATION
+              ON H_NOTIFICATION.ID = A.NOTIFICATION_ID ORDER BY PUBLISHTIME DESC
+            ) tt
+            WHERE ROWNUM <= :endRow
+          ) table_alias
+        WHERE table_alias.rowno >= :startRow
+        `,{
+          cardnum,
+          endRow: endIndex + 1 - unReadCount,
+          startRow: startIndex +1 - unReadCount
+        })
+
+        let ret = unReadRecord.rows.slice(startIndex).concat(hasReadRecord.rows).map(item => {
+          let [notificationId, title, content, publisher, publishTime, role, tag, annex, source, readTime] = item
+          return {
+            notificationId,
+            title,
+            content,
+            publisher,
+            publishTime,
+            role,
+            tag,
+            annex,
+            source,
+            isRead: readTime === null ? false : true,
+            readTime
+          }
+        })
+        return ret
+      }
+      
     } else {
+      // 指定id
       let record = await this.db.execute(`
       SELECT H_NOTIFICATION.ID, TITLE, CONTENT, PUBLISHERNAME, PUBLISHTIME, ROLE, TAG, ANNEX, SOURCE, A.READTIME
       FROM (
         SELECT NOTIFICATION_ID, READTIME
         FROM H_NOTIFICATION_ISREAD
-        WHERE NOTIFICATION_ID = :id
+        WHERE NOTIFICATION_ID = :id AND READTIME
       )A
         LEFT JOIN H_NOTIFICATION
         ON H_NOTIFICATION.ID = A.NOTIFICATION_ID
