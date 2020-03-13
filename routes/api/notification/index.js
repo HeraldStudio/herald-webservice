@@ -117,12 +117,17 @@ exports.route = {
     return '推送成功'
   },
 
-  async get({ id, page = 1, pageSize = 10}) {
-    // 检查参数，id 和 page、pageSize不能同时存在
-    if(id && page && pageSize){
-      throw '调用方法错误'
-    }
+  /**
+   * 获取通知列表以及获取通知详情
+   * @param {String}    id          通知id
+   * @param {String}    page        页数
+   * @param {String}    pageSize    页大小
+   * 
+   * id 和 page, pageSize 不能同时存在
+   */
 
+  async get({ id, page = 1, pageSize = 10}) {
+    
     // 计算起始和终止条目index,闭区间
     let startIndex = ( +page - 1 )  * + pageSize
     let endIndex = +page * +pageSize - 1
