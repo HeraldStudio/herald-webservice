@@ -1,4 +1,6 @@
 // const cheerio = require('cheerio')
+const oracle = require('../../database/oracle')
+const moment = require('moment')
 
 // // 可申请奖学金、已申请奖学金、可申请助学金、已申请助学金的 URL 参数
 // // 原来为 base64 编码，此处解码书写，增加可读性
@@ -9,33 +11,40 @@
 //   'f|com.wiscom.portal.site.v2.impl.FragmentWindow|f2187|view|normal|action=appliedQuery'
 // ].map(k => Buffer.from(k).toString('base64').replace(/=/g, '_'))
 
+/**
+ * 奖学金这里需要使用学生处的数据
+ */
+
 exports.route = {
   async get() {
-    // const { cardnum } = this.user
-    let { cardnum } = this.user
+    return await this.userCache('1d+' , async() => {
+      let { cardnum } = this.user
+      const db = await oracle.getXGBXSCConnection()
+      try{
+        let res = await db.execute(`
+        SELECT MYSCHOLATSHIP.SQRQ, MYSCHOLATSHIP.JE,T_JXJ_ZL.JXJMC FROM
+              T_JXJ_ZL,
+              (SELECT JXJDM,SQRQ,JE FROM  T_JXJ_PDXX WHERE XSBH = :cardnum) MYSCHOLATSHIP
+        WHERE MYSCHOLATSHIP.JXJDM = T_JXJ_ZL.JXJDM`,{
+          cardnum
+        })
 
-    let record = await this.db.execute(
-      ` SELECT 
-      T_JXJ_ZL.JXJMC,
-      T_JXJ_DJ.DJMC,
-      T_JXJ_DJ.JE,
-      T_JXJ_PDXX.SQRQ,
-       T_JXJ_PDXX.PDXM,
-       T_JXJ_PDXX.PDXQ,
-       T_JXJ_PDXX.SHZT
-      FROM TOMMY.T_JXJ_DJ,TOMMY.T_JXJ_PDXX,TOMMY.T_JXJ_ZL
-      WHERE XSBH= :cardnum
-      `, [cardnum]
-    )
-
-    let result = record.rows.map(Element => {
-      let [name, level, amount, startDate, startYear, startTerm, state] = Element
-
-      return { name, level, amount, startDate, startYear, startTerm, state }
-
+        return res.rows.map(item => {
+          let [applicationDate, money, name] = item
+          return {
+          // 返回申请日期的时间戳
+            applicationDate: +moment(applicationDate.split(' ')[0], "YYYY-MM-DD"),
+            money,
+            name
+          }
+        })
+      } finally {
+      //用完就关
+        await db.close()
+      }
     })
-
-    return result
+    // const { cardnum } = this.user
+    
 
 
     // return await this.userCache('1h', async () => {
