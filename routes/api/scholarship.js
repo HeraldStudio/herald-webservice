@@ -12,7 +12,7 @@ const moment = require('moment')
 // ].map(k => Buffer.from(k).toString('base64').replace(/=/g, '_'))
 
 /**
- * 奖学金这里需要使用学生处的数据
+ * 奖学金和荣誉称号，这里需要使用学生处的数据
  */
 
 exports.route = {
@@ -29,7 +29,7 @@ exports.route = {
           cardnum
         })
 
-        return res.rows.map(item => {
+        let myScholarship = res.rows.map(item => {
           let [applicationDate, money, name] = item
           return {
           // 返回申请日期的时间戳
@@ -38,6 +38,32 @@ exports.route = {
             name
           }
         })
+        
+        res = await db.execute(`
+        SELECT T_RYCH_ZL.RYCHMC, MYCH.PDXN, MYCH.JE FROM
+              (SELECT RYCHDM, PDXN, JE from T_RYCH_GRPDXX WHERE XSBH =: cardnum) MYCH,
+              T_RYCH_ZL
+        WHERE  T_RYCH_ZL.RYCHDM = MYCH.RYCHDM
+        `,{
+          cardnum
+        })
+
+        let myHonor = res.rows.map(item => {
+          let [name, pdxn, money] = item
+          return {
+          // 评定学年
+            pdxn,
+            money,
+            name
+          }
+        })
+
+        return {
+          myHonor,
+          myScholarship
+        }
+        
+
       } finally {
       //用完就关
         await db.close()
