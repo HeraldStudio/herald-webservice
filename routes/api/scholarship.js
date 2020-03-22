@@ -12,8 +12,19 @@ const moment = require('moment')
 // ].map(k => Buffer.from(k).toString('base64').replace(/=/g, '_'))
 
 /**
- * 奖学金和荣誉称号，这里需要使用学生处的数据
- */
+* 奖学金和荣誉称号，这里需要使用学生处的数据
+*/
+
+const code2status = {
+  "0":"草稿",
+  "20":"待辅导员审核",
+  "-20":"辅导员审核不通过",
+  "30":"待院系审核",
+  "-30":"院系审核不通过",
+  "80":"待学校审核",
+  "-80":"学校审核不通过",
+  "99":"审核通过",
+}
 
 exports.route = {
   async get() {
@@ -22,26 +33,27 @@ exports.route = {
       const db = await oracle.getXGBXSCConnection()
       try{
         let res = await db.execute(`
-        SELECT MYSCHOLATSHIP.SQRQ, MYSCHOLATSHIP.JE,T_JXJ_ZL.JXJMC FROM
+        SELECT MYSCHOLATSHIP.SQRQ, MYSCHOLATSHIP.JE, T_JXJ_ZL.JXJMC, MYSCHOLATSHIP.SHZT FROM
               T_JXJ_ZL,
-              (SELECT JXJDM,SQRQ,JE FROM  T_JXJ_PDXX WHERE XSBH = :cardnum) MYSCHOLATSHIP
+              (SELECT JXJDM,SQRQ,JE,SHZT FROM T_JXJ_PDXX WHERE XSBH = :cardnum AND SHZT != '0') MYSCHOLATSHIP
         WHERE MYSCHOLATSHIP.JXJDM = T_JXJ_ZL.JXJDM`,{
           cardnum
         })
 
         let myScholarship = res.rows.map(item => {
-          let [applicationDate, money, name] = item
+          let [applicationDate, money, name, status] = item
           return {
           // 返回申请日期的时间戳
             applicationDate: +moment(applicationDate.split(' ')[0], "YYYY-MM-DD"),
             money,
-            name
+            name,
+            status:code2status[status]
           }
         })
         
         res = await db.execute(`
-        SELECT T_RYCH_ZL.RYCHMC, MYCH.PDXN, MYCH.JE FROM
-              (SELECT RYCHDM, PDXN, JE from T_RYCH_GRPDXX WHERE XSBH =: cardnum) MYCH,
+        SELECT T_RYCH_ZL.RYCHMC, MYCH.PDXN, MYCH.JE, MYCH.SHZT FROM
+              (SELECT RYCHDM, PDXN, JE, SHZT from T_RYCH_GRPDXX WHERE XSBH =: cardnum AND SHZT != '0') MYCH,
               T_RYCH_ZL
         WHERE  T_RYCH_ZL.RYCHDM = MYCH.RYCHDM
         `,{
@@ -49,12 +61,13 @@ exports.route = {
         })
 
         let myHonor = res.rows.map(item => {
-          let [name, pdxn, money] = item
+          let [name, pdxn, money, status] = item
           return {
           // 评定学年
             pdxn,
             money,
-            name
+            name,
+            status:code2status[status]
           }
         })
 
