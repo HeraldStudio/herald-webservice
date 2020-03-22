@@ -1,12 +1,12 @@
 const oracledb = require('oracledb')
-const JPushKeys = require('../../../sdk/sdk.json').JPush
-const Base64 = require('js-base64').Base64
+// const JPushKeys = require('../../../sdk/sdk.json').JPush
+// const Base64 = require('js-base64').Base64
 const secretKey = require('../../../sdk/sdk.json').herald.secretKey
 exports.route = {
   // key 为包括发布者姓名，一卡通，角色，来源的密钥
   // signature 为包括secretKey，发布者姓名，一卡通，角色的密钥
   // 两者比对确定请求正确
-  async post({ notificationId, title, content, tag, target, annex, key, signature }) {
+  async post({ notificationId, title, content, tag, target, annex, key, signature, deadline }) {
     if (!(notificationId && title && content && target && key && signature)) {
       throw '参数不全'
     }
@@ -39,8 +39,8 @@ exports.route = {
       // 将通知存入oracle
       await this.db.execute(`
       INSERT INTO H_NOTIFICATION
-      (ID, TITLE, CONTENT, PUBLISHER, PUBLISHTIME, ROLE, TAG, ANNEX, SOURCE, PUBLISHERNAME)
-      VALUES(:notificationId, :title, :content, :cardnum, :time, :role, :tag, :annex, :source, :name)
+      (ID, TITLE, CONTENT, PUBLISHER, PUBLISHTIME, ROLE, TAG, ANNEX, SOURCE, PUBLISHERNAME, DEADLINE)
+      VALUES(:notificationId, :title, :content, :cardnum, :time, :role, :tag, :annex, :source, :name, :deadline)
       `, {
         notificationId,
         title,
@@ -51,7 +51,8 @@ exports.route = {
         tag,
         annex,
         source,
-        name
+        name,
+        deadline
       })
     } catch (err) {
       if (err.errorNum === 1) {
@@ -117,7 +118,7 @@ exports.route = {
       // 查询我收到的通知
       let { cardnum } = this.user
       let record = await this.db.execute(`
-      SELECT H_NOTIFICATION.ID, TITLE, CONTENT, PUBLISHERNAME, PUBLISHTIME, ROLE, TAG, ANNEX, SOURCE, A.READTIME
+      SELECT H_NOTIFICATION.ID, TITLE, CONTENT, PUBLISHERNAME, PUBLISHTIME, ROLE, TAG, ANNEX, SOURCE, DEADLINE, A.READTIME
       FROM (
         SELECT NOTIFICATION_ID, READTIME
         FROM H_NOTIFICATION_ISREAD
@@ -129,7 +130,7 @@ exports.route = {
         cardnum
       })
       return record.rows.map(Element => {
-        let [notificationId, title, content, publisher, publishTime, role, tag, annex, source, readTime] = Element
+        let [notificationId, title, content, publisher, publishTime, role, tag, annex, source, deadline, readTime] = Element
         return {
           notificationId,
           title,
@@ -141,12 +142,13 @@ exports.route = {
           annex,
           source,
           isRead: readTime === null ? false : true,
+          deadline,
           readTime
         }
       })
     } else {
       let record = await this.db.execute(`
-      SELECT TITLE, CONTENT, PUBLISHER, PUBLISHERNAME, PUBLISHTIME, ROLE, TAG, ANNEX, SOURCE
+      SELECT TITLE, CONTENT, PUBLISHER, PUBLISHERNAME, PUBLISHTIME, ROLE, TAG, ANNEX, SOURCE, DEADLINE
       FROM H_NOTIFICATION
       WHERE ID = :id
       `, { id })
@@ -154,8 +156,8 @@ exports.route = {
         throw '没有您想要查看的通知'
       }
       record = record.rows.map(Element => {
-        let [title, content, publisher, publisherName, publishTime, role, tag, annex, source] = Element
-        return { title, content, publisher, publisherName, publishTime, role, tag, annex, source }
+        let [title, content, publisher, publisherName, publishTime, role, tag, annex, source, deadline] = Element
+        return { title, content, publisher, publisherName, publishTime, role, tag, annex, source, deadline }
       })[0]
 
       return {
@@ -166,7 +168,8 @@ exports.route = {
         role: record.role,
         tag: record.tag,
         annex: record.annex,
-        source: record.source
+        source: record.source,
+        deadline: record.deadline
       }
     }
   },
