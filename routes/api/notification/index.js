@@ -63,6 +63,8 @@ exports.route = {
     } catch (err) {
       if (err.errorNum === 1) {
         throw '主键重复'
+      } else {
+        throw err
       }
     }
 
