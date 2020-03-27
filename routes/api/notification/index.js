@@ -1,11 +1,11 @@
 const oracledb = require('oracledb')
 // const JPushKeys = require('../../../sdk/sdk.json').JPush
 // const Base64 = require('js-base64').Base64
-let secretKey 
-try{
+let secretKey
+try {
   secretKey = require('../../../sdk/sdk.json').herald.secretKey
-}catch(err){
-  secretKey =''
+} catch (err) {
+  secretKey = ''
 }
 
 exports.route = {
@@ -28,6 +28,19 @@ exports.route = {
       key.role !== signature.role) {
       throw '非法操作'
     }
+    console.log({
+      notificationId,
+      title,
+      content,
+      cardnum,
+      time,
+      role,
+      tag,
+      annex,
+      source,
+      name,
+      deadline
+    })
     let { cardnum, name, role, source } = key
     let time = +moment()
     if (target === 'all') {
@@ -127,10 +140,10 @@ exports.route = {
    * id 和 page, pageSize 不能同时存在
    */
 
-  async get({ id, page = 1, pageSize = 10}) {
-    
+  async get({ id, page = 1, pageSize = 10 }) {
+
     // 计算起始和终止条目index,闭区间
-    let startIndex = ( +page - 1 )  * + pageSize
+    let startIndex = (+page - 1) * + pageSize
     let endIndex = +page * +pageSize - 1
     // console.log(endIndex)
     // 未指定id则查看列表
@@ -171,8 +184,8 @@ exports.route = {
       })
       let unReadCount = unReadRecord.rows.length
       // 接下来根据「未读通知」的数量分页查询「已读通知」
-      if(unReadCount >= endIndex + 1){
-        let ret = unReadRecord.rows.slice(startIndex, endIndex + 1).map(item =>{
+      if (unReadCount >= endIndex + 1) {
+        let ret = unReadRecord.rows.slice(startIndex, endIndex + 1).map(item => {
           let [notificationId, title, content, publisher, publishTime, role, tag, annex, source, deadline, readTime] = item
           return {
             notificationId,
@@ -190,11 +203,11 @@ exports.route = {
           }
         })
         return {
-          list:ret,
+          list: ret,
           hasMore
         }
       }
-      if((unReadCount >= (startIndex +1))&& (unReadCount < (endIndex +1))){
+      if ((unReadCount >= (startIndex + 1)) && (unReadCount < (endIndex + 1))) {
         endIndex = endIndex - (unReadCount - startIndex)
         let hasReadRecord = await this.db.execute(/*sql*/`
         SELECT ID, TITLE, CONTENT, PUBLISHERNAME, PUBLISHTIME, ROLE, TAG, ANNEX, SOURCE, DEADLINE, READTIME
@@ -212,7 +225,7 @@ exports.route = {
             WHERE ROWNUM <= :endRow
           ) table_alias
         WHERE table_alias.rowno >= :startRow
-        `,{
+        `, {
           cardnum,
           endRow: endIndex + 1 - startIndex,
           startRow: 1
@@ -236,12 +249,12 @@ exports.route = {
           }
         })
         return {
-          list:ret,
+          list: ret,
           hasMore
         }
 
       }
-      if(unReadCount < (startIndex +1)){
+      if (unReadCount < (startIndex + 1)) {
         let hasReadRecord = await this.db.execute(/*sql*/`
         SELECT ID, TITLE, CONTENT, PUBLISHERNAME, PUBLISHTIME, ROLE, TAG, ANNEX, SOURCE, DEADLINE ,READTIME
           FROM (SELECT tt.*, ROWNUM AS rowno
@@ -258,10 +271,10 @@ exports.route = {
             WHERE ROWNUM <= :endRow
           ) table_alias
         WHERE table_alias.rowno >= :startRow
-        `,{
+        `, {
           cardnum,
           endRow: endIndex + 1 - unReadCount,
-          startRow: startIndex +1 - unReadCount
+          startRow: startIndex + 1 - unReadCount
         })
 
         let ret = unReadRecord.rows.slice(startIndex).concat(hasReadRecord.rows).map(item => {
@@ -282,11 +295,11 @@ exports.route = {
           }
         })
         return {
-          list:ret,
+          list: ret,
           hasMore
         }
       }
-      
+
     } else {
       // 指定id
       let record = await this.db.execute(`
@@ -299,7 +312,7 @@ exports.route = {
         LEFT JOIN H_NOTIFICATION
         ON H_NOTIFICATION.ID = A.NOTIFICATION_ID
       `, { id })
-      
+
       // 此处返回的是object不是array
       let ret = record.rows.map(Element => {
         let [notificationId, title, content, publisher, publishTime, role, tag, annex, source, deadline, readTime] = Element
@@ -319,7 +332,7 @@ exports.route = {
         }
       })
 
-      return ret[0]? ret[0] : {}
+      return ret[0] ? ret[0] : {}
     }
   },
 
