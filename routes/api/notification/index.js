@@ -71,7 +71,6 @@ exports.route = {
       target = [target]
     }
     // 插入与接受者的绑定记录
-    console.log(111)
     for (let i = 0; i < target.length; i += 900) {
       let cardnums = target.slice(i, i + 900)
       const sql = 'INSERT INTO H_NOTIFICATION_ISREAD （NOTIFICATION_ID, CARDNUM） VALUES (:notificationId, :cardnum)'
@@ -82,6 +81,7 @@ exports.route = {
           cardnum: Element
         }
       })
+      console.log(binds)
       const options = {
         autoCommit: true,
         bindDefs: {
