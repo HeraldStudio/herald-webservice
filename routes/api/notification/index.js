@@ -83,7 +83,6 @@ exports.route = {
           cardnum: Element
         }
       })
-      console.log(binds)
       const options = {
         autoCommit: true,
         bindDefs: {
