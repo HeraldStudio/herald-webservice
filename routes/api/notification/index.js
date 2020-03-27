@@ -28,19 +28,6 @@ exports.route = {
       key.role !== signature.role) {
       throw '非法操作'
     }
-    console.log({
-      notificationId,
-      title,
-      content,
-      cardnum,
-      time,
-      role,
-      tag,
-      annex,
-      source,
-      name,
-      deadline
-    })
     let { cardnum, name, role, source } = key
     let time = +moment()
     if (target === 'all') {
@@ -54,6 +41,19 @@ exports.route = {
         return cardnum
       })
     }
+    console.log({
+      notificationId,
+      title,
+      content,
+      cardnum,
+      time,
+      role,
+      tag,
+      annex,
+      source,
+      name,
+      deadline
+    })
     try {
       // 将通知存入oracle
       await this.db.execute(`
