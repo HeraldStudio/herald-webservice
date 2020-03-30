@@ -296,11 +296,11 @@ exports.route = {
       FROM (
         SELECT NOTIFICATION_ID, READTIME
         FROM H_NOTIFICATION_ISREAD
-        WHERE NOTIFICATION_ID = :id 
+        WHERE NOTIFICATION_ID = :id AND CARDNUM = :cardnum
       )A
         LEFT JOIN H_NOTIFICATION
         ON H_NOTIFICATION.ID = A.NOTIFICATION_ID
-      `, { id })
+      `, { id, cardnum: this.user.cardnum })
 
       // 此处返回的是object不是array
       let ret = record.rows.map(Element => {
