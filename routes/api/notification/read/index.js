@@ -1,6 +1,6 @@
 let secretKey 
 try{
-  secretKey = require('../../../sdk/sdk.json').herald.secretKey
+  secretKey = require('../../../../sdk/sdk.json').herald.secretKey
 }catch(err){
   secretKey =''
 }
