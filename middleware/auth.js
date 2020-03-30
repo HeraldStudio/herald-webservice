@@ -129,23 +129,27 @@ module.exports = async (ctx, next) => {
       }
     } else if (cardnum.startsWith('22') || cardnum.startsWith('23')) {
       // 研究生库
-      const record = await ctx.db.execute(
-        `SELECT XM, XJH FROM TOMMY.T_YJS
-        WHERE XH=:cardnum`, [cardnum]
-      )
-      if(record.rows.length > 0) {
-        name = record.rows[0][0]
-        schoolnum = record.rows[0][1]
-      }
+      // TODO 暂时不支持
+      // const record = await ctx.db.execute(
+      //   `SELECT XM, XJH FROM TOMMY.T_YJS
+      //   WHERE XH=:cardnum`, [cardnum]
+      // )
+      // if(record.rows.length > 0) {
+      //   name = record.rows[0][0]
+      //   schoolnum = record.rows[0][1]
+      // }
+      throw '小猴偷米目前只支持本科生使用哦～'
     } else if (cardnum.startsWith('10')) { 
       // 教职工库
-      const record = await ctx.db.execute(
-        `SELECT XM FROM TOMMY.T_JZG_JBXX
-        WHERE ZGH=:cardnum`, [cardnum]
-      )
-      if(record.rows.length > 0) {
-        name = record.rows[0][0]
-      }
+      // TODO 暂时不支持
+      // const record = await ctx.db.execute(
+      //   `SELECT XM FROM TOMMY.T_JZG_JBXX
+      //   WHERE ZGH=:cardnum`, [cardnum]
+      // )
+      // if(record.rows.length > 0) {
+      //   name = record.rows[0][0]
+      // }
+      throw '小猴偷米目前只支持本科生使用哦～'
     }
 
     if (!name) {
