@@ -1,5 +1,8 @@
 exports.route = {
   async get({ annex }) {
+    if (!annex) {
+      throw '参数不全'
+    }
     let url
     try {
       url = await new Promise((resolve, reject) => {
@@ -15,12 +18,21 @@ exports.route = {
     } catch (err) {
       throw '下载文件失败'
     }
-    let res = await this.get(url)
-    let filename = annex.split('/').pop()
-    this.set('Content-Disposition',`attachment;filename=${encodeURI(filename)}`)
+    let res, error
+    try {
+      res = await this.get(url)
+    } catch (err) {
+      error = err.response.status
+    }
+    if (error === 404) {
+      throw '文件不存在'
+    } else {
+      let filename = annex.split('/').pop()
+      this.set('Content-Disposition', `attachment;filename=${encodeURI(filename)}`)
+      this.set('x-document', 'minio')
+    }
     return {
-      res,
-      filename
+      res
     }
   }
 }

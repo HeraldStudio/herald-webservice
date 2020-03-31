@@ -34,7 +34,7 @@ module.exports = async (ctx, next) => {
   }
 
   let json = {}
-  if (ctx.path !== '/api/minio') {
+  if (!ctx.response.headers['x-document']) {
     if (ctx.response.get('Location')) {
       ctx.status = 302
       return
