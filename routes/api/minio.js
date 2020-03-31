@@ -15,13 +15,12 @@ exports.route = {
     } catch (err) {
       throw '下载文件失败'
     }
-    // let res = await this.get(url)
-    // let filename = annex.split('/').pop()
-    // this.set('Content-Disposition',`attachment;filename=${encodeURI(filename)}`)
-    // return {
-    //   res,
-    //   filename
-    // }
-    return url
+    let res = await this.get(url)
+    let filename = annex.split('/').pop()
+    this.set('Content-Disposition',`attachment;filename=${encodeURI(filename)}`)
+    return {
+      res,
+      filename
+    }
   }
 }

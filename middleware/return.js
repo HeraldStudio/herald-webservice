@@ -34,62 +34,62 @@ module.exports = async (ctx, next) => {
   }
 
   let json = {}
-  // if (ctx.path !== '/api/minio') {
-  if (ctx.response.get('Location')) {
-    ctx.status = 302
-    return
-  } else if (ctx.status < 400) {
-    json = {
-      success: true,
-      code: ctx.status || 200,
-      result: ctx.body,
-      related: ctx._related
-    }
-  } else {
-    json = {
-      success: false,
-      code: ctx.status || 200,
-      reason: ctx.body,
-      related: ctx._related
-    }
-    if (!ctx.body) {
-      if (ctx.status === 400) {
-        json.reason = '请求出错'
-      } else if (ctx.status === 401) {
-        json.reason =
-          ctx.request.path === '/auth' ?
-            '登录失败' : (ctx.request.headers.token ? '登录失败或已过期' : '需要登录')
-      } else if (ctx.status === 403) {
-        json.reason = '权限不允许'
-      } else if (ctx.status === 404) {
-        json.reason = '内容不存在'
-      } else if (ctx.status === 405) {
-        json.reason = '调用方式不正确'
-      } else if (ctx.status === 408) {
-        json.reason = '与学校相关服务通信超时'
-      } else if (ctx.status === 500) {
-        json.reason = '服务器出错'
-      } else if (ctx.status === 502) {
-        json.reason = '服务器维护'
-      } else if (ctx.status === 503) {
-        json.reason = '学校相关服务出现故障'
-      } else {
-        json.code = 400
-        json.reason = '未知错误'
+  if (ctx.path !== '/api/minio') {
+    if (ctx.response.get('Location')) {
+      ctx.status = 302
+      return
+    } else if (ctx.status < 400) {
+      json = {
+        success: true,
+        code: ctx.status || 200,
+        result: ctx.body,
+        related: ctx._related
+      }
+    } else {
+      json = {
+        success: false,
+        code: ctx.status || 200,
+        reason: ctx.body,
+        related: ctx._related
+      }
+      if (!ctx.body) {
+        if (ctx.status === 400) {
+          json.reason = '请求出错'
+        } else if (ctx.status === 401) {
+          json.reason =
+            ctx.request.path === '/auth' ?
+              '登录失败' : (ctx.request.headers.token ? '登录失败或已过期' : '需要登录')
+        } else if (ctx.status === 403) {
+          json.reason = '权限不允许'
+        } else if (ctx.status === 404) {
+          json.reason = '内容不存在'
+        } else if (ctx.status === 405) {
+          json.reason = '调用方式不正确'
+        } else if (ctx.status === 408) {
+          json.reason = '与学校相关服务通信超时'
+        } else if (ctx.status === 500) {
+          json.reason = '服务器出错'
+        } else if (ctx.status === 502) {
+          json.reason = '服务器维护'
+        } else if (ctx.status === 503) {
+          json.reason = '学校相关服务出现故障'
+        } else {
+          json.code = 400
+          json.reason = '未知错误'
+        }
       }
     }
-  }
 
-  if (ctx.wx) {
-    if (!ctx.wechatTest) ctx.body = 'success'
-    ctx.status = 200
+    if (ctx.wx) {
+      if (!ctx.wechatTest) ctx.body = 'success'
+      ctx.status = 200
+    } else {
+      ctx.body = json
+      ctx.status = 200
+    }
   } else {
-    ctx.body = json
-    ctx.status = 200
+    ctx.set(ctx.body.res.headers)
+    ctx.body = ctx.body.res.data
   }
-  // } else {
-  //   ctx.set(ctx.body.res.headers)
-  //   ctx.body = ctx.body.res.data
-  // }
 
 }
