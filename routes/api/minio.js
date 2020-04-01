@@ -1,6 +1,5 @@
 exports.route = {
   async get({ annex }) {
-    console.log(annex)
     if (!annex) {
       throw '参数不全'
     }
