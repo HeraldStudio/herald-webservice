@@ -51,6 +51,7 @@
     "sha1": "^1.1.1",
     "showapi-sdk": "^1.0.4",
     "socks-proxy-agent": "^5.0.0",
+    "svg-captcha": "^1.4.0",
     "tough-cookie": "^3.0.1",
     "worker-threads": "^1.0.0",
     "ws": "^7.2.1",
