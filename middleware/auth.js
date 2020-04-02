@@ -94,10 +94,10 @@ module.exports = async (ctx, next) => {
 
     // 登录是高权限操作，需要对参数类型进行检查，防止通过 Object 注入数据库
     // 例如 platform 若允许传入对象 { $neq: '' }，将会触发 Sqlongo 语法，导致在下面删除时把该用户在所有平台的记录都删掉
-    if (typeof ticket !== 'string'
-      || typeof service !== 'string') {
-      throw '缺少统一身份认证参数'
-    }
+    // if (typeof ticket !== 'string'
+    //   || typeof service !== 'string') {
+    //   throw '缺少统一身份认证参数'
+    // }
 
     if (!platform) {
       throw '缺少参数 platform: 必须指定平台名'
@@ -105,7 +105,10 @@ module.exports = async (ctx, next) => {
       throw 'platform 只能由小写字母、数字和中划线组成' // 为了美观（通神nb
     }
 
-    if (platform === 'app-ios') {
+    if (typeof captcha === 'string' 
+    && typeof captchaAnswer === 'string' 
+    && typeof cardnum === 'string' 
+    && typeof password === 'string' ) {
       let record = await ctx.db.execute(`
       SELECT CAPTCHA_TEXT, EXPIRE_TIME
       FROM H_CAPTCHA
@@ -139,16 +142,19 @@ module.exports = async (ctx, next) => {
           usernameAttribute: 'uid',
         })
       } catch (err) {
-        if(err.lde_message === 'Invalid Credentials'){
+        if (err.lde_message === 'Invalid Credentials') {
           throw '密码错误'
-        }else if(err.name === 'LdapAuthenticationError'){
+        } else if (err.name === 'LdapAuthenticationError') {
           throw '一卡通不存在'
-        }else{
+        } else {
           throw err
         }
       }
 
-    } else {
+    } else if (typeof ticket === 'string'
+      && typeof service === 'string') {
+      // 登录是高权限操作，需要对参数类型进行检查，防止通过 Object 注入数据库
+      // 例如 platform 若允许传入对象 { $neq: '' }，将会触发 Sqlongo 语法，导致在下面删除时把该用户在所有平台的记录都删掉
       try {
         // 从IDS获取一卡通号
         const serviceValidateURL = `https://newids.seu.edu.cn/authserver/serviceValidate?service=${service}&ticket=${ticket}`
@@ -159,6 +165,8 @@ module.exports = async (ctx, next) => {
         console.log(e)
         throw '统一身份认证过程出错'
       }
+    }else{
+      throw '缺少统一身份认证参数'
     }
 
     // 从数据库查找学号、姓名
