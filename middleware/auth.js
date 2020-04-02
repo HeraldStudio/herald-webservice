@@ -259,8 +259,7 @@ module.exports = async (ctx, next) => {
         await ctx.db.execute(`
           UPDATE TOMMY.H_AUTH
           SET LAST_INVOKED_TIME = :now
-          WHERE TOKEN_HASH = :tokenHash`,
-          { now: now.toDate(), tokenHash }
+          WHERE TOKEN_HASH = :tokenHash`, { now: now.toDate(), tokenHash }
         )
         record.lastInvokedTime = now.unix()
       }
