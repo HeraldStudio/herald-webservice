@@ -105,10 +105,10 @@ module.exports = async (ctx, next) => {
       throw 'platform 只能由小写字母、数字和中划线组成' // 为了美观（通神nb
     }
 
-    if (typeof captcha === 'string' 
-    && typeof captchaAnswer === 'string' 
-    && typeof cardnum === 'string' 
-    && typeof password === 'string' ) {
+    if (typeof captcha === 'string'
+      && typeof captchaAnswer === 'string'
+      && typeof cardnum === 'string'
+      && typeof password === 'string') {
       let record = await ctx.db.execute(`
       SELECT CAPTCHA_TEXT, EXPIRE_TIME
       FROM H_CAPTCHA
@@ -129,7 +129,7 @@ module.exports = async (ctx, next) => {
       await ctx.db.execute(`
       DELETE FROM H_CAPTCHA
       WHERE CAPTCHA_HASH = :captcha
-      `)
+      `, { captcha: hash(captcha) })
       //LDAP 验证
       try {
         await authenticate({
@@ -165,7 +165,7 @@ module.exports = async (ctx, next) => {
         console.log(e)
         throw '统一身份认证过程出错'
       }
-    }else{
+    } else {
       throw '缺少统一身份认证参数'
     }
 
