@@ -11,7 +11,6 @@ const allowDomains = [
 ]
 
 module.exports = async (ctx, next) => {
-  console.log('我收到请求啦')
   let { origin } = ctx.request.headers
   if (origin) {
     // 不考虑端口和协议

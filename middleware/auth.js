@@ -80,8 +80,6 @@ module.exports = async (ctx, next) => {
 
   // 对于 auth 路由的请求，直接截获，不交给 kf-router
   if (ctx.path === '/auth') {
-    console.log(this.headers)
-    console.log('我收到auth啦')
     // POST /auth 登录认证
     if (ctx.method.toUpperCase() !== 'POST') {
       throw 405
@@ -106,13 +104,11 @@ module.exports = async (ctx, next) => {
 
     let cardnum
     try {
-      console.log('我到达ids啦')
       // 从IDS获取一卡通号
       const serviceValidateURL = `https://newids.seu.edu.cn/authserver/serviceValidate?service=${service}&ticket=${ticket}`
       const res = await ctx.get(serviceValidateURL)
       const data = xmlparser.parse(res.data.toString())['cas:serviceResponse']['cas:authenticationSuccess']['cas:attributes']
       cardnum = '' + data['cas:uid']
-      console.log('我结束ids啦')
     } catch (e) {
       console.log(e)
       throw '统一身份认证过程出错'
