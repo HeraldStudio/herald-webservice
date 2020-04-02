@@ -80,7 +80,6 @@ module.exports = async (ctx, next) => {
 
   // 对于 auth 路由的请求，直接截获，不交给 kf-router
   if (ctx.path === '/auth') {
-
     // POST /auth 登录认证
     if (ctx.method.toUpperCase() !== 'POST') {
       throw 405
@@ -109,7 +108,7 @@ module.exports = async (ctx, next) => {
       const serviceValidateURL = `https://newids.seu.edu.cn/authserver/serviceValidate?service=${service}&ticket=${ticket}`
       const res = await ctx.get(serviceValidateURL)
       const data = xmlparser.parse(res.data.toString())['cas:serviceResponse']['cas:authenticationSuccess']['cas:attributes']
-      cardnum = ''+data['cas:uid']
+      cardnum = '' + data['cas:uid']
     } catch (e) {
       console.log(e)
       throw '统一身份认证过程出错'
@@ -139,7 +138,7 @@ module.exports = async (ctx, next) => {
       //   schoolnum = record.rows[0][1]
       // }
       throw '小猴偷米目前只支持本科生使用哦～'
-    } else if (cardnum.startsWith('10')) { 
+    } else if (cardnum.startsWith('10')) {
       // 教职工库
       // TODO 暂时不支持
       // const record = await ctx.db.execute(
@@ -161,17 +160,16 @@ module.exports = async (ctx, next) => {
     let tokenHash = hash(token)
 
     if (platform === 'wechat') {
-      const {sessionid} = ctx.params
-      try{
+      const { sessionid } = ctx.params
+      try {
         await ctx.db.execute(`
         UPDATE TOMMY.H_OPENID_AND_TOKEN SET TOKEN = :token, CARDNUM = :cardnum
-        WHERE SESSIONID = :sessionid`,
-        {
+        WHERE SESSIONID = :sessionid`, {
           token,
           cardnum,
           sessionid
         })
-      }catch(e){
+      } catch (e) {
         console.log(e)
         throw '微信绑定过程出错'
       }
@@ -186,12 +184,12 @@ module.exports = async (ctx, next) => {
       (TOKEN_HASH, CARDNUM, REAL_NAME, CREATED_TIME, PLATFORM, LAST_INVOKED_TIME, SCHOOLNUM)
       VALUES (:tokenHash, :cardnum, :name, :createdTime, :platform, :lastInvokedTime, :schoolnum )
       `,
-      { 
+      {
         tokenHash,
         cardnum,
         name,
-        createdTime:now.toDate(),
-        lastInvokedTime:now.toDate(),
+        createdTime: now.toDate(),
+        lastInvokedTime: now.toDate(),
         schoolnum,
         platform
       }
@@ -209,16 +207,16 @@ module.exports = async (ctx, next) => {
       // 先把这个openid换成token
       token = await ctx.db.execute(`
       SELECT TOKEN FROM TOMMY.H_OPENID_AND_TOKEN WHERE OPENID = :openid
-      `,{
-        openid:ctx.request.headers['x-api-token']
+      `, {
+        openid: ctx.request.headers['x-api-token']
       })
 
-      if (token.rows.length > 0){
+      if (token.rows.length > 0) {
         token = token.rows[0][0]
-      }else{
+      } else {
         token = ''
       }
-    }else{
+    } else {
       // 对于来自其他平台的其他请求，根据 token 的哈希值取出表项
       token = ctx.request.headers['x-api-token']
     }
@@ -231,25 +229,24 @@ module.exports = async (ctx, next) => {
       record = await ctx.db.execute(`
       SELECT CARDNUM, REAL_NAME, CREATED_TIME, LAST_INVOKED_TIME, SCHOOLNUM, PLATFORM
       FROM TOMMY.H_AUTH
-      WHERE TOKEN_HASH=:tokenHash`,
-      { tokenHash }
+      WHERE TOKEN_HASH=:tokenHash`, { tokenHash }
       )
-      if(record.rows.length > 0) {
+      if (record.rows.length > 0) {
         // 数据库找到啦
         record = {
-          cardnum:record.rows[0][0],
-          name:record.rows[0][1],
-          createdTime:moment(record.rows[0][2]).unix(),
-          lastInvokedTime:moment(record.rows[0][3]).unix(),
-          schoolnum:record.rows[0][4],
-          platform:record.rows[0][5],
+          cardnum: record.rows[0][0],
+          name: record.rows[0][1],
+          createdTime: moment(record.rows[0][2]).unix(),
+          lastInvokedTime: moment(record.rows[0][3]).unix(),
+          schoolnum: record.rows[0][4],
+          platform: record.rows[0][5],
         }
         tokenHashPool[tokenHash] = record
       } else {
         record = null
       }
     }
-    
+
     if (record) {
       let now = moment()
       let lastInvokedTime = record.lastInvokedTime
@@ -258,8 +255,7 @@ module.exports = async (ctx, next) => {
         await ctx.db.execute(`
           UPDATE TOMMY.H_AUTH
           SET LAST_INVOKED_TIME = :now
-          WHERE TOKEN_HASH = :tokenHash`,
-        {now:now.toDate(), tokenHash}
+          WHERE TOKEN_HASH = :tokenHash`, { now: now.toDate(), tokenHash }
         )
         record.lastInvokedTime = now.unix()
       }
@@ -279,9 +275,9 @@ module.exports = async (ctx, next) => {
       await next()
       return
     }
-    
+
   }
-  
+
 
   /* eslint getter-return:off */
   // 对于没有 token 或 token 失效的请求，若下游中间件要求取 user，说明功能需要登录，抛出 401
