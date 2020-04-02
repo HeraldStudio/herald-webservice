@@ -23,9 +23,9 @@ exports.route = {
 
     try{
       await this.db.execute(`
-    INSERT INTO TOMMY.H_CAPTCHA
-    (CAPTCHA_HASH, CAPTCHA_TEXT, EXPIRE_TIME)
-    VALUES (:captchaHash, :captchaText, :expireTime)`
+      INSERT INTO TOMMY.H_CAPTCHA
+      (CAPTCHA_HASH, CAPTCHA_TEXT, EXPIRE_TIME)
+      VALUES (:captchaHash, :captchaText, :expireTime)`
       ,{
         captchaHash: hash(token),
         captchaText: captcha.text,
