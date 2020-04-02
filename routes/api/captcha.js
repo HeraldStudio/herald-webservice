@@ -18,12 +18,12 @@ exports.route = {
   async get() {
     const expireTime = +moment() + expire
     
-    console.log(expireTime % 2)
+    console.log(expireTime % 3)
     let captcha
-    if(expireTime % 2 === 0 ){
+    if(expireTime % 3 === 1 || expireTime % 3 === 2 ){
       captcha = svgCaptcha.create({
         size:5,
-        ignoreChars:'0o1i',
+        ignoreChars:'0o1i1',
         noise:3,
         color: false,
       })
