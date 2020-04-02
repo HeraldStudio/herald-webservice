@@ -17,8 +17,24 @@ exports.route = {
     **/
   async get() {
     const expireTime = +moment() + expire
+    
+    console.log(expireTime % 2)
+    let captcha
+    if(expireTime % 2 === 0 ){
+      captcha = svgCaptcha.create({
+        size:5,
+        ignoreChars:'0o1i',
+        noise:3,
+        color: false,
+      })
+    }else{
+      captcha = svgCaptcha.createMathExpr({
+        mathMin : 34,
+        mathMax : 374,
+        mathOperator : '+-'
+      })
+    }
 
-    let captcha = svgCaptcha.create()
     let token = uuid()
 
     try{
@@ -28,8 +44,8 @@ exports.route = {
       VALUES (:captchaHash, :captchaText, :expireTime)`
       ,{
         captchaHash: hash(token),
-        captchaText: captcha.text,
-        expireTime: moment(expireTime).toDate()
+        captchaText: captcha.text.toUpperCase(),
+        expireTime
       })
 
       return {
