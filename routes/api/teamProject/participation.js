@@ -1,5 +1,16 @@
 exports.route = {
-  // 创建申请信息
+  /**
+  * @api {POST} /api/teamProject/participation 创建申请信息
+  * @apiGroup teamProject
+  * 
+  * @apiParam {String} teamProjectId
+  * @apiParam {String} major
+  * @apiParam {String} skill
+  * @apiParam {String} qqNum
+  * @apiParam {String} email
+  * @apiParam {String} phoneNum
+  * @apiParam {String} description
+  */
   async post({ teamProjectId, major, skill, qqNum, email, phoneNum, description }) {
     let { cardnum, name } = this.user
     let grade = cardnum.slice(3, 5) + '级'
@@ -66,7 +77,12 @@ exports.route = {
     }
     return '组队申请提交成功'
   },
-  // 删除申请信息
+  /**
+  * @api {DELETE} /api/teamProject/participation 删除申请信息
+  * @apiGroup teamProject
+  * 
+  * @apiParam {String} id
+  */
   async delete({ id }) {
     let { cardnum } = this.user
     let record = await this.db.execute(`
@@ -91,6 +107,15 @@ exports.route = {
     }
     return '组队申请删除成功'
   },
+  /**
+  * @api {GET} /api/teamProject/participation 获取申请信息
+  * @apiGroup teamProject
+  * 
+  * @apiParam {String} teamProjectId
+  * @apiParam {String} fromMe
+  * @apiParam {String} page
+  * @apiParam {String} pagesize
+  */
   async get({ teamProjectId = '', fromMe, page = 1, pagesize = 10 }) {
     pagesize = +pagesize
     page = +page

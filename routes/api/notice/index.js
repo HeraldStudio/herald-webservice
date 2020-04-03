@@ -61,7 +61,9 @@ const commonSites = ['jwc', 'zwc']
 const keepTime = +moment.duration(5, 'days')
 // 10 条以内的信息，全部留下
 const keepNum = 10
-
+/**
+ * @apiDefine notice 通知/公告
+ */
 exports.route = {
 
   /**
@@ -69,6 +71,10 @@ exports.route = {
   * 调试模式下 GET /api/notice?site=zwc
   * @apiReturn [{ category, department, title, url, time, isAttachment, isImportant }]
   * 目前没有使用缓存，但是根据时间消耗，还是应该使用缓存提升用户体验
+  */
+  /**
+  * @api {GET} /api/notice 获取公告
+  * @apiGroup notice
   */
   async get() {
     // return await this.publicCache(,'1d', async () => {
@@ -221,6 +227,14 @@ exports.route = {
   * @apiParam url? 需要转换为 Markdown 的地址
   * @apiParam nid? 需要查看 Markdown 的通知 nid
   * @apiReturn <string> 转换结果
+  */
+
+  /**
+  * @api {POST} /api/notice 新建公告
+  * @apiGroup notice
+  * 
+  * @apiParam {String} url
+  * @apiParam {String} id
   */
   async post({ url = '', id = '' }) {
     // 1小时的缓存

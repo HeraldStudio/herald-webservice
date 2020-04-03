@@ -49,6 +49,11 @@ exports.route = {
   * 暂时先不使用缓存
   * @apiReturn { count, detail, health, remainDays, hint }
   **/
+
+  /**
+  * @api {GET} /api/pe 跑操查询
+  * @apiGroup pe
+  */
   async get() {
 
     if (!this.user.isLogin){

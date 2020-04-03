@@ -1,5 +1,14 @@
+/**
+ * @apiDefine teamProject 竞赛组队项目
+ */
 exports.route = {
-  // 管理员获得待审核的列表
+  /**
+  * @api {GET} /api/teamProject/audit 获得待审核的列表
+  * @apiGroup teamProject
+  * 
+  * @apiParam {Number} page=1 页码
+  * @apiParam {Number} pagesize=10 页面尺寸
+  */
   async get({ pagesize = 10, page = 1 }) {
     if (await this.hasPermission('teamproject')) {
       pagesize = +pagesize
@@ -34,6 +43,13 @@ exports.route = {
       throw 403
     }
   },
+  /**
+  * @api {POST} /api/teamProject/audit 审核组队
+  * @apiGroup teamProject
+  * 
+  * @apiParam {String} teamProjectId
+  * @apiParam {Boolean} isPassed
+  */
   async post({ teamProjectId, isPassed }) {
     if (await this.hasPermission('teamproject')) {
       let record = await this.db.execute(`

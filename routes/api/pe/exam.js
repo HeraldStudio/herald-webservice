@@ -6,7 +6,14 @@
  * 
  * 这个网站是怎么得到我也很懵逼，暂且先这样用吧
  */
+/**
+ * @apiDefine pe 体育
+ */
 exports.route = {
+  /**
+  * @api {GET} /api/pe/exam 获取理论考试参考
+  * @apiGroup pe
+  */
   async get() {
     return await this.publicCache('1d', async() => {
       let cid = 2598

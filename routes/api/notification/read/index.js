@@ -6,6 +6,12 @@ try{
 }
 
 exports.route = {
+  /**
+  * @api {GET} /api/notification/read 获取通知阅读情况
+  * @apiGroup notice
+  * 
+  * @apiParam {String} id
+  */
   async get({ id }) {
     if (!id) {
       throw '参数不全'
@@ -29,6 +35,14 @@ exports.route = {
       }
     }
   },
+  /**
+  * @api {POST} /api/notification/read 阅读通知
+  * @apiGroup notice
+  * 
+  * @apiParam {String} id
+  * @apiParam {String} key
+  * @apiParam {String} signature
+  */
   async post({ id, key, signature }) {
     if (!id) {
       throw '参数不全'

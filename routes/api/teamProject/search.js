@@ -1,4 +1,13 @@
 exports.route = {
+  /**
+  * @api {GET} /api/teamProject/project 根据关键字/类别搜索
+  * @apiGroup teamProject
+  * 
+  * @apiParam {String} key
+  * @apiParam {String} selectedType
+  * @apiParam {Number} page=1 页码
+  * @apiParam {Number} pagesize=10 页面尺寸
+  */
   async get({ key, selectedType, page = 1, pagesize = 10 }) {
     key = key ? key : ''
     key = '%' + key + '%'

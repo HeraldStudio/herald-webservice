@@ -2,6 +2,10 @@ const crypto = require('crypto')
 const childProcess = require('child_process')
 const accessToken = require('../../../sdk/wechat').getToken
 exports.route = {
+  /**
+  * @api {GET} /api/pe/morningExerciseNotification 跑操状态查询
+  * @apiGroup pe
+  */
   async get() {
     let date = moment().format('YYYY-MM-DD')
     let record = await this.db.execute(`
@@ -14,7 +18,13 @@ exports.route = {
     })[0]
     return record
   },
-
+  /**
+  * @api {POST} /api/pe/morningExerciseNotification 跑操状态建立
+  * @apiGroup pe
+  * 
+  * @apiParam {String} sessionKey
+  * @apiParam {String} state
+  */
   async post({ sessionKey, state }) {
     let hours = +(moment().format('H'))
     let minutes = +(moment().format('mm'))

@@ -1,6 +1,22 @@
 const moment = require('moment')
 exports.route = {
-  //创建组队项目
+  /**
+  * @api {POST} /api/teamProject/project 创建组队项目
+  * @apiGroup teamProject
+  * 
+  * @apiParam {String} title
+  * @apiParam {String} projectDesc
+  * @apiParam {String} qqNum
+  * @apiParam {String} email
+  * @apiParam {String} phoneNum
+  * @apiParam {String} skillRequirement
+  * @apiParam {String} duartion
+  * @apiParam {String} campus
+  * @apiParam {String} otherRequirement
+  * @apiParam {String} category
+  * @apiParam {Number} wantedNumber
+  * @apiParam {Number} endTime
+  */
   async post({ title, projectDesc, qqNum, email, phoneNum, skillRequirement, duartion, campus, category, otherRequirement, wantedNumber, endTime }) {
     let { cardnum, name } = this.user
     let now = +moment()
@@ -61,6 +77,13 @@ exports.route = {
     return '组队项目提交成功'
 
   },
+  /**
+  * @api {DELETE} /api/teamProject/project 删除组队项目
+  * @apiGroup teamProject
+  * 
+  * @apiParam {String} id
+  * @apiParam {String} deleted
+  */
   async delete({ id, deleted }) {
     let { cardnum } = this.user
     if (deleted === 'true') {
@@ -120,6 +143,15 @@ exports.route = {
     }
 
   },
+  /**
+  * @api {GET} /api/teamProject/project 获取组队项目
+  * @apiGroup teamProject
+  * 
+  * @apiParam {String} id
+  * @apiParam {String} how
+  * @apiParam {Number} page=1 页码
+  * @apiParam {Number} pagesize=10 页面尺寸
+  */
   async get({ id = '', how, page = 1, pagesize = 10, }) {
     pagesize = +pagesize
     page = +page
