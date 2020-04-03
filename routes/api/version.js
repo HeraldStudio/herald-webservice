@@ -1,7 +1,7 @@
 exports.route = {
-    /**
+  /**
   * @api {GET} /api/version 获取 App 版本信息
-  * @apiGroup version
+  * @apiGroup other
   * @apiParam {String} version
   */
   // 获取更新信息

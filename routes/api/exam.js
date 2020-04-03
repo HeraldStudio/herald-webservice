@@ -133,6 +133,11 @@ exports.route = {
       throw '自定义考试失败'
     }
   },
+  /**
+  * @api {DELETE} /api/exam 删除自定义考试课程
+  * @apiGroup exam
+  * @apiParam {String} _id 
+  **/
   async delete({ _id }) {
     let record = await this.db.execute(`
     select * from H_MY_EXAM

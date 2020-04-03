@@ -25,8 +25,9 @@ const timetable = {
 // }
 
 exports.route = {
-    /**
+  /**
   * @api {GET} /api/schoolbus 校车时间表
+  * @apiGroup other
   */
   async get () {
     return timetable

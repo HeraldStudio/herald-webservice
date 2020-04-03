@@ -1,6 +1,7 @@
 exports.route = {
-    /**
+  /**
   * @api {GET} /api/exerciseNotification 设置跑操提醒
+  * @apiGroup other
   */
   async get() {
     let openid = this.openid
@@ -28,6 +29,7 @@ exports.route = {
   },
   /**
   * @api {DELETE} /api/exerciseNotification 删除跑操提醒
+  * @apiGroup other
   **/
   async delete() {
     let openid = this.openid

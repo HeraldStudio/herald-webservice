@@ -5,6 +5,7 @@ exports.route = {
 
   /**
   * @api {GET} /api/library 查询图书借阅
+  * @apiGroup other
   */
   async get() {
     return await this.userCache('10m+',async () =>{
@@ -66,9 +67,10 @@ exports.route = {
   },
 
   /**
-  * POST /api/library
+  * POST /api/library 图书续借
   * @apiParam bookId
-  * 图书续借
+  * @apiGroup other
+  * 
   * 
   * 暂时继借是不可能的
   **/

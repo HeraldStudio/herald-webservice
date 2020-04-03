@@ -547,7 +547,7 @@ exports.route = {
 
   /**
     * @api {DELETE} /api/gpa 删除自定义考试课程
-    * @apiGroup {String} gpa 
+    * @apiGroup gpa
     * @apiParam {String} _id  课程ID 
   **/
 

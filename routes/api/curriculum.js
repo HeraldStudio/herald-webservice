@@ -11,8 +11,8 @@ const courseStartTime
 exports.route = {
 
   /**
-  * GET /api/curriculum
-  * 课表查询
+  * @api {GET} /api/curriculum 课表查询
+  * @apiGroup other
   * @apiParam term 学期号（不填则为教务处设定的当前学期）
   *
   * ## 返回格式举例：
@@ -491,8 +491,8 @@ WHERE OWNER = :cardnum and SEMESTER = :termName
   },
 
   /**
-  * POST /api/curriculum
-  * 自定义课程
+  * @api {POST} /api/curriculum 自定义课程
+  * @apiGroup other
   * @apiParam courseName  课程名      
   * @apiParam teacherName 老师名
   * @apiParam beginWeek   开始周次  
@@ -547,7 +547,11 @@ WHERE OWNER = :cardnum and SEMESTER = :termName
       throw '自定义课程失败'
     }
   },
-
+  /**
+  * @api {DELETE} /api/curriculum 删除自定义课程
+  * @apiGroup other
+  * @apiParam _id
+  */
   async delete({ _id }) {
     let record = await this.db.execute(`
     select * from H_MY_COURSE

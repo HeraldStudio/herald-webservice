@@ -1,6 +1,7 @@
 exports.route = {
-      /**
+  /**
   * @api {GET} /api/annex 附件下载接口
+  * @apiGroup other
   * @apiParam {String} annex
   */
   async get({ annex }) {

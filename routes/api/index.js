@@ -1,7 +1,4 @@
 exports.route = {
-  /**
-  * @api {GET} /api api路由查询
-  */
   get () {
     this.related('admin', '所有管理员端接口')
     this.related('activity', '{ page, pagesize } 获取校园活动列表')

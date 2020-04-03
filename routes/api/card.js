@@ -4,8 +4,8 @@ const oracle = require('../../database/oracle')
 exports.route = {
 
   /**
-  * GET /api/card
-  * 一卡通信息及流水查询
+  * @api {GET} /api/card 一卡通信息及流水查询
+  * @apiGroup other
   * @apiParam date    查询日期，格式 YYYY-MM-DD
   **/
   async get({ date = '' }) {
