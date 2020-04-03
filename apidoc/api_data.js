@@ -6,257 +6,6 @@ define({ "api": [
           {
             "group": "Parameter",
             "optional": false,
-            "field": "date",
-            "description": "<p>查询日期，格式 YYYY-MM-DD</p>"
-          }
-        ]
-      }
-    },
-    "type": "",
-    "url": "",
-    "version": "0.0.0",
-    "filename": "routes/api/card.js",
-    "group": "D:\\Project\\herald-webservice\\routes\\api\\card.js",
-    "groupTitle": "D:\\Project\\herald-webservice\\routes\\api\\card.js",
-    "name": ""
-  },
-  {
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "optional": false,
-            "field": "courseName",
-            "description": "<p>课程名</p>"
-          },
-          {
-            "group": "Parameter",
-            "optional": false,
-            "field": "teacherName",
-            "description": "<p>老师名</p>"
-          },
-          {
-            "group": "Parameter",
-            "optional": false,
-            "field": "beginWeek",
-            "description": "<p>开始周次</p>"
-          },
-          {
-            "group": "Parameter",
-            "optional": false,
-            "field": "endWeek",
-            "description": "<p>结束周次`</p>"
-          },
-          {
-            "group": "Parameter",
-            "optional": false,
-            "field": "dayOfWeek",
-            "description": "<p>星期几      // 为了数据直观以及前端绘图方便，1-7 分别表示周一到周日</p>"
-          },
-          {
-            "group": "Parameter",
-            "optional": false,
-            "field": "flip",
-            "description": "<p>单双周      // even 双周, odd 单周, none 全周</p>"
-          },
-          {
-            "group": "Parameter",
-            "optional": false,
-            "field": "beginPeriod",
-            "description": "<p>开始节次</p>"
-          },
-          {
-            "group": "Parameter",
-            "optional": false,
-            "field": "endPeriod",
-            "description": "<p>结束节次</p>"
-          },
-          {
-            "group": "Parameter",
-            "optional": false,
-            "field": "location",
-            "description": "<p>地点</p>"
-          }
-        ]
-      }
-    },
-    "type": "",
-    "url": "",
-    "version": "0.0.0",
-    "filename": "routes/api/curriculum.js",
-    "group": "D:\\Project\\herald-webservice\\routes\\api\\curriculum.js",
-    "groupTitle": "D:\\Project\\herald-webservice\\routes\\api\\curriculum.js",
-    "name": ""
-  },
-  {
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "optional": false,
-            "field": "term",
-            "description": "<p>学期号（不填则为教务处设定的当前学期）</p> <h2>返回格式举例：</h2> <p>{ term: { name, maxWeek, startDate?, endDate?, isCurrent?, isNext?, isPrev? } // 查不到开学日期时只有前两个 user: { cardnum, schoolnum, name, collegeId, collegeName, majorId, majorName } curriculum: [ { // 浮动课程只有前五个属性 courseName, teacherName, credit, beginWeek, endWeek,       // 1 ~ 16 // 非浮动课程兼有后面这些属性 dayOfWeek?,               // 为了数据直观以及前端绘图方便，1-7 分别表示周一到周日 flip?,                    // even 双周, odd 单周, none 全周 location?, beginPeriod?, endPeriod?, // 1 ~ 13 events: [ { week, startTime, endTime } // 课程每一周上课的具体时间戳 ] } ] }</p> <h2>关于丁家桥课表的周次问题：</h2> <p>在之前 webserv2 的使用中，我们发现部分院系课表的周次与常理相悖，这种现象尤以丁家桥校区为甚。 经过调查，该现象是因为丁家桥校区多数院系不设短学期，短学期和秋季学期合并为一个大学期， 而教务处系统不支持这种设定，致使排课老师对此进行主观处理导致的。 由于不同院系排课老师理解的区别，所做的主观处理也不尽相同，具体表现有以下三种：</p> <ol> <li> <p>短学期课表有 1-4 周，长学期课表有 1-16 周 这种课表属于正常课表，不需要做任何处理即可兼容；</p> </li> <li> <p>短学期课表为空，长学期课表有 1-20 周 这类课表出现时，老师通常让学生直接查询长学期课表，将短学期的开学日期当做长学期的开学日期。 对于这类课表，我们需要在系统中将长学期开学日期向前推4周，而且短学期为空时应当主动转化为长学期查询；</p> </li> <li> <p>短学期课表有 1-4 周，长学期课表有 5-20 周 这类课表出现时，老师通常让学生查询短学期课表作为前四周，长学期课表作为后 16 周。 对于这类课表，我们需要在系统中将长学期开学日期向前推4周。</p> </li> </ol>"
-          }
-        ]
-      }
-    },
-    "type": "",
-    "url": "",
-    "version": "0.0.0",
-    "filename": "routes/api/curriculum.js",
-    "group": "D:\\Project\\herald-webservice\\routes\\api\\curriculum.js",
-    "groupTitle": "D:\\Project\\herald-webservice\\routes\\api\\curriculum.js",
-    "name": ""
-  },
-  {
-    "type": "DELETE",
-    "url": "/api/exerciseNotification",
-    "title": "删除跑操提醒",
-    "version": "0.0.0",
-    "filename": "routes/api/exerciseNotification.js",
-    "group": "D:\\Project\\herald-webservice\\routes\\api\\exerciseNotification.js",
-    "groupTitle": "D:\\Project\\herald-webservice\\routes\\api\\exerciseNotification.js",
-    "name": "DeleteApiExercisenotification"
-  },
-  {
-    "type": "GET",
-    "url": "/api/exerciseNotification",
-    "title": "设置跑操提醒",
-    "version": "0.0.0",
-    "filename": "routes/api/exerciseNotification.js",
-    "group": "D:\\Project\\herald-webservice\\routes\\api\\exerciseNotification.js",
-    "groupTitle": "D:\\Project\\herald-webservice\\routes\\api\\exerciseNotification.js",
-    "name": "GetApiExercisenotification"
-  },
-  {
-    "type": "GET",
-    "url": "/api",
-    "title": "api路由查询",
-    "version": "0.0.0",
-    "filename": "routes/api/index.js",
-    "group": "D:\\Project\\herald-webservice\\routes\\api\\index.js",
-    "groupTitle": "D:\\Project\\herald-webservice\\routes\\api\\index.js",
-    "name": "GetApi"
-  },
-  {
-    "type": "GET",
-    "url": "/api/lecture",
-    "title": "人文讲座信息查询",
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "lecture",
-            "description": ""
-          }
-        ]
-      }
-    },
-    "version": "0.0.0",
-    "filename": "routes/api/lecture.js",
-    "group": "D:\\Project\\herald-webservice\\routes\\api\\lecture.js",
-    "groupTitle": "D:\\Project\\herald-webservice\\routes\\api\\lecture.js",
-    "name": "GetApiLecture"
-  },
-  {
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "optional": false,
-            "field": "bookId",
-            "description": "<p>图书续借</p> <p>暂时继借是不可能的</p>"
-          }
-        ]
-      }
-    },
-    "type": "",
-    "url": "",
-    "version": "0.0.0",
-    "filename": "routes/api/library.js",
-    "group": "D:\\Project\\herald-webservice\\routes\\api\\library.js",
-    "groupTitle": "D:\\Project\\herald-webservice\\routes\\api\\library.js",
-    "name": ""
-  },
-  {
-    "type": "GET",
-    "url": "/api/library",
-    "title": "查询图书借阅",
-    "version": "0.0.0",
-    "filename": "routes/api/library.js",
-    "group": "D:\\Project\\herald-webservice\\routes\\api\\library.js",
-    "groupTitle": "D:\\Project\\herald-webservice\\routes\\api\\library.js",
-    "name": "GetApiLibrary"
-  },
-  {
-    "type": "GET",
-    "url": "/api/annex",
-    "title": "附件下载接口",
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "annex",
-            "description": ""
-          }
-        ]
-      }
-    },
-    "version": "0.0.0",
-    "filename": "routes/api/minio.js",
-    "group": "D:\\Project\\herald-webservice\\routes\\api\\minio.js",
-    "groupTitle": "D:\\Project\\herald-webservice\\routes\\api\\minio.js",
-    "name": "GetApiAnnex"
-  },
-  {
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "optional": false,
-            "field": "itemId",
-            "description": ""
-          },
-          {
-            "group": "Parameter",
-            "optional": false,
-            "field": "dayInfo",
-            "description": ""
-          },
-          {
-            "group": "Parameter",
-            "optional": false,
-            "field": "pageNumber",
-            "description": "<p>预约信息查询</p>"
-          }
-        ]
-      }
-    },
-    "type": "",
-    "url": "",
-    "version": "0.0.0",
-    "filename": "routes/api/reservation/index.js",
-    "group": "D:\\Project\\herald-webservice\\routes\\api\\reservation\\index.js",
-    "groupTitle": "D:\\Project\\herald-webservice\\routes\\api\\reservation\\index.js",
-    "name": ""
-  },
-  {
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "optional": false,
             "field": "time",
             "description": ""
           },
@@ -295,6 +44,39 @@ define({ "api": [
             "optional": false,
             "field": "validateCode",
             "description": "<p>预约场馆</p>"
+          }
+        ]
+      }
+    },
+    "type": "",
+    "url": "",
+    "version": "0.0.0",
+    "filename": "routes/api/reservation/index.js",
+    "group": "D:\\Project\\herald-webservice\\routes\\api\\reservation\\index.js",
+    "groupTitle": "D:\\Project\\herald-webservice\\routes\\api\\reservation\\index.js",
+    "name": ""
+  },
+  {
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "optional": false,
+            "field": "itemId",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "optional": false,
+            "field": "dayInfo",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "optional": false,
+            "field": "pageNumber",
+            "description": "<p>预约信息查询</p>"
           }
         ]
       }
@@ -407,54 +189,20 @@ define({ "api": [
     "name": ""
   },
   {
-    "type": "GET",
-    "url": "/api/scholarship",
-    "title": "获取校历（图片地址）",
-    "version": "0.0.0",
-    "filename": "routes/api/schedule.js",
-    "group": "D:\\Project\\herald-webservice\\routes\\api\\schedule.js",
-    "groupTitle": "D:\\Project\\herald-webservice\\routes\\api\\schedule.js",
-    "name": "GetApiScholarship"
-  },
-  {
-    "type": "GET",
-    "url": "/api/schoolbus",
-    "title": "校车时间表",
-    "version": "0.0.0",
-    "filename": "routes/api/schoolbus.js",
-    "group": "D:\\Project\\herald-webservice\\routes\\api\\schoolbus.js",
-    "groupTitle": "D:\\Project\\herald-webservice\\routes\\api\\schoolbus.js",
-    "name": "GetApiSchoolbus"
-  },
-  {
-    "type": "GET",
-    "url": "/api/term",
-    "title": "获取学期信息",
-    "version": "0.0.0",
-    "filename": "routes/api/term.js",
-    "group": "D:\\Project\\herald-webservice\\routes\\api\\term.js",
-    "groupTitle": "D:\\Project\\herald-webservice\\routes\\api\\term.js",
-    "name": "GetApiTerm"
-  },
-  {
-    "type": "GET",
-    "url": "/api/user",
-    "title": "用户基本信息查询",
-    "version": "0.0.0",
-    "filename": "routes/api/user.js",
-    "group": "D:\\Project\\herald-webservice\\routes\\api\\user.js",
-    "groupTitle": "D:\\Project\\herald-webservice\\routes\\api\\user.js",
-    "name": "GetApiUser"
-  },
-  {
     "parameter": {
       "fields": {
         "Parameter": [
           {
             "group": "Parameter",
             "optional": false,
-            "field": "months",
-            "description": "<p>要开通/续期的月数</p>"
+            "field": "ip",
+            "description": "<p>要下线的IP地址</p>"
+          },
+          {
+            "group": "Parameter",
+            "optional": false,
+            "field": "mac",
+            "description": "<p>要删除的设备MAC地址</p>"
           }
         ]
       }
@@ -474,14 +222,8 @@ define({ "api": [
           {
             "group": "Parameter",
             "optional": false,
-            "field": "ip",
-            "description": "<p>要下线的IP地址</p>"
-          },
-          {
-            "group": "Parameter",
-            "optional": false,
-            "field": "mac",
-            "description": "<p>要删除的设备MAC地址</p>"
+            "field": "months",
+            "description": "<p>要开通/续期的月数</p>"
           }
         ]
       }
@@ -816,7 +558,7 @@ define({ "api": [
   {
     "type": "PUT",
     "url": "/api/admin/activity",
-    "title": "修改活动",
+    "title": "删除活动",
     "group": "admin",
     "parameter": {
       "fields": {
@@ -825,8 +567,8 @@ define({ "api": [
             "group": "Parameter",
             "type": "String",
             "optional": false,
-            "field": "activity",
-            "description": "<p>指定功能域</p>"
+            "field": "id",
+            "description": ""
           }
         ]
       }
@@ -839,7 +581,7 @@ define({ "api": [
   {
     "type": "PUT",
     "url": "/api/admin/activity",
-    "title": "删除活动",
+    "title": "修改活动",
     "group": "admin",
     "parameter": {
       "fields": {
@@ -848,8 +590,8 @@ define({ "api": [
             "group": "Parameter",
             "type": "String",
             "optional": false,
-            "field": "id",
-            "description": ""
+            "field": "activity",
+            "description": "<p>指定功能域</p>"
           }
         ]
       }
@@ -967,7 +709,7 @@ define({ "api": [
     "title": "获取当前时段所有可以用的空教室",
     "group": "classroom",
     "version": "0.0.0",
-    "filename": "routes/api/classroom/current.js",
+    "filename": "routes/api/classroom/index.js",
     "groupTitle": "教室接口",
     "name": "GetApiClassroomCurrent"
   },
@@ -977,7 +719,7 @@ define({ "api": [
     "title": "获取当前时段所有可以用的空教室",
     "group": "classroom",
     "version": "0.0.0",
-    "filename": "routes/api/classroom/index.js",
+    "filename": "routes/api/classroom/current.js",
     "groupTitle": "教室接口",
     "name": "GetApiClassroomCurrent"
   },
@@ -990,6 +732,29 @@ define({ "api": [
     "filename": "routes/api/classroom/term.js",
     "groupTitle": "教室接口",
     "name": "GetApiClassroomTerm"
+  },
+  {
+    "type": "DELETE",
+    "url": "/api/exam",
+    "title": "删除自定义考试课程",
+    "group": "exam",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "_id",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/exam.js",
+    "groupTitle": "exam",
+    "name": "DeleteApiExam"
   },
   {
     "type": "GET",
@@ -1072,6 +837,29 @@ define({ "api": [
     "filename": "routes/api/exam.js",
     "groupTitle": "exam",
     "name": "PostApiExam"
+  },
+  {
+    "type": "DELETE",
+    "url": "/api/gpa",
+    "title": "删除自定义考试课程",
+    "group": "gpa",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "_id",
+            "description": "<p>课程ID</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/gpa.js",
+    "groupTitle": "gpa",
+    "name": "DeleteApiGpa"
   },
   {
     "type": "GET",
@@ -1726,6 +1514,302 @@ define({ "api": [
     "name": "PostApiNotificationRead"
   },
   {
+    "type": "DELETE",
+    "url": "/api/curriculum",
+    "title": "删除自定义课程",
+    "group": "other",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "optional": false,
+            "field": "_id",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/curriculum.js",
+    "groupTitle": "其他",
+    "name": "DeleteApiCurriculum"
+  },
+  {
+    "type": "DELETE",
+    "url": "/api/exerciseNotification",
+    "title": "删除跑操提醒",
+    "group": "other",
+    "version": "0.0.0",
+    "filename": "routes/api/exerciseNotification.js",
+    "groupTitle": "其他",
+    "name": "DeleteApiExercisenotification"
+  },
+  {
+    "type": "GET",
+    "url": "/api/annex",
+    "title": "附件下载接口",
+    "group": "other",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "annex",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/minio.js",
+    "groupTitle": "其他",
+    "name": "GetApiAnnex"
+  },
+  {
+    "type": "GET",
+    "url": "/api/card",
+    "title": "一卡通信息及流水查询",
+    "group": "other",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "optional": false,
+            "field": "date",
+            "description": "<p>查询日期，格式 YYYY-MM-DD</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/card.js",
+    "groupTitle": "其他",
+    "name": "GetApiCard"
+  },
+  {
+    "type": "GET",
+    "url": "/api/curriculum",
+    "title": "课表查询",
+    "group": "other",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "optional": false,
+            "field": "term",
+            "description": "<p>学期号（不填则为教务处设定的当前学期）</p> <h2>返回格式举例：</h2> <p>{ term: { name, maxWeek, startDate?, endDate?, isCurrent?, isNext?, isPrev? } // 查不到开学日期时只有前两个 user: { cardnum, schoolnum, name, collegeId, collegeName, majorId, majorName } curriculum: [ { // 浮动课程只有前五个属性 courseName, teacherName, credit, beginWeek, endWeek,       // 1 ~ 16 // 非浮动课程兼有后面这些属性 dayOfWeek?,               // 为了数据直观以及前端绘图方便，1-7 分别表示周一到周日 flip?,                    // even 双周, odd 单周, none 全周 location?, beginPeriod?, endPeriod?, // 1 ~ 13 events: [ { week, startTime, endTime } // 课程每一周上课的具体时间戳 ] } ] }</p> <h2>关于丁家桥课表的周次问题：</h2> <p>在之前 webserv2 的使用中，我们发现部分院系课表的周次与常理相悖，这种现象尤以丁家桥校区为甚。 经过调查，该现象是因为丁家桥校区多数院系不设短学期，短学期和秋季学期合并为一个大学期， 而教务处系统不支持这种设定，致使排课老师对此进行主观处理导致的。 由于不同院系排课老师理解的区别，所做的主观处理也不尽相同，具体表现有以下三种：</p> <ol> <li> <p>短学期课表有 1-4 周，长学期课表有 1-16 周 这种课表属于正常课表，不需要做任何处理即可兼容；</p> </li> <li> <p>短学期课表为空，长学期课表有 1-20 周 这类课表出现时，老师通常让学生直接查询长学期课表，将短学期的开学日期当做长学期的开学日期。 对于这类课表，我们需要在系统中将长学期开学日期向前推4周，而且短学期为空时应当主动转化为长学期查询；</p> </li> <li> <p>短学期课表有 1-4 周，长学期课表有 5-20 周 这类课表出现时，老师通常让学生查询短学期课表作为前四周，长学期课表作为后 16 周。 对于这类课表，我们需要在系统中将长学期开学日期向前推4周。</p> </li> </ol>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/curriculum.js",
+    "groupTitle": "其他",
+    "name": "GetApiCurriculum"
+  },
+  {
+    "type": "GET",
+    "url": "/api/exerciseNotification",
+    "title": "设置跑操提醒",
+    "group": "other",
+    "version": "0.0.0",
+    "filename": "routes/api/exerciseNotification.js",
+    "groupTitle": "其他",
+    "name": "GetApiExercisenotification"
+  },
+  {
+    "type": "GET",
+    "url": "/api/lecture",
+    "title": "人文讲座信息查询",
+    "group": "other",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "lecture",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/lecture.js",
+    "groupTitle": "其他",
+    "name": "GetApiLecture"
+  },
+  {
+    "type": "GET",
+    "url": "/api/library",
+    "title": "查询图书借阅",
+    "group": "other",
+    "version": "0.0.0",
+    "filename": "routes/api/library.js",
+    "groupTitle": "其他",
+    "name": "GetApiLibrary"
+  },
+  {
+    "type": "GET",
+    "url": "/api/scholarship",
+    "title": "获取校历（图片地址）",
+    "group": "other",
+    "version": "0.0.0",
+    "filename": "routes/api/schedule.js",
+    "groupTitle": "其他",
+    "name": "GetApiScholarship"
+  },
+  {
+    "type": "GET",
+    "url": "/api/schoolbus",
+    "title": "校车时间表",
+    "group": "other",
+    "version": "0.0.0",
+    "filename": "routes/api/schoolbus.js",
+    "groupTitle": "其他",
+    "name": "GetApiSchoolbus"
+  },
+  {
+    "type": "GET",
+    "url": "/api/term",
+    "title": "获取学期信息",
+    "group": "other",
+    "version": "0.0.0",
+    "filename": "routes/api/term.js",
+    "groupTitle": "其他",
+    "name": "GetApiTerm"
+  },
+  {
+    "type": "GET",
+    "url": "/api/user",
+    "title": "用户基本信息查询",
+    "group": "other",
+    "version": "0.0.0",
+    "filename": "routes/api/user.js",
+    "groupTitle": "其他",
+    "name": "GetApiUser"
+  },
+  {
+    "type": "GET",
+    "url": "/api/version",
+    "title": "获取 App 版本信息",
+    "group": "other",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "version",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/version.js",
+    "groupTitle": "其他",
+    "name": "GetApiVersion"
+  },
+  {
+    "type": "POST",
+    "url": "/api/curriculum",
+    "title": "自定义课程",
+    "group": "other",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "optional": false,
+            "field": "courseName",
+            "description": "<p>课程名</p>"
+          },
+          {
+            "group": "Parameter",
+            "optional": false,
+            "field": "teacherName",
+            "description": "<p>老师名</p>"
+          },
+          {
+            "group": "Parameter",
+            "optional": false,
+            "field": "beginWeek",
+            "description": "<p>开始周次</p>"
+          },
+          {
+            "group": "Parameter",
+            "optional": false,
+            "field": "endWeek",
+            "description": "<p>结束周次`</p>"
+          },
+          {
+            "group": "Parameter",
+            "optional": false,
+            "field": "dayOfWeek",
+            "description": "<p>星期几      // 为了数据直观以及前端绘图方便，1-7 分别表示周一到周日</p>"
+          },
+          {
+            "group": "Parameter",
+            "optional": false,
+            "field": "flip",
+            "description": "<p>单双周      // even 双周, odd 单周, none 全周</p>"
+          },
+          {
+            "group": "Parameter",
+            "optional": false,
+            "field": "beginPeriod",
+            "description": "<p>开始节次</p>"
+          },
+          {
+            "group": "Parameter",
+            "optional": false,
+            "field": "endPeriod",
+            "description": "<p>结束节次</p>"
+          },
+          {
+            "group": "Parameter",
+            "optional": false,
+            "field": "location",
+            "description": "<p>地点</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/curriculum.js",
+    "groupTitle": "其他",
+    "name": "PostApiCurriculum"
+  },
+  {
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "optional": false,
+            "field": "bookId",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "group": "other_暂时继借是不可能的",
+    "type": "",
+    "url": "",
+    "version": "0.0.0",
+    "filename": "routes/api/library.js",
+    "groupTitle": "other_暂时继借是不可能的",
+    "name": ""
+  },
+  {
     "type": "GET",
     "url": "/api/pe",
     "title": "跑操查询",
@@ -1974,52 +2058,6 @@ define({ "api": [
   {
     "type": "GET",
     "url": "/api/teamProject/project",
-    "title": "获取组队项目",
-    "group": "teamProject",
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "id",
-            "description": ""
-          },
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "how",
-            "description": ""
-          },
-          {
-            "group": "Parameter",
-            "type": "Number",
-            "optional": false,
-            "field": "page",
-            "defaultValue": "1",
-            "description": "<p>页码</p>"
-          },
-          {
-            "group": "Parameter",
-            "type": "Number",
-            "optional": false,
-            "field": "pagesize",
-            "defaultValue": "10",
-            "description": "<p>页面尺寸</p>"
-          }
-        ]
-      }
-    },
-    "version": "0.0.0",
-    "filename": "routes/api/teamProject/project.js",
-    "groupTitle": "竞赛组队项目",
-    "name": "GetApiTeamprojectProject"
-  },
-  {
-    "type": "GET",
-    "url": "/api/teamProject/project",
     "title": "根据关键字/类别搜索",
     "group": "teamProject",
     "parameter": {
@@ -2060,6 +2098,52 @@ define({ "api": [
     },
     "version": "0.0.0",
     "filename": "routes/api/teamProject/search.js",
+    "groupTitle": "竞赛组队项目",
+    "name": "GetApiTeamprojectProject"
+  },
+  {
+    "type": "GET",
+    "url": "/api/teamProject/project",
+    "title": "获取组队项目",
+    "group": "teamProject",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "id",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "how",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "page",
+            "defaultValue": "1",
+            "description": "<p>页码</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "pagesize",
+            "defaultValue": "10",
+            "description": "<p>页面尺寸</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/teamProject/project.js",
     "groupTitle": "竞赛组队项目",
     "name": "GetApiTeamprojectProject"
   },
@@ -2257,51 +2341,5 @@ define({ "api": [
     "filename": "routes/api/teamProject/project.js",
     "groupTitle": "竞赛组队项目",
     "name": "PostApiTeamprojectProject"
-  },
-  {
-    "type": "GET",
-    "url": "/api/version",
-    "title": "获取 App 版本信息",
-    "group": "version",
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "version",
-            "description": ""
-          }
-        ]
-      }
-    },
-    "version": "0.0.0",
-    "filename": "routes/api/version.js",
-    "groupTitle": "version",
-    "name": "GetApiVersion"
-  },
-  {
-    "type": "DELETE",
-    "url": "/api/gpa",
-    "title": "删除自定义考试课程",
-    "group": "{String}_gpa",
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": false,
-            "field": "_id",
-            "description": "<p>课程ID</p>"
-          }
-        ]
-      }
-    },
-    "version": "0.0.0",
-    "filename": "routes/api/gpa.js",
-    "groupTitle": "{String}_gpa",
-    "name": "DeleteApiGpa"
   }
 ] });
