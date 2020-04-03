@@ -47,7 +47,7 @@ exports.route = {
   * GET /api/pe
   * 跑操查询
   * 暂时先不使用缓存
-  * @apiReturn { count, detail, health, remainDays, hint }
+  * @Return { count, detail, health, remainDays, hint }
   **/
 
   /**

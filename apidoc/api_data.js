@@ -111,190 +111,57 @@ define({ "api": [
     "name": ""
   },
   {
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "optional": false,
-            "field": "semester",
-            "description": "<p>学年学期</p>"
-          },
-          {
-            "group": "Parameter",
-            "optional": false,
-            "field": "campus",
-            "description": "<p>校区       ['九龙湖', '丁家桥', '四牌楼']</p>"
-          },
-          {
-            "group": "Parameter",
-            "optional": false,
-            "field": "courseName",
-            "description": "<p>课程名</p>"
-          },
-          {
-            "group": "Parameter",
-            "optional": false,
-            "field": "teacherName",
-            "description": "<p>老师名</p>"
-          },
-          {
-            "group": "Parameter",
-            "optional": false,
-            "field": "startTime",
-            "description": "<p>开始时间   格式：时间戳</p>"
-          },
-          {
-            "group": "Parameter",
-            "optional": false,
-            "field": "location",
-            "description": "<p>考试地点</p>"
-          },
-          {
-            "group": "Parameter",
-            "optional": false,
-            "field": "duration",
-            "description": "<p>考试时长   单位：分</p>"
-          }
-        ]
-      }
-    },
-    "type": "",
-    "url": "",
+    "type": "DELETE",
+    "url": "/api/exerciseNotification",
+    "title": "删除跑操提醒",
     "version": "0.0.0",
-    "filename": "routes/api/exam.js",
-    "group": "D:\\Project\\herald-webservice\\routes\\api\\exam.js",
-    "groupTitle": "D:\\Project\\herald-webservice\\routes\\api\\exam.js",
-    "name": ""
+    "filename": "routes/api/exerciseNotification.js",
+    "group": "D:\\Project\\herald-webservice\\routes\\api\\exerciseNotification.js",
+    "groupTitle": "D:\\Project\\herald-webservice\\routes\\api\\exerciseNotification.js",
+    "name": "DeleteApiExercisenotification"
   },
   {
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "optional": false,
-            "field": "_id",
-            "description": "<p>ID</p>"
-          },
-          {
-            "group": "Parameter",
-            "optional": false,
-            "field": "courseName",
-            "description": "<p>课程名</p>"
-          },
-          {
-            "group": "Parameter",
-            "optional": false,
-            "field": "credit",
-            "description": "<p>学分</p>"
-          },
-          {
-            "group": "Parameter",
-            "optional": false,
-            "field": "score",
-            "description": "<p>分数</p>"
-          },
-          {
-            "group": "Parameter",
-            "optional": false,
-            "field": "courseType",
-            "description": "<p>课程类型</p>"
-          },
-          {
-            "group": "Parameter",
-            "optional": false,
-            "field": "scoreType",
-            "description": "<p>修读类型</p>"
-          },
-          {
-            "group": "Parameter",
-            "optional": false,
-            "field": "semester",
-            "description": "<p>学期</p>"
-          }
-        ]
-      }
-    },
-    "type": "",
-    "url": "",
+    "type": "GET",
+    "url": "/api/exerciseNotification",
+    "title": "设置跑操提醒",
     "version": "0.0.0",
-    "filename": "routes/api/gpa.js",
-    "group": "D:\\Project\\herald-webservice\\routes\\api\\gpa.js",
-    "groupTitle": "D:\\Project\\herald-webservice\\routes\\api\\gpa.js",
-    "name": ""
+    "filename": "routes/api/exerciseNotification.js",
+    "group": "D:\\Project\\herald-webservice\\routes\\api\\exerciseNotification.js",
+    "groupTitle": "D:\\Project\\herald-webservice\\routes\\api\\exerciseNotification.js",
+    "name": "GetApiExercisenotification"
   },
   {
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "optional": false,
-            "field": "_id",
-            "description": "<p>ID</p>"
-          }
-        ]
-      }
-    },
-    "type": "",
-    "url": "",
+    "type": "GET",
+    "url": "/api",
+    "title": "api路由查询",
     "version": "0.0.0",
-    "filename": "routes/api/gpa.js",
-    "group": "D:\\Project\\herald-webservice\\routes\\api\\gpa.js",
-    "groupTitle": "D:\\Project\\herald-webservice\\routes\\api\\gpa.js",
-    "name": ""
+    "filename": "routes/api/index.js",
+    "group": "D:\\Project\\herald-webservice\\routes\\api\\index.js",
+    "groupTitle": "D:\\Project\\herald-webservice\\routes\\api\\index.js",
+    "name": "GetApi"
   },
   {
+    "type": "GET",
+    "url": "/api/lecture",
+    "title": "人文讲座信息查询",
     "parameter": {
       "fields": {
         "Parameter": [
           {
             "group": "Parameter",
+            "type": "String",
             "optional": false,
-            "field": "courseName",
-            "description": "<p>课程名</p>"
-          },
-          {
-            "group": "Parameter",
-            "optional": false,
-            "field": "credit",
-            "description": "<p>学分</p>"
-          },
-          {
-            "group": "Parameter",
-            "optional": false,
-            "field": "score",
-            "description": "<p>分数</p>"
-          },
-          {
-            "group": "Parameter",
-            "optional": false,
-            "field": "courseType",
-            "description": "<p>课程类型</p>"
-          },
-          {
-            "group": "Parameter",
-            "optional": false,
-            "field": "scoreType",
-            "description": "<p>修读类型</p>"
-          },
-          {
-            "group": "Parameter",
-            "optional": false,
-            "field": "semester",
-            "description": "<p>学期</p>"
+            "field": "lecture",
+            "description": ""
           }
         ]
       }
     },
-    "type": "",
-    "url": "",
     "version": "0.0.0",
-    "filename": "routes/api/gpa.js",
-    "group": "D:\\Project\\herald-webservice\\routes\\api\\gpa.js",
-    "groupTitle": "D:\\Project\\herald-webservice\\routes\\api\\gpa.js",
-    "name": ""
+    "filename": "routes/api/lecture.js",
+    "group": "D:\\Project\\herald-webservice\\routes\\api\\lecture.js",
+    "groupTitle": "D:\\Project\\herald-webservice\\routes\\api\\lecture.js",
+    "name": "GetApiLecture"
   },
   {
     "parameter": {
@@ -318,20 +185,59 @@ define({ "api": [
     "name": ""
   },
   {
+    "type": "GET",
+    "url": "/api/library",
+    "title": "查询图书借阅",
+    "version": "0.0.0",
+    "filename": "routes/api/library.js",
+    "group": "D:\\Project\\herald-webservice\\routes\\api\\library.js",
+    "groupTitle": "D:\\Project\\herald-webservice\\routes\\api\\library.js",
+    "name": "GetApiLibrary"
+  },
+  {
+    "type": "GET",
+    "url": "/api/annex",
+    "title": "附件下载接口",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "annex",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/minio.js",
+    "group": "D:\\Project\\herald-webservice\\routes\\api\\minio.js",
+    "groupTitle": "D:\\Project\\herald-webservice\\routes\\api\\minio.js",
+    "name": "GetApiAnnex"
+  },
+  {
     "parameter": {
       "fields": {
         "Parameter": [
           {
             "group": "Parameter",
             "optional": false,
-            "field": "url",
-            "description": "<p>? 需要转换为 Markdown 的地址</p>"
+            "field": "itemId",
+            "description": ""
           },
           {
             "group": "Parameter",
             "optional": false,
-            "field": "nid",
-            "description": "<p>? 需要查看 Markdown 的通知 nid</p>"
+            "field": "dayInfo",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "optional": false,
+            "field": "pageNumber",
+            "description": "<p>预约信息查询</p>"
           }
         ]
       }
@@ -339,9 +245,9 @@ define({ "api": [
     "type": "",
     "url": "",
     "version": "0.0.0",
-    "filename": "routes/api/notice/index.js",
-    "group": "D:\\Project\\herald-webservice\\routes\\api\\notice\\index.js",
-    "groupTitle": "D:\\Project\\herald-webservice\\routes\\api\\notice\\index.js",
+    "filename": "routes/api/reservation/index.js",
+    "group": "D:\\Project\\herald-webservice\\routes\\api\\reservation\\index.js",
+    "groupTitle": "D:\\Project\\herald-webservice\\routes\\api\\reservation\\index.js",
     "name": ""
   },
   {
@@ -389,39 +295,6 @@ define({ "api": [
             "optional": false,
             "field": "validateCode",
             "description": "<p>预约场馆</p>"
-          }
-        ]
-      }
-    },
-    "type": "",
-    "url": "",
-    "version": "0.0.0",
-    "filename": "routes/api/reservation/index.js",
-    "group": "D:\\Project\\herald-webservice\\routes\\api\\reservation\\index.js",
-    "groupTitle": "D:\\Project\\herald-webservice\\routes\\api\\reservation\\index.js",
-    "name": ""
-  },
-  {
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "optional": false,
-            "field": "itemId",
-            "description": ""
-          },
-          {
-            "group": "Parameter",
-            "optional": false,
-            "field": "dayInfo",
-            "description": ""
-          },
-          {
-            "group": "Parameter",
-            "optional": false,
-            "field": "pageNumber",
-            "description": "<p>预约信息查询</p>"
           }
         ]
       }
@@ -534,6 +407,46 @@ define({ "api": [
     "name": ""
   },
   {
+    "type": "GET",
+    "url": "/api/scholarship",
+    "title": "获取校历（图片地址）",
+    "version": "0.0.0",
+    "filename": "routes/api/schedule.js",
+    "group": "D:\\Project\\herald-webservice\\routes\\api\\schedule.js",
+    "groupTitle": "D:\\Project\\herald-webservice\\routes\\api\\schedule.js",
+    "name": "GetApiScholarship"
+  },
+  {
+    "type": "GET",
+    "url": "/api/schoolbus",
+    "title": "校车时间表",
+    "version": "0.0.0",
+    "filename": "routes/api/schoolbus.js",
+    "group": "D:\\Project\\herald-webservice\\routes\\api\\schoolbus.js",
+    "groupTitle": "D:\\Project\\herald-webservice\\routes\\api\\schoolbus.js",
+    "name": "GetApiSchoolbus"
+  },
+  {
+    "type": "GET",
+    "url": "/api/term",
+    "title": "获取学期信息",
+    "version": "0.0.0",
+    "filename": "routes/api/term.js",
+    "group": "D:\\Project\\herald-webservice\\routes\\api\\term.js",
+    "groupTitle": "D:\\Project\\herald-webservice\\routes\\api\\term.js",
+    "name": "GetApiTerm"
+  },
+  {
+    "type": "GET",
+    "url": "/api/user",
+    "title": "用户基本信息查询",
+    "version": "0.0.0",
+    "filename": "routes/api/user.js",
+    "group": "D:\\Project\\herald-webservice\\routes\\api\\user.js",
+    "groupTitle": "D:\\Project\\herald-webservice\\routes\\api\\user.js",
+    "name": "GetApiUser"
+  },
+  {
     "parameter": {
       "fields": {
         "Parameter": [
@@ -633,6 +546,29 @@ define({ "api": [
     "filename": "routes/api/admin/banner.js",
     "groupTitle": "管理员接口",
     "name": "DeleteApiAdminBanner"
+  },
+  {
+    "type": "DELETE",
+    "url": "/api/admin/notice",
+    "title": "删除通知",
+    "group": "admin",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "id",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/admin/notice.js",
+    "groupTitle": "管理员接口",
+    "name": "DeleteApiAdminNotice"
   },
   {
     "type": "Get",
@@ -747,6 +683,38 @@ define({ "api": [
     "name": "GetApiAdminBanner"
   },
   {
+    "type": "GET",
+    "url": "/api/admin/notice",
+    "title": "获取通知",
+    "group": "admin",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "page",
+            "defaultValue": "1",
+            "description": "<p>页码</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "pagesize",
+            "defaultValue": "10",
+            "description": "<p>页面尺寸</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/admin/notice.js",
+    "groupTitle": "管理员接口",
+    "name": "GetApiAdminNotice"
+  },
+  {
     "type": "POST",
     "url": "/api/admin/activity",
     "title": "添加活动",
@@ -823,27 +791,27 @@ define({ "api": [
     "name": "PostApiAdminBanner"
   },
   {
-    "type": "PUT",
-    "url": "/api/admin/activity",
-    "title": "删除活动",
+    "type": "POST",
+    "url": "/api/admin/notice",
+    "title": "添加通知",
     "group": "admin",
     "parameter": {
       "fields": {
         "Parameter": [
           {
             "group": "Parameter",
-            "type": "String",
+            "type": "Object",
             "optional": false,
-            "field": "id",
+            "field": "notice",
             "description": ""
           }
         ]
       }
     },
     "version": "0.0.0",
-    "filename": "routes/api/admin/activity.js",
+    "filename": "routes/api/admin/notice.js",
     "groupTitle": "管理员接口",
-    "name": "PutApiAdminActivity"
+    "name": "PostApiAdminNotice"
   },
   {
     "type": "PUT",
@@ -859,6 +827,29 @@ define({ "api": [
             "optional": false,
             "field": "activity",
             "description": "<p>指定功能域</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/admin/activity.js",
+    "groupTitle": "管理员接口",
+    "name": "PutApiAdminActivity"
+  },
+  {
+    "type": "PUT",
+    "url": "/api/admin/activity",
+    "title": "删除活动",
+    "group": "admin",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "id",
+            "description": ""
           }
         ]
       }
@@ -913,5 +904,1404 @@ define({ "api": [
     "filename": "routes/api/admin/banner.js",
     "groupTitle": "管理员接口",
     "name": "PutApiAdminBanner"
+  },
+  {
+    "type": "PUT",
+    "url": "/api/admin/notice",
+    "title": "修改通知",
+    "group": "admin",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Object",
+            "optional": false,
+            "field": "notice",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/admin/notice.js",
+    "groupTitle": "管理员接口",
+    "name": "PutApiAdminNotice"
+  },
+  {
+    "type": "GET",
+    "url": "/api/classroom/building",
+    "title": "获取所有的可以查询的教室",
+    "group": "classroom",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "campus",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/classroom/building.js",
+    "groupTitle": "教室接口",
+    "name": "GetApiClassroomBuilding"
+  },
+  {
+    "type": "GET",
+    "url": "/api/classroom/campus",
+    "title": "获取所有的可以查询的校区",
+    "group": "classroom",
+    "version": "0.0.0",
+    "filename": "routes/api/classroom/campus.js",
+    "groupTitle": "教室接口",
+    "name": "GetApiClassroomCampus"
+  },
+  {
+    "type": "GET",
+    "url": "/api/classroom/current",
+    "title": "获取当前时段所有可以用的空教室",
+    "group": "classroom",
+    "version": "0.0.0",
+    "filename": "routes/api/classroom/current.js",
+    "groupTitle": "教室接口",
+    "name": "GetApiClassroomCurrent"
+  },
+  {
+    "type": "GET",
+    "url": "/api/classroom/current",
+    "title": "获取当前时段所有可以用的空教室",
+    "group": "classroom",
+    "version": "0.0.0",
+    "filename": "routes/api/classroom/index.js",
+    "groupTitle": "教室接口",
+    "name": "GetApiClassroomCurrent"
+  },
+  {
+    "type": "GET",
+    "url": "/api/classroom/term",
+    "title": "获取所有的可以查询的学期",
+    "group": "classroom",
+    "version": "0.0.0",
+    "filename": "routes/api/classroom/term.js",
+    "groupTitle": "教室接口",
+    "name": "GetApiClassroomTerm"
+  },
+  {
+    "type": "GET",
+    "url": "/api/exam",
+    "title": "创建自定义考试",
+    "group": "exam",
+    "version": "0.0.0",
+    "filename": "routes/api/exam.js",
+    "groupTitle": "exam",
+    "name": "GetApiExam"
+  },
+  {
+    "type": "POST",
+    "url": "/api/exam",
+    "title": "创建自定义考试课程",
+    "group": "exam",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "campus",
+            "description": "<p>考试校区</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "courseName",
+            "description": "<p>考试名</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "credit",
+            "description": "<p>学分</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "location",
+            "description": "<p>考试地点</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "duration",
+            "description": "<p>考试持续时间</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "teacherName",
+            "description": "<p>课程类型</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "startTime",
+            "description": "<p>考试开始时间</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "semester",
+            "description": "<p>学期</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/exam.js",
+    "groupTitle": "exam",
+    "name": "PostApiExam"
+  },
+  {
+    "type": "GET",
+    "url": "/api/gpa",
+    "title": "查询绩点信息",
+    "group": "gpa",
+    "version": "0.0.0",
+    "filename": "routes/api/gpa.js",
+    "groupTitle": "gpa",
+    "name": "GetApiGpa"
+  },
+  {
+    "type": "POST",
+    "url": "/api/gpa",
+    "title": "创建自定义考试课程",
+    "group": "gpa",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "courseName",
+            "description": "<p>课程名</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "credit",
+            "description": "<p>学分</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "score",
+            "description": "<p>分数</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "courseType",
+            "description": "<p>课程类型</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "scoreType",
+            "description": "<p>修读类型</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "semester",
+            "description": "<p>学期</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/gpa.js",
+    "groupTitle": "gpa",
+    "name": "PostApiGpa"
+  },
+  {
+    "type": "PUT",
+    "url": "/api/gpa",
+    "title": "修改自定义考试课程",
+    "group": "gpa",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "courseName",
+            "description": "<p>课程名</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "credit",
+            "description": "<p>学分</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "score",
+            "description": "<p>分数</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "courseType",
+            "description": "<p>课程类型</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "scoreType",
+            "description": "<p>修读类型</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "semester",
+            "description": "<p>学期</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "_id",
+            "description": "<p>课程ID</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/gpa.js",
+    "groupTitle": "gpa",
+    "name": "PutApiGpa"
+  },
+  {
+    "type": "DELETE",
+    "url": "/api/lostAndFound",
+    "title": "删除失物招领/寻物启事",
+    "group": "lostAndFound",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "id",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/lostAndFound/index.js",
+    "groupTitle": "失物招领/寻物启事",
+    "name": "DeleteApiLostandfound"
+  },
+  {
+    "type": "GET",
+    "url": "/api/lostAndFound",
+    "title": "获取失物招领/寻物启事",
+    "group": "lostAndFound",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "id",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "type",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "page",
+            "defaultValue": "1",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "pagesize",
+            "defaultValue": "10",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/lostAndFound/index.js",
+    "groupTitle": "失物招领/寻物启事",
+    "name": "GetApiLostandfound"
+  },
+  {
+    "type": "GET",
+    "url": "/api/lostAndFound/message",
+    "title": "获取消息",
+    "group": "lostAndFound",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "itemId",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/lostAndFound/message.js",
+    "groupTitle": "失物招领/寻物启事",
+    "name": "GetApiLostandfoundMessage"
+  },
+  {
+    "type": "GET",
+    "url": "/api/lostAndFound/search",
+    "title": "按类别/关键字搜索",
+    "group": "lostAndFound",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "key",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "type",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/lostAndFound/search.js",
+    "groupTitle": "失物招领/寻物启事",
+    "name": "GetApiLostandfoundSearch"
+  },
+  {
+    "type": "POST",
+    "url": "/api/lostAndFound",
+    "title": "新建失物招领/寻物启事",
+    "group": "lostAndFound",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "type",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "title",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "describe",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "imageUrl",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/lostAndFound/index.js",
+    "groupTitle": "失物招领/寻物启事",
+    "name": "PostApiLostandfound"
+  },
+  {
+    "type": "POST",
+    "url": "/api/lostAndFound/audit",
+    "title": "审核失物招领/寻物启事",
+    "group": "lostAndFound",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "id",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "Boolean",
+            "optional": false,
+            "field": "pass",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/lostAndFound/audit.js",
+    "groupTitle": "失物招领/寻物启事",
+    "name": "PostApiLostandfoundAudit"
+  },
+  {
+    "type": "POST",
+    "url": "/api/lostAndFound/message",
+    "title": "回复消息",
+    "group": "lostAndFound",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "itemId",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/lostAndFound/message.js",
+    "groupTitle": "失物招领/寻物启事",
+    "name": "PostApiLostandfoundMessage"
+  },
+  {
+    "type": "POST",
+    "url": "/api/lostAndFound/success",
+    "title": "失物招领/寻物启事结项",
+    "group": "lostAndFound",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "id",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/lostAndFound/success.js",
+    "groupTitle": "失物招领/寻物启事",
+    "name": "PostApiLostandfoundSuccess"
+  },
+  {
+    "type": "PUT",
+    "url": "/api/lostAndFound",
+    "title": "修改失物招领/寻物启事",
+    "group": "lostAndFound",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "id",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "title",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "describe",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "imageUrl",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/lostAndFound/index.js",
+    "groupTitle": "失物招领/寻物启事",
+    "name": "PutApiLostandfound"
+  },
+  {
+    "type": "GET",
+    "url": "/api/notice",
+    "title": "获取公告",
+    "group": "notice",
+    "version": "0.0.0",
+    "filename": "routes/api/notice/index.js",
+    "groupTitle": "通知/公告",
+    "name": "GetApiNotice"
+  },
+  {
+    "type": "GET",
+    "url": "/api/notification",
+    "title": "获取通知",
+    "group": "notice",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "id",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "page",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "pageSize",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/notification/index.js",
+    "groupTitle": "通知/公告",
+    "name": "GetApiNotification"
+  },
+  {
+    "type": "GET",
+    "url": "/api/notification/read",
+    "title": "获取通知阅读情况",
+    "group": "notice",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "id",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/notification/read/index.js",
+    "groupTitle": "通知/公告",
+    "name": "GetApiNotificationRead"
+  },
+  {
+    "type": "GET",
+    "url": "/api/notification/unread",
+    "title": "获取未读通知的数量",
+    "group": "notice",
+    "version": "0.0.0",
+    "filename": "routes/api/notification/unread.js",
+    "groupTitle": "通知/公告",
+    "name": "GetApiNotificationUnread"
+  },
+  {
+    "type": "POST",
+    "url": "/api/notice",
+    "title": "新建公告",
+    "group": "notice",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "url",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "id",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/notice/index.js",
+    "groupTitle": "通知/公告",
+    "name": "PostApiNotice"
+  },
+  {
+    "type": "POST",
+    "url": "/api/notification",
+    "title": "新建通知",
+    "group": "notice",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "notificationId",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "title",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "content",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "tag",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "target",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "annex",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "key",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "signature",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "deadline",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/notification/index.js",
+    "groupTitle": "通知/公告",
+    "name": "PostApiNotification"
+  },
+  {
+    "type": "POST",
+    "url": "/api/notification/read",
+    "title": "阅读通知",
+    "group": "notice",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "id",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "key",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "signature",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/notification/read/index.js",
+    "groupTitle": "通知/公告",
+    "name": "PostApiNotificationRead"
+  },
+  {
+    "type": "GET",
+    "url": "/api/pe",
+    "title": "跑操查询",
+    "group": "pe",
+    "version": "0.0.0",
+    "filename": "routes/api/pe/index.js",
+    "groupTitle": "体育",
+    "name": "GetApiPe"
+  },
+  {
+    "type": "GET",
+    "url": "/api/pe/exam",
+    "title": "获取理论考试参考",
+    "group": "pe",
+    "version": "0.0.0",
+    "filename": "routes/api/pe/exam.js",
+    "groupTitle": "体育",
+    "name": "GetApiPeExam"
+  },
+  {
+    "type": "GET",
+    "url": "/api/pe/morningExerciseNotification",
+    "title": "跑操状态查询",
+    "group": "pe",
+    "version": "0.0.0",
+    "filename": "routes/api/pe/morningExerciseNotification.js",
+    "groupTitle": "体育",
+    "name": "GetApiPeMorningexercisenotification"
+  },
+  {
+    "type": "POST",
+    "url": "/api/pe/morningExerciseNotification",
+    "title": "跑操状态建立",
+    "group": "pe",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "sessionKey",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "state",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/pe/morningExerciseNotification.js",
+    "groupTitle": "体育",
+    "name": "PostApiPeMorningexercisenotification"
+  },
+  {
+    "type": "GET",
+    "url": "/api/srtp",
+    "title": "SRTP查询",
+    "group": "srtp",
+    "version": "0.0.0",
+    "filename": "routes/api/srtp/index.js",
+    "groupTitle": "srtp竞赛相关",
+    "name": "GetApiSrtp"
+  },
+  {
+    "type": "GET",
+    "url": "/api/srtp/competition",
+    "title": "获取竞赛列表",
+    "group": "srtp",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "page",
+            "defaultValue": "1",
+            "description": "<p>页码</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/srtp/competition.js",
+    "groupTitle": "srtp竞赛相关",
+    "name": "GetApiSrtpCompetition"
+  },
+  {
+    "type": "POST",
+    "url": "/api/srtp/competition",
+    "title": "解析竞赛详情",
+    "group": "srtp",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "id",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/srtp/competition.js",
+    "groupTitle": "srtp竞赛相关",
+    "name": "PostApiSrtpCompetition"
+  },
+  {
+    "type": "DELETE",
+    "url": "/api/teamProject/participation",
+    "title": "删除申请信息",
+    "group": "teamProject",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "id",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/teamProject/participation.js",
+    "groupTitle": "竞赛组队项目",
+    "name": "DeleteApiTeamprojectParticipation"
+  },
+  {
+    "type": "DELETE",
+    "url": "/api/teamProject/project",
+    "title": "删除组队项目",
+    "group": "teamProject",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "id",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "deleted",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/teamProject/project.js",
+    "groupTitle": "竞赛组队项目",
+    "name": "DeleteApiTeamprojectProject"
+  },
+  {
+    "type": "GET",
+    "url": "/api/teamProject/audit",
+    "title": "获得待审核的列表",
+    "group": "teamProject",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "page",
+            "defaultValue": "1",
+            "description": "<p>页码</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "pagesize",
+            "defaultValue": "10",
+            "description": "<p>页面尺寸</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/teamProject/audit.js",
+    "groupTitle": "竞赛组队项目",
+    "name": "GetApiTeamprojectAudit"
+  },
+  {
+    "type": "GET",
+    "url": "/api/teamProject/participation",
+    "title": "获取申请信息",
+    "group": "teamProject",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "teamProjectId",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "fromMe",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "page",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "pagesize",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/teamProject/participation.js",
+    "groupTitle": "竞赛组队项目",
+    "name": "GetApiTeamprojectParticipation"
+  },
+  {
+    "type": "GET",
+    "url": "/api/teamProject/project",
+    "title": "获取组队项目",
+    "group": "teamProject",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "id",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "how",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "page",
+            "defaultValue": "1",
+            "description": "<p>页码</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "pagesize",
+            "defaultValue": "10",
+            "description": "<p>页面尺寸</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/teamProject/project.js",
+    "groupTitle": "竞赛组队项目",
+    "name": "GetApiTeamprojectProject"
+  },
+  {
+    "type": "GET",
+    "url": "/api/teamProject/project",
+    "title": "根据关键字/类别搜索",
+    "group": "teamProject",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "key",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "selectedType",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "page",
+            "defaultValue": "1",
+            "description": "<p>页码</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "pagesize",
+            "defaultValue": "10",
+            "description": "<p>页面尺寸</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/teamProject/search.js",
+    "groupTitle": "竞赛组队项目",
+    "name": "GetApiTeamprojectProject"
+  },
+  {
+    "type": "POST",
+    "url": "/api/teamProject/audit",
+    "title": "审核组队",
+    "group": "teamProject",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "teamProjectId",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "Boolean",
+            "optional": false,
+            "field": "isPassed",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/teamProject/audit.js",
+    "groupTitle": "竞赛组队项目",
+    "name": "PostApiTeamprojectAudit"
+  },
+  {
+    "type": "POST",
+    "url": "/api/teamProject/participation",
+    "title": "创建申请信息",
+    "group": "teamProject",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "teamProjectId",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "major",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "skill",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "qqNum",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "email",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "phoneNum",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "description",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/teamProject/participation.js",
+    "groupTitle": "竞赛组队项目",
+    "name": "PostApiTeamprojectParticipation"
+  },
+  {
+    "type": "POST",
+    "url": "/api/teamProject/project",
+    "title": "创建组队项目",
+    "group": "teamProject",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "title",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "projectDesc",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "qqNum",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "email",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "phoneNum",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "skillRequirement",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "duartion",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "campus",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "otherRequirement",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "category",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "wantedNumber",
+            "description": ""
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "endTime",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/teamProject/project.js",
+    "groupTitle": "竞赛组队项目",
+    "name": "PostApiTeamprojectProject"
+  },
+  {
+    "type": "GET",
+    "url": "/api/version",
+    "title": "获取 App 版本信息",
+    "group": "version",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "version",
+            "description": ""
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/version.js",
+    "groupTitle": "version",
+    "name": "GetApiVersion"
+  },
+  {
+    "type": "DELETE",
+    "url": "/api/gpa",
+    "title": "删除自定义考试课程",
+    "group": "{String}_gpa",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "_id",
+            "description": "<p>课程ID</p>"
+          }
+        ]
+      }
+    },
+    "version": "0.0.0",
+    "filename": "routes/api/gpa.js",
+    "groupTitle": "{String}_gpa",
+    "name": "DeleteApiGpa"
   }
 ] });

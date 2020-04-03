@@ -69,7 +69,7 @@ exports.route = {
   /**
   * GET /api/notice
   * 调试模式下 GET /api/notice?site=zwc
-  * @apiReturn [{ category, department, title, url, time, isAttachment, isImportant }]
+  * @Return [{ category, department, title, url, time, isAttachment, isImportant }]
   * 目前没有使用缓存，但是根据时间消耗，还是应该使用缓存提升用户体验
   */
   /**
@@ -224,9 +224,9 @@ exports.route = {
   /**
   * POST /api/notice
   * 转换学校通知为 Markdown，或获取系统通知 Markdown
-  * @apiParam url? 需要转换为 Markdown 的地址
-  * @apiParam nid? 需要查看 Markdown 的通知 nid
-  * @apiReturn <string> 转换结果
+  * @Param url? 需要转换为 Markdown 的地址
+  * @Param nid? 需要查看 Markdown 的通知 nid
+  * @Return <string> 转换结果
   */
 
   /**
