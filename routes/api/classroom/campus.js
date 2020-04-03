@@ -1,5 +1,8 @@
 exports.route = {
-  // 获取所有的可以查询的校区
+  /**
+  * @api {GET} /api/classroom/campus 获取所有的可以查询的校区
+  * @apiGroup classroom
+  */
   async get() {
     return await this.publicCache('1d+', async () => {
       let now = +moment()

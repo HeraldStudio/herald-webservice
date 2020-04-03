@@ -2,7 +2,7 @@
  * 管理员管理缓存路由
  * GET /api/admin/cache 
  * DELETE /api/admin/cache
- * @apiParams keykeyword
+ * @Params keykeyword
  * 
  * 例如：GET /api/admin/cache { keyword:'213171610' }
  * 例如：GET /api/admin/cache { keyword:'/api/gpa' }

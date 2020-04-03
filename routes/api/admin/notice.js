@@ -1,6 +1,13 @@
 let moment = require('moment')
 
 exports.route = {
+  /**
+  * @api {GET} /api/admin/notice 获取通知
+  * @apiGroup admin
+  * 
+  * @apiParam {Number} page=1 页码
+  * @apiParam {Number} pagesize=10 页面尺寸
+  */
   async get ({ page = 1, pagesize = 10 }) {
     if (!(await this.hasPermission('publicity'))) {
       throw 403
@@ -41,11 +48,14 @@ exports.route = {
     return res
   },
 
-  // 添加一条通知消息
   /**
-   *
+  * @api {POST} /api/admin/notice 添加通知
+  * @apiGroup admin
+  * 
+  * @apiParam {Object} notice
+  */
+  /**
    * 学号前缀 schoolnumPrefix:"06 70 ..."
-   *  
   */
   async post ({ notice }) {
     let now = moment()
@@ -72,8 +82,12 @@ exports.route = {
     
     return 'OK'
   },
-
-  // 修改一条通知消息
+  /**
+  * @api {PUT} /api/admin/notice 修改通知
+  * @apiGroup admin
+  * 
+  * @apiParam {Object} notice
+  */
   /**
    *
    * 学号前缀 schoolnumPrefix:"06 70 ..."
@@ -107,7 +121,12 @@ exports.route = {
     return 'OK'
   },
 
-
+  /**
+  * @api {DELETE} /api/admin/notice 删除通知
+  * @apiGroup admin
+  * 
+  * @apiParam {String} id
+  */
   async delete ({ id }) {
     if (!(await this.hasPermission('publicity'))) {
       throw 403

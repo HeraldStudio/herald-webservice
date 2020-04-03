@@ -28,7 +28,10 @@ const sequenceTimeMap = [
   { sequence: 13, start: '20:06', end: '23:59' }
 ]
 exports.route = {
-  // 获取当前时段所有可以用的空教室
+  /**
+  * @api {GET} /api/classroom/current 获取当前时段所有可以用的空教室
+  * @apiGroup classroom
+  */
   async get() {
 
     let term = await this.get('https://myseu.cn/ws3/api/classroom/term')

@@ -86,7 +86,13 @@ exports.route = {
 
   },
 
-  // 添加一条活动设置
+  /**
+  * @api {POST} /api/admin/activity 添加活动
+  * @apiGroup admin
+  * 
+  * @apiParam {String} activity 指定功能域
+  */
+
   /*
   * 注意检查日期格式 YYYY-MM-DD HH:mm:ss
   */
@@ -124,7 +130,12 @@ exports.route = {
     return 'OK'
   },
 
-  // 修改一条活动设置
+  /**
+  * @api {PUT} /api/admin/activity 修改活动
+  * @apiGroup admin
+  * 
+  * @apiParam {String} activity 指定功能域
+  */
   /*
   * 注意检查日期格式 YYYY-MM-DD HH:mm:ss
   */
@@ -164,6 +175,12 @@ exports.route = {
     // await bannerCollection.updateOne({bid: banner.bid}, {$set:banner})
     return 'OK'
   },
+  /**
+  * @api {PUT} /api/admin/activity 删除活动
+  * @apiGroup admin
+  * 
+  * @apiParam {String} id
+  */
 
   // 删除一条活动并删除对应的点击记录
   async delete({ id }) {

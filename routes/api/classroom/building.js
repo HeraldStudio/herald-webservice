@@ -3,8 +3,16 @@ const campusMap = {
   '22': '22',
   '1': '22'
 }
+/**
+ * @apiDefine classroom 教室接口
+ */
 exports.route = {
-  // 获取所有的可以查询的教室
+  /**
+  * @api {GET} /api/classroom/building 获取所有的可以查询的教室
+  * @apiGroup classroom
+  * 
+  * @apiParam {String} campus 
+  */
   async get({ campus }) {
     return await this.publicCache('1h+', async () => {
       let now = +moment()
