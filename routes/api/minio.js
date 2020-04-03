@@ -1,4 +1,8 @@
 exports.route = {
+      /**
+  * @api {GET} /api/annex 附件下载接口
+  * @apiParam {String} annex
+  */
   async get({ annex }) {
     if (!annex) {
       throw '参数不全'

@@ -1,5 +1,7 @@
 exports.route = {
-
+  /**
+  * @api {GET} /api/user 用户基本信息查询
+  */
   /**
   * GET /api/user
   * 用户基本信息查询（静态版）

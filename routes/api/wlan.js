@@ -2,10 +2,7 @@ const cheerio = require('cheerio')
 
 exports.route = {
 
-  /**
-  * GET /api/wlan
-  * seu-wlan 状态查询
-  **/
+
   async get() {
     return await this.userCache('1m+', async () => {
       let { cardnum, password } = this.user

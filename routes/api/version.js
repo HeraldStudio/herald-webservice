@@ -1,4 +1,9 @@
 exports.route = {
+    /**
+  * @api {GET} /api/version 获取 App 版本信息
+  * @apiGroup version
+  * @apiParam {String} version
+  */
   // 获取更新信息
   async get({ version }) {
     // 验证是否符合版本号格式

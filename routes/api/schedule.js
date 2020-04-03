@@ -1,5 +1,7 @@
 exports.route = {
-
+  /**
+  * @api {GET} /api/scholarship 获取校历（图片地址）
+  */
   /**
    * GET /api/schedule
    * 获取校历（图片地址）

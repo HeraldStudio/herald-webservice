@@ -27,6 +27,7 @@ const code2status = {
 }
 
 exports.route = {
+
   async get() {
     return await this.userCache('1d+' , async() => {
       let { cardnum } = this.user
