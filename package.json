@@ -12,6 +12,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "apidoc": "^0.20.1",
     "apn": "^2.2.0",
     "axios": "^0.19.2",
     "axios-cookiejar-support": "^0.5.0",
