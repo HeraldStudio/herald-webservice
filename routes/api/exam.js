@@ -2,9 +2,9 @@ const oracledb = require('oracledb')
 exports.route = {
 
   /**
-  * GET /api/exam
-  * @apiReturn [{ semester, campus, courseName, teacherName, startTime, endTime, location, duration }]
-  * 个人考试信息查询
+  * @api {GET} /api/exam 创建自定义考试
+  * @apiGroup exam
+
   **/
 
   async get() {
@@ -78,15 +78,16 @@ exports.route = {
   },
 
   /**
-  * POST /api/exam
-  * 自定义考试
-  * @apiParam semester    学年学期
-  * @apiParam campus      校区       ['九龙湖', '丁家桥', '四牌楼']
-  * @apiParam courseName  课程名
-  * @apiParam teacherName 老师名
-  * @apiParam startTime   开始时间   格式：时间戳
-  * @apiParam location    考试地点
-  * @apiParam duration    考试时长   单位：分
+  * @api {POST} /api/exam 创建自定义考试课程
+  * @apiGroup exam
+  * @apiParam {String} campus      考试校区
+  * @apiParam {String} courseName  考试名
+  * @apiParam {String} credit      学分
+  * @apiParam {String} location    考试地点
+  * @apiParam {String} duration    考试持续时间
+  * @apiParam {String} teacherName 课程类型
+  * @apiParam {String} startTime   考试开始时间
+  * @apiParam {String} semester    学期
   **/
 
   async post({ semester, campus, courseName, teacherName, startTime, location, duration }) {

@@ -12,7 +12,7 @@ module.exports = async (ctx, next) => {
     await next()
   } catch (e) {
     ctx.body = ''
-    if (!e) {
+    if (!e) {z
       ctx.status = 400
     } else if (typeof e === 'number') {
       ctx.status = e

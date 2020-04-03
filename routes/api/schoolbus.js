@@ -25,6 +25,9 @@ const timetable = {
 // }
 
 exports.route = {
+    /**
+  * @api {GET} /api/schoolbus 校车时间表
+  */
   async get () {
     return timetable
     // return await this.publicCache('5s', async () => {
