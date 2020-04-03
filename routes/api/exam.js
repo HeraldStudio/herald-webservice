@@ -1,3 +1,6 @@
+/**
+ * @apiDefine exam 考试
+ */
 const oracledb = require('oracledb')
 exports.route = {
 

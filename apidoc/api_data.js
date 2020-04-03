@@ -753,7 +753,7 @@ define({ "api": [
     },
     "version": "0.0.0",
     "filename": "routes/api/exam.js",
-    "groupTitle": "exam",
+    "groupTitle": "考试",
     "name": "DeleteApiExam"
   },
   {
@@ -763,7 +763,7 @@ define({ "api": [
     "group": "exam",
     "version": "0.0.0",
     "filename": "routes/api/exam.js",
-    "groupTitle": "exam",
+    "groupTitle": "考试",
     "name": "GetApiExam"
   },
   {
@@ -835,7 +835,7 @@ define({ "api": [
     },
     "version": "0.0.0",
     "filename": "routes/api/exam.js",
-    "groupTitle": "exam",
+    "groupTitle": "考试",
     "name": "PostApiExam"
   },
   {
@@ -858,7 +858,7 @@ define({ "api": [
     },
     "version": "0.0.0",
     "filename": "routes/api/gpa.js",
-    "groupTitle": "gpa",
+    "groupTitle": "gpa相关接口",
     "name": "DeleteApiGpa"
   },
   {
@@ -868,7 +868,7 @@ define({ "api": [
     "group": "gpa",
     "version": "0.0.0",
     "filename": "routes/api/gpa.js",
-    "groupTitle": "gpa",
+    "groupTitle": "gpa相关接口",
     "name": "GetApiGpa"
   },
   {
@@ -926,7 +926,7 @@ define({ "api": [
     },
     "version": "0.0.0",
     "filename": "routes/api/gpa.js",
-    "groupTitle": "gpa",
+    "groupTitle": "gpa相关接口",
     "name": "PostApiGpa"
   },
   {
@@ -991,7 +991,7 @@ define({ "api": [
     },
     "version": "0.0.0",
     "filename": "routes/api/gpa.js",
-    "groupTitle": "gpa",
+    "groupTitle": "gpa相关接口",
     "name": "PutApiGpa"
   },
   {

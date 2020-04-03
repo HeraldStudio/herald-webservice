@@ -33,11 +33,13 @@ const calculateEquivalentScore = score => {
   }
   return parseFloat(score) || 0
 }*/
-
+/**
+ * @apiDefine gpa gpa相关接口
+ */
 exports.route = {
   /**
   * @api {GET} /api/gpa 查询绩点信息
-  * @apiGroup gpa
+  * @apiGroup gpa 
   */
   /**
   * GET /api/gpa
