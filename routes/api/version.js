@@ -21,7 +21,7 @@ exports.route = {
         SELECT MAX(CREATEDTIME)
         FROM H_VERSION
         WHERE PLATFORM = 'app-zsqn-ios'
-      )
+      )AND PLATFORM = 'app-zsqn-ios'
     `)
     } else {
       record = await this.db.execute(`
@@ -31,7 +31,7 @@ exports.route = {
         SELECT MAX(CREATEDTIME)
         FROM H_VERSION
         WHERE PLATFORM = 'app-android'
-      )
+      )AND PLATFORM = 'app-android'
     `)
     }
 
