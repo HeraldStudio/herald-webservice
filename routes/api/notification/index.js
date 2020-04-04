@@ -342,8 +342,11 @@ exports.route = {
           readTime
         }
       })
-
-      return ret[0] ? ret[0] : {}
+      if(ret.length === 0){
+        throw '目标通知不存在'
+      }else{
+        return ret[0]
+      }
     }
   },
 }
