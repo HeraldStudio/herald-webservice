@@ -73,7 +73,7 @@ exports.route = {
         // 处理 curriculum
         // 获取课表
         let result = await this.db.execute(`
-        select T_RW_JSB.SKZC,SKXQ,KSJC,JSJC,JASMC,KCM,XM
+        select T_PK_SJDDB.SKZC,SKXQ,KSJC,JSJC,JASMC,KCM,XM
         from (
           select *
           from t_xk_xkxs
