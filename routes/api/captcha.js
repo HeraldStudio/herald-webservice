@@ -24,7 +24,7 @@ exports.route = {
     if(expireTime % 3 === 1 || expireTime % 3 === 2 || true ){
       captcha = svgCaptcha.create({
         size:5,
-        ignoreChars:'0o1i1LOZ52S',
+        ignoreChars:'0oiIl1OZ52S',
         noise:3,
         color: false,
       })
