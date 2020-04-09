@@ -18,7 +18,6 @@ exports.route = {
   async get() {
     const expireTime = +moment() + expire
     
-    console.log(expireTime % 3)
     let captcha
     // eslint-disable-next-line no-constant-condition
     if(expireTime % 3 === 1 || expireTime % 3 === 2 || true ){
