@@ -20,10 +20,11 @@ exports.route = {
     
     console.log(expireTime % 3)
     let captcha
-    if(expireTime % 3 === 1 || expireTime % 3 === 2 ){
+    // eslint-disable-next-line no-constant-condition
+    if(expireTime % 3 === 1 || expireTime % 3 === 2 || true ){
       captcha = svgCaptcha.create({
         size:5,
-        ignoreChars:'0o1i1',
+        ignoreChars:'0o1i1LOZ52S',
         noise:3,
         color: false,
       })
