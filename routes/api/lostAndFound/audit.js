@@ -1,9 +1,14 @@
+/**
+ * @apiDefine lostAndFound 失物招领/寻物启事
+ */
 exports.route = {
   /**
-   * POST /api/lostAndFound/audit
-   * @param { id, pass } 
-   * 审核接口
-   */
+  * @api {POST} /api/lostAndFound/audit 审核失物招领/寻物启事
+  * @apiGroup lostAndFound
+  * 
+  * @apiParam {String} id
+  * @apiParam {Boolean} pass
+  */
   async post({ id, pass }) {
     if (!(await this.hasPermission('publicity'))) {
       throw 403

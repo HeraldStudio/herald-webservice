@@ -1,7 +1,13 @@
 
 const moment = require('moment')
 exports.route = {
-  // 管理员获取 banner 列表
+  /**
+  * @api {GET} /api/admin/banner 获取轮播图
+  * @apiGroup admin
+  * 
+  * @apiParam {Number} page=1 页码
+  * @apiParam {Number} pagesize=10 页面尺寸
+  */
   async get({ page = 1, pagesize = 10 }) {
 
     if (!(await this.hasPermission('publicity'))) {
@@ -13,8 +19,7 @@ exports.route = {
       FROM (SELECT tt.*, ROWNUM AS rowno
         FROM (SELECT t.* FROM TOMMY.H_BANNER t ORDER BY END_TIME DESC) tt
         WHERE ROWNUM <= :endRow) table_alias
-      WHERE table_alias.rowno > :startRow`,
-    {
+      WHERE table_alias.rowno > :startRow`, {
       startRow: (page - 1) * pagesize,
       endRow: page * pagesize
     })
@@ -45,7 +50,7 @@ exports.route = {
     })
 
     // 获取点击次数
-    for(let index in res){
+    for (let index in res) {
       let clicks = await this.db.execute(
         `SELECT COUNT(:id) AS CLICKS FROM TOMMY.H_BANNER_CLICK WHERE BID= :id`,
         {
@@ -81,7 +86,12 @@ exports.route = {
     //   }))
   },
 
-  // 添加一条轮播头图
+  /**
+  * @api {POST} /api/admin/banner 添加轮播图
+  * @apiGroup admin
+  * 
+  * @apiParam {Object} banner
+  */
   /*
   * 注意检查日期格式 时间戳
   * 学号前缀 schoolnumPrefix:"06 70 ..."
@@ -95,13 +105,13 @@ exports.route = {
     if (!(banner.title && banner.pic && banner.endTime && banner.startTime)) {
       throw '设置内容不完全'
     }
-    if (typeof(banner.startTime) !== typeof(+moment())) {
+    if (typeof (banner.startTime) !== typeof (+moment())) {
       throw '起始日期格式不合法'
     }
-    if (typeof(banner.endTime) !== typeof(+moment())) {
+    if (typeof (banner.endTime) !== typeof (+moment())) {
       throw '结束日期格式不合法'
     }
-    if (banner.endTime < banner.startTime){
+    if (banner.endTime < banner.startTime) {
       throw '结束日期小于开始日期'
     }
     // 向数据库插入记录
@@ -126,7 +136,12 @@ exports.route = {
     return 'OK'
   },
 
-  // 修改轮播图设置
+  /**
+  * @api {PUT} /api/admin/banner 修改轮播图
+  * @apiGroup admin
+  * 
+  * @apiParam {Object} banner
+  */
   /*
   * 注意检查日期格式 时间戳
   */
@@ -137,13 +152,13 @@ exports.route = {
     if (!(banner.id && banner.title && banner.pic && banner.endTime && banner.startTime)) {
       throw '设置内容不完全'
     }
-    if (typeof(banner.startTime) !== typeof(+moment())) {
+    if (typeof (banner.startTime) !== typeof (+moment())) {
       throw '起始日期格式不合法'
     }
-    if (typeof(banner.endTime) !== typeof(+moment())) {
+    if (typeof (banner.endTime) !== typeof (+moment())) {
       throw '结束日期格式不合法'
     }
-    if (banner.endTime < banner.startTime){
+    if (banner.endTime < banner.startTime) {
       throw '结束日期小于开始日期'
     }
     // await db.banner.update({ bid: banner.bid }, banner)
@@ -153,8 +168,7 @@ exports.route = {
               SET TITLE = :title, PIC = :pic, SCHOOLNUM_PREFIX =: schoolnumPrefix,
                   END_TIME = :endTime, START_TIME =: startTime, URL =: url
               WHERE ID = :id
-              `,
-    {
+              `, {
       id: banner.id,
       title: banner.title,
       pic: banner.pic,
@@ -167,7 +181,12 @@ exports.route = {
     // await bannerCollection.updateOne({bid: banner.bid}, {$set:banner})
     return 'OK'
   },
-
+  /**
+  * @api {DELETE} /api/admin/banner 删除轮播图
+  * @apiGroup admin
+  * 
+  * @apiParam {String} id
+  */
   // 删除一条轮播图并删除对应的点击记录
   async delete({ id }) {
     if (!(await this.hasPermission('publicity'))) {

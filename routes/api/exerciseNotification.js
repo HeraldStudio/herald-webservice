@@ -1,4 +1,8 @@
 exports.route = {
+  /**
+  * @api {GET} /api/exerciseNotification 设置跑操提醒
+  * @apiGroup other
+  */
   async get() {
     let openid = this.openid
     // 防止重复发送，清除已有记录
@@ -23,7 +27,10 @@ exports.route = {
       return '设置失败'
     }
   },
-
+  /**
+  * @api {DELETE} /api/exerciseNotification 删除跑操提醒
+  * @apiGroup other
+  **/
   async delete() {
     let openid = this.openid
     // 清除已有记录

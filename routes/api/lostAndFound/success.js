@@ -1,6 +1,12 @@
 const { adminList } = require('./admin.json')
 
 exports.route = {
+  /**
+  * @api {POST} /api/lostAndFound/success 失物招领/寻物启事结项
+  * @apiGroup lostAndFound
+  * 
+  * @apiParam {String} id
+  */
   async post({ id }) {
     let { cardnum } = this.user
     let record = await this.db.execute(`

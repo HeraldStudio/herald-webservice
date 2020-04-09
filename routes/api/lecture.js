@@ -2,6 +2,11 @@ const Lecture = require('../../sdk/sdk.json')['Lecture']
 const moment = require('moment')
 
 exports.route = {
+  /**
+  * @api {GET} /api/lecture 人文讲座信息查询
+  * @apiGroup other
+  * @apiParam {String} lecture
+  */
   async get() {
     /**
         * GET /api/lecture

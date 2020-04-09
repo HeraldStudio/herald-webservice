@@ -1,5 +1,11 @@
 const oracledb = require('oracledb')
 exports.route = {
+  /**
+  * @api {GET} /api/lostAndFound/message 获取消息
+  * @apiGroup lostAndFound
+  * 
+  * @apiParam {String} itemId
+  */
   async get({ itemId }) {
     let { cardnum } = this.user
     if (itemId) {
@@ -91,6 +97,13 @@ exports.route = {
       return res
     }
   },
+  /**
+  * @api {POST} /api/lostAndFound/message 回复消息
+  * @apiGroup lostAndFound
+  * 
+  * @apiParam {String} itemId
+  * @apiParam {String} message
+  */
   async post({ itemId, message }) {
     if (!itemId) {
       throw '未指定事务id'

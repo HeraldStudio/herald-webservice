@@ -1,18 +1,8 @@
-const moment = require('moment')
-const uuid = require('uuid/v4')
-const oracledb = require('oracledb')
-const JPushKeys = require('../../../sdk/sdk.json').JPush
-const Base64 = require('js-base64').Base64
-const axios =require('axios')
-
 exports.route = {
   /**
-   * GET /api/notification/unread
-   * 
-   * 获取未读通知的数量
-   * 
-   * @returns {Number} 
-   */
+  * @api {GET} /api/notification/unread 获取未读通知的数量
+  * @apiGroup notice
+  */
   async get() {
     let {cardnum} = this.user
     let count = await this.db.execute(`

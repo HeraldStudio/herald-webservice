@@ -12,6 +12,20 @@ exports.route = {
   // key 为包括发布者姓名，一卡通，角色，来源的密钥
   // signature 为包括secretKey，发布者姓名，一卡通，角色的密钥
   // 两者比对确定请求正确
+  /**
+  * @api {POST} /api/notification 新建通知
+  * @apiGroup notice
+  * 
+  * @apiParam {String} notificationId
+  * @apiParam {String} title
+  * @apiParam {String} content
+  * @apiParam {String} tag
+  * @apiParam {String} target
+  * @apiParam {String} annex
+  * @apiParam {String} key
+  * @apiParam {String} signature
+  * @apiParam {Number} deadline
+  */
   async post({ notificationId, title, content, tag, target, annex, key, signature, deadline }) {
     if (!(notificationId && title && content && target && key && signature)) {
       throw '参数不全'
@@ -129,6 +143,14 @@ exports.route = {
    * id 和 page, pageSize 不能同时存在
    */
 
+  /**
+  * @api {GET} /api/notification 获取通知
+  * @apiGroup notice
+  * 
+  * @apiParam {String} id
+  * @apiParam {Number} page
+  * @apiParam {Number} pageSize
+  */
   async get({ id, page = 1, pageSize = 10 }) {
 
     // 计算起始和终止条目index,闭区间
@@ -320,12 +342,11 @@ exports.route = {
           readTime
         }
       })
-
-      return ret[0] ? ret[0] : {}
+      if(ret.length === 0){
+        throw '目标通知不存在'
+      }else{
+        return ret[0]
+      }
     }
   },
-
-  // async delete({ key }) {
-
-  // }
 }

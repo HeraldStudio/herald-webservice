@@ -33,9 +33,14 @@ const calculateEquivalentScore = score => {
   }
   return parseFloat(score) || 0
 }*/
-
+/**
+ * @apiDefine gpa gpa相关接口
+ */
 exports.route = {
-
+  /**
+  * @api {GET} /api/gpa 查询绩点信息
+  * @apiGroup gpa 
+  */
   /**
   * GET /api/gpa
   * 成绩查询
@@ -48,29 +53,14 @@ exports.route = {
       if (/^21318/.test(cardnum) || /^21319/.test(cardnum)) {  //18 19级
         let detail = await this.userCache('1h+', async () => {
           let rawData = await this.db.execute(`
-            SELECT 
-              xk.XNXQDM,
-              xk.KCH,
-              cj.KCM,
-              xk.KCXZDM,
-              cj.XF,
-              cj.ZCJ,
-              xk.CXCKDM
-            FROM
-              (
-                SELECT 
-                  newcj.KCM,
-                  newcj.XF,
-                  newcj.ZCJ,
-                  newcj.XH,
-                  newcj.KCH
-                FROM
-                  TOMMY.T_CJ_LRCJ  newcj
-                WHERE newcj.XH = :cardnum
-              )  cj,
-              TOMMY.T_XK_XKXS  xk
-            WHERE
-              cj.XH = xk.XH AND cj.KCH = xk.KCH
+          select XNXQDM,a.KCH,KCM,KCXZDM,XF,ZCJ,CXCKDM
+          from (
+            select *
+            from T_CJ_LRCJ
+            where xh =:cardnum
+          )a
+          left join T_XK_XKXS
+          on a.xh = T_XK_XKXS.xh and a.kch = T_XK_XKXS.kch
         `, { cardnum: cardnum })
           /*let rawDetail = rawData.rows.map(row => {
             let semesterName = row[0].split('-')
@@ -488,16 +478,15 @@ exports.route = {
 
 
   },
-
   /**
-  * POST /api/gpa
-  * 自定义成绩
-  * @apiParam courseName  课程名
-  * @apiParam credit      学分
-  * @apiParam score       分数
-  * @apiParam courseType  课程类型
-  * @apiParam scoreType   修读类型   
-  * @apiParam semester    学期
+  * @api {POST} /api/gpa 创建自定义考试课程
+  * @apiGroup gpa
+  * @apiParam {String} courseName  课程名
+  * @apiParam {Number} credit      学分
+  * @apiParam {Number} score       分数
+  * @apiParam {String} courseType  课程类型
+  * @apiParam {String} scoreType   修读类型   
+  * @apiParam {String} semester    学期
   **/
   async post({ courseName, credit, score, courseType, scoreType, semester }) {
     let { cardnum } = this.user
@@ -544,10 +533,11 @@ exports.route = {
   },
 
   /**
-  * DELETE /api/gpa
-  * 删除自定义成绩
-  * @apiParam _id  ID
+    * @api {DELETE} /api/gpa 删除自定义考试课程
+    * @apiGroup gpa
+    * @apiParam {String} _id  课程ID 
   **/
+
   async delete({ _id }) {
     let record = await this.db.execute(`
     SELECT * FROM H_MY_SCORE
@@ -571,16 +561,16 @@ exports.route = {
   },
 
   /**
-  * PUT /api/gpa
-  * 更新自定义成绩
-  * @apiParam _id         ID
-  * @apiParam courseName  课程名
-  * @apiParam credit      学分
-  * @apiParam score       分数
-  * @apiParam courseType  课程类型
-  * @apiParam scoreType   修读类型   
-  * @apiParam semester    学期
-  **/
+    * @api {PUT} /api/gpa 修改自定义考试课程
+    * @apiGroup gpa
+    * @apiParam {String} courseName  课程名
+    * @apiParam {Number} credit      学分
+    * @apiParam {Number} score       分数
+    * @apiParam {String} courseType  课程类型
+    * @apiParam {String} scoreType   修读类型   
+    * @apiParam {String} semester    学期
+    * @apiParam {String} _id         课程ID
+    **/
   async put({ _id, courseName, credit, score, courseType, scoreType, semester }) {
 
     if (!_id) {

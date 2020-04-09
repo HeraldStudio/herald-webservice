@@ -1,6 +1,36 @@
 const moment = require('moment')
 
 exports.route = {
+  /**
+   * @api {Get} /api/admin/activity getActivities
+   * @apiGroup admin
+   *
+   * @apiParam {Number} page=1 页码
+   * @apiParam {Number} pagesize=10 页长
+   * @apiParamExample {json} Request-Example
+   * {
+   *  "page": 1,
+   *  "pagesize": 10
+   * }
+   *
+   * @apiSuccessExample  {json} Response-Example
+   * {
+   *   "success": true,
+   *   "code": 200
+   *   "result": [
+   * { 
+   *  "id":"9CBA606EC456E0F6E05012AC02002685",
+   *  "click":0,
+   *  "title":"测试标题6",
+   *  "pic":"http://picurl",
+   *  "url":"https://url",
+   *  "content":"testContent",
+   *  "endTime":1582473601000,
+   *  "startTime:":1579708800000
+   * }
+   * ]
+   * }
+   */
   async get({ page = 1, pagesize = 10 }) {
     if (!(await this.hasPermission('publicity'))) {
       throw 403
@@ -11,8 +41,7 @@ exports.route = {
       FROM (SELECT tt.*, ROWNUM AS rowno
         FROM (SELECT t.* FROM TOMMY.H_ACTIVITY t ORDER BY END_TIME DESC) tt
         WHERE ROWNUM <= :endRow) table_alias
-      WHERE table_alias.rowno > :startRow`,
-    {
+      WHERE table_alias.rowno > :startRow`, {
       startRow: (page - 1) * pagesize,
       endRow: page * pagesize
     })
@@ -57,7 +86,13 @@ exports.route = {
 
   },
 
-  // 添加一条活动设置
+  /**
+  * @api {POST} /api/admin/activity 添加活动
+  * @apiGroup admin
+  * 
+  * @apiParam {String} activity 指定功能域
+  */
+
   /*
   * 注意检查日期格式 YYYY-MM-DD HH:mm:ss
   */
@@ -95,7 +130,12 @@ exports.route = {
     return 'OK'
   },
 
-  // 修改一条活动设置
+  /**
+  * @api {PUT} /api/admin/activity 修改活动
+  * @apiGroup admin
+  * 
+  * @apiParam {String} activity 指定功能域
+  */
   /*
   * 注意检查日期格式 YYYY-MM-DD HH:mm:ss
   */
@@ -122,8 +162,7 @@ exports.route = {
               SET TITLE = :title, PIC = :pic, CONTENT =: content,
                   END_TIME = :endTime, START_TIME =: startTime, URL =: url
               WHERE ID = :id
-              `,
-    {
+              `, {
       id: activity.id,
       title: activity.title,
       pic: activity.pic,
@@ -136,6 +175,12 @@ exports.route = {
     // await bannerCollection.updateOne({bid: banner.bid}, {$set:banner})
     return 'OK'
   },
+  /**
+  * @api {PUT} /api/admin/activity 删除活动
+  * @apiGroup admin
+  * 
+  * @apiParam {String} id
+  */
 
   // 删除一条活动并删除对应的点击记录
   async delete({ id }) {

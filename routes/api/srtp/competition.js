@@ -6,11 +6,15 @@ const loginAction = 'http://10.1.30.98:8080/competition/login.aspx'
 const listUrl = 'http://10.1.30.98:8080/competition/c_stu_default.aspx'
 const detailUrl = 'http://10.1.30.98:8080/competition/c_stu_xmshow.aspx?xm_bianhao='
 const baseUrl = 'http://10.1.30.98:8080/competition/'
-
+/**
+ * @apiDefine srtp srtp竞赛相关
+ */
 exports.route = {
-  /*
-    GET /api/srtp/competition
-    获取竞赛列表
+  /**
+  * @api {GET} /api/srtp/competition 获取竞赛列表
+  * @apiGroup srtp
+  * 
+  * @apiParam {Number} page=1 页码
   */
   async get({ page = 1 }) {
     // SRTP 系统必须登录，但获取到的是公共数据
@@ -61,9 +65,11 @@ exports.route = {
     })
   },
 
-  /*
-    POST /api/srtp/competition
-    解析竞赛详情
+  /**
+  * @api {POST} /api/srtp/competition 解析竞赛详情
+  * @apiGroup srtp
+  * 
+  * @apiParam {String} id
   */
   async post({ id }) {
     // 原理同上

@@ -3,9 +3,9 @@ const cheerio = require('cheerio')
 exports.route = {
 
   /**
-  * GET /api/srtp
-  * SRTP查询
-  **/
+  * @api {GET} /api/srtp SRTP查询
+  * @apiGroup srtp
+  */
   async get() {
     return await this.userCache('30m+', async () => {
       let { schoolnum } = this.user

@@ -23,6 +23,15 @@ exports.route = {
    * isFinished : Number
    * }]}
    */
+  /**
+  * @api {GET} /api/lostAndFound 获取失物招领/寻物启事
+  * @apiGroup lostAndFound
+  * 
+  * @apiParam {String} id
+  * @apiParam {String} type
+  * @apiParam {Number} page=1
+  * @apiParam {Number} pagesize=10
+  */
   async get({ id = '', type, page = 1, pagesize = 10 }) {
     let { cardnum } = this.user
     // let lostAndFoundCollection = await mongodb('H_LOST_AND_FOUND')
@@ -153,10 +162,14 @@ exports.route = {
     }
   },
   /**
-     * POST /api/lostAndFound
-     * @param { type, title, describe, imageUrl } 
-     * 新建接口
-     */
+  * @api {POST} /api/lostAndFound 新建失物招领/寻物启事
+  * @apiGroup lostAndFound
+  * 
+  * @apiParam {String} type
+  * @apiParam {String} title
+  * @apiParam {String} describe
+  * @apiParam {String} imageUrl
+  */
   async post({ type, title, describe, imageUrl }) {
     let { cardnum } = this.user
     if (['lost', 'found'].indexOf(type) === -1) {
@@ -198,7 +211,15 @@ exports.route = {
       throw '提交失败'
     }
   },
-
+  /**
+  * @api {PUT} /api/lostAndFound 修改失物招领/寻物启事
+  * @apiGroup lostAndFound
+  * 
+  * @apiParam {String} id
+  * @apiParam {String} title
+  * @apiParam {String} describe
+  * @apiParam {String} imageUrl
+  */
   async put({ id, title, describe, imageUrl }) {
     let { cardnum } = this.user
     let record = await this.db.execute(`
@@ -244,7 +265,12 @@ exports.route = {
       throw '修改失败'
     }
   },
-
+  /**
+  * @api {DELETE} /api/lostAndFound 删除失物招领/寻物启事
+  * @apiGroup lostAndFound
+  * 
+  * @apiParam {String} id
+  */
   async delete({ id }) {
     let { cardnum } = this.user
     let record = await this.db.execute(`

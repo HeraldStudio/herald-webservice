@@ -1,6 +1,8 @@
 
 const moment = require('moment')
-
+/**
+ * @apiDefine other 其他
+ */
 exports.route = {
   async get({ page = 1, pagesize = 10 }) {
     let now = moment()

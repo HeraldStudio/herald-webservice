@@ -1,5 +1,12 @@
 
 exports.route = {
+  /**
+  * @api {GET} /api/lostAndFound/search 按类别/关键字搜索
+  * @apiGroup lostAndFound
+  * 
+  * @apiParam {String} key
+  * @apiParam {String} type
+  */
   async get({ key, type }) {
     key = '%' + key + '%'
     let record = await this.db.execute(`

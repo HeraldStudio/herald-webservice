@@ -11,8 +11,8 @@ const courseStartTime
 exports.route = {
 
   /**
-  * GET /api/curriculum
-  * 课表查询
+  * @api {GET} /api/curriculum 课表查询
+  * @apiGroup other
   * @apiParam term 学期号（不填则为教务处设定的当前学期）
   *
   * ## 返回格式举例：
@@ -73,24 +73,22 @@ exports.route = {
         // 处理 curriculum
         // 获取课表
         let result = await this.db.execute(`
-        select e.skzc,skxq,ksjc,jsjc,jasmc,kcm,t_jzg_jbxx.xm
-        from t_jzg_jbxx,(
-            select d.jsh,skzc,skxq,ksjc,jsjc,jasmc,t_kc_kcb.kcm
-            from t_kc_kcb,(
-                select c.jsh,skzc,skxq,ksjc,jsjc,kch,t_jas_jbxx.jasmc
-                from t_jas_jbxx,(
-                    select b.jsh ,t_pk_sjddb.skzc, skxq, ksjc, jsjc, jasdm, kch
-                    from t_pk_sjddb,(
-                        select jsh,a.jxbid
-                        from t_rw_jsb,(
-                           select jxbid
-                           from t_xk_xkxs
-                           where xh=:cardnum and xnxqdm = :termName  )a
-                        where a.jxbid = t_rw_jsb.jxbid)b
-                    where b.jxbid = t_pk_sjddb.jxbid)c
-                where c.jasdm = t_jas_jbxx.jasdm)d
-            where d.kch = t_kc_kcb.kch)e
-        where e.jsh = t_jzg_jbxx.zgh
+        select T_PK_SJDDB.SKZC,SKXQ,KSJC,JSJC,JASMC,KCM,XM
+        from (
+          select *
+          from t_xk_xkxs
+          where xh=:cardnum and xnxqdm =:termName
+        )a
+        left join t_rw_jsb
+        on a.jxbid = t_rw_jsb.jxbid
+        left join t_pk_sjddb
+        on a.jxbid = T_PK_SJDDB.JXBID
+        left join T_JAS_JBXX
+        on t_pk_sjddb.jasdm = t_jas_jbxx.jasdm
+        left join t_kc_kcb
+        on a.kch = t_kc_kcb.kch
+        left join T_JZG_JBXX
+        on T_RW_JSB.JSH = T_JZG_JBXX.ZGH
         `, {
           cardnum,
           termName: term.name
@@ -100,16 +98,16 @@ exports.route = {
           const course = {
             courseName: KCM,
             teacherName: XM,
-            beginWeek: SKZC.indexOf('1') + 1,
-            endWeek: SKZC.lastIndexOf('1') + 1,
-            dayOfWeek: parseInt(SKXQ),
-            flip: SKZC.startsWith('1010') ?
+            beginWeek: SKZC ? SKZC.indexOf('1') + 1 : undefined,
+            endWeek: SKZC ? SKZC.lastIndexOf('1') + 1 : undefined,
+            dayOfWeek: parseInt(SKXQ) ? parseInt(SKXQ) : undefined,
+            flip: SKZC ? (SKZC.startsWith('1010') ?
               'odd' :
               SKZC.startsWith('0101') ?
                 'even' :
-                'none',
-            beginPeriod: parseInt(KSJC),
-            endPeriod: parseInt(JSJC),
+                'none') : 'none',
+            beginPeriod: parseInt(KSJC) ? parseInt(KSJC) : undefined,
+            endPeriod: parseInt(JSJC) ? parseInt(JSJC) : undefined,
             location: JASMC,
             credit: '学分未知'
           }
@@ -354,7 +352,7 @@ exports.route = {
           /-1$/.test(term.name) && // 而且当前查询的是短学期
           (term = term.name.replace(/-1$/, '-2')) // 则改为查询秋季学期，重新执行
         )
-        return {term,curriculum}
+        return { term, curriculum }
       })
       term = result.term
       curriculum = result.curriculum
@@ -491,8 +489,8 @@ WHERE OWNER = :cardnum and SEMESTER = :termName
   },
 
   /**
-  * POST /api/curriculum
-  * 自定义课程
+  * @api {POST} /api/curriculum 自定义课程
+  * @apiGroup other
   * @apiParam courseName  课程名      
   * @apiParam teacherName 老师名
   * @apiParam beginWeek   开始周次  
@@ -547,7 +545,11 @@ WHERE OWNER = :cardnum and SEMESTER = :termName
       throw '自定义课程失败'
     }
   },
-
+  /**
+  * @api {DELETE} /api/curriculum 删除自定义课程
+  * @apiGroup other
+  * @apiParam _id
+  */
   async delete({ _id }) {
     let record = await this.db.execute(`
     select * from H_MY_COURSE
