@@ -14,6 +14,7 @@ exports.route = {
     let record
     // 获取最新版本
     if (platform === 'app-zsqn-ios') {
+      console.log(111)
       record = await this.db.execute(`
       SELECT VERSION_NUM, CREATEDTIME, DESCRIPTION, DOWNLOAD_URL
       FROM H_VERSION
