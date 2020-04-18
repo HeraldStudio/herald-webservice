@@ -27,6 +27,7 @@ exports.route = {
   * @apiParam {Number} deadline
   */
   async post({ notificationId, title, content, tag, target, annex, key, signature, deadline }) {
+    console.log(notificationId,title,content,target,key,signature)
     if (!(notificationId && title && content && target && key && signature)) {
       throw '参数不全'
     }
