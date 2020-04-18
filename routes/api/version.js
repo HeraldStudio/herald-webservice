@@ -14,7 +14,6 @@ exports.route = {
     let record
     // 获取最新版本
     if (platform === 'app-zsqn-ios') {
-      console.log(111)
       record = await this.db.execute(`
       SELECT VERSION_NUM, CREATEDTIME, DESCRIPTION, DOWNLOAD_URL
       FROM H_VERSION
@@ -52,7 +51,6 @@ exports.route = {
       let [version, createdTime, desc, downloadUrl] = Element
       return { version, createdTime, desc, downloadUrl }
     })[0]
-    console.log(record)
     if (version !== record.version) {
       return {
         isLatest: false,                              // 是否最新版本
