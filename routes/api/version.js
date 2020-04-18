@@ -51,6 +51,7 @@ exports.route = {
       let [version, createdTime, desc, downloadUrl] = Element
       return { version, createdTime, desc, downloadUrl }
     })[0]
+    console.log(record)
     if (version !== record.version) {
       return {
         isLatest: false,                              // 是否最新版本
