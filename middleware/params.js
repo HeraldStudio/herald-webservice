@@ -21,7 +21,7 @@ const body = require('koa-body')({
   textLimit:'1mb',
   formidable:{
     keepExtensions: true,    // 保持文件的后缀
-    maxFieldsSize:2 * 1024 * 1024, // 文件上传大小
+    maxFieldsSize:10 * 1024 * 1024, // 文件上传大小
   },
   parsedMethods:['POST','GET','PUT','DELETE']
 })
