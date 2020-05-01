@@ -20,7 +20,7 @@ exports.route = {
         'accessKey': Lecture['accessKey']
       }
       let result = []
-      let rawResult = await this.post('https://lecture.myseu.cn/api/query', JSON.stringify(query), { headers: { 'Content-Type': 'application/json' } })
+      let rawResult = await this.post('https://tommy.seu.edu.cn/lecturesrv/query', JSON.stringify(query), { headers: { 'Content-Type': 'application/json' } })
       // console.log(JSON.parse(rawResult.data.toString()))
       JSON.parse(rawResult.data.toString()).result.forEach(k => {
         result.push(
