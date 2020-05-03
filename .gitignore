@@ -21,4 +21,5 @@ log
 *.db-journal
 newxk/
 database/mongodb-secret.json
+database/oracle-secret.js
 apn-secret/
