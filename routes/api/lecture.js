@@ -1,5 +1,5 @@
-const Lecture = require('../../sdk/sdk.json')['Lecture']
-const moment = require('moment')
+// const Lecture = require('../../sdk/sdk.json')['Lecture']
+// const moment = require('moment')
 
 exports.route = {
   async get() {
@@ -38,7 +38,7 @@ exports.route = {
         'lectureTitle':'点击本条或访问小猴偷米公众号可查看更新推送。',
         'lectureUrl':'https://mp.weixin.qq.com/s/ntWJdaCfHddMrWswTK28aQ'
       }
-    ];
+    ]
     return result
   }
 }
