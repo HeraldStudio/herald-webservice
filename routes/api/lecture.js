@@ -27,16 +27,16 @@ exports.route = {
     // })
     let result = [
       { 
-        "location":"信使计划工作室",
-        "time":moment(),
-        "lectureTitle":"查询讲座信息请安装小猴偷米App最新版本。",
-        "lectureUrl":"https://mp.weixin.qq.com/s/ntWJdaCfHddMrWswTK28aQ"
+        'location':'信使计划工作室',
+        'time':moment(),
+        'lectureTitle':'查询讲座信息请安装小猴偷米App最新版本。',
+        'lectureUrl':'https://mp.weixin.qq.com/s/ntWJdaCfHddMrWswTK28aQ'
       },
       { 
-        "location":"信使计划工作室",
-        "time":moment(),
-        "lectureTitle":"点击本条或访问小猴偷米公众号可查看更新推送。",
-        "lectureUrl":"https://mp.weixin.qq.com/s/ntWJdaCfHddMrWswTK28aQ"
+        'location':'信使计划工作室',
+        'time':moment(),
+        'lectureTitle':'点击本条或访问小猴偷米公众号可查看更新推送。',
+        'lectureUrl':'https://mp.weixin.qq.com/s/ntWJdaCfHddMrWswTK28aQ'
       }
     ];
     return result
