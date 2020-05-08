@@ -275,7 +275,7 @@ async get() {
 }
 ```
 
-注意：在 HTTP 规范中，只有 `GET` 请求是幂等的，这意味着我们通常不应该对 `POST`/`PUT`/`DELETE` 请求进行缓存，也不应该对可能受到其他 `POST`/`PUT`/`DELETE` 请求影响的 `GET` 请求进行缓存。
+注意：在 HTTP 规范中，只有 `GET` 请求是无副作用的，这意味着我们通常不应该对 `POST`/`PUT`/`DELETE` 请求进行缓存，也不应该对可能受到其他 `POST`/`PUT`/`DELETE` 请求影响的 `GET` 请求进行缓存。
 
 #### 缓存的 key
 
