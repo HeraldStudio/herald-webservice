@@ -90,7 +90,8 @@ exports.route = {
             if (semesterName !== '其他') { semesterName = `${semesterName[0].slice(2)}-${semesterName[1].slice(2)}-${semesterName[2]}` }
             const gpa = {
               semester: semesterName,
-              cid: cid,
+              cid: cid + semesterName,
+              courseNumber: cid,
               courseName: courseName,
               courseType: kcxzMap.get(courseType),
               credit: credit,
@@ -293,7 +294,8 @@ exports.route = {
             let semesterName = xn.toString().slice(2) + "-" + (xn + 1).toString().slice(2) + "-" + xq.toString()
             const gpa = {
               semester: semesterName,
-              cid: cid,
+              cid: cid + semesterName,
+              courseNumber: cid,
               courseName: courseName,
               courseType: undefined,
               credit: credit,
