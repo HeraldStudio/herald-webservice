@@ -126,6 +126,7 @@ exports.start = () => {
             )
             if(dbResult.rowsAffected === 1){
               console.log(`当前认证身份：${cardnum} - ${name} - ${schoolnum}`)
+              console.log(`如需调试，在浏览器控制台执行： auth('${token}')`)
               testClient.defaults.headers = { 'x-api-token': token }
             }
             callback(null)

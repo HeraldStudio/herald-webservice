@@ -243,27 +243,29 @@ exports.route = {
         let detail = await this.userCache('1h+', async () => {
           let rawData = await this.db.execute(`
           SELECT 
-            xk.XN,
-            xk.XQ,
-            xk.XKKCDM,
-            cj.KCM,
-            cj.XF,
-            cj.ZCJ
-          FROM
-            (
-              SELECT 
-                oldcj.KCMC AS KCM,
-                oldcj.XF,
-                oldcj.CJ AS ZCJ,
-                oldcj.XH,
-                oldcj.XKKCDM
-              FROM
-                TOMMY.T_CJGL_KSCJXX  oldcj
-              WHERE oldcj.XH = :cardnum
-            )  cj,
-            TOMMY.T_XK_XKJG  xk
-          WHERE
-            cj.XH = xk.XH AND cj.XKKCDM = xk.XKKCDM
+          cj.KSXN,
+          cj.KSXQ,
+          xk.XKKCDM,
+          cj.KCM,
+          cj.XF,
+          cj.ZCJ
+        FROM
+          (
+            SELECT 
+              oldcj.KCMC AS KCM,
+              oldcj.XF,
+              oldcj.CJ AS ZCJ,
+              oldcj.XH,
+              oldcj.XKKCDM,
+              oldcj.KSXN,
+              oldcj.KSXQ
+            FROM
+              TOMMY.T_CJGL_KSCJXX  oldcj
+            WHERE oldcj.XH = :cardnum
+          )  cj,
+          TOMMY.T_XK_XKJG  xk
+        WHERE
+          cj.XH = xk.XH AND cj.XKKCDM = xk.XKKCDM
       `, { cardnum: cardnum })
           /*let rawDetail = rawData.rows.map(row => {
             let xn = parseInt(row[0])
