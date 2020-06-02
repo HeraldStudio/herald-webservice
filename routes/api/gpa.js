@@ -80,14 +80,14 @@ exports.route = {
               scoreType: cxckMap.get(row[6])
             }
           })*/
-
+          console.log(rawData.rows)
           let rawDetail = []
           rawData.rows.map(row => {
             let [semester, cid, courseName, courseType, credit, score, scoreType] = row
-            let semesterName = semester.split('-')
+            let semesterName = semester ? semester.split('-') : '其他'
             let cxckMap = new Map([['01', '首修'], ['02', '重修'], ['03', '及格重修'], ['04', '补考']])
             let kcxzMap = new Map([['01', '必修'], ['02', '任选'], ['03', '限选']])
-            semesterName = `${semesterName[0].slice(2)}-${semesterName[1].slice(2)}-${semesterName[2]}`
+            if (semesterName !== '其他') { semesterName = `${semesterName[0].slice(2)}-${semesterName[1].slice(2)}-${semesterName[2]}` }
             const gpa = {
               semester: semesterName,
               cid: cid,
