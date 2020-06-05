@@ -92,7 +92,7 @@ exports.route = {
 
   async post({ semester, campus, courseName, teacherName, startTime, location, duration }) {
     let { cardnum } = this.user
-    console.log({ semester, campus, courseName, teacherName, startTime, location, duration })
+    // console.log({ semester, campus, courseName, teacherName, startTime, location, duration })
     if (!semester) {
       throw '未定义学期'
     }

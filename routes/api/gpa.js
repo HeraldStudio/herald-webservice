@@ -80,7 +80,7 @@ exports.route = {
               scoreType: cxckMap.get(row[6])
             }
           })*/
-          console.log(rawData.rows)
+          // console.log(rawData.rows)
           let rawDetail = []
           rawData.rows.map(row => {
             let [semester, cid, courseName, courseType, credit, score, scoreType] = row
@@ -494,7 +494,7 @@ exports.route = {
   **/
   async post({ courseName, credit, score, courseType, scoreType, semester }) {
     let { cardnum } = this.user
-    console.log({ courseName, credit, score, courseType, scoreType, semester })
+    // console.log({ courseName, credit, score, courseType, scoreType, semester })
     if (!courseName) {
       throw '未定义课程名'
     }
