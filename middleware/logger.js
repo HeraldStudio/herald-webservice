@@ -1,4 +1,4 @@
-const mongodb = require('../database/mongodb')
+// const mongodb = require('../database/mongodb')
 /**
   # 日志中间件
 
@@ -43,19 +43,19 @@ module.exports = async (ctx, next) => {
     (logMsg ? ' | ' + chalkColored.yellow(logMsg) : '')
   )
   
-  try {
-    let logCollection = await mongodb('webservice_log')
-    await logCollection.insertOne({
-      cardnum:  cardnum,
-      username: name,
-      status:   status,
-      method:   ctx.method,
-      path:     ctx.path,
-      duration: duration,
-      msg:      logMsg ? logMsg : '',
-      platform: platform
-    })
-  } catch(e) {
-    console.log('MongoDB服务出现错误', e)
-  }
+  // try {
+  //   let logCollection = await mongodb('webservice_log')
+  //   await logCollection.insertOne({
+  //     cardnum:  cardnum,
+  //     username: name,
+  //     status:   status,
+  //     method:   ctx.method,
+  //     path:     ctx.path,
+  //     duration: duration,
+  //     msg:      logMsg ? logMsg : '',
+  //     platform: platform
+  //   })
+  // } catch(e) {
+  //   console.log('MongoDB服务出现错误', e)
+  // }
 }

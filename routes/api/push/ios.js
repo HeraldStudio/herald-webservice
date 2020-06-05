@@ -1,4 +1,4 @@
-const mongodb = require('../../../database/mongodb')
+// const mongodb = require('../../../database/mongodb')
 // const { pushApnByCardnum } = require('../../../sdk/apn')
 exports.route = {
 
@@ -12,11 +12,11 @@ exports.route = {
   },
 
   async post({deviceToken}){
-    let { cardnum } = this.user
-    let tokenCollection = await mongodb('herald_ios_device_token')
-    await tokenCollection.deleteMany({cardnum})
-    await tokenCollection.insertOne({cardnum, deviceToken})
-    console.log({cardnum, deviceToken})
-    return 'OK'
+    // let { cardnum } = this.user
+    // let tokenCollection = await mongodb('herald_ios_device_token')
+    // await tokenCollection.deleteMany({cardnum})
+    // await tokenCollection.insertOne({cardnum, deviceToken})
+    // console.log({cardnum, deviceToken})
+    // return 'OK'
   }
 }

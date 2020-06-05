@@ -97,7 +97,6 @@ exports.route = {
   * 学号前缀 schoolnumPrefix:"06 70 ..."
   */
   async post({ banner }) {
-    // let bannerCollection = await mongodb('herald_banner')
 
     if (!(await this.hasPermission('publicity'))) {
       throw 403
