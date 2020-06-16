@@ -238,7 +238,9 @@ exports.route = {
         // 时间解析为时间戳
         //calculationTime = calculationTime ? +moment(calculationTime) : null
         this.logMsg = `${name} (${cardnum}) - 查询绩点`
-        return { gpa, gpaBeforeMakeup, achievedCredits, year, calculationTime, detail }
+        // 数据出错，暂停查询
+        return {}
+        // return { gpa, gpaBeforeMakeup, achievedCredits, year, calculationTime, detail }
       }
       else {  //16 17级
         let detail = await this.userCache('1h+', async () => {
