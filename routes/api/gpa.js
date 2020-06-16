@@ -439,7 +439,9 @@ exports.route = {
         // 时间解析为时间戳
         //calculationTime = calculationTime ? +moment(calculationTime) : null
         this.logMsg = `${name} (${cardnum}) - 查询绩点`
-        return { gpa, gpaBeforeMakeup, achievedCredits, year, calculationTime, detail }
+        // ⚠️ 出现数据同步的问题，停止查询
+        // return { gpa, gpaBeforeMakeup, achievedCredits, year, calculationTime, detail }
+        return {}
       }
     } else if (/^22/.test(cardnum)) { // 研究生
       let headers = { 'Referer': 'http://121.248.63.139/nstudent/index.aspx' }
