@@ -74,6 +74,7 @@ exports.route = {
       // 自定义的考试/事务一直存在，除非手动删除
       // 学校的考试安排，考试结束后过滤
     })
+    response.sort((a,b)=> a.startTime - b.startTime)
     return response
   },
 
