@@ -251,7 +251,8 @@ exports.route = {
           xk.XKKCDM,
           cj.KCM,
           cj.XF,
-          cj.ZCJ
+          cj.ZCJ,
+          cj.wid
         FROM
           (
             SELECT 
@@ -261,7 +262,8 @@ exports.route = {
               oldcj.XH,
               oldcj.XKKCDM,
               oldcj.KSXN,
-              oldcj.KSXQ
+              oldcj.KSXQ,
+              oldcj.wid
             FROM
               TOMMY.T_CJGL_KSCJXX  oldcj
             WHERE oldcj.XH = :cardnum
@@ -290,13 +292,13 @@ exports.route = {
 
           let rawDetail = []
           rawData.rows.map(row => {
-            let [xn, xq, cid, courseName, credit, score] = row
+            let [xn, xq, cid, courseName, credit, score, wid] = row
             xn = parseInt(xn)
             xq = parseInt(xq)
             let semesterName = xn.toString().slice(2) + "-" + (xn + 1).toString().slice(2) + "-" + xq.toString()
             const gpa = {
               semester: semesterName,
-              cid: cid + semesterName,
+              cid: wid,
               courseNumber: cid,
               courseName: courseName,
               courseType: undefined,
