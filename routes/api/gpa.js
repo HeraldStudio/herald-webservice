@@ -240,6 +240,8 @@ exports.route = {
         // 时间解析为时间戳
         //calculationTime = calculationTime ? +moment(calculationTime) : null
         this.logMsg = `${name} (${cardnum}) - 查询绩点`
+        // 数据出错，暂停查询
+        // return {}
         return { gpa, gpaBeforeMakeup, achievedCredits, year, calculationTime, detail }
       }
       else {  //16 17级
@@ -251,7 +253,8 @@ exports.route = {
           xk.XKKCDM,
           cj.KCM,
           cj.XF,
-          cj.ZCJ
+          cj.ZCJ,
+          cj.wid
         FROM
           (
             SELECT 
@@ -261,7 +264,8 @@ exports.route = {
               oldcj.XH,
               oldcj.XKKCDM,
               oldcj.KSXN,
-              oldcj.KSXQ
+              oldcj.KSXQ,
+              oldcj.wid
             FROM
               TOMMY.T_CJGL_KSCJXX  oldcj
             WHERE oldcj.XH = :cardnum
@@ -290,13 +294,13 @@ exports.route = {
 
           let rawDetail = []
           rawData.rows.map(row => {
-            let [xn, xq, cid, courseName, credit, score] = row
+            let [xn, xq, cid, courseName, credit, score, wid] = row
             xn = parseInt(xn)
             xq = parseInt(xq)
             let semesterName = xn.toString().slice(2) + "-" + (xn + 1).toString().slice(2) + "-" + xq.toString()
             const gpa = {
               semester: semesterName,
-              cid: cid + semesterName,
+              cid: wid,
               courseNumber: cid,
               courseName: courseName,
               courseType: undefined,
@@ -472,7 +476,9 @@ exports.route = {
         // 时间解析为时间戳
         //calculationTime = calculationTime ? +moment(calculationTime) : null
         this.logMsg = `${name} (${cardnum}) - 查询绩点`
+        // ⚠️ 出现数据同步的问题，停止查询
         return { gpa, gpaBeforeMakeup, achievedCredits, year, calculationTime, detail }
+        // return {}
       }
     } else if (/^22/.test(cardnum)) { // 研究生
       let headers = { 'Referer': 'http://121.248.63.139/nstudent/index.aspx' }
@@ -527,7 +533,7 @@ exports.route = {
   **/
   async post({ courseName, credit, score, courseType, scoreType, semester }) {
     let { cardnum } = this.user
-    console.log({ courseName, credit, score, courseType, scoreType, semester })
+    // console.log({ courseName, credit, score, courseType, scoreType, semester })
     if (!courseName) {
       throw '未定义课程名'
     }

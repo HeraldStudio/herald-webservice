@@ -118,7 +118,7 @@ exports.route = {
     }
     
 
-    console.log(res.data)
+    // console.log(res.data)
     return 'ok'
   },
 

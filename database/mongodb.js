@@ -3,11 +3,13 @@ const config = require('./mongodb-secret.json')
 
 const user = encodeURIComponent(config.user)
 const password = encodeURIComponent(config.pwd)
-const authMechanism = 'DEFAULT'
+// const authMechanism = 'DEFAULT'
 
 // Connection URL
-const url = `mongodb://${user}:${password}@${config.host}:${config.port}/webservice?authMechanism=${authMechanism}`
-const urlDebug = `mongodb://${config.host}:${config.port}/webservice`
+const url = `mongodb://${user}:${password}@${config.dbs['0'].host}:${config.dbs['0'].port},${config.dbs['1'].host}:${config.dbs['1'].port},${config.dbs['2'].host}:${config.dbs['2'].port}/?authSource=admin&replicaSet=${config.replicaSetName}`
+// 本地调试的时候自己取消注释吧
+// const urlDebug = `mongodb://${config.host}:${config.port}/webservice`
+const urlDebug = ''
 
 let mongodb = null
 let mongodbUrl = ''

@@ -74,6 +74,7 @@ exports.route = {
       // 自定义的考试/事务一直存在，除非手动删除
       // 学校的考试安排，考试结束后过滤
     })
+    response.sort((a,b)=> a.startTime - b.startTime)
     return response
   },
 
@@ -92,7 +93,7 @@ exports.route = {
 
   async post({ semester, campus, courseName, teacherName, startTime, location, duration }) {
     let { cardnum } = this.user
-    console.log({ semester, campus, courseName, teacherName, startTime, location, duration })
+    // console.log({ semester, campus, courseName, teacherName, startTime, location, duration })
     if (!semester) {
       throw '未定义学期'
     }
