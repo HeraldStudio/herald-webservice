@@ -521,7 +521,7 @@ exports.route = {
       autoCommit: true,
 
       bindDefs: [
-        { type: oracledb.STRING, maxSize: 20 },
+        { type: oracledb.STRING, maxSize: 40 },
         { type: oracledb.NUMBER },
         { type: oracledb.NUMBER },
         { type: oracledb.STRING, maxSize: 20 },
