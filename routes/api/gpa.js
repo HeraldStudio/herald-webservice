@@ -3,7 +3,8 @@ const oracledb = require('oracledb')
 //const db = require('../../database/course')
 
 // 折合百分制成绩（本科生用）(国内)
-// 数据库数据对应等级 201 优; 202 良; 203 中; 210 通过;
+// 数据库数据对应等级 201 优; 202 良; 203 中; 204 及格; 205 不及格；207 缺考；206 缓考；208 作弊；209 免修；
+// 210 通过；211 出国交流认定；301 作弊；302 违纪；303 严重违纪；
 const calculateEquivalentScore = score => {
   if (/201/.test(score)) {
     score = 95
@@ -11,7 +12,9 @@ const calculateEquivalentScore = score => {
     score = 85
   } else if (/203/.test(score)) {
     score = 75
-  } else if (/211/.test(score)) {
+  } else if (/204/.test(score)) {
+    score = 60
+  } else if (/211|205|206|207|208|301|302|303/.test(score)) {
     score = 0
   } else if (/210/.test(score)) {
     score = 60
@@ -80,7 +83,6 @@ exports.route = {
               scoreType: cxckMap.get(row[6])
             }
           })*/
-          // console.log(rawData.rows)
           let rawDetail = []
           rawData.rows.map(row => {
             let [semester, cid, courseName, courseType, credit, score, scoreType] = row
@@ -239,8 +241,8 @@ exports.route = {
         //calculationTime = calculationTime ? +moment(calculationTime) : null
         this.logMsg = `${name} (${cardnum}) - 查询绩点`
         // 数据出错，暂停查询
-        return {}
-        // return { gpa, gpaBeforeMakeup, achievedCredits, year, calculationTime, detail }
+        // return {}
+        return { gpa, gpaBeforeMakeup, achievedCredits, year, calculationTime, detail }
       }
       else {  //16 17级
         let detail = await this.userCache('1h+', async () => {
@@ -251,7 +253,8 @@ exports.route = {
           xk.XKKCDM,
           cj.KCM,
           cj.XF,
-          cj.ZCJ
+          cj.ZCJ,
+          cj.wid
         FROM
           (
             SELECT 
@@ -261,7 +264,8 @@ exports.route = {
               oldcj.XH,
               oldcj.XKKCDM,
               oldcj.KSXN,
-              oldcj.KSXQ
+              oldcj.KSXQ,
+              oldcj.wid
             FROM
               TOMMY.T_CJGL_KSCJXX  oldcj
             WHERE oldcj.XH = :cardnum
@@ -290,13 +294,13 @@ exports.route = {
 
           let rawDetail = []
           rawData.rows.map(row => {
-            let [xn, xq, cid, courseName, credit, score] = row
+            let [xn, xq, cid, courseName, credit, score, wid] = row
             xn = parseInt(xn)
             xq = parseInt(xq)
             let semesterName = xn.toString().slice(2) + "-" + (xn + 1).toString().slice(2) + "-" + xq.toString()
             const gpa = {
               semester: semesterName,
-              cid: cid + semesterName,
+              cid: wid,
               courseNumber: cid,
               courseName: courseName,
               courseType: undefined,
@@ -309,7 +313,38 @@ exports.route = {
             }
             rawDetail.push(gpa)
           })
-
+          // 针对部分数据横跨新老系统的同学
+          rawData = await this.db.execute(`
+          select XNXQDM,a.KCH,KCM,KCXZDM,XF,ZCJ,CXCKDM
+          from (
+            select *
+            from T_CJ_LRCJ
+            where xh =:cardnum
+          )a
+          left join T_XK_XKXS
+          on a.xh = T_XK_XKXS.xh and a.kch = T_XK_XKXS.kch
+        `, { cardnum: cardnum })
+          rawData.rows.map(row => {
+            let [semester, cid, courseName, courseType, credit, score, scoreType] = row
+            let semesterName = semester ? semester.split('-') : '其他'
+            let cxckMap = new Map([['01', '首修'], ['02', '重修'], ['03', '及格重修'], ['04', '补考']])
+            let kcxzMap = new Map([['01', '必修'], ['02', '任选'], ['03', '限选']])
+            if (semesterName !== '其他') { semesterName = `${semesterName[0].slice(2)}-${semesterName[1].slice(2)}-${semesterName[2]}` }
+            const gpa = {
+              semester: semesterName,
+              cid: cid + semesterName,
+              courseNumber: cid,
+              courseName: courseName,
+              courseType: kcxzMap.get(courseType),
+              credit: credit,
+              score: calculateEquivalentScore(score),
+              isPassed: (score >= 60 && score <= 100) || (score > 200 && score <= 210),  //右边的条件是针对老系统的等级成绩的
+              isFirstPassed: false,
+              isHighestPassed: false,
+              scoreType: cxckMap.get(scoreType)
+            }
+            rawDetail.push(gpa)
+          })
           //对数据rawDetail进行去重，依靠课程代码进行去重
           //及格重修的课程代码与首修课程代码相同，将来可能会产生bug，希望以后可以不用数据去重
           // let cidList = {}
@@ -442,8 +477,8 @@ exports.route = {
         //calculationTime = calculationTime ? +moment(calculationTime) : null
         this.logMsg = `${name} (${cardnum}) - 查询绩点`
         // ⚠️ 出现数据同步的问题，停止查询
-        // return { gpa, gpaBeforeMakeup, achievedCredits, year, calculationTime, detail }
-        return {}
+        return { gpa, gpaBeforeMakeup, achievedCredits, year, calculationTime, detail }
+        // return {}
       }
     } else if (/^22/.test(cardnum)) { // 研究生
       let headers = { 'Referer': 'http://121.248.63.139/nstudent/index.aspx' }
