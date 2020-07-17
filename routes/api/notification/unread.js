@@ -19,7 +19,7 @@ exports.route = {
       cardnum
     })
 
-    return count.rows[0][0]
+    return count.rows[0][0]?count.rows[0][0]:0
   },
 
 }
