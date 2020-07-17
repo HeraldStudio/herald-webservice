@@ -218,8 +218,8 @@ module.exports = async (ctx, next) => {
       const { sessionid } = ctx.params
       try {
         await ctx.db.execute(`
-    UPDATE TOMMY.H_OPENID_AND_TOKEN SET TOKEN = :token, CARDNUM = :cardnum
-    WHERE SESSIONID = :sessionid`, {
+        UPDATE TOMMY.H_OPENID_AND_TOKEN SET TOKEN = :token, CARDNUM = :cardnum
+        WHERE SESSIONID = :sessionid`, {
           token,
           cardnum,
           sessionid
@@ -232,12 +232,12 @@ module.exports = async (ctx, next) => {
 
     // 将新用户信息插入数据库
 
-    // TODO: 向数据库插入记录
+    // 向数据库插入记录
     await ctx.db.execute(
       `INSERT INTO TOMMY.H_AUTH 
-  (TOKEN_HASH, CARDNUM, REAL_NAME, CREATED_TIME, PLATFORM, LAST_INVOKED_TIME, SCHOOLNUM)
-  VALUES (:tokenHash, :cardnum, :name, :createdTime, :platform, :lastInvokedTime, :schoolnum )
-  `,
+      (TOKEN_HASH, CARDNUM, REAL_NAME, CREATED_TIME, PLATFORM, LAST_INVOKED_TIME, SCHOOLNUM)
+      VALUES (:tokenHash, :cardnum, :name, :createdTime, :platform, :lastInvokedTime, :schoolnum )
+      `,
       {
         tokenHash,
         cardnum,

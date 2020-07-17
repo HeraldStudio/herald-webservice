@@ -44,17 +44,17 @@ module.exports = async (ctx, next) => {
   )
   
   try {
-    let logCollection = await mongodb('webservice_log')
-    await logCollection.insertOne({
-      cardnum:  cardnum,
-      username: name,
-      status:   status,
-      method:   ctx.method,
-      path:     ctx.path,
-      duration: duration,
-      msg:      logMsg ? logMsg : '',
-      platform: platform
-    })
+    // let logCollection = await mongodb('webservice_log')
+    // await logCollection.insertOne({
+    //   cardnum:  cardnum,
+    //   username: name,
+    //   status:   status,
+    //   method:   ctx.method,
+    //   path:     ctx.path,
+    //   duration: duration,
+    //   msg:      logMsg ? logMsg : '',
+    //   platform: platform
+    // })
   } catch(e) {
     console.log('MongoDB服务出现错误', e)
   }

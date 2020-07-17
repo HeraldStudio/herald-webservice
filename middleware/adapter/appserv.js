@@ -9,9 +9,9 @@ const hash = value => {
 }
 
 module.exports = async (ctx, next) => {
-  let authCollection = await mongodb('herald_auth')
-  let bannerCollection = await mongodb('herald_banner')
-  let noticeCollection = await mongodb('herald_notice')
+  // let authCollection = await mongodb('herald_auth')
+  // let bannerCollection = await mongodb('herald_banner')
+  // let noticeCollection = await mongodb('herald_notice')
   if (ctx.path.indexOf('/adapter-appserv/') !== 0) {
     return await next()
   }

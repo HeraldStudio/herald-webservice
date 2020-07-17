@@ -6,10 +6,10 @@ const password = encodeURIComponent(config.pwd)
 // const authMechanism = 'DEFAULT'
 
 // Connection URL
-const url = `mongodb://${user}:${password}@${config.dbs['0'].host}:${config.dbs['0'].port},${config.dbs['1'].host}:${config.dbs['1'].port},${config.dbs['2'].host}:${config.dbs['2'].port}/?authSource=admin&replicaSet=${config.replicaSetName}`
+// const url = `mongodb://${user}:${password}@${config.dbs['0'].host}:${config.dbs['0'].port},${config.dbs['1'].host}:${config.dbs['1'].port},${config.dbs['2'].host}:${config.dbs['2'].port}/?authSource=admin&replicaSet=${config.replicaSetName}`
 // 本地调试的时候自己取消注释吧
 // const urlDebug = `mongodb://${config.host}:${config.port}/webservice`
-const urlDebug = ''
+// const urlDebug = ''
 
 let mongodb = null
 let mongodbUrl = ''
