@@ -57,21 +57,17 @@ exports.route = {
       throw 'invalid request'
     }
     const [platform, cardnum, name] = record.rows[0]
-    // 生成 32 字节 token 转为十六进制，及其哈希值
-    let token = Buffer.from(crypto.randomBytes(20)).toString('hex')
-    let tokenHash = hash(token)
+
     try {
       await this.db.execute(
-        `INSERT INTO TOMMY.H_AUTH 
-        (TOKEN_HASH, CARDNUM, REAL_NAME, CREATED_TIME, PLATFORM, LAST_INVOKED_TIME)
-        VALUES (:tokenHash, :cardnum, :name, :createdTime, :platform, :lastInvokedTime )
+        `INSERT INTO TOMMY.H_OAUTH 
+        (CARDNUM, NAME, CREATED_TIME, PLATFORM)
+        VALUES (:cardnum, :name, :createdTime, :platform )
         `,
         {
-          tokenHash,
           cardnum,
           name,
           createdTime: moment().toDate(),
-          lastInvokedTime: moment().toDate(),
           platform
         }
       )
@@ -80,7 +76,7 @@ exports.route = {
       throw '数据库错误'
     }
     return {
-      token
+      cardnum
     }
   }
 }
