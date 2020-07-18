@@ -61,7 +61,7 @@ exports.route = {
     try {
       await this.db.execute(
         `INSERT INTO TOMMY.H_OAUTH 
-        (CARDNUM, NAME, CREATED_TIME, PLATFORM)
+        (CARDNUM, NAME, CREATEDTIME, PLATFORM)
         VALUES (:cardnum, :name, :createdTime, :platform )
         `,
         {
