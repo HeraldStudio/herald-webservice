@@ -9,7 +9,6 @@ exports.route = {
     if (!appid || !redirectUri) {
       throw '参数不全'
     }
-    console.log(appid, redirectUri)
     const { cardnum, name } = this.user
     let record = await this.db.execute(`
     SELECT URLPREFIX FROM H_OAUTH_WHITELIST
@@ -44,7 +43,6 @@ exports.route = {
   },
   // 第三方应用后端通过持有的appid, appSecret, code换取对应的用户身份
   async post({ appid, appSecret, code }) {
-    console.log({ appid, appSecret, code })
     if (!appid || !appSecret || !code) {
       throw '参数不全'
     }
@@ -53,8 +51,8 @@ exports.route = {
     FROM H_OAUTH_APP HOA
     LEFT JOIN H_OAUTH_CODE HOC
     ON HOA.APPID = HOC.APPID
-    WHERE HOA.APPID =:appid AND APPSECRET =:appSecret AND EXPIRESAT >=:now
-    `, { appid, appSecret, now: +moment() })
+    WHERE HOA.APPID =:appid AND APPSECRET =:appSecret AND CODE=:code AND EXPIRESAT >=:now
+    `, { appid, appSecret, now: +moment(), code })
     if (record.rows.length !== 1) {
       throw 'invalid request'
     }
