@@ -44,6 +44,7 @@ exports.route = {
   },
   // 第三方应用后端通过持有的appid, appSecret, code换取对应的用户身份
   async post({ appid, appSecret, code }) {
+    console.log({ appid, appSecret, code })
     if (!appid || !appSecret || !code) {
       throw '参数不全'
     }
