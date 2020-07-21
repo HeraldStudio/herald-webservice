@@ -9,6 +9,7 @@ exports.route = {
     if (!appid || !redirectUri) {
       throw '参数不全'
     }
+    console.log(appid, redirectUri)
     const { cardnum, name } = this.user
     let record = await this.db.execute(`
     SELECT URLPREFIX FROM H_OAUTH_WHITELIST
