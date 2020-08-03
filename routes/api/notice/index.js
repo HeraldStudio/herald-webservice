@@ -155,7 +155,6 @@ exports.route = {
         ).reduce((a, b) => a.concat(b), [])
       }) // publicCache
     )) // Promise.all
-
     // 小猴系统通知
     let res = []
     let noticeList = await this.db.execute(`

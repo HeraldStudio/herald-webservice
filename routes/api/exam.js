@@ -16,7 +16,7 @@ exports.route = {
     let response = await this.userCache('10m+', async () => {
       // 获取考试数据
       let record = await this.db.execute(`
-      select T_KW_KSAPSJ.XNXQDM,T_ZXBZ_XXXQ.MC,T_KC_KCB.KCM,T_KW_KSPC.KSMC,T_JZG_JBXX.XM,T_KW_KSAPSJ.KSSJMS,T_JAS_JBXX.JASMC,T_KW_KSAPSJ.KSSC
+      select T_KW_KSAPSJ.XNXQDM,T_ZXBZ_XXXQ.MC,T_KC_KCB.KCM,T_KW_KSPC.KSMC,T_JZG_JBXX.XM,T_KW_KSAPSJ.KSSJMS,T_JAS_JBXX.JASMC,T_KW_KSAPSJ.KSSC ,t_kw_ksrw.KSRWID
       from (
         select *
         from T_KW_KSAPXS
@@ -32,8 +32,10 @@ exports.route = {
       on a.ksrwid = T_KW_KSRW.ksrwid
       left join T_ZXBZ_XXXQ
       on T_ZXBZ_XXXQ.dm = T_KW_KSRW.XXXQDM
+      left join T_XK_XKXS
+      on T_XK_XKXS.XH = A.XH AND T_XK_XKXS.KCH = T_KW_KSRW.KCH
       left join T_RW_JSB
-      on T_RW_JSB.jxbid = t_kw_ksrw.jxbid and T_RW_JSB.kch = t_kw_ksrw.kch
+      on T_RW_JSB.jxbid = T_XK_XKXS.jxbid
       left join t_jzg_jbxx
       on t_jzg_jbxx.zgh = t_rw_jsb.jsh
       left join T_KC_KCB
@@ -74,7 +76,7 @@ exports.route = {
       // 自定义的考试/事务一直存在，除非手动删除
       // 学校的考试安排，考试结束后过滤
     })
-    response.sort((a,b)=> a.startTime - b.startTime)
+    response.sort((a, b) => a.startTime - b.startTime)
     return response
   },
 
