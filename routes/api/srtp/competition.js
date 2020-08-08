@@ -72,8 +72,10 @@ exports.route = {
   * @apiParam {String} id
   */
   async post({ id }) {
+    // 获取notice详情出错建的东墙，以后记得拆
     let notice = await this.db.execute(`SELECT TITLE,CONTENT,URL FROM TOMMY.H_NOTICE WHERE ID =:id`, { id })
-    if (notice.rows.length>0) {
+    if (notice.rows.length > 0) {
+      // oracle 空字段返回的null 为string 类型
       // 处理一下返回数据
       let heraldNotice = {}
       heraldNotice['title'] = notice.rows[0][0]
@@ -82,7 +84,7 @@ exports.route = {
 
       return `# ${heraldNotice.title}\n\n
         ${heraldNotice.content}\n\n 
-        ${heraldNotice.url ? '相关链接:' + heraldNotice.url : ''}`
+        ${heraldNotice.url !== "null" ? '相关链接:' + heraldNotice.url : ''}`
     }
 
     // 原理同上
