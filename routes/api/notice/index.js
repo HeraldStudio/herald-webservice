@@ -254,16 +254,15 @@ exports.route = {
         return ret
       } else if (id) {
         let notice = await this.db.execute(`SELECT TITLE,CONTENT,URL FROM TOMMY.H_NOTICE WHERE ID =:id`, { id })
-
+        // oracle 空字段返回的null 为string 类型
         // 处理一下返回数据
         let heraldNotice = {}
         heraldNotice['title'] = notice.rows[0][0]
         heraldNotice['content'] = notice.rows[0][1]
         heraldNotice['url'] = notice.rows[0][2]
-
         return `# ${heraldNotice.title}\n\n
                 ${heraldNotice.content}\n\n 
-                ${heraldNotice.url ? '相关链接:' + heraldNotice.url : ''}
+                ${heraldNotice.url !== "null" ? '相关链接:' + heraldNotice.url : ''}
                 `
       } else {
         throw '无转换结果'
