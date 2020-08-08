@@ -72,6 +72,19 @@ exports.route = {
   * @apiParam {String} id
   */
   async post({ id }) {
+    let notice = await this.db.execute(`SELECT TITLE,CONTENT,URL FROM TOMMY.H_NOTICE WHERE ID =:id`, { id })
+    if (notice.rows.length>0) {
+      // 处理一下返回数据
+      let heraldNotice = {}
+      heraldNotice['title'] = notice.rows[0][0]
+      heraldNotice['content'] = notice.rows[0][1]
+      heraldNotice['url'] = notice.rows[0][2]
+
+      return `# ${heraldNotice.title}\n\n
+        ${heraldNotice.content}\n\n 
+        ${heraldNotice.url ? '相关链接:' + heraldNotice.url : ''}`
+    }
+
     // 原理同上
     let { cardnum, password } = require('../../../sdk/sdk.json').admin
     let res = await this.get(loginAction)

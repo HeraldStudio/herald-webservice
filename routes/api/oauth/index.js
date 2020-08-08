@@ -6,6 +6,7 @@ const hash = value => {
 exports.route = {
   // 第三方应用通过持有的appid 与redirectUri 换取有效时间为3分钟的code
   async get({ appid, redirectUri }) {
+    console.log(redirectUri)
     if (!appid || !redirectUri) {
       throw '参数不全'
     }
