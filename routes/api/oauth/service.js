@@ -1,7 +1,7 @@
 exports.route = {
-  async get({ underTest = 0 }) {
+  async get({ debugEnable = 0 }) {
     let record
-    if (underTest) {
+    if (debugEnable) {
       record = await this.db.execute(`
       SELECT *
       FROM H_OAUTH_SERVICE
