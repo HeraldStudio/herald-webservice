@@ -189,7 +189,7 @@ exports.route = {
     data.forEach(oneData => {
       let tempData = {}
       oneData.forEach((item, index) => {
-        if (index === 5) {
+        if (index === 5 || index === 4) {
           item = +moment(item)
         }
         tempData[fieldName[index]] = item
