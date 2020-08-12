@@ -5,14 +5,14 @@ exports.route = {
       record = await this.db.execute(`
       SELECT *
       FROM H_OAUTH_SERVICE
-      ORDER BY "ORDER"
+      ORDER BY "order"
       `)
     } else {
       record = await this.db.execute(`
       SELECT *
       FROM H_OAUTH_SERVICE
       WHERE UNDERTEST = 0
-      ORDER BY "ORDER" 
+      ORDER BY "order"
       `)
     }
     let result = {}
