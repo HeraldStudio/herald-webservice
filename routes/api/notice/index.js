@@ -122,42 +122,44 @@ exports.route = {
                 })
                 // 过滤掉一看就不是日期的内容，比如「17-18-3」
                 // 一个标题: 我院召开17-18-3学期期中教学检查学生座谈会
-                .filter(k =>
-                  (!k.year || k.year >= 1000 || k.year < 100)
-                  && k.month >= 1 && k.month <= 12
-                  && k.date >= 1 && k.date <= 31)
+                .map(k => {
+                  if ((!k.year || k.year >= 1000 || k.year < 100)
+                    && k.month >= 1 && k.month <= 12
+                    && k.date >= 1 && k.date <= 31) {
+                    return k
+                  }
+                })
                 // FIXME 这里可能还存在着 bug。
                 .map(k => k[1] // 有的网站上没有年份信息。
                   ? +moment(k[0], 'YYYY-MM-DD')
                   : +autoMoment(k[0]))
           }
         )
-        // console.log(timeList)
-
         // 找出所有新闻条目，和日期配对，返回
-        return list.map(ele => $(ele[0]).find('a').toArray().map(k => $(k)).map((k, i) => {
-          let href = k.attr('href') ? k.attr('href') : ''
-          let currentUrl = url.resolve(sites[site].infoUrl, href)
-          return {
-            site: sites[site].name,
-            category: ele[1],
-            // 标题可能在 title 属性中，也可能并不在。
-            title: k.attr('title') && k.attr('title').trim() || k.text().trim(),
-            url: currentUrl,
-            isAttachment: ! /\.(html?$|aspx?|jsp|php)/.test(href),
-            isImportant: !!k.find('font').length,
-            time: +moment(timeList[ele[1]][i])
-              || deduceTimeFromUrl(currentUrl), // 可能网页上没有日期信息
-            // 记下其在本栏中出现的顺序，一般，序号越小，越新
-            index: i
-          }
-        }).reduce((arr, news) => { if (news.title) { arr.push(news) } return arr }, [])
+        return list.map(ele => $(ele[0]).find('a').toArray().map(k => $(k))
+          .filter(k => k.attr('title') && k.attr('title').trim() || k.text().trim()).map((k, i) => {
+            let href = k.attr('href') ? k.attr('href') : ''
+            let currentUrl = url.resolve(sites[site].infoUrl, href)
+            console.log(k.attr('title') && k.attr('title').trim() || k.text().trim(), moment(timeList[ele[1]][i]).format('YYYY-MM-DD'))
+            return {
+              site: sites[site].name,
+              category: ele[1],
+              // 标题可能在 title 属性中，也可能并不在。
+              title: k.attr('title') && k.attr('title').trim() || k.text().trim(),
+              url: currentUrl,
+              isAttachment: ! /\.(html?$|aspx?|jsp|php)/.test(href),
+              isImportant: !!k.find('font').length,
+              time: +moment(timeList[ele[1]][i])
+                || deduceTimeFromUrl(currentUrl), // 可能网页上没有日期信息
+              // 记下其在本栏中出现的顺序，一般，序号越小，越新
+              index: i
+            }
+          }).reduce((arr, news) => { if (news.title) { arr.push(news) } return arr }, [])
         ).reduce((a, b) => a.concat(b), [])
       }) // publicCache
     )) // Promise.all
     // 小猴系统通知
     let res = []
-
     let hasUser = ""
     if (this.user.isLogin) {
       hasUser = `
@@ -233,7 +235,7 @@ exports.route = {
       }
     })
 
-    return ret
+    // return ret
     // })
 
   },
