@@ -157,9 +157,24 @@ exports.route = {
     )) // Promise.all
     // 小猴系统通知
     let res = []
+
+    let hasUser = ""
+    if (this.user.isLogin) {
+      hasUser = `
+      LEFT JOIN (
+        SELECT notice, max(READTIME) READTIME
+        FROM H_NOTICE_ISREAD
+        WHERE CARDNUM ='${this.user.cardnum}'
+        group by NOTICE
+      ) HNI
+      ON H_NOTICE.ID = HNI.NOTICE
+      `
+    }
     let noticeList = await this.db.execute(`
-      SELECT ID,TITLE,CONTENT,URL,SCHOOLNUM_PREFIX,PUBLISH_TIME AS TIME
-        FROM TOMMY.H_NOTICE ORDER BY PUBLISH_TIME DESC
+      SELECT ID,TITLE,URL,SCHOOLNUM_PREFIX,PUBLISH_TIME AS TIME${hasUser ? ', HNI.READTIME' : ''}
+        FROM TOMMY.H_NOTICE 
+        ${hasUser}
+        ORDER BY PUBLISH_TIME DESC
       `)
     // 对数据查询结果格式处理
     const fieldName = noticeList.metaData.map(item => {
@@ -181,6 +196,9 @@ exports.route = {
         tempData.site = '小猴偷米'
         tempData.category = '小猴通知'
       })
+      if (this.user.isLogin) {
+        tempData.isRead = !!tempData.readtime
+      }
       res.push(tempData)
     })
     // 按照学号前缀过滤
@@ -254,6 +272,17 @@ exports.route = {
         return ret
       } else if (id) {
         let notice = await this.db.execute(`SELECT TITLE,CONTENT,URL FROM TOMMY.H_NOTICE WHERE ID =:id`, { id })
+        if (notice.rows.length === 0) {
+          throw "通知不存在"
+        }
+        // 若已登录则标注已读
+        if (this.user.isLogin) {
+          await this.db.execute(`
+          INSERT INTO H_NOTICE_ISREAD (NOTICE, CARDNUM)
+          VALUES (:id, :cardnum)
+          `, { id, cardnum: this.user.cardnum })
+        }
+
         // oracle 空字段返回的null 为string 类型
         // 处理一下返回数据
         let heraldNotice = {}
