@@ -140,7 +140,7 @@ exports.route = {
           .filter(k => k.attr('title') && k.attr('title').trim() || k.text().trim()).map((k, i) => {
             let href = k.attr('href') ? k.attr('href') : ''
             let currentUrl = url.resolve(sites[site].infoUrl, href)
-            // console.log(k.attr('title') && k.attr('title').trim() || k.text().trim(), moment(timeList[ele[1]][i]).format('YYYY-MM-DD'))
+
             return {
               site: sites[site].name,
               category: ele[1],
@@ -235,7 +235,7 @@ exports.route = {
       }
     })
 
-    return ret
+    // return ret
     // })
 
   },
