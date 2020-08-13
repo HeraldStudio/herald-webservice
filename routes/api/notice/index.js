@@ -137,7 +137,6 @@ exports.route = {
                   : (k ? +autoMoment(k[0]) : +moment()))
           }
         )
-        // console.log(timeList)
         // 找出所有新闻条目，和日期配对，返回
         return list.map(ele => $(ele[0]).find('a').toArray().map(k => $(k))
           .filter(k => k.attr('title') && k.attr('title').trim() || k.text().trim()).map((k, i) => {
