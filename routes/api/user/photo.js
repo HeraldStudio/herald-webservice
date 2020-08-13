@@ -1,3 +1,4 @@
+const oracledb = require('oracledb')
 exports.route = {
   async get() {
     return await this.userCache('1d+', async () => {
@@ -6,7 +7,10 @@ exports.route = {
       SELECT ZP
       FROM T_ZP
       WHERE XH =:cardnum
-      `, { cardnum })
+      `, { cardnum },
+        {
+          fetchInfo: { "ZP": { type: oracledb.BUFFER } }
+        })
       return { photo: record.rows[0][0] }
     }
     )
