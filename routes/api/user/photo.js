@@ -7,7 +7,7 @@ exports.route = {
       FROM T_ZP
       WHERE XH =:cardnum
       `, { cardnum })
-      return record.rows[0][0]
+      return { photo: record.rows[0][0] }
     }
     )
   }
