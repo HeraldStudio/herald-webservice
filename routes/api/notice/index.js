@@ -134,7 +134,7 @@ exports.route = {
                 // FIXME 这里可能还存在着 bug。
                 .map(k => (k && k[1]) // 有的网站上没有年份信息。
                   ? +moment(k[0], 'YYYY-MM-DD')
-                  : +autoMoment(k[0]))
+                  : (k ? +autoMoment(k[0]) : +moment()))
           }
         )
         // console.log(timeList)
