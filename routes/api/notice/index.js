@@ -110,8 +110,8 @@ exports.route = {
             // console.log(sites[site].dateSelector)
             // console.log(ele[0])
             // console.log($('div'))
-            // if (ele[1] === '学院新闻' || ele[1] === '通知公告')
-            //   console.log(($(ele[0]).find(sites[site].dateSelector)).toArray().map(k => /(\d+-)?(\d+)-(\d+)/.exec($(k).text())))
+            // if (ele[1] === '学院新闻' || ele[1] === '党建工作')
+            //   console.log(($(ele[0]).find(sites[site].dateSelector)).toArray().map(k => /(\d+-)?(\d+)-(\d+)/.exec($(k).text())).filter(k => k))
             timeList[ele[1]] =
               $(ele[0]).find(sites[site].dateSelector || 'div').toArray()
                 .map(k => /(\d+-)?(\d+)-(\d+)/.exec($(k).text()))
@@ -131,12 +131,14 @@ exports.route = {
                     return k
                   }
                 })
+                .filter(k => !!k)
                 // FIXME 这里可能还存在着 bug。
                 .map(k => (k && k[1]) // 有的网站上没有年份信息。
                   ? +moment(k[0], 'YYYY-MM-DD')
                   : (k ? +autoMoment(k[0]) : +moment()))
           }
         )
+        // console.log(timeList)
         // 找出所有新闻条目，和日期配对，返回
         return list.map(ele => $(ele[0]).find('a').toArray().map(k => $(k))
           .filter(k => k.attr('title') && k.attr('title').trim() || k.text().trim()).map((k, i) => {
