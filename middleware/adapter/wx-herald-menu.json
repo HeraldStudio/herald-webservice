@@ -37,6 +37,11 @@
           "name": "权益投诉",
           "type": "view",
           "url": "http://jinshuju.net/f/By3aTK"
+        },
+        {
+          "name": "测试功能",
+          "type": "view",
+          "url": "www.baidu.com"
         }
       ]
     }
