@@ -522,21 +522,28 @@ const handler = {
     return '🏠 你暂时没有分配宿舍'
   },
 
-  // async 'App|APP|下载'() {
+  async 'App|APP|下载|app下载|APP下载|app'() {
 
-  //   return `🐵 小猴偷米 App 下载地址
+    this.path = '/api/version'
+    this.method = 'GET'
+    await this.next()
+    let { version, desc, downloadUrl } = this.body
+    return `🐵 小猴偷米 App 下载地址
 
-  //   iOS用户请直接在应用商店搜索：小猴偷米
+    iOS用户请直接在应用商店搜索：小猴偷米
 
-  //   Android用户新版下载地址：
-  //   https://hybrid.myseu.cn/herald-app-6.apk
-  //   （请复制到浏览器打开）
+    Android用户新版下载地址：
+    ${downloadUrl}
+    （请复制到浏览器打开）
 
+    注意：部分安卓商店提供早已过期的版本，无法正常登录。
+    
+    💡 当前版本：${version}🚀
 
-  //   注意：部分安卓商店提供早已过期的版本，无法正常登录。
-  //   `.padd()
+    ${desc}
+    `.padd()
 
-  // },
+  },
 
 
   // 测试统一身份认证小程序
@@ -657,7 +664,6 @@ try {
 
 module.exports = async (ctx, next) => {
   if (ctx.path.indexOf('/adapter-wx-herald/') !== -1) {
-    console.log(ctx.path)
     // if (program.mode === 'development' && ctx.path.endsWith('wechat') && ctx.method === 'GET') {
     if (program.mode === 'production' && ctx.method === 'GET') {
       // 微信测试
