@@ -656,8 +656,8 @@ try {
 
 
 module.exports = async (ctx, next) => {
-  console.log(ctx.path, ctx.path.indexOf('/adapter-wx-herald/'))
-  if (ctx.path.indexOf('/adapter-wx-herald/') === 0) {
+  if (ctx.path.indexOf('/adapter-wx-herald/') !== -1) {
+    console.log(program.mode === 'development' && ctx.path.endsWith('wechat') && ctx.method === 'GET')
     if (program.mode === 'development' && ctx.path.endsWith('wechat') && ctx.method === 'GET') {
       // 微信测试
       ctx.path = '/api/wechatAuth'
