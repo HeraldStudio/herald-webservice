@@ -307,7 +307,7 @@ const handler = {
           }
         }
       })
-    }else{
+    } else {
       return '开启失败，请稍后重试或联系管理员'
     }
 
@@ -341,7 +341,7 @@ const handler = {
           }
         }
       })
-    }else{
+    } else {
       return '未开启跑操提醒'
     }
   },
@@ -616,7 +616,7 @@ try {
           return han
         }
       })().then((msg) => {
-        if(!msg){
+        if (!msg) {
           return ''
         }
         if (msg === 'default') {
@@ -656,6 +656,7 @@ try {
 
 
 module.exports = async (ctx, next) => {
+  console.log(ctx.path, ctx.path.indexOf('/adapter-wx-herald/'))
   if (ctx.path.indexOf('/adapter-wx-herald/') === 0) {
     if (program.mode === 'development' && ctx.path.endsWith('wechat') && ctx.method === 'GET') {
       // 微信测试
