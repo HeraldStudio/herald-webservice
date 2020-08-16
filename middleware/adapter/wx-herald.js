@@ -62,14 +62,16 @@ const handler = {
     this.path = '/api/wechatAuth'
     this.method = 'POST'
     await this.next()
-    if (this.body === '已经绑定') {
-      return `👥 ${this.user.name}（${this.user.cardnum}）`
-    }
-    else {
-      const authUrl = `https://newids.seu.edu.cn/authserver/login?goto=https://tommy.seu.edu.cn/wx-login/?sessionid=${this.body}`
+    // if (this.body === '已经绑定') {
+    //   return `👥 ${this.user.name}（${this.user.cardnum}）`
+    // }
+    // else {
+    //   const authUrl = `https://newids.seu.edu.cn/authserver/login?goto=https://tommy.seu.edu.cn/wx-login/?sessionid=${this.body}`
 
-      return `<a href="${authUrl}">🔗点击进行统一身份验证</a>`
-    }
+    //   return `<a href="${authUrl}">🔗点击进行统一身份验证</a>`
+    // }
+    return `小猴正在修炼中~~
+            同学们可以发送 App下载 获取最新版的小猴偷米app使用更全更新的功能噢🚀`
 
   },
 
