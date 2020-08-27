@@ -373,24 +373,24 @@
         "学院新闻"
       ],
       [
-        "#wp_news_w31",
-        "通知公告"
-      ],
-      [
         "#wp_news_w13",
-        "学生工作"
+        "研究生培养"
       ],
       [
         "#wp_news_w10",
-        "本科生培养"
+        "党建工作"
       ],
       [
         "#wp_news_w12",
-        "研究生培养"
+        "本科生培养"
+      ],
+      [
+        "#wp_news_w113",
+        "学生工作"
       ]
     ],
     "name": "电子科学与工程学院",
-    "dateSelector": "span.Article_PublishDate"
+    "dateSelector": "div"
   },
   "em": {
     "baseUrl": "http://em.seu.edu.cn",
@@ -520,7 +520,7 @@
       ]
     ],
     "name": "生命科学研究院",
-    "dateSelector":"span.news_meta",
+    "dateSelector": "span.news_meta",
     "contentSelector": ".wp_articlecontent"
   },
   "ins": {
@@ -540,7 +540,7 @@
       ]
     ],
     "name": "仪器科学与工程学院",
-    "dateSelector":"span.time",
+    "dateSelector": "span.time",
     "contentSelector": ".article"
   },
   "law": {
@@ -572,7 +572,7 @@
       ]
     ],
     "name": "法学院",
-    "dateSelector":"a",
+    "dateSelector": "a",
     "contentSelector": ".wp_articlecontent"
   },
   "marxism": {
@@ -604,7 +604,7 @@
       ]
     ],
     "name": "马克思主义学院",
-    "dateSelector":"span.news_meta",
+    "dateSelector": "span.news_meta",
     "contentSelector": ".entry"
   },
   "math": {
@@ -830,7 +830,7 @@
       "26"
     ],
     "infoUrl": "http://rcls.seu.edu.cn/",
-    "list":[
+    "list": [
       [
         "#wp_news_w2",
         "新闻动态"
@@ -909,9 +909,8 @@
       ]
     ],
     "name": "外国语学院",
-    "dateSelector":"span.news_meta",
+    "dateSelector": "span.news_meta",
     "contentSelector": ".wp_articlecontent"
-
   },
   "smjgs": {
     "baseUrl": "http://smjgs.seu.edu.cn",
@@ -999,7 +998,7 @@
       ]
     ],
     "name": "体育系",
-    "dateSelector" : "span.news_meta",
+    "dateSelector": "span.news_meta",
     "contentSelector": ".wp_articlecontent"
   },
   "wjx": {

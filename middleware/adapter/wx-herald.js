@@ -62,14 +62,16 @@ const handler = {
     this.path = '/api/wechatAuth'
     this.method = 'POST'
     await this.next()
-    if (this.body === '已经绑定') {
-      return `👥 ${this.user.name}（${this.user.cardnum}）`
-    }
-    else {
-      const authUrl = `https://newids.seu.edu.cn/authserver/login?goto=https://tommy.seu.edu.cn/wx-login/?sessionid=${this.body}`
+    // if (this.body === '已经绑定') {
+    //   return `👥 ${this.user.name}（${this.user.cardnum}）`
+    // }
+    // else {
+    //   const authUrl = `https://newids.seu.edu.cn/authserver/login?goto=https://tommy.seu.edu.cn/wx-login/?sessionid=${this.body}`
 
-      return `<a href="${authUrl}">🔗点击进行统一身份验证</a>`
-    }
+    //   return `<a href="${authUrl}">🔗点击进行统一身份验证</a>`
+    // }
+    return `小猴正在修炼中~~
+同学们可以发送 App下载 获取最新版的小猴偷米app使用更全更新的功能噢🚀`
 
   },
 
@@ -307,7 +309,7 @@ const handler = {
           }
         }
       })
-    }else{
+    } else {
       return '开启失败，请稍后重试或联系管理员'
     }
 
@@ -341,7 +343,7 @@ const handler = {
           }
         }
       })
-    }else{
+    } else {
       return '未开启跑操提醒'
     }
   },
@@ -522,21 +524,28 @@ const handler = {
     return '🏠 你暂时没有分配宿舍'
   },
 
-  // async 'App|APP|下载'() {
+  async 'App|APP|下载|app下载|APP下载|app'() {
 
-  //   return `🐵 小猴偷米 App 下载地址
+    this.path = '/api/version'
+    this.method = 'GET'
+    await this.next()
+    let { version, desc, downloadUrl } = this.body
+    return `🐵 小猴偷米 App 下载地址
 
-  //   iOS用户请直接在应用商店搜索：小猴偷米
+    iOS用户请直接在应用商店搜索：小猴偷米
 
-  //   Android用户新版下载地址：
-  //   https://hybrid.myseu.cn/herald-app-6.apk
-  //   （请复制到浏览器打开）
+    Android用户新版下载地址：
+    ${downloadUrl}
+    （请复制到浏览器打开）
 
+    注意：部分安卓商店提供早已过期的版本，无法正常登录。
+    
+    💡 当前版本：${version}🚀
 
-  //   注意：部分安卓商店提供早已过期的版本，无法正常登录。
-  //   `.padd()
+    ${desc}
+    `.padd()
 
-  // },
+  },
 
 
   // 测试统一身份认证小程序
@@ -616,7 +625,7 @@ try {
           return han
         }
       })().then((msg) => {
-        if(!msg){
+        if (!msg) {
           return ''
         }
         if (msg === 'default') {
@@ -656,8 +665,9 @@ try {
 
 
 module.exports = async (ctx, next) => {
-  if (ctx.path.indexOf('/adapter-wx-herald/') === 0) {
-    if (program.mode === 'development' && ctx.path.endsWith('wechat') && ctx.method === 'GET') {
+  if (ctx.path.indexOf('/adapter-wx-herald/') !== -1) {
+    // if (program.mode === 'development' && ctx.path.endsWith('wechat') && ctx.method === 'GET') {
+    if (program.mode === 'production' && ctx.method === 'GET') {
       // 微信测试
       ctx.path = '/api/wechatAuth'
       await next()
