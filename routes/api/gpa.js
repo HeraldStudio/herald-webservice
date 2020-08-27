@@ -56,7 +56,7 @@ exports.route = {
       if (/^21318/.test(cardnum) || /^21319/.test(cardnum)) {  //18 19级
         let detail = await this.userCache('1h+', async () => {
           let rawData = await this.db.execute(`
-          select XNXQDM,a.KCH,KCM,KCXZDM,XF,ZCJ,CXCKDM
+          select XNXQDM,a.WID,KCM,KCXZDM,XF,ZCJ,CXCKDM
           from (
             select *
             from T_CJ_LRCJ
@@ -92,7 +92,7 @@ exports.route = {
             if (semesterName !== '其他') { semesterName = `${semesterName[0].slice(2)}-${semesterName[1].slice(2)}-${semesterName[2]}` }
             const gpa = {
               semester: semesterName,
-              cid: cid + semesterName,
+              cid: cid,
               courseNumber: cid,
               courseName: courseName,
               courseType: kcxzMap.get(courseType),
