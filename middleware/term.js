@@ -61,9 +61,9 @@ const { config } = require('../app')
 // 注意这个数组不能在运行时被修改，需要用一定的机制来保证，下面 get() 中会实现这种机制
 // 规范一下时间格式 'YYYY-MM-DD YYYY-MM-DD HH:mm:ss' 
 const terms = Object.keys(config.term).map(k => {
-  let startMoment = moment(config.term[k],'YYYY-MM-DD')
+  let startMoment = moment(config.term[k], 'YYYY-MM-DD')
   let startDate = +startMoment
-  let endDate = +startMoment.add(/-1$/.test(k) ? 4 : 18, 'weeks')
+  let endDate = +startMoment.add(/-1$/.test(k) || /-4$/.test(k) ? 4 : 18, 'weeks')
   return { name: k, startDate, endDate }
 }).reduce((a, b) => a.concat(b), [])
 
@@ -73,7 +73,7 @@ module.exports = async (ctx, next) => {
     get() {
       let now = +moment()
       // 需要记录一个上一个学期的结束时间 起始值是一个比较早的时间
-      let prevEndDate = +moment('1998-11-25 00:00:00','YYYY-MM-DD HH:mm:ss')
+      let prevEndDate = +moment('1998-11-25 00:00:00', 'YYYY-MM-DD HH:mm:ss')
       let currentTerm = null
       let nextTerm = null
       let prevTerm = null
@@ -90,50 +90,50 @@ module.exports = async (ctx, next) => {
 
           k.isCurrent = false
           k.isNext = false
-          k.isPrev = false 
+          k.isPrev = false
           k.isLong = !/-1$/.test(k.name)
           k.index = index
 
           // 确定当前学期
-          if( now >= prevEndDate && now < k.endDate) {
+          if (now >= prevEndDate && now < k.endDate) {
             k.isCurrent = true
           }
 
           prevEndDate = k.endDate
           index = index + 1
-          
-          if(k.isCurrent) currentTerm = Object.assign({}, k)
+
+          if (k.isCurrent) currentTerm = Object.assign({}, k)
 
           return k
         })
       }
 
-      currentTerm = currentTerm !== null ? currentTerm :  term.list[term.list.length - 1]
-      term.list[ currentTerm.index ].isCurrent = true
-      
-      if (currentTerm.index + 1 < term.list.length){
-        nextTerm = term.list[ currentTerm.index + 1]
-        term.list[ currentTerm.index + 1].isNext = true
+      currentTerm = currentTerm !== null ? currentTerm : term.list[term.list.length - 1]
+      term.list[currentTerm.index].isCurrent = true
+
+      if (currentTerm.index + 1 < term.list.length) {
+        nextTerm = term.list[currentTerm.index + 1]
+        term.list[currentTerm.index + 1].isNext = true
         nextTerm.isNext = true
         delete nextTerm.index
       }
       if (currentTerm.index - 1 >= 0) {
-        prevTerm = term.list[ currentTerm.index - 1]
-        term.list[ currentTerm.index - 1].isPrev = true
+        prevTerm = term.list[currentTerm.index - 1]
+        term.list[currentTerm.index - 1].isPrev = true
         prevTerm.isPrev = true
         delete prevTerm.index
       }
-      
+
       term.nextTerm = nextTerm
       term.prevTerm = prevTerm
       term.currentTerm = currentTerm
       delete term.currentTerm.index
 
-      term.list = term.list.map( k => {
+      term.list = term.list.map(k => {
         delete k.index
         return k
       })
-      
+
       return term
     }
   })
