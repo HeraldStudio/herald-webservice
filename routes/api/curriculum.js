@@ -111,7 +111,9 @@ exports.route = {
             location: JASMC,
             credit: '学分未知'
           }
-          curriculum.push(course)
+          // 存在部分课程没有上课周次的情况，会导致整个课表崩掉
+          if (course.endWeek)
+            curriculum.push(course)
         })
         return curriculum
       })
