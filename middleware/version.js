@@ -1,5 +1,5 @@
 module.exports = async (ctx, next) => {
-  if (ctx.path === '/Android') {
+  if (ctx.path === '/app-download/android') {
     let record = await ctx.db.execute(`
     SELECT DOWNLOAD_URL
     FROM H_VERSION
