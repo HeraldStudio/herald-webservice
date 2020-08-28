@@ -14,7 +14,8 @@ module.exports = `
   <div style="width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center;">
     <p>
       <img style="width:200px" src="https://static.myseu.cn/wechatTip.jpeg">
-    <p><b>麻烦点击右上角的 (···) 在浏览器里打开，求求你了 QWQ</b></p>
+    <p><b>试试点击右上角的 (···) 在浏览器里打开叭</b></p>
+    <p><b>求求你了 QWQ</b></p>
     </p>
   </div>
 </body>
