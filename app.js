@@ -10,7 +10,7 @@ require('./worker/morningExerciseEmailSend')
 program
   .version('1.0.0')
   .option('-m --mode <mode>', '执行模式 <production|development|profile>')
-  .option('-p, --port <port>', '监听端口（爬虫服务监听port+1000端口）',parseInt)
+  .option('-p, --port <port>', '监听端口（爬虫服务监听port+1000端口）', parseInt)
   .parse(process.argv)
 
 // 将 moment 导出到全局作用域
@@ -19,7 +19,7 @@ global.moment = require('moment')
 global.program = program
 
 // 控制台输出的样式颜色
-global.chalkColored = new chalk.Instance({level: 2})
+global.chalkColored = new chalk.Instance({ level: 2 })
 
 // 解析 YAML 配置文件
 const config = require('js-yaml').load(fs.readFileSync('./config.yml'))
@@ -112,8 +112,11 @@ app.use(require('./middleware/term'))
 // 9. 静态文件
 app.use(require('./middleware/minio'))
 
+// 10.获取最新版安卓app
+app.use(require('./middleware/version'))
+
 /**
-  ## F. 路由层
+  ## G. 路由层
   负责调用路由处理程序执行处理的中间件。
 */
 app.use(kf())
