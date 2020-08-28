@@ -1,6 +1,6 @@
 module.exports = async (ctx, next) => {
   if (ctx.path === '/app-download') {
-    if (this.request.headers['user-agent'].toLowerCase().includes('ios')) {
+    if (ctx.request.headers['user-agent'].toLowerCase().includes('ios')) {
       ctx.redirect('https://apps.apple.com/cn/app/id1378941139')
     } else {
       let record = await ctx.db.execute(`

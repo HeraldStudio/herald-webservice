@@ -45,7 +45,7 @@
     "nodemailer-wellknown": "^0.2.3",
     "nodemon": "^2.0.2",
     "ora": "^4.0.3",
-    "oracledb": "^4.2.0",
+    "oracledb": "5.0.0",
     "pandora-nodejs-sdk": "^0.0.1",
     "prettyjson": "^1.2.1",
     "qiniu": "^7.3.0",
