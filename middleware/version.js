@@ -1,5 +1,6 @@
 module.exports = async (ctx, next) => {
   if (ctx.path === '/app-download') {
+    console.log(ctx.request.headers['user-agent'])
     if (ctx.request.headers['user-agent'].toLowerCase().includes('ios') || ctx.request.headers['user-agent'].toLowerCase().includes('mac')) {
       ctx.redirect('https://apps.apple.com/cn/app/id1378941139')
     } else {
