@@ -10,7 +10,9 @@ module.exports = async (ctx, next) => {
     )AND PLATFORM = 'app-android'
     `)
     ctx.redirect(record.rows[0][0])
-  } else {
+  } else if (ctx.path === '/app-download/ios') {
+    ctx.redirect('https://apps.apple.com/cn/app/id1378941139')
+  } {
     await next()
   }
 }
