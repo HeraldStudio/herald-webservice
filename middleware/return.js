@@ -34,7 +34,9 @@ module.exports = async (ctx, next) => {
   }
 
   let json = {}
-  if (!ctx.response.headers['x-document']) {
+  if (ctx.path === '/app-download') {
+    return
+  } else if (!ctx.response.headers['x-document']) {
     if (ctx.response.get('Location')) {
       ctx.status = 302
       return
