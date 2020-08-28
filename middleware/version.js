@@ -3,6 +3,7 @@ module.exports = async (ctx, next) => {
     if (ctx.request.headers['user-agent'].toLowerCase().includes('ios')) {
       ctx.redirect('https://apps.apple.com/cn/app/id1378941139')
     } else {
+      console.log(ctx.request.headers['user-agent'])
       let record = await ctx.db.execute(`
       SELECT DOWNLOAD_URL
       FROM H_VERSION
