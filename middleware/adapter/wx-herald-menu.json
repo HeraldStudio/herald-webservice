@@ -3,7 +3,7 @@
     {
       "name": "PWA 主页",
       "type": "view",
-      "url": "https://myseu.cn"
+      "url": "https://tommy.seu.edu.cn/"
     },
     {
       "name": "小功能",
@@ -11,17 +11,17 @@
         {
           "name": "新生指引",
           "type": "view",
-          "url": "https://myseu.cn/#/intro"
+          "url": "https://tommy.seu.edu.cn/#/intro/"
         },
         {
           "name": "一卡通充值",
           "type": "view",
-          "url": "https://myseu.cn/#/card/charge"
+          "url": "https://tommy.seu.edu.cn/#/card/charge"
         },
         {
           "name": "绩点估算",
           "type": "view",
-          "url": "https://myseu.cn/#/grade"
+          "url": "https://tommy.seu.edu.cn/#/grade"
         }
       ]
     },
