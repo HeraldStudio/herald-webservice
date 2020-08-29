@@ -301,7 +301,7 @@ exports.route = {
             const gpa = {
               semester: semesterName,
               cid: wid,
-              courseNumber: cid,
+              courseNumber: cid ? cid : wid,
               courseName: courseName,
               courseType: undefined,
               credit: credit,
