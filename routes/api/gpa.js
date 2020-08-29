@@ -269,10 +269,9 @@ exports.route = {
             FROM
               TOMMY.T_CJGL_KSCJXX  oldcj
             WHERE oldcj.XH = :cardnum
-          )  cj,
-          TOMMY.T_XK_XKJG  xk
-        WHERE
-          cj.XH = xk.XH AND cj.XKKCDM = xk.XKKCDM
+          )  cj
+          left join TOMMY.T_XK_XKJG  xk
+          on cj.XH = xk.XH AND cj.XKKCDM = xk.XKKCDM
       `, { cardnum: cardnum })
           /*let rawDetail = rawData.rows.map(row => {
             let xn = parseInt(row[0])
