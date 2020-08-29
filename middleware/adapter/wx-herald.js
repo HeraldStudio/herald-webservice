@@ -529,13 +529,9 @@ const handler = {
     this.path = '/api/version'
     this.method = 'GET'
     await this.next()
-    let { version, desc, downloadUrl } = this.body
-    return `🐵 小猴偷米 App 下载地址
-
-    iOS用户请直接在应用商店搜索：小猴偷米
-
-    Android用户新版下载地址：
-    ${downloadUrl}
+    let { version, desc } = this.body
+    return `🐵 小猴偷米 App 下载地址:
+    https://tommy.seu.edu.cn/ws4/app-download
     （请复制到浏览器打开）
 
     注意：部分安卓商店提供早已过期的版本，无法正常登录。
