@@ -63,7 +63,7 @@ exports.route = {
       // 处理 term
       if (!term) { term = currentTerm }
       term = this.term.list.find(t => t.name === term)
-      if (term.name.endsWith('1')) {
+      if (term.name.endsWith('1') || term.name.endsWith('4')) {
         term.maxWeek = 4
       }
       if (term.name.endsWith('2') || term.name.endsWith('3')) {
