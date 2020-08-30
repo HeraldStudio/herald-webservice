@@ -1,12 +1,8 @@
 const crypto = require('crypto')
 // 哈希算法，用于对 token 进行摘要
-const hash = value => {
-  return Buffer.from(crypto.createHash('sha256').update(value).digest()).toString('hex')
-}
 exports.route = {
   // 第三方应用通过持有的appid 与redirectUri 换取有效时间为3分钟的code
   async get({ appid, redirectUri }) {
-    console.log(redirectUri)
     if (!appid || !redirectUri) {
       throw '参数不全'
     }

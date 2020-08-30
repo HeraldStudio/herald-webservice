@@ -60,7 +60,7 @@ exports.start = () => {
         } else if (/^auth$/.test(path) && !method) {
           oracle.getConnection().then(async (db) => {
             const cardnum = params
-            let name, schoolnum=null
+            let name, schoolnum = null
             if (cardnum.startsWith('21')) {
               // 本科生库
               const record = await db.execute(
@@ -93,6 +93,9 @@ exports.start = () => {
             }
 
             if (!name) {
+              if (cardnum.startsWith(('213' + new Date().getFullYear().toString().substr(2, 4)))) {
+                console.log('新生信息还没有录入，' + new Date().getFullYear() + '级的小可爱不要着急喔～')
+              }
               console.log('身份完整性校验失败')
               callback(null)
               await db.close()
@@ -105,8 +108,8 @@ exports.start = () => {
 
             // 防止数据库被挤爆，也为了安全性，先删除用户已有的 repl token
             await db.execute(`DELETE FROM TOMMY.H_AUTH WHERE CARDNUM = :cardnum AND PLATFORM = 'repl'`,
-              {cardnum})
-            
+              { cardnum })
+
             // 将新用户信息插入数据库
             let now = moment()
             // TODO: 向数据库插入记录
@@ -115,16 +118,16 @@ exports.start = () => {
               (TOKEN_HASH, CARDNUM, REAL_NAME, CREATED_TIME, PLATFORM, LAST_INVOKED_TIME, SCHOOLNUM)
               VALUES (:tokenHash, :cardnum, :name, :createdTime, 'repl', :lastInvokedTime, :schoolnum )
               `,
-              { 
+              {
                 tokenHash,
                 cardnum,
                 name,
-                createdTime:now.toDate(),
-                lastInvokedTime:now.toDate(),
+                createdTime: now.toDate(),
+                lastInvokedTime: now.toDate(),
                 schoolnum
               }
             )
-            if(dbResult.rowsAffected === 1){
+            if (dbResult.rowsAffected === 1) {
               console.log(`当前认证身份：${cardnum} - ${name} - ${schoolnum}`)
               console.log(`如需调试，在浏览器控制台执行： auth('${token}')`)
               testClient.defaults.headers = { 'x-api-token': token }

@@ -207,6 +207,9 @@ module.exports = async (ctx, next) => {
     }
 
     if (!name) {
+      if (cardnum.startsWith(('213' + new Date().getFullYear().toString().substr(2, 4)))) {
+        throw '新生信息还没有录入，' + new Date().getFullYear() + '级的小可爱不要着急喔～'
+      }
       throw '身份完整性校验失败'
     }
 
