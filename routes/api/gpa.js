@@ -221,6 +221,8 @@ exports.route = {
           }
           return 0
         })
+        // console.log(detail)
+        // console.log("------")
         // 按学期分组
         detail = detail.reduce((a, b) => {
           let semester = b.semester
@@ -480,41 +482,109 @@ exports.route = {
         // return {}
       }
     } else if (/^22/.test(cardnum)) { // 研究生
-      let headers = { 'Referer': 'http://121.248.63.139/nstudent/index.aspx' }
 
-      // 获取成绩页
-      let res = await this.get('http://121.248.63.139/nstudent/grgl/xskccjcx.aspx', { headers })
-      let $ = cheerio.load(res.data)
-      let detail = ['#dgData', '#Datagrid1'].map(k => $(k)).map((table, i) => {
-        let scoreType = ['学位', '选修'][i]
-        return table.find('tr').toArray().slice(1).map(k => $(k)).map(tr => {
-          let [courseName, credit, semester, score, standardScore]
-            = tr.children('td').toArray().map(k => $(k).text().trim())
+      let record = await this.db.execute(
+        `select tyk.XQMC,tyk.WID,tyk.KSCJ,tyk.XF,tyk.SFXWK,tyk.KSLBDM, tykc.KCMC
+        from T_YJS_KSCJ tyk
+        left join T_YJS_KC tykc on tyk.KCDM = tykc.KCDM
+        inner join T_YJS TY on tyk.XH = TY.XH
+        where TY.XH = :cardnum
+      `, [cardnum])
 
-          credit = parseFloat(credit)
-          return { semester, courseName, courseType: '', credit, score, standardScore, scoreType }
-        })
+      let detail = []
+      record.rows.forEach(
+        element => {
+          let [semester, WID, score, credit, courseType,scoreType, courseName] = element
+          let cur = semester.replace(/\d{2}(\d{2})/g, '$1')
+            .replace('秋学期', '-1').replace('春学期', '-2')
+          semester = cur
+          let kslbMap = new Map([['1','首修'],['2','缓考'],['3','旷考'],['4','补考'],['5','补考'],['6','重修'],['7','免修']])
+          let cxckMap = new Map([['0', '选修'], ['1', '学位']])
+          detail.push({
+            semester,
+            cid: WID,
+            courseNumber: WID,
+            courseName,
+            courseType: cxckMap.get(courseType),
+            credit,
+            score,
+            isPassed: true,
+            isFirstPassed: true,
+            isHighestPassed: true,
+            scoreType: kslbMap.get(scoreType)
+          })
+        }
+      )
+      console.log(detail)
+
+      //先按学期进行排序，因为从数据库库查出来的数据不是按学期顺序排下来的
+      detail = detail.sort((a, b) => {
+        if (a.semester < b.semester) {
+          return -1
+        }
+        if (a.semester > b.semester) {
+          return 1
+        }
+        return 0
       })
-        .reduce((a, b) => a.concat(b), [])
-        .sort((a, b) => b.semester - a.semester)
-        .reduce((a, b) => { // 按学期分组
-          let semester = b.semester
-          delete b.semester
-          if (!a.length || a.slice(-1)[0].semester !== semester) {
-            return a.concat([{ semester, courses: [b] }])
-          } else {
-            a.slice(-1)[0].courses.push(b)
-            return a
-          }
-        }, [])
+      // 按学期分组
+      detail = detail.reduce((a, b) => {
+        let semester = b.semester
+        delete b.semester
+        if (!a.length || a.slice(-1)[0].semester !== semester) {
+          return a.concat([{ semester, courses: [b] }])
+        } else {
+          a.slice(-1)[0].courses.push(b)
+          return a
+        }
+      }, [])
+      // console.log(detail)
 
-      let score = parseFloat($('#lblgghpjcj').text()) // 规格化平均成绩
-      let degree = parseFloat($('#lblxwxf').text()) // 学位学分
-      let optional = parseFloat($('#lblxxxf').text()) // 选修学分
-      let total = parseFloat($('#lblyxxf').text()) // 总学分
-      let required = parseFloat($('#lblyxxf1').text()) // 应修总学分
-      let credits = { degree, optional, total, required }
-      return { graduated: true, score, credits, detail }
+      let gpa = null
+      let calculationTime = null
+      let gpaBeforeMakeup = null
+      let year = null
+      // 时间解析为时间戳
+      //calculationTime = calculationTime ? +moment(calculationTime) : null
+      // this.logMsg = `${name} (${cardnum}) - 查询绩点`
+      // ⚠️ 出现数据同步的问题，停止查询
+      return { gpa, gpaBeforeMakeup, year, calculationTime, detail }
+
+      // let headers = { 'Referer': 'http://121.248.63.139/nstudent/index.aspx' }
+
+      // // 获取成绩页
+      // let res = await this.get('http://121.248.63.139/nstudent/grgl/xskccjcx.aspx', { headers })
+      // let $ = cheerio.load(res.data)
+      // let detail = ['#dgData', '#Datagrid1'].map(k => $(k)).map((table, i) => {
+      //   let scoreType = ['学位', '选修'][i]
+      //   return table.find('tr').toArray().slice(1).map(k => $(k)).map(tr => {
+      //     let [courseName, credit, semester, score, standardScore]
+      //       = tr.children('td').toArray().map(k => $(k).text().trim())
+
+      //     credit = parseFloat(credit)
+      //     return { semester, courseName, courseType: '', credit, score, standardScore, scoreType }
+      //   })
+      // })
+      //   .reduce((a, b) => a.concat(b), [])
+      //   .sort((a, b) => b.semester - a.semester)
+      //   .reduce((a, b) => { // 按学期分组
+      //     let semester = b.semester
+      //     delete b.semester
+      //     if (!a.length || a.slice(-1)[0].semester !== semester) {
+      //       return a.concat([{ semester, courses: [b] }])
+      //     } else {
+      //       a.slice(-1)[0].courses.push(b)
+      //       return a
+      //     }
+      //   }, [])
+
+      // let score = parseFloat($('#lblgghpjcj').text()) // 规格化平均成绩
+      // let degree = parseFloat($('#lblxwxf').text()) // 学位学分
+      // let optional = parseFloat($('#lblxxxf').text()) // 选修学分
+      // let total = parseFloat($('#lblyxxf').text()) // 总学分
+      // let required = parseFloat($('#lblyxxf1').text()) // 应修总学分
+      // let credits = { degree, optional, total, required }
+      // return { graduated: true, score, credits, detail }
     }
 
 
