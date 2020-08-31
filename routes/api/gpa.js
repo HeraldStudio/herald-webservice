@@ -109,14 +109,14 @@ exports.route = {
 
           //对数据rawDetail进行去重，依靠课程代码进行去重
           //及格重修的课程代码与首修课程代码相同，将来可能会产生bug，希望以后可以不用数据去重
-          // let cidList = {}
+          let cidList = {}
           let indexList = []
           rawDetail.forEach((currentTerm, index) => {
-            // if (cidList[currentTerm.cid] !== true) {
-            // cidList[currentTerm.cid] = true
+            if (cidList[currentTerm.cid] !== true) {
+              cidList[currentTerm.cid] = true
+              indexList.push(index)
+            }
             // indexList.push(index)
-            // }
-            indexList.push(index)
           })
           let detail = []
           indexList.forEach((detailIndex) => {
