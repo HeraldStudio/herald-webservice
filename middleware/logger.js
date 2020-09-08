@@ -1,4 +1,3 @@
-const mongodb = require('../database/mongodb')
 /**
   # 日志中间件
 
@@ -10,6 +9,9 @@ const mongodb = require('../database/mongodb')
 module.exports = async (ctx, next) => {
   let begin = moment()
   await next()
+  if (ctx.path === '/api/bbs/access') {
+    return
+  }
   let end = moment()
   let duration = end - begin
   let time = end.format('H:mm:ss')
@@ -17,14 +19,13 @@ module.exports = async (ctx, next) => {
   let name = '未登录'
   let platform = '未登录'
 
-
-  if (ctx.request.headers['x-api-token'] ) {
+  if (ctx.request.headers['x-api-token']) {
     // 当请求中包含token，就可以向日志输出用户非敏感信息，以便于分析业务情况
     try {
       cardnum = ctx.user.cardnum
       name = ctx.user.name
       platform = ctx.user.platform
-    } catch (e) { 
+    } catch (e) {
       //console.log(e)
     }
   }
@@ -42,7 +43,7 @@ module.exports = async (ctx, next) => {
     ' ' + duration + 'ms' +
     (logMsg ? ' | ' + chalkColored.yellow(logMsg) : '')
   )
-  
+
   try {
     // let logCollection = await mongodb('webservice_log')
     // await logCollection.insertOne({
@@ -55,7 +56,7 @@ module.exports = async (ctx, next) => {
     //   msg:      logMsg ? logMsg : '',
     //   platform: platform
     // })
-  } catch(e) {
+  } catch (e) {
     console.log('MongoDB服务出现错误', e)
   }
 }

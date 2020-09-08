@@ -2,9 +2,9 @@ const qiniu = require('qiniu')
 const config = require('./sdk.json')
 const crypto = require('crypto')
 
-exports.getUptoken = (prefix='') => {
+exports.getUptoken = (prefix = '') => {
   let { access, secret, bucket } = config.qiniu
-  let key = prefix + (prefix ? '-' : '') +Buffer.from(crypto.randomBytes(16)).toString('hex')
+  let key = prefix + (prefix ? '-' : '') + Buffer.from(crypto.randomBytes(16)).toString('hex')
   let mac = new qiniu.auth.digest.Mac(access, secret)
   let uptoken = (new qiniu.rs.PutPolicy({
     scope: bucket + ':' + key,
@@ -24,7 +24,7 @@ exports.deleteFile = (url) => {
   let bucketManager = new qiniu.rs.BucketManager(mac, _config)
   let key = url.replace('https://static.myseu.cn/', '')
   return new Promise((resolve, reject) => {
-    bucketManager.delete(bucket, key, function(err, respBody) {
+    bucketManager.delete(bucket, key, function (err, respBody) {
       if (err) {
         reject(err)
       } else {
