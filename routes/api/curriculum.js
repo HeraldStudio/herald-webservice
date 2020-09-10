@@ -385,7 +385,7 @@ WHERE OWNER = :cardnum and SEMESTER = :termName
         curriculum.push(course)
       })
     } else { // 研究生版
-      await this.useAuthCookie()
+      // await this.useAuthCookie()
       let headers = { 'Referer': 'http://121.248.63.139/nstudent/index.aspx' }
 
       // 获取课程列表页
@@ -393,42 +393,89 @@ WHERE OWNER = :cardnum and SEMESTER = :termName
       let res = await this.get('http://121.248.63.139/nstudent/pygl/pyxkcx.aspx', { headers })
       let $ = cheerio.load(res.data)
 
-      if (term) {
-        let endYear = term.split('-')[1]
-        let period = term.split('-')[2]
-        //let [beginYear, endYear, period] = term.split('-')
-        period = ['短学期', '秋学期', '春学期'][period - 1]
-        let re = RegExp(`${endYear}${period}$`)
-        let option = $('#txtxq option').toArray().map(k => $(k))
-          .find(k => re.test(k.text()))
 
-        if (!option) {
-          // 用 term 字符串从 term 中间件中拿到学期对象，这里 term 从字符串类型变成了 Object
-          term = this.term.list.find(k => k.name === term) || {
-            name: term
-          }
-          return { term, curriculum: [] }
+
+        // if (!term) { term = currentTerm }
+        // let endYear = term.split('-')[1]
+        // let period = term.split('-')[2]
+        // //let [beginYear, endYear, period] = term.split('-')
+        // period = ['短学期', '秋学期', '春学期'][period - 1]
+        // let re = RegExp(`${endYear}${period}$`)
+        // let option = $('#txtxq option').toArray().map(k => $(k))
+        //   .find(k => re.test(k.text()))
+
+        // if (!option) {
+        //   // 用 term 字符串从 term 中间件中拿到学期对象，这里 term 从字符串类型变成了 Object
+        //   term = this.term.list.find(k => k.name === term) || {
+        //     name: term
+        //   }
+        //   return { term, curriculum: [] }
+        // }
+
+        //zlr新加
+        let time = term.split(/-/)
+        let schoolYear=time[0]
+        let period=time[2]
+        let record = await this.db.execute(
+          `select tyx.xn, xqdm, kc.KCMC,kc.XF,jzg.xm, kcap.SKAP, js.JASMC, kcap.JSDM
+          from T_YJS_XSXK tyx
+          inner join T_YJS_KCAP kcap on tyx.KCDM = kcap.KCDM and tyx.XKKCH = kcap.XKKCH 
+          and tyx.XN = :schoolYear and tyx.XQDM = :period
+          left join T_YJS_KC kc on kcap.KCDM = kc.KCDM
+          left join T_JAS_JBXX js on kcap.JSDM = js.JASDM
+          left join T_JZG_JBXX jzg on kcap.JSGH = jzg.ZGH
+          where tyx.WZXH = :cardnum
+        `, [schoolYear,period,cardnum])
+          console.log(record)
+        //220171650
+        // get api/curriculum?term=2018-2019-2
+        record.rows.forEach(element => {
+          let [XN, XQDM, courseName,XF,XM,period,JASMC,JSDM] = element
+          let name=XN+'-'+(parseInt(XN)+1)+'-'+XQDM   //（类似于2019-2020-2）
+          if(period){
+          let [weekPeriod, dayPeriod] = period.split(/;\s/)
+          let [beginWeek, endWeek] = weekPeriod.match(/\d+/g).map(Number)
+          dayPeriod = dayPeriod.split(/\s/)
+          dayPeriod.forEach(dayPeriods=>{
+            let [days,periods] = dayPeriods.split(/-/)
+            let dayOfWeek='一二三四五六日'.indexOf(days.split('').slice(-1)[0]) + 1
+            periods = periods.split(/,/).map(p => '上下晚'.indexOf(p[0]) * 5 + Number(/\d+/.exec(p)[0]))
+            let beginPeriod = periods.filter((k, i, a) => i === 0 || a[i] !== a[i - 1] + 1)
+            let endPeriod = periods.filter((k, i, a) => i === a.length - 1 || a[i] !== a[i + 1] - 1)
+            curriculum.push({courseName,
+              teacherName:XM,
+              credit:XF,
+              location:JASMC,
+              beginWeek,
+              endWeek,
+              dayOfWeek,
+              beginPeriod:beginPeriod[0],
+              endPeriod:endPeriod[0],
+              flip: 'none'})
+          })
+        
         }
-
-        let data = {
-          '__EVENTTARGET': 'txtxq',
-          '__EVENTARGUMENT': '',
-          'txtxq': option.attr('value')
-        }
-
-        $('input[name="__VIEWSTATE"]').toArray().map(k => $(k)).map(k => {
-          data[k.attr('name')] = k.attr('value')
         })
+        
+        // let data = {
+        //   '__EVENTTARGET': 'txtxq',
+        //   '__EVENTARGUMENT': '',
+        //   'txtxq': option.attr('value')
+        // }
 
-        res = await this.post('http://121.248.63.139/nstudent/pygl/pyxkcx.aspx', data)
-        $ = cheerio.load(res.data)
-      }
+        // $('input[name="__VIEWSTATE"]').toArray().map(k => $(k)).map(k => {
+        //   data[k.attr('name')] = k.attr('value')
+        // })
 
-      // 将学期号转换为本科生风格的学期号（但只有 -2 和 -3），统一格式
-      term = $('option[selected]').text().trim().replace(/\d{2}(\d{2})/g, '$1')
-        .replace('秋学期', '-2').replace('春学期', '-3')
+      //   res = await this.post('http://121.248.63.139/nstudent/pygl/pyxkcx.aspx', data)
+      //   $ = cheerio.load(res.data)
+      // }
 
+      //将学期号转换为本科生风格的学期号（但只有 -2 和 -3），统一格式
+      // term = $('option[selected]').text().trim().replace(/\d{2}(\d{2})/g, '$1')
+      //   .replace('秋学期', '-2').replace('春学期', '-3')
       // 用 term 字符串从 term 中间件中拿到学期对象，这里 term 从字符串类型变成了 Object
+
       term = this.term.list.find(k => k.name === term) || {
         name: term
       }
@@ -439,32 +486,36 @@ WHERE OWNER = :cardnum and SEMESTER = :termName
       }
 
       // 课表信息，与本科生格式完全一致
-      curriculum = $('table.GridBackColor tr').toArray().slice(1, -1).map(k => $(k)).map(tr => {
-        let [className, location, department, id, courseName, teacherName, period, hours, credit, degree]
-          = tr.children('td').toArray().map(k => $(k).text())
-        credit = parseFloat(credit || 0)
-        let [weekPeriod, dayPeriod] = period.split(/;\s*/)
-        let [beginWeek, endWeek] = weekPeriod.match(/\d+/g).map(Number)
-        let days = dayPeriod.split(/\s+/)
-        return days.map(day => {
-          let [dayOfWeek, periods] = day.split(/-/)
-          dayOfWeek = '一二三四五六日'.indexOf(dayOfWeek.split('').slice(-1)[0]) + 1
-          periods = periods.split(/,/g).map(p => '上下晚'.indexOf(p[0]) * 5 + Number(/\d+/.exec(p)[0]))
-          let begins = periods.filter((k, i, a) => i === 0 || a[i] !== a[i - 1] + 1)
-          let ends = periods.filter((k, i, a) => i === a.length - 1 || a[i] !== a[i + 1] - 1)
-          return begins.map((k, i) => ({
-            courseName: className,
-            teacherName, credit, location,
-            beginWeek, endWeek,
-            dayOfWeek,
-            beginPeriod: k,
-            endPeriod: ends[i],
-            flip: 'none'
-          }))
-        }).reduce((a, b) => a.concat(b), [])
-      }).reduce((a, b) => a.concat(b), [])
-    }// if 本科生 / 研究生
+      // curriculum = $('table.GridBackColor tr').toArray().slice(1, -1).map(k => $(k)).map(tr => {
+      //   let [className, location, department, id, courseName, teacherName, period, hours, credit, degree]
+      //     = tr.children('td').toArray().map(k => $(k).text())
+      //   credit = parseFloat(credit || 0)
+      //   let [weekPeriod, dayPeriod] = period.split(/;\s*/)
+      //   let [beginWeek, endWeek] = weekPeriod.match(/\d+/g).map(Number)
+      //   let days = dayPeriod.split(/\s+/)
+      //   return days.map(day => {
+      //     let [dayOfWeek, periods] = day.split(/-/)
+      //     dayOfWeek = '一二三四五六日'.indexOf(dayOfWeek.split('').slice(-1)[0]) + 1
+      //     periods = periods.split(/,/g).map(p => '上下晚'.indexOf(p[0]) * 5 + Number(/\d+/.exec(p)[0]))
+      //     let begins = periods.filter((k, i, a) => i === 0 || a[i] !== a[i - 1] + 1)
+      //     let ends = periods.filter((k, i, a) => i === a.length - 1 || a[i] !== a[i + 1] - 1)
+      //     return begins.map((k, i) => ({
+      //       courseName: className,
+      //       teacherName, credit, location,
+      //       beginWeek, endWeek,
+      //       dayOfWeek,
+      //       beginPeriod: k,
+      //       endPeriod: ends[i],
+      //       flip: 'none'
+      //     }))
+      //   }).reduce((a, b) => a.concat(b), [])
+      // }).reduce((a, b) => a.concat(b), [])
 
+    
+
+  }
+
+    // if 本科生 / 研究生
     // 给有上课时间的课程添加上课具体周次、每周上课的具体起止时间戳
     curriculum.map(k => {
       let { beginWeek, endWeek, dayOfWeek, beginPeriod, endPeriod, flip } = k
