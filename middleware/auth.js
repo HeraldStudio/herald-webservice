@@ -196,14 +196,13 @@ module.exports = async (ctx, next) => {
     } else if (cardnum.startsWith('10')) {
       // 教职工库
       // TODO 暂时不支持
-      // const record = await ctx.db.execute(
-      //   `SELECT XM FROM TOMMY.T_JZG_JBXX
-      //   WHERE ZGH=:cardnum`, [cardnum]
-      // )
-      // if(record.rows.length > 0) {
-      //   name = record.rows[0][0]
-      // }
-      throw '小猴偷米目前只支持本科生使用哦～'
+      const record = await ctx.db.execute(
+        `SELECT XM FROM TOMMY.T_JZG_JBXX
+        WHERE ZGH=:cardnum`, [cardnum]
+      )
+      if (record.rows.length > 0) {
+        name = record.rows[0][0]
+      }
     }
 
     if (!name) {
