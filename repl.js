@@ -74,8 +74,8 @@ exports.start = () => {
             } else if (cardnum.startsWith('22') || cardnum.startsWith('23')) {
               // 研究生库
               const record = await db.execute(
-                `SELECT XM, XJH FROM TOMMY.T_YJS
-        WHERE XH=:cardnum`, [cardnum]
+                `SELECT XM, YJSXH FROM TOMMY.T_YJSJBXX
+                 WHERE XH=:cardnum`, [cardnum]
               )
               if (record.rows.length > 0) {
                 name = record.rows[0][0]

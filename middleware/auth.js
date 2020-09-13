@@ -185,7 +185,7 @@ module.exports = async (ctx, next) => {
       // 研究生库
       // TODO 暂时不支持
       const record = await ctx.db.execute(
-        `SELECT XM, XJH FROM TOMMY.T_YJS
+        `SELECT XM, YJSXH FROM TOMMY.T_YJSJBXX
         WHERE XH=:cardnum`, [cardnum]
       )
       if(record.rows.length > 0) {
