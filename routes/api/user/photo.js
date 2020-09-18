@@ -7,10 +7,12 @@ exports.route = {
       SELECT ZP
       FROM T_ZP
       WHERE XH =:cardnum
-      `, { cardnum },
-        {
-          fetchInfo: { "ZP": { type: oracledb.BUFFER } }
-        })
+      `, { cardnum }, {
+        fetchInfo: { "ZP": { type: oracledb.BUFFER } }
+      })
+      if (record.rows.length === 0) {
+        return { photo: undefined }
+      }
       return { photo: record.rows[0][0] }
     }
     )
