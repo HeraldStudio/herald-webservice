@@ -9,16 +9,12 @@ exports.route = {
   * @apiParam date    查询日期，格式 YYYY-MM-DD
   **/
   async get({ date = '' }) {
-
     return await this.userCache('1m+', async () => {
       if (!date) {
         date = moment().add(-1, 'days').format('YYYY-MM-DD')
       } else if (date !== moment(date, 'YYYY-MM-DD').format('YYYY-MM-DD')) {
         throw '日期格式不合法'
       }
-
-
-
       const { cardnum } = this.user
       const db = await oracle.getAllinoneCardConnection()
       try {
