@@ -385,14 +385,14 @@ WHERE OWNER = :cardnum and SEMESTER = :termName
         }
         curriculum.push(course)
       })
-    } else { // 研究生版
+    } else if (/^22/.test(cardnum)) { // 研究生版
       // await this.useAuthCookie()
       let headers = { 'Referer': 'http://121.248.63.139/nstudent/index.aspx' }
 
       // 获取课程列表页
       // 这里不能使用二维课表页面，因为二维课表页面在同一单元格有多节课程时，课程之间不换行，很难解析
-      let res = await this.get('http://121.248.63.139/nstudent/pygl/pyxkcx.aspx', { headers })
-      let $ = cheerio.load(res.data)
+      // let res = await this.get('http://121.248.63.139/nstudent/pygl/pyxkcx.aspx', { headers })
+      // let $ = cheerio.load(res.data)
 
 
 
@@ -516,6 +516,8 @@ WHERE OWNER = :cardnum and SEMESTER = :termName
 
 
 
+    } else {
+      curriculum = []
     }
 
     // if 本科生 / 研究生
