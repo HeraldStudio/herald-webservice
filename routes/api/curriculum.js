@@ -60,7 +60,7 @@ exports.route = {
     let { name, cardnum, schoolnum } = this.user
     let curriculum = []
     // 新选课系统-目前使用18级本科生数据进行测试
-    if (/^21318/.test(cardnum) || /^[0-9A-Z]{3}18/.test(schoolnum) || /^21319/.test(cardnum) || /^[0-9A-Z]{3}19/.test(schoolnum)) {
+    if (/^21318/.test(cardnum) || /^[0-9A-Z]{3}18/.test(schoolnum) || /^21319/.test(cardnum) || /^[0-9A-Z]{3}19/.test(schoolnum) || /^21320/.test(cardnum) || /^[0-9A-Z]{3}20/.test(schoolnum)) {
       // 处理 term
       if (!term) { term = currentTerm }
       term = this.term.list.find(t => t.name === term)

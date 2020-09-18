@@ -64,8 +64,8 @@ exports.route = {
     const now = +moment()
     // 测试样例
     return {
-      count: 2,
-      detail: [1585584000000, 1585670400000],
+      count: 0,
+      detail: [],
       health: [],
       remainDays: Array(16 * 7).fill()
         // 当前学期每一天的跑操结束时间戳

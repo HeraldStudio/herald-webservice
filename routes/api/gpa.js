@@ -1,4 +1,4 @@
-const cheerio = require('cheerio')
+// const cheerio = require('cheerio')
 const oracledb = require('oracledb')
 //const db = require('../../database/course')
 
@@ -53,7 +53,7 @@ exports.route = {
     let { name, cardnum } = this.user
     // 本科生
     if (/^21/.test(cardnum)) {
-      if (/^21318/.test(cardnum) || /^21319/.test(cardnum)) {  //18 19级
+      if (/^21318/.test(cardnum) || /^21319/.test(cardnum) || /^21320/.test(cardnum)) {  //18 19级
         let detail = await this.userCache('1h+', async () => {
           let rawData = await this.db.execute(`
           select XNXQDM,a.WID,KCM,KCXZDM,XF,ZCJ,CXCKDM
@@ -494,11 +494,11 @@ exports.route = {
       let detail = []
       record.rows.forEach(
         element => {
-          let [semester, WID, score, credit, courseType,scoreType, courseName] = element
+          let [semester, WID, score, credit, courseType, scoreType, courseName] = element
           let cur = semester.replace(/\d{2}(\d{2})/g, '$1')
             .replace('秋学期', '-1').replace('春学期', '-2')
           semester = cur
-          let kslbMap = new Map([['1','首修'],['2','缓考'],['3','旷考'],['4','补考'],['5','补考'],['6','重修'],['7','免修']])
+          let kslbMap = new Map([['1', '首修'], ['2', '缓考'], ['3', '旷考'], ['4', '补考'], ['5', '补考'], ['6', '重修'], ['7', '免修']])
           let cxckMap = new Map([['0', '选修'], ['1', '学位']])
           detail.push({
             semester,

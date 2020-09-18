@@ -57,17 +57,88 @@
  */
 const { config } = require('../app')
 
-// 先算好静态的学期框架，然后在请求内部只计算跟当前时间有关的东西
-// 注意这个数组不能在运行时被修改，需要用一定的机制来保证，下面 get() 中会实现这种机制
-// 规范一下时间格式 'YYYY-MM-DD YYYY-MM-DD HH:mm:ss' 
-const terms = Object.keys(config.term).map(k => {
-  let startMoment = moment(config.term[k], 'YYYY-MM-DD')
-  let startDate = +startMoment
-  let endDate = +startMoment.add(/-1$/.test(k) || /-4$/.test(k) ? 4 : 18, 'weeks')
-  return { name: k, startDate, endDate }
-}).reduce((a, b) => a.concat(b), [])
+// // 先算好静态的学期框架，然后在请求内部只计算跟当前时间有关的东西
+// // 注意这个数组不能在运行时被修改，需要用一定的机制来保证，下面 get() 中会实现这种机制
+// // 规范一下时间格式 'YYYY-MM-DD YYYY-MM-DD HH:mm:ss' 
+// const terms = Object.keys(config.term).map(k => {
+//   let startMoment = moment(config.term[k], 'YYYY-MM-DD')
+//   let startDate = +startMoment
+//   let endDate = +startMoment.add(/-1$/.test(k) || /-4$/.test(k) ? 4 : 18, 'weeks')
+//   return { name: k, startDate, endDate }
+// }).reduce((a, b) => a.concat(b), [])
 
 module.exports = async (ctx, next) => {
+  // 先算好静态的学期框架，然后在请求内部只计算跟当前时间有关的东西
+  // 注意这个数组不能在运行时被修改，需要用一定的机制来保证，下面 get() 中会实现这种机制
+  // 规范一下时间格式 'YYYY-MM-DD YYYY-MM-DD HH:mm:ss' 
+  // 兼容金智造成的老教务与新教务学期不统一的问题
+  const terms = /^21317/.test(ctx.user.cardnum) ? [
+    {
+      name: '2017-2018-1',
+      startDate: 1502294400000,
+      endDate: 1504713600000
+    },
+    {
+      name: '2017-2018-2',
+      startDate: 1506268800000,
+      endDate: 1517155200000
+    },
+    {
+      name: '2017-2018-3',
+      startDate: 1519574400000,
+      endDate: 1530460800000
+    },
+    {
+      name: '2018-2019-1',
+      startDate: 1534694400000,
+      endDate: 1537113600000
+    },
+    {
+      name: '2018-2019-2',
+      startDate: 1537113600000,
+      endDate: 1548000000000
+    },
+    {
+      name: '2018-2019-3',
+      startDate: 1551024000000,
+      endDate: 1561910400000
+    },
+    {
+      name: '2019-2020-1',
+      startDate: 1566144000000,
+      endDate: 1568563200000
+    },
+    {
+      name: '2019-2020-2',
+      startDate: 1568563200000,
+      endDate: 1579449600000
+    },
+    {
+      name: '2019-2020-3',
+      startDate: 1582473600000,
+      endDate: 1593360000000
+    },
+    {
+      name: '2020-2021-1',
+      startDate: 1598803200000,
+      endDate: 1601222400000
+    },
+    {
+      name: '2020-2021-2',
+      startDate: 1601222400000,
+      endDate: 1612108800000
+    },
+    {
+      name: '2020-2021-3',
+      startDate: 1614528000000,
+      endDate: 1625414400000
+    }
+  ] : Object.keys(config.term).map(k => {
+    let startMoment = moment(config.term[k], 'YYYY-MM-DD')
+    let startDate = +startMoment
+    let endDate = +startMoment.add(/-1$/.test(k) || /-4$/.test(k) ? 4 : 18, 'weeks')
+    return { name: k, startDate, endDate }
+  }).reduce((a, b) => a.concat(b), [])
   // 定义一个不可以被修改的属性，详情参考 MDN Object.defineProperty
   Object.defineProperty(ctx, 'term', {
     get() {
@@ -78,7 +149,6 @@ module.exports = async (ctx, next) => {
       let nextTerm = null
       let prevTerm = null
       let index = 0
-
       // 注意，每次请求 ctx.term 时都会执行下面的计算，请务必注意全局 term 对象的可重用问题以及性能问题
       let term = {
         list: terms.map(k => {
@@ -107,7 +177,6 @@ module.exports = async (ctx, next) => {
           return k
         })
       }
-
       currentTerm = currentTerm !== null ? currentTerm : term.list[term.list.length - 1]
       term.list[currentTerm.index].isCurrent = true
 
