@@ -81,11 +81,12 @@ exports.start = () => {
                 name = record.rows[0][0]
                 schoolnum = record.rows[0][1]
               }
-            } else if (cardnum.startsWith('10')) {
+            } else {
               // 教职工库
               const record = await db.execute(
-                `SELECT XM FROM TOMMY.T_JZG_JBXX
-        WHERE ZGH=:cardnum`, [cardnum]
+                `
+                SELECT XM FROM TOMMY.T_JZG_JBXX
+                WHERE ZGH=:cardnum`, [cardnum]
               )
               if (record.rows.length > 0) {
                 name = record.rows[0][0]

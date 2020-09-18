@@ -188,12 +188,12 @@ module.exports = async (ctx, next) => {
         `SELECT XM, YJSXH FROM TOMMY.T_YJSJBXX
         WHERE XH=:cardnum`, [cardnum]
       )
-      if(record.rows.length > 0) {
+      if (record.rows.length > 0) {
         name = record.rows[0][0]
         schoolnum = record.rows[0][1]
       }
       // throw '小猴偷米目前只支持本科生使用哦～'
-    } else if (cardnum.startsWith('10')) {
+    } else {
       // 教职工库
       // TODO 暂时不支持
       const record = await ctx.db.execute(
