@@ -6,7 +6,7 @@ exports.route = {
   */
   // 获取更新信息
   async get({ version }) {
-    if (version) {    // 验证是否符合版本号格式
+    if (this.user.isLogin) {    // 验证是否符合版本号格式
       if (!(/^\d+\.\d+\.\d+$/.test(version))) {
         throw '参数不符合规范'
       }
@@ -64,10 +64,8 @@ exports.route = {
           isLatest: true
         }
       }
-    }
-
-    else {
-      record = await this.db.execute(`
+    } else {
+      let record = await this.db.execute(`
         SELECT VERSION_NUM, CREATEDTIME, DESCRIPTION, DOWNLOAD_URL
         FROM H_VERSION
         WHERE CREATEDTIME IN (
@@ -76,7 +74,6 @@ exports.route = {
           WHERE PLATFORM = 'app-android'
         )AND PLATFORM = 'app-android'
       `)
-
       record = record.rows.map(Element => {
         let [version, createdTime, desc, downloadUrl] = Element
         return { version, createdTime, desc, downloadUrl }

@@ -72,7 +72,7 @@ module.exports = async (ctx, next) => {
   // 注意这个数组不能在运行时被修改，需要用一定的机制来保证，下面 get() 中会实现这种机制
   // 规范一下时间格式 'YYYY-MM-DD YYYY-MM-DD HH:mm:ss' 
   // 兼容金智造成的老教务与新教务学期不统一的问题
-  const terms = /^21317/.test(ctx.user.cardnum) ? [
+  const terms = ctx.user.isLogin && /^21317/.test(ctx.user.cardnum) ? [
     {
       name: '2017-2018-1',
       startDate: 1502294400000,
