@@ -136,7 +136,7 @@ module.exports = async (ctx, next) => {
   ] : Object.keys(config.term).map(k => {
     let startMoment = moment(config.term[k], 'YYYY-MM-DD')
     let startDate = +startMoment
-    let endDate = +startMoment.add(/-1$/.test(k) || /-4$/.test(k) ? 4 : 18, 'weeks')
+    let endDate = +startMoment.add(/-2$/.test(k) || /-4$/.test(k) ? 4 : 18, 'weeks')
     return { name: k, startDate, endDate }
   }).reduce((a, b) => a.concat(b), [])
   // 定义一个不可以被修改的属性，详情参考 MDN Object.defineProperty
