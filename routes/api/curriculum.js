@@ -64,10 +64,10 @@ exports.route = {
       // 处理 term
       if (!term) { term = currentTerm }
       term = this.term.list.find(t => t.name === term)
-      if (term.name.endsWith('1') || term.name.endsWith('4')) {
+      if (term.name.endsWith('2') || term.name.endsWith('4')) {
         term.maxWeek = 4
       }
-      if (term.name.endsWith('2') || term.name.endsWith('3')) {
+      if (term.name.endsWith('1') || term.name.endsWith('3')) {
         term.maxWeek = 16
       }
       curriculum = await this.userCache('1d+', async () => {
