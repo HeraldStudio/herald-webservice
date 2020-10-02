@@ -11,7 +11,9 @@ exports.route = {
     let bannerList = await this.db.execute(`
       SELECT ID,URL,TITLE,PIC,SCHOOLNUM_PREFIX,START_TIME,END_TIME,SCHOOLNUM_PREFIX 
       FROM TOMMY.H_BANNER p
-      WHERE :nowTime between p.start_time and p.end_time ORDER BY p.START_TIME DESC`
+      WHERE :nowTime between p.start_time and p.end_time 
+      ORDER BY TOP DESC, p.START_TIME DESC
+      `
     ,{
       nowTime: +moment()
     })
