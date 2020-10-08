@@ -62,24 +62,24 @@ exports.route = {
 
     const cardnum = this.user.cardnum
     const now = +moment()
-    // 测试样例
-    return {
-      count: 0,
-      detail: [],
-      health: [],
-      remainDays: Array(16 * 7).fill()
-        // 当前学期每一天的跑操结束时间戳
-        // 注意这里要克隆一次，不能在原对象上直接操作
-        .map((_, i) => +(moment(this.term.currentTerm.startDate).clone().add(i, 'days').hour(7).minute(20)))
-        // 过滤掉时间比现在晚的
-        .filter(k => now < k)
-        // 时间戳变为星期
-        .map(k => moment(k).day())
-        // 过滤掉周末
-        .filter(k => k >= 1 && k <= 5)
-        .length,
-      hint: '小猴提醒：起床不抓紧，跑操两行泪'
-    }
+    // // 测试样例
+    // return {
+    //   count: 0,
+    //   detail: [],
+    //   health: [],
+    //   remainDays: Array(16 * 7).fill()
+    //     // 当前学期每一天的跑操结束时间戳
+    //     // 注意这里要克隆一次，不能在原对象上直接操作
+    //     .map((_, i) => +(moment(this.term.currentTerm.startDate).clone().add(i, 'days').hour(7).minute(20)))
+    //     // 过滤掉时间比现在晚的
+    //     .filter(k => now < k)
+    //     // 时间戳变为星期
+    //     .map(k => moment(k).day())
+    //     // 过滤掉周末
+    //     .filter(k => k >= 1 && k <= 5)
+    //     .length,
+    //   hint: '小猴提醒：起床不抓紧，跑操两行泪'
+    // }
     // 获取体测成绩
     let signature = sha(`ak=${peConfig.pe.ak}&cardnum=${cardnum}&nounce=healthScore&sk=${peConfig.pe.sk}`)
     const healthScoreUrl = peConfig.pe.url + '/healthScore?' + `ak=${peConfig.pe.ak}&cardnum=${cardnum}&nounce=healthScore&signature=${signature}`
@@ -109,16 +109,39 @@ exports.route = {
     // console.log(morningExercisesUrl)
     res = await axios.get(morningExercisesUrl)
 
+    // sb网信，windows server访问不了内网，所以把跑操查询服务代码在这儿重复一遍
+    let resFromOther
+    try {
+      const signatureForReq = sha(`ak=${peConfig.pe.otherService.ak}&cardnum=${cardnum}&nounce=tyx&sk=${peConfig.pe.otherService.sk}`)
+      resFromOther = await axios.get(peConfig.pe.otherService.url, {
+        params: {
+          signature: signatureForReq,
+          cardnum,
+          nounce: 'tyx',
+          ak: peConfig.pe.otherService.ak
+        },
+        timeout: 1000
+      })
+      resFromOther = resFromOther.data
+      resFromOther.records = resFromOther.records.map(time => +moment(time))
+    } catch (err) {
+      console.log(err)
+      throw '请求跑操数据出错'
+    }
+    let trueRecords = {}
+    resFromOther.records.forEach(time => {
+      if (!trueRecords[time]) {
+        trueRecords[time] = true
+      }
+    })
+    res.data.records = res.data.records.concat(Object.keys(trueRecords))
     // 过滤，仅获取当前学期的的跑操次数
     res.data.records = res.data.records
       .map(k => +k)
       .filter(
-        // 测试期间，暂不过滤
-        () => true
-        // k => +moment(k) > this.term.currentTerm.startDate && +moment(k) < this.term.currentTerm.endDate
+        k => +moment(k) > this.term.currentTerm.startDate && +moment(k) < this.term.currentTerm.endDate
       )
 
-    // console.log(res.data.records)
 
     const count = res.data.records.length
 
