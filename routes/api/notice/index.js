@@ -49,10 +49,10 @@ exports.route = {
     let argSite = program.mode === 'development' ? this.params.site : undefined
     delete this.params.site
     let keys = typeof argSite !== 'undefined' ? [argSite] : commonSites
-    console.log(this.user)
     if (typeof argSite === 'undefined'
       && this.user.isLogin
-      && /^21/.test(this.user.cardnum)) { // 只处理本科生，似乎研究生从学号无法获取学院信息
+      && /^21/.test(this.user.cardnum)
+      && this.user.schoolnum) { // 只处理本科生，似乎研究生从学号无法获取学院信息
       keys = keys.concat(deptCodeFromSchoolNum(this.user.schoolnum))
     }
 
@@ -178,7 +178,7 @@ exports.route = {
       }
     })
 
-    return ret
+    // return ret
 
   },
 
