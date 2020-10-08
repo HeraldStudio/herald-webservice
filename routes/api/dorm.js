@@ -13,12 +13,19 @@ exports.route = {
         let [SSFJH] = Element
         return { SSFJH }
       })
-      result = result[0]
-      let campus = '四牌楼'
-      if (result.SSFJH.indexOf('梅园') !== -1 || result.SSFJH.indexOf('桃园') !== -1 || result.SSFJH.indexOf('橘园') !== -1) {
-        campus = '九龙湖'
+      if (!result.SSFJH) {
+        result = {
+          SSFJH: '未知',
+          campus: '未知'
+        }
+      } else {
+        result = result[0]
+        let campus = '四牌楼'
+        if (result.SSFJH.indexOf('梅园') !== -1 || result.SSFJH.indexOf('桃园') !== -1 || result.SSFJH.indexOf('橘园') !== -1) {
+          campus = '九龙湖'
+        }
+        result.campus = campus
       }
-      result.campus = campus
       return result
     })
 
