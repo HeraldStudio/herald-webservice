@@ -99,7 +99,7 @@ exports.route = {
         return siteArticles
       }) // publicCache
     )) // Promise.all
-    console.log(JSON.stringify(ret, null, 2))
+    // console.log(JSON.stringify(ret, null, 2))
 
     // 小猴系统通知
     let res = []
