@@ -49,7 +49,7 @@ exports.route = {
     let argSite = program.mode === 'development' ? this.params.site : undefined
     delete this.params.site
     let keys = typeof argSite !== 'undefined' ? [argSite] : commonSites
-
+    console.log(this.user)
     if (typeof argSite === 'undefined'
       && this.user.isLogin
       && /^21/.test(this.user.cardnum)) { // 只处理本科生，似乎研究生从学号无法获取学院信息
@@ -67,7 +67,7 @@ exports.route = {
         const baseUrl = site.baseUrl
         const list = site.list
         const siteArticles = await Promise.all(list.map(async column => {
-          const res = await this.get(baseUrl +  column[0])
+          const res = await this.get(baseUrl + column[0])
           const $ = cheerio.load(res.data)
 
           const articleListItem = $(site.articleListItemSelector)
@@ -80,7 +80,7 @@ exports.route = {
             const isImportant = articleAnchor.find('font').length
             const articleDate = elemJqObj.find(site.articleDateClass).text()
 
-            articleList.push( {
+            articleList.push({
               site: site.name,
               category: column[1],
               // 标题可能在 title 属性中，也可能并不在。
