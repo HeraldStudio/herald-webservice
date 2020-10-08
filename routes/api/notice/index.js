@@ -85,7 +85,7 @@ exports.route = {
               category: column[1],
               // 标题可能在 title 属性中，也可能并不在。
               title: articleTitle,
-              url: url.resolve(sites[siteKey].baseUrl,articleLink),
+              url: url.resolve(sites[siteKey].baseUrl, articleLink),
               isAttachment: ! /\.(html?$|aspx?|jsp|php)/.test(articleLink),
               isImportant: !!isImportant,
               time: +moment(articleDate)
