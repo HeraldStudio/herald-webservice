@@ -6,7 +6,7 @@ exports.route = {
   */
   // 获取更新信息
   async get({ version }) {
-    if (this.user.isLogin) {    // 验证是否符合版本号格式
+    if (this.user.isLogin&&version) {    // 验证是否符合版本号格式
       if (!(/^\d+\.\d+\.\d+$/.test(version))) {
         throw '参数不符合规范'
       }
