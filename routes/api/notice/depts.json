@@ -1,1190 +1,1059 @@
 {
-  "jwc": {
-    "name": "教务处",
-    "codes": [
-      "00"
-    ],
-    "baseUrl": "https://jwc.seu.edu.cn",
-    "list": [
-      [
-        "/jwxx/list.htm",
-        "教务信息"
-      ],
-      [
-        "/xjgl/list.htm",
-        "学籍管理"
-      ],
-      [
-        "/sjjx/list.htm",
-        "实践教学"
-      ],
-      [
-        "/gjjl/list.htm",
-        "国际交流"
-      ],
-      [
-        "/jxyj/list.htm",
-        "教学研究"
-      ]
-    ],
-    "contentSelector": ".wp_articlecontent",
-    "articleListItemSelector": "#wp_news_w8 tbody tr",
-    "articleAnchorClass": "td:nth-of-type(2) a:nth-of-type(2)",
-    "articleDateClass": "td:nth-of-type(3) .main"
-  },
-  "zwc": {
-    "name": "总务处",
-    "codes": [
-      "96"
-    ],
-    "baseUrl": "https://zwc.seu.edu.cn",
-    "list": [
-      [
-        "/4297/list.htm",
-        "通知公告"
-      ],
-      [
-        "/4296/list.htm",
-        "总务新闻"
-      ],
-      [
-        "/4298/list.htm",
-        "部门快讯"
-      ]
-    ],
-    "contentSelector": "[portletmode=\"simpleArticleAttri\"]",
-    "articleListItemSelector": ".news_list.list2 li",
-    "articleAnchorClass": ".news_title a",
-    "articleDateClass": ".news_meta"
-  },
   "arch": {
     "baseUrl": "https://arch.seu.edu.cn",
     "codes": [
       "01"
     ],
+    "infoUrl": "https://arch.seu.edu.cn/9126/list.htm",
     "list": [
       [
-        "/9126/list.htm",
+        "#wp_news_w90",
         "通知公告"
       ]
     ],
     "name": "建筑学院",
-    "contentSelector": ".info-box",
-    "articleListItemSelector": ".wp_article_list li",
-    "articleAnchorClass": ".Article_Title a",
-    "articleDateClass": ".Article_PublishDate"
+    "dateSelector": "em",
+    "contentSelector": ".info-box"
   },
   "arts": {
-    "baseUrl": "https://arts.seu.edu.cn",
+    "baseUrl": "http://arts.seu.edu.cn",
     "codes": [
       "24"
     ],
+    "infoUrl": "http://arts.seu.edu.cn/",
     "list": [
       [
-        "/17236/list.htm",
+        "#wp_news_w8",
         "重要通知"
       ],
       [
-        "/17234/list.htm",
+        "#wp_news_w4",
         "学院新闻"
       ],
       [
-        "/17235/list.htm",
+        "#wp_news_w6",
         "学术信息"
       ],
       [
-        "/17237/list.htm",
+        "#wp_news_w7",
         "教务信息"
       ]
     ],
     "name": "艺术学院",
-    "contentSelector": ".wp_articlecontent",
-    "articleListItemSelector": ".wp_article_list li",
-    "articleAnchorClass": ".Article_Title a",
-    "articleDateClass": ".Article_PublishDate"
+    "dateSelector": "span.post_time",
+    "contentSelector": ".wp_articlecontent"
   },
   "automation": {
-    "baseUrl": "https://automation.seu.edu.cn",
+    "baseUrl": "http://automation.seu.edu.cn",
     "codes": [
       "08"
     ],
+    "infoUrl": "http://automation.seu.edu.cn/",
     "list": [
       [
-        "/zxtz/list.htm",
+        "#wp_news_w8",
         "最新通知"
       ],
       [
-        "/zxtz/list.htm",
+        "#wp_news_w7",
         "最新通知"
       ],
       [
-        "/xsbg/list.htm",
+        "#wp_news_w10",
         "学术报告"
       ],
       [
-        "/xsbg/list.htm",
+        "#wp_news_w9",
         "学术报告"
       ],
       [
-        "/24456/list.htm",
+        "#wp_news_w11",
         "学生工作"
       ],
       [
-        "/xyxw/list.htm",
+        "#wp_news_w6",
         "学院新闻"
       ]
     ],
     "name": "自动化学院",
-    "contentSelector": "[frag='窗口4']",
-    "articleListItemSelector": ".wp_article_list li",
-    "articleAnchorClass": ".Article_Title a",
-    "articleDateClass": ".Article_PublishDate"
+    "dateSelector": "div.news_date",
+    "contentSelector": "[frag='窗口4']"
   },
   "bme": {
-    "baseUrl": "https://bme.seu.edu.cn",
+    "baseUrl": "http://bme.seu.edu.cn",
     "codes": [
       "11"
     ],
+    "infoUrl": "http://bme.seu.edu.cn",
     "list": [
       [
-        "/482/list.htm",
+        "#wp_news_w32",
         "学工看板"
       ],
       [
-        "/480/list.htm",
+        "#wp_news_w31",
         "公告栏"
       ],
       [
-        "/sykx/list.htm",
+        "#wp_news_w22",
         "生医快讯"
       ],
       [
-        "/479/list.htm",
+        "#wp_news_w21",
         "学术动态"
       ],
       [
-        "/478/list.htm",
+        "#wp_news_w13",
         "学院新闻"
       ]
     ],
     "name": "生物科学与医学工程学院",
-    "contentSelector": "[frag='窗口3']",
-    "articleListItemSelector": ".wp_article_list li",
-    "articleAnchorClass": ".Article_Title a",
-    "articleDateClass": ".Article_PublishDate"
+    "dateSelector": "span.news_meta",
+    "contentSelector": "[frag='窗口3']"
   },
   "chem": {
-    "baseUrl": "https://chem.seu.edu.cn",
+    "baseUrl": "http://chem.seu.edu.cn",
     "codes": [
       "19"
     ],
+    "infoUrl": "http://chem.seu.edu.cn/",
     "list": [
       [
-        "/2262/list.htm",
+        "#wp_news_w24",
         "学院新闻"
       ],
       [
-        "/xsgz/list.htm",
+        "#wp_news_w6",
         "学生工作"
       ],
       [
-        "/11950/list.htm",
+        "#wp_news_w7",
         "研究生培养"
       ],
       [
-        "/2268/list.htm",
+        "#wp_news_w5",
         "学术活动"
       ],
       [
-        "/2267/list.htm",
+        "#wp_news_w8",
         "本科生教学"
       ],
       [
-        "/21651/list.htm",
+        "#wp_news_w19",
+        "本科生教学"
+      ],
+      [
+        "#wp_news_w21",
         "学生活动"
       ],
       [
-        "/rwfc/list.htm",
+        "#wp_news_w32",
         "人物风采"
       ],
       [
-        "/kxyj/list.htm",
+        "#wp_news_w35",
         "科学研究"
       ],
       [
-        "/gjjl/list.htm",
-        "实验室安全信息"
+        "#wp_news_w37",
+        "国际交流"
       ]
     ],
     "name": "化学化工学院",
-    "contentSelector": "[frag='窗口32']",
-    "articleListItemSelector": ".wp_article_list li",
-    "articleAnchorClass": ".Article_Title a",
-    "articleDateClass": ".Article_PublishDate"
+    "dateSelector": "span.date",
+    "contentSelector": "[frag='窗口32']"
   },
   "cis": {
-    "baseUrl": "https://cis.seu.edu.cn",
+    "baseUrl": "http://cis.seu.edu.cn",
     "codes": [
       "75"
     ],
+    "infoUrl": "http://cis.seu.edu.cn/",
     "list": [
       [
-        "/wews/list.htm",
+        "#wp_news_w31",
         "News"
       ]
     ],
     "name": "海外教育学院",
-    "contentSelector": "[frag='窗口3']",
-    "articleListItemSelector": ".wp_article_list li",
-    "articleAnchorClass": ".Article_Title a",
-    "articleDateClass": ".Article_PublishDate"
+    "dateSelector": ".date-day",
+    "contentSelector": "[frag='窗口3']"
   },
   "civil": {
-    "baseUrl": "https://civil.seu.edu.cn",
+    "baseUrl": "http://civil.seu.edu.cn",
     "codes": [
       "05"
     ],
+    "infoUrl": "http://civil.seu.edu.cn/",
     "list": [
       [
-        "/19885/list.htm",
+        "#wp_news_w14",
         "学院新闻"
       ],
       [
-        "/19886/list.htm",
+        "#wp_news_w15",
         "院务通知"
       ],
       [
-        "/19887/list.htm",
+        "#wp_news_w16",
         "信息公告"
       ],
       [
-        "/1185/list.htm",
+        "#wp_news_w21",
         "科学研究"
       ],
       [
-        "/19889/list.htm",
+        "#wp_news_w22",
         "学术活动"
       ],
       [
-        "/1281/list.htm",
+        "#wp_news_w23",
         "国际交流"
       ],
       [
-        "/19891/list.htm",
+        "#wp_news_w31",
         "人物风采"
       ],
       [
-        "/1225/list.htm",
+        "#wp_news_w32",
         "学生工作"
       ],
       [
-        "/19893/list.htm",
+        "#wp_news_w33",
         "两学一做"
       ]
     ],
     "name": "土木工程学院",
-    "contentSelector": "[frag='窗口3']",
-    "articleListItemSelector": ".wp_article_list li",
-    "articleAnchorClass": ".Article_Title a",
-    "articleDateClass": ".Article_PublishDate"
+    "dateSelector": ".Article_PublishDate",
+    "contentSelector": "[frag='窗口3']"
   },
   "cose": {
-    "baseUrl": "https://cose.seu.edu.cn",
+    "baseUrl": "http://cose.seu.edu.cn",
     "codes": [
       "71"
     ],
+    "infoUrl": "http://cose.seu.edu.cn/",
     "list": [
       [
-        "/18016/list.htm",
+        "#wp_news_w51",
         "学院新闻"
       ],
       [
-        "/17972/list.htm",
+        "#wp_news_w53",
         "教务信息"
       ],
       [
-        "/18038/list.htm",
+        "#wp_news_w54",
         "就业信息"
       ],
       [
-        "/18017/list.htm",
+        "#wp_news_w55",
         "通知公告"
       ],
       [
-        "/17975/list.htm",
+        "#wp_news_w56",
         "学工事务"
       ]
     ],
     "name": "软件学院",
-    "contentSelector": "[frag='窗口3']",
-    "articleListItemSelector": ".wp_article_list li",
-    "articleAnchorClass": ".Article_Title a",
-    "articleDateClass": ".Article_PublishDate"
+    "dateSelector": "span.Article_PublishDate",
+    "contentSelector": "[frag='窗口3']"
   },
   "cse": {
-    "baseUrl": "https://cse.seu.edu.cn",
+    "baseUrl": "http://cse.seu.edu.cn",
     "codes": [
       "09"
     ],
+    "infoUrl": "http://cse.seu.edu.cn",
     "list": [
       [
-        "/22645/list.htm",
+        "#wp_news_w333",
         "学院新闻"
       ],
       [
-        "/22646/list.htm",
+        "#wp_news_w334",
         "通知公告"
       ],
       [
-        "/22538/list.htm",
+        "#wp_news_w344",
         "教务信息"
       ],
       [
-        "/22537/list.htm",
+        "#wp_news_w345",
         "就业信息"
       ],
       [
-        "/22539/list.htm",
+        "#wp_news_w346",
         "学工事务"
       ]
     ],
     "name": "计算机学院",
-    "contentSelector": "[frag='窗口3']",
-    "articleListItemSelector": ".wp_article_list li",
-    "articleAnchorClass": ".Article_Title a",
-    "articleDateClass": ".Article_PublishDate"
+    "dateSelector": "span.news_meta",
+    "contentSelector": "[frag='窗口3']"
   },
   "cyber": {
-    "baseUrl": "https://cyber.seu.edu.cn",
+    "baseUrl": "http://cyber.seu.edu.cn",
     "codes": [
       "57"
     ],
+    "infoUrl": "http://cyber.seu.edu.cn",
     "list": [
       [
-        "/18195/list.htm",
+        "#wp_news_w54",
         "学生工作"
       ],
       [
-        "/xshd/list.htm",
+        "#wp_news_w52",
         "学术活动"
       ],
       [
-        "/xwkx/list.htm",
+        "#wp_news_w32",
         "学院快讯"
       ],
       [
-        "/tzgg/list.htm",
+        "#wp_news_w35",
         "通知公告"
       ],
       [
-        "/jwxx/list.htm",
+        "#wp_news_w53",
         "教务信息"
       ]
     ],
     "name": "网络空间安全学院",
-    "articleListItemSelector": ".wp_article_list li",
-    "articleAnchorClass": ".Article_Title a",
-    "articleDateClass": ".Article_PublishDate"
+    "dateSelector": "span.news_meta"
   },
   "ee": {
-    "baseUrl": "https://ee.seu.edu.cn",
+    "baseUrl": "http://ee.seu.edu.cn",
     "codes": [
       "16"
     ],
+    "infoUrl": "http://ee.seu.edu.cn/",
     "list": [
       [
-        "/xyxw/list.htm",
+        "#wp_news_w12",
         "学院新闻"
       ],
       [
-        "/tzgg/list.htm",
+        "#wp_news_w13",
         "通知公告"
       ],
       [
-        "/xsgz/list.htm",
+        "#wp_news_w24",
         "学生工作"
       ],
       [
-        "/xsjl/list.htm",
+        "#wp_news_w20",
         "学术交流"
       ],
       [
-        "/25272/list.htm",
+        "#wp_news_w21",
         "本科生培养"
       ],
       [
-        "/25274/list.htm",
+        "#wp_news_w22",
         "研究生培养"
       ],
       [
-        "/dqgz/list.htm",
+        "#wp_news_w23",
         "党群工作"
       ]
     ],
     "name": "电气工程学院",
-    "articleListItemSelector": ".wp_article_list li",
-    "articleAnchorClass": ".Article_Title a",
-    "articleDateClass": ".Article_PublishDate"
+    "dateSelector": ".news_days"
   },
   "electronic": {
-    "baseUrl": "https://electronic.seu.edu.cn",
+    "baseUrl": "http://electronic.seu.edu.cn",
     "codes": [
       "06"
     ],
+    "infoUrl": "http://electronic.seu.edu.cn",
     "list": [
       [
-        "/11530/list.htm",
+        "#wp_news_w120",
         "学院新闻"
       ],
       [
-        "/11476/list.htm",
+        "#wp_news_w13",
         "研究生培养"
       ],
       [
-        "/djgz/list.htm",
+        "#wp_news_w10",
         "党建工作"
       ],
       [
-        "/bkswsy/list.htm",
+        "#wp_news_w12",
         "本科生培养"
       ],
       [
-        "/sywxsgz/list.htm",
+        "#wp_news_w113",
         "学生工作"
       ]
     ],
     "name": "电子科学与工程学院",
-    "articleListItemSelector": ".wp_article_list li",
-    "articleAnchorClass": ".Article_Title a",
-    "articleDateClass": ".Article_PublishDate"
+    "dateSelector": "div"
   },
   "em": {
-    "baseUrl": "https://em.seu.edu.cn",
+    "baseUrl": "http://em.seu.edu.cn",
     "codes": [
       "14"
     ],
+    "infoUrl": "http://em.seu.edu.cn/",
     "list": [
       [
-        "/xspy/list.htm",
+        "#wp_news_w13",
         "学生培养"
       ],
       [
-        "/27123/list.htm",
+        "#wp_news_w12",
         "活动预告"
       ],
       [
-        "/26999/list.htm",
+        "#wp_news_w11",
         "重要通知"
       ],
       [
-        "/wwwzc/list.htm",
+        "#wp_news_w99",
         "MBA 之窗"
       ],
       [
-        "/26998/list.htm",
+        "#wp_news_w10",
         "学术活动"
       ],
       [
-        "/26997/list.htm",
+        "#wp_news_w19",
         "学院新闻"
       ]
     ],
     "name": "经济管理学院",
-    "contentSelector": ".entry",
-    "articleListItemSelector": ".wp_article_list li",
-    "articleAnchorClass": ".Article_Title a",
-    "articleDateClass": ".Article_PublishDate"
+    "contentSelector": ".entry"
   },
   "gw": {
-    "baseUrl": "https://gw.seu.edu.cn",
+    "baseUrl": "http://gw.seu.edu.cn",
     "codes": [
       "42"
     ],
+    "infoUrl": "http://gw.seu.edu.cn/",
     "list": [
       [
-        "/15680/list.htm",
+        "#wp_news_w12",
         "本科生培养"
       ],
       [
-        "/15681/list.htm",
+        "#wp_news_w13",
         "研究生培养"
       ],
       [
-        "/xsyd/list.htm",
+        "#wp_news_w11",
         "学术园地"
       ],
       [
-        "/xydt/list.htm",
+        "#wp_news_w20",
         "学院动态"
       ],
       [
-        "/zsjy/list.htm",
+        "#wp_news_w30",
         "招生就业"
       ],
       [
-        "/cyzd/list.htm",
+        "#wp_news_w31",
         "创业指导"
       ]
     ],
     "name": "公共卫生学院",
-    "contentSelector": ".wp_articlecontent",
-    "articleListItemSelector": ".wp_article_list li",
-    "articleAnchorClass": ".Article_Title a",
-    "articleDateClass": ".Article_PublishDate"
+    "dateSelector": "span, h3.small-title",
+    "contentSelector": ".wp_articlecontent"
   },
   "ic": {
-    "baseUrl": "https://ic.seu.edu.cn",
+    "baseUrl": "http://ic.seu.edu.cn",
     "codes": [],
+    "infoUrl": "http://ic.seu.edu.cn",
     "list": [
       [
-        "/2213/list.htm",
+        "#wp_news_w120",
         "学院新闻"
       ],
       [
-        "/2214/list.htm",
+        "#wp_news_w31",
         "通知公告"
       ],
       [
-        "/kyjd_24070/list.htm",
+        "#wp_news_w14",
         "科研基地"
       ],
       [
-        "/2219/list.htm",
+        "#wp_news_w12",
         "学生工作"
       ],
       [
-        "/23662/list.htm",
+        "#wp_news_w10",
         "学生培养"
       ],
       [
-        "/24090/list.htm",
+        "#wp_news_w13",
         "科研工作"
       ]
     ],
     "name": "微电子学院",
-    "contentSelector": ".wp_articlecontent",
-    "articleListItemSelector": ".wp_article_list li",
-    "articleAnchorClass": ".Article_Title a",
-    "articleDateClass": ".Article_PublishDate"
+    "dateSelector": "span.Article_PublishDate",
+    "contentSelector": ".wp_articlecontent"
   },
   "ils": {
-    "baseUrl": "https://ils.seu.edu.cn",
+    "baseUrl": "http://ils.seu.edu.cn",
     "codes": [],
+    "infoUrl": "http://ils.seu.edu.cn",
     "list": [
       [
-        "/xyxw/list.htm",
+        "#wp_news_w14",
         "学院新闻"
       ],
       [
-        "/tzgg/list.htm",
+        "#wp_news_w15",
         "通知公告"
       ],
       [
-        "/xsjz/list.htm",
+        "#wp_news_w16",
         "学术讲座"
       ],
       [
-        "/yjjz/list.htm",
+        "#wp_news_w18",
         "研究进展"
       ]
     ],
     "name": "生命科学研究院",
-    "contentSelector": ".wp_articlecontent",
-    "articleListItemSelector": ".wp_article_list li",
-    "articleAnchorClass": ".Article_Title a",
-    "articleDateClass": ".Article_PublishDate"
+    "dateSelector": "span.news_meta",
+    "contentSelector": ".wp_articlecontent"
   },
   "ins": {
-    "baseUrl": "https://ins.seu.edu.cn/#/",
+    "baseUrl": "http://ins.seu.edu.cn/#/",
     "codes": [
       "22"
     ],
+    "infoUrl": "http://ins.seu.edu.cn/#/",
     "list": [
       [
         "自己做的网站，实在不兼容现在的方法",
         ""
       ],
       [
-        "/xyxw1/list.htm",
+        "div .con",
         "学院新闻"
       ]
     ],
     "name": "仪器科学与工程学院",
-    "contentSelector": ".article",
-    "articleListItemSelector": ".wp_article_list li",
-    "articleAnchorClass": ".Article_Title a",
-    "articleDateClass": ".Article_PublishDate"
+    "dateSelector": "span.time",
+    "contentSelector": ".article"
   },
   "law": {
     "baseUrl": "https://law.seu.edu.cn",
     "codes": [
       "25"
     ],
+    "infoUrl": "https://law.seu.edu.cn/",
     "list": [
       [
-        "/9381/list.htm",
+        "#wp_news_w230",
         "通知公告"
       ],
       [
-        "/9375/list.htm",
+        "#wp_news_w220",
         "学院新闻"
       ],
       [
-        "/9152/list.htm",
+        "#wp_news_w240",
         "学术研究"
       ],
       [
-        "/9270/list.htm",
+        "#wp_news_w250",
+        "学生工作"
+      ],
+      [
+        "法学院也是个特例，页面结构和其他的网站不同，算了不管啦",
         "学生工作"
       ]
     ],
     "name": "法学院",
-    "contentSelector": ".wp_articlecontent",
-    "articleListItemSelector": ".wp_article_list li",
-    "articleAnchorClass": ".Article_Title a",
-    "articleDateClass": ".Article_PublishDate"
+    "dateSelector": "a",
+    "contentSelector": ".wp_articlecontent"
   },
   "marxism": {
-    "baseUrl": "https://marxism.seu.edu.cn",
+    "baseUrl": "http://marxism.seu.edu.cn",
     "codes": [
       "15"
     ],
+    "infoUrl": "http://marxism.seu.edu.cn/",
     "list": [
       [
-        "/23334/list.htm",
+        "#wp_news_w14",
         "学院新闻"
       ],
       [
-        "/23336/list.htm",
+        "#wp_news_w15",
         "通知公告"
       ],
       [
-        "/23295/list.htm",
+        "#wp_news_w116",
         "学生培养"
       ],
       [
-        "/xsjz/list.htm",
+        "#wp_news_w114",
         "学术动态"
       ],
       [
-        "/llxs/list.htm",
-        "思想风采"
-      ],
-      [
-        "/6736/list.htm",
-        "图片新闻"
-      ],
-      [
-        "/lldt/list.htm",
-        "理论动态"
+        "#wp_news_w16",
+        "理论学思"
       ]
     ],
     "name": "马克思主义学院",
-    "contentSelector": ".entry",
-    "articleListItemSelector": ".wp_article_list li",
-    "articleAnchorClass": ".Article_Title a",
-    "articleDateClass": ".Article_PublishDate"
+    "dateSelector": "span.news_meta",
+    "contentSelector": ".entry"
   },
   "math": {
-    "baseUrl": "https://math.seu.edu.cn",
+    "baseUrl": "http://math.seu.edu.cn",
     "codes": [
       "07"
     ],
+    "infoUrl": "http://math.seu.edu.cn/",
     "list": [
       [
-        "/xwkx/list.htm",
+        "#wp_news_w10",
         "新闻快讯"
       ],
       [
-        "/xxgg/list.htm",
+        "#wp_news_w20",
         "教师公告"
       ],
       [
-        "/xshd_15557/list.htm",
+        "#wp_news_w21",
         "学生公告"
       ],
       [
-        "/xshd/list.htm",
+        "#wp_news_w23",
         "学术活动"
       ],
       [
-        "/jwxx/list.htm",
+        "#wp_news_w24",
         "教务信息"
       ]
     ],
     "name": "数学学院",
-    "contentSelector": ".wp_articlecontent",
-    "articleListItemSelector": ".wp_article_list li",
-    "articleAnchorClass": ".Article_Title a",
-    "articleDateClass": ".Article_PublishDate"
+    "contentSelector": ".wp_articlecontent"
   },
   "me": {
-    "baseUrl": "https://me.seu.edu.cn",
+    "baseUrl": "http://me.seu.edu.cn",
     "codes": [
       "02"
     ],
+    "infoUrl": "http://me.seu.edu.cn/",
     "list": [
       [
-        "/1550/list.htm",
+        "#wp_news_w4",
         "学院新闻"
       ],
       [
-        "/1323/list.htm",
+        "#wp_news_w6",
         "本科生教务"
       ],
       [
-        "/1324/list.htm",
+        "#wp_news_w7",
         "研究生教务"
       ],
       [
-        "/1551/list.htm",
+        "#wp_news_w71",
         "学术论坛"
       ],
       [
-        "/1553/list.htm",
+        "#wp_news_w8",
         "学工通知"
       ],
       [
-        "/1536/list.htm",
+        "#wp_news_w17",
         "党群工作"
       ],
       [
-        "/1549/list.htm",
+        "#wp_news_w5",
         "通知公告"
       ]
     ],
     "name": "机械工程学院",
-    "contentSelector": ".wp_articlecontent",
-    "articleListItemSelector": ".wp_article_list li",
-    "articleAnchorClass": ".Article_Title a",
-    "articleDateClass": ".Article_PublishDate"
+    "dateSelector": "span.date",
+    "contentSelector": ".wp_articlecontent"
   },
   "med": {
-    "baseUrl": "https://med.seu.edu.cn",
+    "baseUrl": "http://med.seu.edu.cn",
     "codes": [
       "41",
       "43",
       "44"
     ],
+    "infoUrl": "http://med.seu.edu.cn/",
     "list": [
       [
-        "/8755/list.htm",
+        "#wp_news_w21",
         "学院动态"
       ],
       [
-        "/8756/list.htm",
+        "#wp_news_w22",
         "通知公告"
       ],
       [
-        "/15500/list.htm",
+        "#wp_news_w31",
         "招生培养"
       ],
       [
-        "/15499/list.htm",
+        "#wp_news_w12",
         "学科师资"
       ],
       [
-        "/8765/list.htm",
+        "#wp_news_w32",
         "学生园地"
+      ],
+      [
+        "医学院也是也个奇葩，自己的网站直接跳转微信推送的页面，这个想法很可以",
+        ""
       ]
     ],
     "name": "医学院",
-    "contentSelector": "wp_articlecontent",
-    "articleListItemSelector": ".wp_article_list li",
-    "articleAnchorClass": ".Article_Title a",
-    "articleDateClass": ".Article_PublishDate"
+    "dateSelector": "span.Article_PublishDate",
+    "contentSelector": "wp_articlecontent"
   },
   "physics": {
-    "baseUrl": "https://physics.seu.edu.cn",
+    "baseUrl": "http://physics.seu.edu.cn",
     "codes": [
       "10"
     ],
+    "infoUrl": "http://physics.seu.edu.cn/",
     "list": [
       [
-        "/23142/list.htm",
+        "#wp_news_w21",
         "新闻公告"
       ],
       [
-        "/23138/list.htm",
+        "#wp_news_w103",
         "科学研究"
       ],
       [
-        "/xsbgcs/list.htm",
+        "#wp_news_w105",
         "学术报告"
       ],
       [
-        "/23141/list.htm",
+        "#wp_news_w104",
         "学生工作"
       ]
     ],
     "name": "物理学院",
-    "contentSelector": ".wp_articlecontent",
-    "articleListItemSelector": ".wp_article_list li",
-    "articleAnchorClass": ".Article_Title a",
-    "articleDateClass": ".Article_PublishDate"
+    "dateSelector": "span.news_meta",
+    "contentSelector": ".wp_articlecontent"
   },
   "power": {
-    "baseUrl": "https://power.seu.edu.cn",
+    "baseUrl": "http://power.seu.edu.cn",
     "codes": [
       "03"
     ],
+    "infoUrl": "http://power.seu.edu.cn/main.htm",
     "list": [
       [
-        "/9515/list.htm",
+        "#wp_news_w11",
         "学院新闻"
       ],
       [
-        "/9497/list.htm",
+        "#wp_news_w31",
         "通知公告"
       ],
       [
-        "/9506/list.htm",
+        "#wp_news_w08",
         "研究生专栏"
       ],
       [
-        "/9503/list.htm",
+        "#wp_news_w09",
         "本科生专栏"
       ],
       [
-        "/9406/list.htm",
+        "#wp_news_w10",
         "学生工作"
       ],
       [
-        "/9412/list.htm",
+        "#wp_news_w151",
         "党群工作"
       ],
       [
-        "/9509/list.htm",
+        "#wp_news_w32",
         "学术活动"
       ]
     ],
     "name": "能源与环境学院",
-    "contentSelector": ".wp_articlecontent",
-    "articleListItemSelector": ".wp_article_list li",
-    "articleAnchorClass": ".Article_Title a",
-    "articleDateClass": ".Article_PublishDate"
+    "dateSelector": "span.Article_PublishDate",
+    "contentSelector": ".wp_articlecontent"
   },
   "radio": {
-    "baseUrl": "https://radio.seu.edu.cn",
+    "baseUrl": "http://radio.seu.edu.cn",
     "codes": [
       "04"
     ],
+    "infoUrl": "http://radio.seu.edu.cn/",
     "list": [
       [
-        "/1589/list.htm",
+        "#wp_news_w14",
         "学院新闻"
       ],
       [
-        "/19194/list.htm",
+        "#wp_news_w21",
         "本科生教学"
       ],
       [
-        "/1588/list.htm",
+        "#wp_news_w15",
         "重要通知"
       ],
       [
-        "/19195/list.htm",
+        "#wp_news_w22",
         "研究生培养"
       ],
       [
-        "/19216/list.htm",
+        "#wp_news_w23",
         "学生工作"
       ],
       [
-        "/23484/list.htm",
+        "#wp_news_w32",
         "媒体传真"
       ],
       [
-        "/19241/list.htm",
+        "#wp_news_w33",
         "优秀典型"
       ]
     ],
     "name": "信息科学与工程学院",
-    "contentSelector": ".wp_articlecontent",
-    "articleListItemSelector": ".wp_article_list li",
-    "articleAnchorClass": ".Article_Title a",
-    "articleDateClass": ".Article_PublishDate"
+    "dateSelector": ".news_time",
+    "contentSelector": ".wp_articlecontent"
   },
   "rcls": {
-    "baseUrl": "https://rcls.seu.edu.cn",
+    "baseUrl": "http://rcls.seu.edu.cn",
     "codes": [
       "26"
     ],
+    "infoUrl": "http://rcls.seu.edu.cn/",
     "list": [
       [
-        "/20494/list.htm",
+        "#wp_news_w2",
         "新闻动态"
       ],
       [
-        "/20495/list.htm",
+        "#wp_news_w12",
         "学术活动"
       ],
       [
-        "/20493/list.htm",
+        "#wp_news_w13",
         "学生培养"
       ]
     ],
     "name": "学习科学研究中心",
-    "contentSelector": ".wp_articlecontent",
-    "articleListItemSelector": ".wp_article_list li",
-    "articleAnchorClass": ".Article_Title a",
-    "articleDateClass": ".Article_PublishDate"
+    "dateSelector": ".post-time",
+    "contentSelector": ".wp_articlecontent"
   },
   "rwxy": {
-    "baseUrl": "https://rwxy.seu.edu.cn",
+    "baseUrl": "http://rwxy.seu.edu.cn",
     "codes": [
       "13"
     ],
+    "infoUrl": "http://rwxy.seu.edu.cn/",
     "list": [
       [
-        "/gbwb/list.htm",
+        "#wp_news_w21",
         "新闻速递"
       ],
       [
-        "/12614/list.htm",
+        "#wp_news_w82",
         "信息公告"
       ],
       [
-        "/12618/list.htm",
+        "#wp_news_w88",
         "学术活动"
       ],
       [
-        "/12623/list.htm",
-        "教师通知"
-      ],
-      [
-        "/12624/list.htm",
+        "#wp_news_w85",
         "本科生通知"
       ],
       [
-        "/12625/list.htm",
+        "#wp_news_w33",
         "研究生通知"
       ]
     ],
     "name": "人文学院",
-    "contentSelector": ".wp_articlecontent",
-    "articleListItemSelector": ".wp_article_list li",
-    "articleAnchorClass": ".Article_Title a",
-    "articleDateClass": ".Article_PublishDate"
+    "dateSelector": "span.news_meta",
+    "contentSelector": ".wp_articlecontent"
   },
   "sfl": {
-    "baseUrl": "https://sfl.seu.edu.cn",
+    "baseUrl": "http://sfl.seu.edu.cn",
     "codes": [
       "17"
     ],
+    "infoUrl": "http://sfl.seu.edu.cn/",
     "list": [
       [
-        "/9826/list.htm",
+        "#wp_news_w31",
         "学院要闻"
       ],
       [
-        "/9861/list.htm",
+        "#wp_news_w32",
         "教研动态"
       ],
       [
-        "/9827/list.htm",
+        "#wp_news_w11",
         "学院公告"
       ],
       [
-        "/9828/list.htm",
+        "#wp_news_w12",
         "学生公告"
       ],
       [
-        "/24046/list.htm",
+        "#wp_news_w13",
         "学术活动"
       ]
     ],
     "name": "外国语学院",
-    "contentSelector": ".wp_articlecontent",
-    "articleListItemSelector": ".wp_article_list li",
-    "articleAnchorClass": ".Article_Title a",
-    "articleDateClass": ".Article_PublishDate"
+    "dateSelector": "span.news_meta",
+    "contentSelector": ".wp_articlecontent"
   },
   "smjgs": {
-    "baseUrl": "https://smjgs.seu.edu.cn",
+    "baseUrl": "http://smjgs.seu.edu.cn",
     "codes": [],
+    "infoUrl": "http://smjgs.seu.edu.cn/",
     "list": [
       [
-        "/8445/list.htm",
+        "#wp_news_w11",
         "最近新闻"
       ],
       [
-        "/8471/list.htm",
+        "#wp_news_w13",
         "招生信息"
       ]
     ],
     "name": "东南大学—蒙纳士大学苏州联合研究生院",
-    "contentSelector": ".wp_articlecontent",
-    "articleListItemSelector": ".wp_article_list li",
-    "articleAnchorClass": ".Article_Title a",
-    "articleDateClass": ".Article_PublishDate"
+    "contentSelector": ".wp_articlecontent"
   },
   "smse": {
-    "baseUrl": "https://smse.seu.edu.cn",
+    "baseUrl": "http://smse.seu.edu.cn",
     "codes": [
       "12"
     ],
+    "infoUrl": "http://smse.seu.edu.cn/",
     "list": [
       [
-        "/2570/list.htm",
-        "学院新闻"
-      ],
-      [
-        "/2571/list.htm",
-        "院务通知"
-      ],
-      [
-        "/2593/list.htm",
-        "学生工作"
-      ],
-      [
-        "/dqgz/list.htm",
-        "党建工作"
-      ],
-      [
-        "/2574/list.htm",
-        "学术交流"
-      ],
-      [
-        "/2526/list.htm",
-        "科研成果"
-      ],
-      [
-        "/xnwj/list.htm",
-        "校内文件"
-      ],
-      [
-        "/xywj/list.htm",
-        "科研成果"
+        "找不到",
+        ""
       ]
     ],
     "name": "材料科学与工程学院",
-    "contentSelector": ".wp_articlecontent",
-    "articleListItemSelector": ".wp_article_list li",
-    "articleAnchorClass": ".Article_Title a",
-    "articleDateClass": ".Article_PublishDate"
+    "dateSelector": "span.Article_PublishDate",
+    "contentSelector": ".wp_articlecontent"
   },
   "tc": {
-    "baseUrl": "https://tc.seu.edu.cn",
+    "baseUrl": "http://tc.seu.edu.cn",
     "codes": [
       "21"
     ],
+    "infoUrl": "http://tc.seu.edu.cn/",
     "list": [
       [
-        "/840/list.htm",
-        "学院动态"
-      ],
-      [
-        "/831/list.htm",
+        "#wp_news_w38",
         "信息公告"
       ],
       [
-        "/897/list.htm",
-        "学生动态"
-      ],
-      [
-        "/895/list.htm",
+        "#wp_news_w8",
         "本科生通知"
       ],
       [
-        "/896/list.htm",
+        "#wp_news_w18",
         "研究生通知"
       ],
       [
-        "/853/list.htm",
+        "#wp_news_w29",
         "学术活动"
       ]
     ],
     "name": "交通学院",
-    "contentSelector": ".wp_articlecontent",
-    "articleListItemSelector": ".wp_article_list li",
-    "articleAnchorClass": ".Article_Title a",
-    "articleDateClass": ".Article_PublishDate"
+    "dateSelector": ".meta-time",
+    "contentSelector": ".wp_articlecontent"
   },
   "tyx": {
-    "baseUrl": "https://tyx.seu.edu.cn",
+    "baseUrl": "http://tyx.seu.edu.cn",
     "codes": [
       "18"
     ],
+    "infoUrl": "http://tyx.seu.edu.cn/",
     "list": [
       [
-        "/2191/list.htm",
+        "#wp_news_w13",
         "体育新闻"
       ],
       [
-        "/2192/list.htm",
-        "信息通告"
+        "#wp_news_w15",
+        "信息通过"
       ],
       [
-        "/2195/list.htm",
+        "#wp_news_w21",
         "阳光体育"
       ],
       [
-        "/jxky/list.htm",
+        "#wp_news_w31",
         "教学科研"
       ]
     ],
     "name": "体育系",
-    "contentSelector": ".wp_articlecontent",
-    "articleListItemSelector": ".wp_article_list li",
-    "articleAnchorClass": ".Article_Title a",
-    "articleDateClass": ".Article_PublishDate"
+    "dateSelector": "span.news_meta",
+    "contentSelector": ".wp_articlecontent"
   },
   "wjx": {
     "baseUrl": "https://wjx.seu.edu.cn",
     "codes": [
       "61"
     ],
+    "infoUrl": "https://wjx.seu.edu.cn/",
     "list": [
       [
-        "/zhxw/list.htm",
+        "#wp_news_w24",
         "综合新闻"
       ],
       [
-        "/dsyl/list.htm",
+        "#wp_news_w5",
         "大事要览"
       ],
       [
-        "/xxgxx/list.htm",
+        "#wp_news_w8",
         "学工信息"
       ],
       [
-        "/xjxxx/list.htm",
+        "#wp_news_w7",
         "教学信息"
       ],
       [
-        "/ryhd/list.htm",
+        "#wp_news_w6",
         "荣誉活动"
       ],
       [
-        "/ywgg/list.htm",
+        "#wp_news_w39",
         "院务公告"
       ],
       [
-        "/xshd/list.htm",
+        "#wp_news_w10",
         "学生活动"
       ],
       [
-        "/gjxm/list.htm",
+        "#wp_news_w11",
         "主题教育"
       ],
       [
-        "/dsjl/list.htm",
+        "#wp_news_w32",
         "导师交流"
       ],
       [
-        "/rwfc/list.htm",
+        "#wp_news_w35",
         "人物风采"
       ],
       [
-        "/mtsj/list.htm",
+        "#wp_news_w38",
         "媒体视角"
       ]
     ],
     "name": "吴健雄学院",
-    "contentSelector": ".wp_articlecontent",
-    "articleListItemSelector": ".wp_article_list li",
-    "articleAnchorClass": ".Article_Title a",
-    "articleDateClass": ".Article_PublishDate"
+    "contentSelector": ".wp_articlecontent"
   }
 }

@@ -1,7 +1,31 @@
 const cheerio = require('cheerio')
 const Europa = require('node-europa')
 const url = require('url')
+
 const sites = {
+  jwc: {
+    name: '教务处',
+    codes: ['00'],
+    baseUrl: 'http://jwc.seu.edu.cn',
+    infoUrl: 'http://jwc.seu.edu.cn',
+    list: [
+      ['#wp_news_w6', '教务信息'],
+      ['#wp_news_w7', '学籍管理'],
+      ['#wp_news_w9', '实践教学'],
+      ['#wp_news_w10', '国际交流'],
+      ['#wp_news_w8', '教学研究'],
+    ],
+    contentSelector: '.wp_articlecontent'
+  },
+  zwc: {
+    name: '总务处',
+    codes: ['96'],
+    baseUrl: 'http://zwc.seu.edu.cn',
+    infoUrl: 'http://zwc.seu.edu.cn/4297/list.htm',
+    list: [['#wp_news_w6', '公告']],
+    contentSelector: '[portletmode="simpleArticleAttri"]', // 两个平台的正文选择器是一样的
+    dateSelector: 'span.news_meta'
+  },
   ...require('./depts.json') // FIXME 各个学院网站不能保证都能获取到通知，需要测试
 }
 
@@ -10,6 +34,16 @@ const deptCodeFromSchoolNum = schoolnum => {
   return Object.keys(sites).filter(k => sites[k].codes.includes(deptNum))
 }
 
+// 根据月日，找出在今天和之前最近的符合的日期
+const autoMoment = md => {
+  const now = moment()
+  const thisYear = now.year()
+  const date = moment(`${thisYear}-${md}`, 'YYYY-MM-DD')
+  while (date > now) {
+    date.subtract(1, 'year')
+  }
+  return date
+}
 
 // 有些学院网站上没有发布日期，于是使用url中的日期代替
 // url 中的日期未必准确
@@ -23,10 +57,10 @@ const deduceTimeFromUrl = url => {
 
 const commonSites = ['jwc', 'zwc']
 
-// 每个栏目留下 5 天以内的信息
+// 5 天之内的信息，全部留下
 const keepTime = +moment.duration(5, 'days')
-// 每个栏目留下 5 条以内的信息
-const keepNum = 5
+// 10 条以内的信息，全部留下
+const keepNum = 10
 /**
  * @apiDefine notice 通知/公告
  */
@@ -49,58 +83,85 @@ exports.route = {
     let argSite = program.mode === 'development' ? this.params.site : undefined
     delete this.params.site
     let keys = typeof argSite !== 'undefined' ? [argSite] : commonSites
+
     if (typeof argSite === 'undefined'
       && this.user.isLogin
-      && /^21/.test(this.user.cardnum)
-      && this.user.schoolnum) { // 只处理本科生，似乎研究生从学号无法获取学院信息
+      && /^21/.test(this.user.cardnum)) { // 只处理本科生，似乎研究生从学号无法获取学院信息
       keys = keys.concat(deptCodeFromSchoolNum(this.user.schoolnum))
     }
 
-    let ret = await Promise.all(keys.map(async (siteKey) =>
-      await this.publicCache(siteKey, '1m+', async () => {
-        const site = sites[siteKey]
-        if (!site) {
-          throw `没有相应于 ${siteKey} 的学校网站`
+    let ret = await Promise.all(keys.map(async (site) =>
+      await this.publicCache(site, '1m+', async () => {
+        if (!sites[site]) {
+          throw `没有相应于 ${site} 的学校网站`
         }
 
-        // 遍历单个site下的栏目
-        const baseUrl = site.baseUrl
-        const list = site.list
-        const siteArticles = await Promise.all(list.map(async column => {
-          const res = await this.get(baseUrl + column[0])
-          const $ = cheerio.load(res.data)
+        // console.log(sites[site].infoUrl)
+        let res = await this.get(sites[site].infoUrl)
+        // console.log(res.data)
+        let $ = cheerio.load(res.data)
+        // console.log('$:',$.html())
+        let list = sites[site].list
 
-          const articleListItem = $(site.articleListItemSelector)
-          const articleList = []
-          articleListItem.each((i, elem) => {
-            const elemJqObj = $(elem)
-            const articleAnchor = elemJqObj.find(site.articleAnchorClass)
-            const articleTitle = articleAnchor.attr('title')
-            const articleLink = articleAnchor.attr('href')
-            const isImportant = articleAnchor.find('font').length
-            const articleDate = elemJqObj.find(site.articleDateClass).text()
+        // 分组获取时间，按组名装入 timeList 的 property 里，防止混乱
+        let timeList = {}
+        list.forEach(
+          ele => {
+            // console.log(sites[site].dateSelector)
+            // console.log(ele[0])
+            // console.log($('div'))
+            // if (ele[1] === '学院新闻' || ele[1] === '党建工作')
+            //   console.log(($(ele[0]).find(sites[site].dateSelector)).toArray().map(k => /(\d+-)?(\d+)-(\d+)/.exec($(k).text())).filter(k => k))
+            timeList[ele[1]] =
+              $(ele[0]).find(sites[site].dateSelector || 'div').toArray()
+                .map(k => /(\d+-)?(\d+)-(\d+)/.exec($(k).text()))
+                .filter(k => k)
+                .map(k => {
+                  k.year = parseInt(k[1])
+                  k.month = parseInt(k[2])
+                  k.date = parseInt(k[3])
+                  return k
+                })
+                // 过滤掉一看就不是日期的内容，比如「17-18-3」
+                // 一个标题: 我院召开17-18-3学期期中教学检查学生座谈会
+                .map(k => {
+                  if ((!k.year || k.year >= 1000 || k.year < 100)
+                    && k.month >= 1 && k.month <= 12
+                    && k.date >= 1 && k.date <= 31) {
+                    return k
+                  }
+                })
+                .filter(k => !!k)
+                // FIXME 这里可能还存在着 bug。
+                .map(k => (k && k[1]) // 有的网站上没有年份信息。
+                  ? +moment(k[0], 'YYYY-MM-DD')
+                  : (k ? +autoMoment(k[0]) : +moment()))
+          }
+        )
+        // console.log(timeList)
+        // 找出所有新闻条目，和日期配对，返回
+        return list.map(ele => $(ele[0]).find('a').toArray().map(k => $(k))
+          .filter(k => k.attr('title') && k.attr('title').trim() || k.text().trim()).map((k, i) => {
+            let href = k.attr('href') ? k.attr('href') : ''
+            let currentUrl = url.resolve(sites[site].infoUrl, href)
 
-            articleList.push({
-              site: site.name,
-              category: column[1],
+            return {
+              site: sites[site].name,
+              category: ele[1],
               // 标题可能在 title 属性中，也可能并不在。
-              title: articleTitle,
-              url: url.resolve(sites[siteKey].baseUrl, articleLink),
-              isAttachment: ! /\.(html?$|aspx?|jsp|php)/.test(articleLink),
-              isImportant: !!isImportant,
-              time: +moment(articleDate)
-                || deduceTimeFromUrl(articleLink), // 可能网页上没有日期信息
+              title: k.attr('title') && k.attr('title').trim() || k.text().trim(),
+              url: currentUrl,
+              isAttachment: ! /\.(html?$|aspx?|jsp|php)/.test(href),
+              isImportant: !!k.find('font').length,
+              time: +moment(timeList[ele[1]][i])
+                || deduceTimeFromUrl(currentUrl), // 可能网页上没有日期信息
               // 记下其在本栏中出现的顺序，一般，序号越小，越新
               index: i
-            })
-          })
-          return articleList
-        }))
-        return siteArticles
+            }
+          }).reduce((arr, news) => { if (news.title) { arr.push(news) } return arr }, [])
+        ).reduce((a, b) => a.concat(b), [])
       }) // publicCache
     )) // Promise.all
-    // console.log(JSON.stringify(ret, null, 2))
-
     // 小猴系统通知
     let res = []
     let hasUser = ""
@@ -156,9 +217,9 @@ exports.route = {
       })
       return result
     })
-    // console.log(res)
-    // 首先对数组进行扁平化处理，以适应接口所需的返回数据格式
-    ret = ret.flat(Infinity)
+
+
+    ret = ret.reduce((a, b) => a.concat(b), [])
       // 如果项目都有两个时间，就按时间排序，否则按在某一栏中出现的顺序排序
       // 时间越大，或者序号越小，越新。
       .sort((a, b) => (a.time && b.time) ? (b.time - a.time) : (a.index - b.index))
@@ -179,6 +240,7 @@ exports.route = {
     })
 
     return ret
+    // })
 
   },
 
