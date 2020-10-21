@@ -84,10 +84,14 @@ exports.route = {
     delete this.params.site
     let keys = typeof argSite !== 'undefined' ? [argSite] : commonSites
 
-    if (typeof argSite === 'undefined'
-      && this.user.isLogin
-      && /^21/.test(this.user.cardnum)) { // 只处理本科生，似乎研究生从学号无法获取学院信息
-      keys = keys.concat(deptCodeFromSchoolNum(this.user.schoolnum))
+    try {
+      if (typeof argSite === 'undefined'
+        && this.user.isLogin
+        && /^21/.test(this.user.cardnum)) { // 只处理本科生，似乎研究生从学号无法获取学院信息
+        keys = keys.concat(deptCodeFromSchoolNum(this.user.schoolnum))
+      }
+    } catch (err) {
+      console.log(this.user)
     }
 
     let ret = await Promise.all(keys.map(async (site) =>
