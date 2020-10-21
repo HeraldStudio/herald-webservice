@@ -174,8 +174,9 @@ module.exports = async (ctx, next) => {
     if (cardnum.startsWith('21')) {
       // 本科生库
       const record = await ctx.db.execute(
-        `SELECT XM, XJH FROM TOMMY.T_BZKS
-    WHERE XH=:cardnum`, [cardnum]
+        `SELECT XM, XJH 
+        FROM TOMMY.T_BZKS
+        WHERE XH=:cardnum`, [cardnum]
       )
       if (record.rows.length > 0) {
         name = record.rows[0][0]
