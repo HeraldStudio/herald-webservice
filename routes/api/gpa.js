@@ -86,6 +86,7 @@ exports.route = {
           let rawDetail = []
           rawData.rows.map(row => {
             let [semester, cid, courseName, courseType, credit, score, scoreType] = row
+            score = parseInt(score)
             let semesterName = semester ? semester.split('-') : '其他'
             let cxckMap = new Map([['01', '首修'], ['02', '重修'], ['03', '及格重修'], ['04', '补考']])
             let kcxzMap = new Map([['01', '必修'], ['02', '任选'], ['03', '限选']])
@@ -298,6 +299,7 @@ exports.route = {
             let [xn, xq, cid, courseName, credit, score, wid] = row
             xn = parseInt(xn)
             xq = parseInt(xq)
+            score = parseInt(score)
             let semesterName = xn.toString().slice(2) + "-" + (xn + 1).toString().slice(2) + "-" + xq.toString()
             const gpa = {
               semester: semesterName,
