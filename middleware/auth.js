@@ -194,7 +194,7 @@ module.exports = async (ctx, next) => {
         schoolnum = record.rows[0][1]
       }
       // throw '小猴偷米目前只支持本科生使用哦～'
-    } else {
+    } else if (cardnum.startsWith('10')) {
       // 教职工库
       // TODO 暂时不支持
       const record = await ctx.db.execute(
@@ -205,6 +205,7 @@ module.exports = async (ctx, next) => {
         name = record.rows[0][0]
         schoolnum = cardnum // 临时加一下
       }
+    } else {
       throw '小猴偷米目前只支持本科生使用哦～'
     }
 
