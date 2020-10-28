@@ -297,7 +297,7 @@ exports.route = {
         heraldNotice['url'] = notice.rows[0][2]
         return `# ${heraldNotice.title}\n\n
                 ${heraldNotice.content}\n\n 
-                ${heraldNotice.url !== "null" ? '相关链接:' + heraldNotice.url : ''}
+                ${heraldNotice.url !== null ? '相关链接:' + heraldNotice.url : ''}
                 `
       } else {
         throw '无转换结果'

@@ -84,7 +84,7 @@ exports.route = {
 
       return `# ${heraldNotice.title}\n\n
         ${heraldNotice.content}\n\n 
-        ${heraldNotice.url !== "null" ? '相关链接:' + heraldNotice.url : ''}`
+        ${heraldNotice.url !== null ? '相关链接:' + heraldNotice.url : ''}`
     }
 
     // 原理同上
