@@ -51,6 +51,10 @@ exports.route = {
     WHERE HOA.APPID =:appid AND APPSECRET =:appSecret AND CODE=:code AND EXPIRESAT >=:now
     `, { appid, appSecret, now: +moment(), code })
     if (record.rows.length !== 1) {
+      this.db.execute(`
+      DELETE FROM H_OAUTH_CODE
+      WHERE EXPIRESAT <:now
+      `, { now: +moment() })
       throw 'invalid request'
     }
     const [platform, cardnum, name] = record.rows[0]
