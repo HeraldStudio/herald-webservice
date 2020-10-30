@@ -312,11 +312,59 @@ module.exports = async (ctx, next) => {
       let lastInvokedTime = record.lastInvokedTime
       // 每 4 小时更新一次用户上次调用时间
       if (now - lastInvokedTime >= 4 * 60 * 60 * 1000) {
-        await ctx.db.execute(`
+        // 检查用户信息是否因转系、分流等变化
+        let cardnum = record.cardnum, schoolnum, name
+        if (cardnum.startsWith('21')) {
+          // 本科生库
+          const verification = await ctx.db.execute(
+            `SELECT XM, XJH 
+            FROM TOMMY.T_BZKS
+            WHERE XH=:cardnum`, [cardnum]
+          )
+          if (verification.rows.length > 0) {
+            name = verification.rows[0][0]
+            schoolnum = verification.rows[0][1]
+          }
+        } else if (cardnum.startsWith('22') || cardnum.startsWith('23')) {
+          // 研究生库
+          // TODO 暂时不支持
+          const verification = await ctx.db.execute(
+            `SELECT XM, YJSXH FROM TOMMY.T_YJSJBXX
+            WHERE XH=:cardnum`, [cardnum]
+          )
+          if (verification.rows.length > 0) {
+            name = verification.rows[0][0]
+            schoolnum = verification.rows[0][1]
+          }
+          // throw '小猴偷米目前只支持本科生使用哦～'
+        } else if (cardnum.startsWith('10')) {
+          // 教职工库
+          // TODO 暂时不支持
+          const verification = await ctx.db.execute(
+            `SELECT XM FROM TOMMY.T_JZG_JBXX
+            WHERE ZGH=:cardnum`, [cardnum]
+          )
+          if (verification.rows.length > 0) {
+            name = verification.rows[0][0]
+            schoolnum = verification // 临时加一下
+          }
+        }
+
+        if (name !== record.name || schoolnum !== record.schoolnum) {
+          await ctx.db.execute(`
+          UPDATE TOMMY.H_AUTH
+          SET LAST_INVOKED_TIME = :now, SCHOOLNUM =:schoolnum, REAL_NAME =:name
+          WHERE TOKEN_HASH = :tokenHash`, { now: now.toDate(), schoolnum, name, tokenHash }
+          )
+          record.schoolnum = schoolnum
+          record.name = name
+        } else {
+          await ctx.db.execute(`
           UPDATE TOMMY.H_AUTH
           SET LAST_INVOKED_TIME = :now
           WHERE TOKEN_HASH = :tokenHash`, { now: now.toDate(), tokenHash }
-        )
+          )
+        }
         record.lastInvokedTime = now.unix()
       }
 
