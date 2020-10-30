@@ -25,7 +25,7 @@ exports.route = {
       }
       // 快速判断是否是新生
       let isNewbie = moment().format('YYYY-MM') < `20${cardnum.substr(3, 2)}-09`
-      console.log(cardnum)
+      console.log(schoolnum)
       return { name, cardnum, schoolnum, identity, isNewbie }
     }
     )
