@@ -6,14 +6,16 @@ exports.route = {
         throw '只允许本科生查询'
       }
       let record = await this.db.execute(
-        `select T_BZKS.SSFJH from TOMMY.T_BZKS
-      where XH= :cardnum
+        `
+        select T_BZKS.SSFJH 
+        from TOMMY.T_BZKS
+        where XH= :cardnum
       `, [cardnum])
       let result = record.rows.map(Element => {
         let [SSFJH] = Element
         return { SSFJH }
       })
-      if (!result.SSFJH) {
+      if (!result[0].SSFJH) {
         result = {
           SSFJH: '未知',
           campus: '未知'
