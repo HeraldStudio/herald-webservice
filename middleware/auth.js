@@ -341,12 +341,14 @@ module.exports = async (ctx, next) => {
           // 教职工库
           // TODO 暂时不支持
           const verification = await ctx.db.execute(
-            `SELECT XM FROM TOMMY.T_JZG_JBXX
+            `
+            SELECT XM, ZGH 
+            FROM TOMMY.T_JZG_JBXX
             WHERE ZGH=:cardnum`, [cardnum]
           )
           if (verification.rows.length > 0) {
             name = verification.rows[0][0]
-            schoolnum = verification // 临时加一下
+            schoolnum = verification.rows[0][1] // 临时加一下
           }
         }
 
