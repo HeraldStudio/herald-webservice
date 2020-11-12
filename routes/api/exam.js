@@ -48,7 +48,8 @@ exports.route = {
         let startMoment = moment(time, 'YYYY-MM-DD HH:mm(dddd)')
         let startTime = +startMoment
         let endTime = +startMoment.add(duration, 'minutes')
-        courseName = courseName + ' ' + courseType.split(' ')[1]
+        courseType = courseType.substr(courseType.indexOf("学期") + 2).trim()
+        courseName = courseName + " " + courseType
         return { semester, campus, courseName, teacherName, startTime, endTime, location, duration }
       })
       return result
