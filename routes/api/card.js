@@ -32,7 +32,7 @@ exports.route = {
         const info = {
           account: record.rows[0][0],
           status: '-', // TODO: 哪个字段表示卡状态？
-          balance: record.rows[0][1] / 100,
+          balance: new Number(record.rows[0][1] / 100).toFixed(2),
           // 获取不到电子钱包的余额了
         }
 
