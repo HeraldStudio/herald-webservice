@@ -32,7 +32,7 @@ exports.route = {
         const info = {
           account: record.rows[0][0],
           status: '-', // TODO: 哪个字段表示卡状态？
-          balance: new Number(record.rows[0][1] / 100).toFixed(2),
+          balance: new Number(record.rows[0][1] / 100),
           // 获取不到电子钱包的余额了
         }
 
@@ -154,8 +154,8 @@ exports.route = {
             tranname: trim(k[2]),
             desc: trim(k[1]) === '' ? trim(k[2]) : trim(k[2]) + '：' + trim(k[1]),
             // 设置固定的两位小数，避免 app 中dart导致的类型问题
-            amount: new Number(k[3] / 100).toFixed(2),
-            balance: new Number(k[4] / 100).toFixed(2),
+            amount: new Number(k[3] / 100),
+            balance: new Number(k[4] / 100),
             time: +moment(k[6]),
             resume: trim(k[7])
           }
