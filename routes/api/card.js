@@ -153,8 +153,9 @@ exports.route = {
             mecrname: trim(k[1]),
             tranname: trim(k[2]),
             desc: trim(k[1]) === '' ? trim(k[2]) : trim(k[2]) + '：' + trim(k[1]),
-            amount: k[3] / 100,
-            balance: k[4] / 100,
+            // 设置固定的两位小数，避免 app 中dart导致的类型问题
+            amount: new Number(k[3] / 100).toFixed(2),
+            balance: new Number(k[4] / 100).toFixed(2),
             time: +moment(k[6]),
             resume: trim(k[7])
           }
