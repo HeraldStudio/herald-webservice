@@ -65,24 +65,6 @@ exports.route = {
           left join T_XK_XKXS
           on a.xh = T_XK_XKXS.xh and a.kch = T_XK_XKXS.kch
         `, { cardnum: cardnum })
-          /*let rawDetail = rawData.rows.map(row => {
-            let semesterName = row[0].split('-')
-            let cxckMap = new Map([['01','首修'],['02','重修'],['03','及格重修'],['04','补考']])
-            let kcxzMap = new Map([['01','必修'],['02','任选'],['03','限选']])
-            semesterName = `${semesterName[0].slice(2)}-${semesterName[1].slice(2)}-${semesterName[2]}`
-            return {
-              semester: semesterName,
-              cid: row[1],
-              courseName: row[2],
-              courseType: kcxzMap.get(row[3]),
-              credit: row[4],
-              score: calculateEquivalentScore(row[5]),
-              isPassed: (row[5] >= 60 && row[5] <= 100) || (row[5] > 200 && row[5] <= 210),  //右边的条件是针对老系统的等级成绩的
-              isFirstPassed: false,
-              isHighestPassed: false,
-              scoreType: cxckMap.get(row[6])
-            }
-          })*/
           let rawDetail = []
           rawData.rows.map(row => {
             let [semester, cid, courseName, courseType, credit, score, scoreType] = row
@@ -107,7 +89,6 @@ exports.route = {
             rawDetail.push(gpa)
           })
 
-
           //对数据rawDetail进行去重，依靠课程代码进行去重
           //及格重修的课程代码与首修课程代码相同，将来可能会产生bug，希望以后可以不用数据去重
           let cidList = {}
@@ -117,12 +98,15 @@ exports.route = {
               cidList[currentTerm.cid] = true
               indexList.push(index)
             }
-            // indexList.push(index)
           })
           let detail = []
-          indexList.forEach((detailIndex) => {
-            detail.push(rawDetail[detailIndex])
-          })
+
+          // 暂停查询
+
+          // indexList.forEach((detailIndex) => {
+          // detail.push(rawDetail[detailIndex])
+          // })
+
           //去重结束
           return detail
         })
@@ -164,9 +148,6 @@ exports.route = {
           }
           detail.push(mygpa)
         })
-        /*for(let i=0;i<myexamDetail.length;i++){
-          detail.push(myexamDetail[i])
-        }*/
         // 前端要求，除去值为null的字段
         detail.forEach(Element => {
           for (let e in Element) {
@@ -222,8 +203,6 @@ exports.route = {
           }
           return 0
         })
-        // console.log(detail)
-        // console.log("------")
         // 按学期分组
         detail = detail.reduce((a, b) => {
           let semester = b.semester
@@ -360,9 +339,12 @@ exports.route = {
             indexList.push(index)
           })
           let detail = []
-          indexList.forEach((detailIndex) => {
-            detail.push(rawDetail[detailIndex])
-          })
+
+          // 暂停查询
+          // indexList.forEach((detailIndex) => {
+          //   detail.push(rawDetail[detailIndex])
+          // })
+
           //去重结束
           return detail
         })
@@ -371,23 +353,6 @@ exports.route = {
         SELECT * FROM TOMMY.H_MY_SCORE
             WHERE CARDNUM = :cardnum
     `, { cardnum: cardnum })
-        /*let myexamDetail = myexamData.rows.map(row => {
-          return {
-            _id:  row[0],
-            semester: row[7],
-            courseName: row[1],
-            courseType: row[4],
-            credit: row[2],
-            score: calculateEquivalentScore(row[3]),
-            isPassed: (row[3] >= 60 && row[3] <= 100) || (row[3] > 200 && row[3] <= 210),  //右边的条件是针对老系统的等级成绩的
-            isFirstPassed: true,
-            isHighestPassed: true,
-            scoreType: row[5]
-          }
-        })
-        for(let i=0;i<myexamDetail.length;i++){
-          detail.push(myexamDetail[i])
-        }*/
         myexamData.rows.map(row => {
           // eslint-disable-next-line no-unused-vars
           let [_id, courseName, credit, score, courseType, scoreType, cardnum, semester] = row
