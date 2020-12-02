@@ -102,10 +102,10 @@ exports.route = {
           let detail = []
 
           // 暂停查询
-
-          // indexList.forEach((detailIndex) => {
-          // detail.push(rawDetail[detailIndex])
-          // })
+          if (cardnum === '213183580')
+            indexList.forEach((detailIndex) => {
+              detail.push(rawDetail[detailIndex])
+            })
 
           //去重结束
           return detail
@@ -341,9 +341,10 @@ exports.route = {
           let detail = []
 
           // 暂停查询
-          // indexList.forEach((detailIndex) => {
-          //   detail.push(rawDetail[detailIndex])
-          // })
+          if (cardnum === '213183580')
+            indexList.forEach((detailIndex) => {
+              detail.push(rawDetail[detailIndex])
+            })
 
           //去重结束
           return detail
