@@ -16,7 +16,7 @@ exports.route = {
     let response = await this.userCache('10m+', async () => {
       // 获取考试数据
       let record = await this.db.execute(`
-      select T_KW_KSAPSJ.XNXQDM,T_ZXBZ_XXXQ.MC,T_KC_KCB.KCM,T_KW_KSPC.KSMC,T_JZG_JBXX.XM,T_KW_KSAPSJ.KSSJMS,T_JAS_JBXX.JASMC,T_KW_KSAPSJ.KSSC ,t_kw_ksrw.KSRWID
+      select T_KW_KSAPSJ.XNXQDM,T_ZXBZ_XXXQ.MC,T_KC_KCB.KCM,T_KW_KSPC.KSMC,T_KW_KSAPSJ.KSSJMS,T_JAS_JBXX.JASMC,T_KW_KSAPSJ.KSSC ,t_kw_ksrw.KSRWID
       from (
         select *
         from T_KW_KSAPXS
@@ -34,23 +34,19 @@ exports.route = {
       on T_ZXBZ_XXXQ.dm = T_KW_KSRW.XXXQDM
       left join T_XK_XKXS
       on T_XK_XKXS.XH = A.XH AND T_XK_XKXS.KCH = T_KW_KSRW.KCH
-      left join T_RW_JSB
-      on T_RW_JSB.jxbid = T_XK_XKXS.jxbid
-      left join t_jzg_jbxx
-      on t_jzg_jbxx.zgh = t_rw_jsb.jsh
       left join T_KC_KCB
       on t_kw_ksrw.kch = t_kc_kcb.kch
       left join T_KW_KSPC
       on T_KW_KSPC.ksdm = t_kw_ksrw.ksdm
       `, [cardnum])
       let result = record.rows.map(Element => {
-        let [semester, campus, courseName, courseType, teacherName, time, location, duration] = Element
+        let [semester, campus, courseName, courseType, time, location, duration] = Element
         let startMoment = moment(time, 'YYYY-MM-DD HH:mm(dddd)')
         let startTime = +startMoment
         let endTime = +startMoment.add(duration, 'minutes')
         courseType = courseType.substr(courseType.indexOf("学期") + 2).trim()
         courseName = courseName + " " + courseType
-        return { semester, campus, courseName, teacherName, startTime, endTime, location, duration }
+        return { semester, campus, courseName, startTime, endTime, location, duration }
       })
       return result
     })
