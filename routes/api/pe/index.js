@@ -31,7 +31,6 @@ exports.route = {
       throw 401
     }
 
-    const cardnum = this.user.cardnum
     const now = +moment()
 
     const health = []
@@ -63,41 +62,11 @@ exports.route = {
         "schoolYear": this.term.currentTerm.name.split('-')[0],
         "studentNo": this.user.cardnum
       }
-    })).data
+    })).data.data.map(item => +moment(item.recordTime))
 
-    res = res.data.map(item => parseInt(new Date(item.recordTime).getTime() / (3600 * 24 * 1000)) * (3600 * 24 * 1000))
-  
-    // sb网信，windows server访问不了内网，所以把跑操查询服务代码在这儿重复一遍
-    let resFromOther
-    try {
-      const signatureForReq = sha(`ak=${peConfig.pe.otherService.ak}&cardnum=${cardnum}&nounce=tyx&sk=${peConfig.pe.otherService.sk}`)
-      resFromOther = await axios.get(peConfig.pe.otherService.url, {
-        params: {
-          signature: signatureForReq,
-          cardnum,
-          nounce: 'tyx',
-          ak: peConfig.pe.otherService.ak
-        },
-        timeout: 1000
-      })
-      resFromOther = resFromOther.data
-      resFromOther.records = resFromOther.records.map(time => parseInt((+moment(time))  / (3600 * 24 * 1000)) * (3600 * 24 * 1000))
-    } catch (err) {
-      console.log(err)
-      throw '请求跑操数据出错'
-    }
-    let trueRecords = {}
-    res.forEach(time => {
-      if (!trueRecords[time]) {
-        trueRecords[time] = true
-      }
-    })
-    resFromOther.records.forEach(time => {
-      if (!trueRecords[time]) {
-        trueRecords[time] = true
-      }
-    })
-    res = Object.keys(trueRecords)
+    
+    res = [...new Set(res)]
+
     // 过滤，仅获取当前学期的的跑操次数
     res = res
       .map(k => +k)
