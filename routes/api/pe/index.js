@@ -52,7 +52,7 @@ exports.route = {
     if(moment().format("MM")<2){
         Year=Year-1;//它这个好像只有年份没有学期，那一月份应该还算上一年吧...
     }
-    let res = await axios.post(sdk.fitness.url,{
+    let res = await axios.post(sdk.pe.fitnessurl,{
         "schoolYear": `${Year}`,
         "studentNo": `${cardnum}`
     })
@@ -130,7 +130,7 @@ exports.route = {
 ]
 */
 
-    let res = await axios.post(sdk.exercise.url,{
+    let res = await axios.post(sdk.pe.exerciseurl,{
         "schoolYear": `${Year}`,
         "studentNo": `${cardnum}`
     })
