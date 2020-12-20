@@ -1,7 +1,6 @@
 // const cheerio = require('cheerio')
 const peConfig = require('../../../sdk/sdk.json')
 const axios = require('axios')
-const sha = require('sha1')
 const moment = require('moment')
 
 const hintTable = [
@@ -35,7 +34,7 @@ exports.route = {
 
     const health = []
     let res = (await axios({
-      url: "https://tyxsjpt.seu.edu.cn/api/fitness/test/final/get-by-sutdent",
+      url: `${peConfig.pe.url}/fitness/test/final/get-by-sutdent`,
       method: 'post',
       data: {
         "schoolYear": this.term.currentTerm.name.split('-')[0],
@@ -56,7 +55,7 @@ exports.route = {
 
     // 获取跑操数据
     res = (await axios({
-      url: "https://tyxsjpt.seu.edu.cn/api/exercise/morning/attendance/get-by-student",
+      url: `${peConfig.pe.url}/exercise/morning/attendance/get-by-student`,
       method: 'post',
       data: {
         "schoolYear": this.term.currentTerm.name.split('-')[0],
