@@ -1,7 +1,6 @@
 // const cheerio = require('cheerio')
 const peConfig = require('../../../sdk/sdk.json')
 const axios = require('axios')
-const sha = require('sha1')
 const moment = require('moment')
 
 const hintTable = [
@@ -11,35 +10,6 @@ const hintTable = [
   '小猴叹息：小猴为你的跑操感到悲哀',      // 彻底跑不完了
   '小猴祝贺：恭喜你已经完成了跑操任务🎉'   // 完成跑操任务
 ]
-
-const en2ch = {
-  '男': {
-    score: '总分',
-    sex: '性别',
-    stature: '身高',
-    avoirdupois: '体重',
-    vitalCapacity: '肺活量',
-    fiftyMeter: '50米',
-    standingLongJump: '立定跳远',
-    BMI: 'BMI',
-    bend: '坐体前屈',
-    kiloMeter: '1000米',
-    lie: '引体向上'
-  },
-  '女': {
-    score: '总分',
-    sex: '性别',
-    stature: '身高',
-    avoirdupois: '体重',
-    vitalCapacity: '肺活量',
-    fiftyMeter: '50米',
-    standingLongJump: '立定跳远',
-    BMI: 'BMI',
-    bend: '坐体前屈',
-    kiloMeter: '800米',
-    lie: '仰卧起坐'
-  },
-}
 
 exports.route = {
 
@@ -80,37 +50,62 @@ exports.route = {
     //     .length,
     //   hint: '小猴提醒：起床不抓紧，跑操两行泪'
     // }
-    // 获取体测成绩
-    let signature = sha(`ak=${peConfig.pe.ak}&cardnum=${cardnum}&nounce=healthScore&sk=${peConfig.pe.sk}`)
-    const healthScoreUrl = peConfig.pe.url + '/healthScore?' + `ak=${peConfig.pe.ak}&cardnum=${cardnum}&nounce=healthScore&signature=${signature}`
-    // console.log(healthScoreUrl)
-    let res = await axios.get(healthScoreUrl)
-    let healthList = Object.keys(res.data).filter(k => !(k.endsWith('Score') || k.endsWith('Conclusion')))
+
+    // 获取智迪锐系统的体测成绩
+    let resFromZDR
+    try {
+      resFromZDR = await axios.post(peConfig['zhiDiRuiService']['UrlFitnessTest'], {
+        schoolYear: this.term.currentTerm.name.slice(0, 4),
+        studentNo: cardnum
+      }, {
+        timeout: 1000
+      })
+      resFromZDR = resFromZDR.data.data
+    } catch (err) {
+      throw 503
+    }
     let health = []
-    healthList.forEach(healthItem => {
-      let tempData = {}
-      tempData['name'] = en2ch[res.data.sex][healthItem]
-      tempData['value'] = res.data[healthItem]
-      if (typeof res.data[healthItem + 'Score'] !== undefined) {
-        tempData['score'] = res.data[healthItem + 'Score']
-      }
-      if (typeof res.data[healthItem + 'Conclusion'] !== undefined) {
-        tempData['grade'] = res.data[healthItem + 'Conclusion']
-      }
-      health.push(tempData)
-    })
+    // 返回数据中, 没有itemName即为总分
+    for (const recordFromZDR of resFromZDR) {
+      let curRecord = {}
+      if (recordFromZDR['itemName'] === undefined)
+        curRecord['name'] = '总分'
+      else
+        curRecord['name'] = recordFromZDR['itemName']
+      curRecord['value'] = recordFromZDR['testRawValue']
+      if (recordFromZDR['testScore'] !== undefined)
+        curRecord['score'] = recordFromZDR['testScore']
+      if (recordFromZDR['testLevelDesc'] !== undefined)
+        curRecord['grade'] = recordFromZDR['testLevelDesc']
+      health.push(curRecord)
+    }
+    /* 返回的结果已经整理, 例子:
+       [
+         {
+           'name':  '1000米跑',
+           'value': '3'22\"',
+           'score': '90',
+           'grade': '优秀',
+         }
+       ]
+     */
+    // 获取智迪锐系统的跑操记录
+    try {
+      resFromZDR = await axios.post(peConfig['zhiDiRuiService']['UrlMorningExercise'], {
+        schoolYear: this.term.currentTerm.name.slice(0, 4),
+        studentNo: cardnum
+      }, {
+        timeout: 1000
+      })
+      resFromZDR = resFromZDR.data.data
+    } catch (err) {
+      throw 503
+    }
+    let ZDRTimestamp = resFromZDR.map(x => moment(x["recordTime"]).format("x"))
 
-
-
-
-    // 获取跑操数据
-    signature = sha(`ak=${peConfig.pe.ak}&cardnum=${cardnum}&nounce=morningExercises&sk=${peConfig.pe.sk}`)
-    const morningExercisesUrl = peConfig.pe.url + '/morningExercises?' + `ak=${peConfig.pe.ak}&cardnum=${cardnum}&nounce=morningExercises&signature=${signature}`
-    // console.log(morningExercisesUrl)
-    res = await axios.get(morningExercisesUrl)
-
+    // 已弃用
     // sb网信，windows server访问不了内网，所以把跑操查询服务代码在这儿重复一遍
-    let resFromOther
+    /* let resFromOther
     try {
       const signatureForReq = sha(`ak=${peConfig.pe.otherService.ak}&cardnum=${cardnum}&nounce=tyx&sk=${peConfig.pe.otherService.sk}`)
       resFromOther = await axios.get(peConfig.pe.otherService.url, {
@@ -134,16 +129,16 @@ exports.route = {
         trueRecords[time] = true
       }
     })
-    res.data.records = res.data.records.concat(Object.keys(trueRecords))
+    res.data.records = res.data.records.concat(Object.keys(trueRecords)) */
     // 过滤，仅获取当前学期的的跑操次数
-    res.data.records = res.data.records
+    ZDRTimestamp = ZDRTimestamp
       .map(k => +k)
       .filter(
         k => +moment(k) > this.term.currentTerm.startDate && +moment(k) < this.term.currentTerm.endDate
       )
 
 
-    const count = res.data.records.length
+    const count = ZDRTimestamp.length
 
     // 计算跑操剩余天数
     // 默认跑操时间前16周 
@@ -176,7 +171,7 @@ exports.route = {
       hint = hintTable[now % 2 + 1]
     }
 
-    return { count, detail: res.data.records, health, remainDays, hint }
+    return { count, detail: ZDRTimestamp, health, remainDays, hint }
 
   }
 }
