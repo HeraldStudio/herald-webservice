@@ -130,16 +130,16 @@ exports.route = {
 ]
 */
 
-    let res = await axios.post(sdk.pe.exerciseurl,{
+    let res1 = await axios.post(sdk.pe.exerciseurl,{
         "schoolYear": `${Year}`,
         "studentNo": `${cardnum}`
     })
-    let runList=Object.keys(res.data.data)
-    let runCount=Object.keys(res.data.data).length//跑操次数
+    let runList=Object.keys(res1.data.data)
+    let runCount=Object.keys(res1.data.data).length//跑操次数
     let runTime=[]//跑操时间列表
     runList.forEach(item=>{
         let runD={}
-        runD['Time']=res.data.data[item].recordTime
+        runD['Time']=res1.data.data[item].recordTime
         runTime.push(runD)
     })
     //console.log(runTime)
