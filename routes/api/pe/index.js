@@ -11,34 +11,34 @@ const hintTable = [
   '小猴祝贺：恭喜你已经完成了跑操任务🎉'   // 完成跑操任务
 ]
 
-const en2ch = {
-  '男': {
-    score: '总分',
-    sex: '性别',
-    stature: '身高',
-    avoirdupois: '体重',
-    vitalCapacity: '肺活量',
-    fiftyMeter: '50米',
-    standingLongJump: '立定跳远',
-    BMI: 'BMI',
-    bend: '坐体前屈',
-    kiloMeter: '1000米',
-    lie: '引体向上'
-  },
-  '女': {
-    score: '总分',
-    sex: '性别',
-    stature: '身高',
-    avoirdupois: '体重',
-    vitalCapacity: '肺活量',
-    fiftyMeter: '50米',
-    standingLongJump: '立定跳远',
-    BMI: 'BMI',
-    bend: '坐体前屈',
-    kiloMeter: '800米',
-    lie: '仰卧起坐'
-  },
-}
+// const en2ch = {
+//   '男': {
+//     score: '总分',
+//     sex: '性别',
+//     stature: '身高',
+//     avoirdupois: '体重',
+//     vitalCapacity: '肺活量',
+//     fiftyMeter: '50米',
+//     standingLongJump: '立定跳远',
+//     BMI: 'BMI',
+//     bend: '坐体前屈',
+//     kiloMeter: '1000米',
+//     lie: '引体向上'
+//   },
+//   '女': {
+//     score: '总分',
+//     sex: '性别',
+//     stature: '身高',
+//     avoirdupois: '体重',
+//     vitalCapacity: '肺活量',
+//     fiftyMeter: '50米',
+//     standingLongJump: '立定跳远',
+//     BMI: 'BMI',
+//     bend: '坐体前屈',
+//     kiloMeter: '800米',
+//     lie: '仰卧起坐'
+//   },
+// }
 exports.route = {
 
   /**
