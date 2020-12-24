@@ -71,7 +71,7 @@ exports.route = {
     })).data
     for (let item of res.data) {
       if (!item.itemName) {
-        item.itemName="总分"
+        item.itemName = "总分"
       }
       health.push({
         name: item.itemName,
@@ -91,7 +91,7 @@ exports.route = {
       }
     })).data.data.map(item => +moment(item.recordTime))
 
-    
+
     res = [...new Set(res)]
 
     // 过滤，仅获取当前学期的的跑操次数
