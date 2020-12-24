@@ -48,12 +48,8 @@ exports.route = {
     const cardnum = this.user.cardnum
     const now = +moment()
 
-    let Year=moment().format("YYYY")
-    if(moment().format("MM")<2){
-        Year=Year-1;//它这个好像只有年份没有学期，那一月份应该还算上一年吧...
-    }
     let res = await axios.post(sdk.pe.fitnessurl,{
-        "schoolYear": `${Year}`,
+        "schoolYear": this.term.currentTerm.name.split('-')[0],
         "studentNo": `${cardnum}`
     })
 
@@ -67,14 +63,13 @@ exports.route = {
         else{
           tempData['name'] = res.data.data[healthItem].itemName
         }
-        if(healthItem!='0'&&healthItem!='1'&&healthItem!='2')
         tempData['value'] = res.data.data[healthItem].testValue+res.data.data[healthItem].itemUnit
-        if(res.data.data[healthItem].testScore!=undefined)
-        tempData['score'] = res.data.data[healthItem].testScore;
-        if(res.data.data[healthItem].testLevelDesc!=undefined)
-        tempData['level'] = res.data.data[healthItem].testLevelDesc;
-        if(res.data.data[healthItem].testTime!=undefined)
-        tempData['time'] = res.data.data[healthItem].testTime;
+        if(res.data.data[healthItem].testScore!==undefined)
+          tempData['score'] = res.data.data[healthItem].testScore;
+        if(res.data.data[healthItem].testLevelDesc!==undefined)
+          tempData['level'] = res.data.data[healthItem].testLevelDesc;
+        if(res.data.data[healthItem].testTime!==undefined)
+          tempData['time'] = res.data.data[healthItem].testTime;
         health.push(tempData)
     })
 
@@ -130,20 +125,19 @@ exports.route = {
 ]
 */
 
-    let res1 = await axios.post(sdk.pe.exerciseurl,{
-        "schoolYear": `${Year}`,
+    res = await axios.post(sdk.pe.exerciseurl,{
+        "schoolYear": this.term.currentTerm.name.split('-')[0],
         "studentNo": `${cardnum}`
     })
-    let runList=Object.keys(res1.data.data)
-    let runCount=Object.keys(res1.data.data).length//跑操次数
+    let runList=Object.keys(res.data.data)
+    let runCount=Object.keys(res.data.data).length//跑操次数
     let runTime=[]//跑操时间列表
     runList.forEach(item=>{
-        let runD={}
-        runD['Time']=res1.data.data[item].recordTime
-        runTime.push(runD)
+        var dateStr = res.data.data[item].recordTime
+        dateStr = dateStr.replace(/-/g,'/');
+        var timeTamp = new Date(dateStr).getTime();
+        runTime.push(timeTamp)
     })
-    //console.log(runTime)
-    //console.log(runCount)
 
  
     const count = runCount
