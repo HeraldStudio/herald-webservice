@@ -260,6 +260,13 @@ exports.route = {
   * @apiParam {String} id
   */
   async post({ url = '', id = '' }) {
+    // 若已登陆则标注已读，缓存内部不能保证运行，所以挪到了外面
+    if (id && this.user.isLogin) {
+      await this.db.execute(`
+      INSERT INTO H_NOTICE_ISREAD (NOTICE, CARDNUM)
+      VALUES (:id, :cardnum)
+      `, { id, cardnum: this.user.cardnum })
+    }
     // 1小时的缓存
     return await this.publicCache('1d', async () => {
       if (url) {
@@ -282,12 +289,12 @@ exports.route = {
           throw "通知不存在"
         }
         // 若已登录则标注已读
-        if (this.user.isLogin) {
-          await this.db.execute(`
-          INSERT INTO H_NOTICE_ISREAD (NOTICE, CARDNUM)
-          VALUES (:id, :cardnum)
-          `, { id, cardnum: this.user.cardnum })
-        }
+        // if (this.user.isLogin) {
+        //   await this.db.execute(`
+        //   INSERT INTO H_NOTICE_ISREAD (NOTICE, CARDNUM)
+        //   VALUES (:id, :cardnum)
+        //   `, { id, cardnum: this.user.cardnum })
+        // }
 
         // oracle 空字段返回的null 为string 类型
         // 处理一下返回数据
