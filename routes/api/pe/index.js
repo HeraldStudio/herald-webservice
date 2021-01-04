@@ -7,9 +7,11 @@ const hintTable = [
   '小猴提醒：起床不抓紧，跑操两行泪',      // 学期初提醒
   '小猴提醒：不错哦～要继续保持～',
   '小猴提醒：要抓紧跑操哦～',
-  '小猴叹息：小猴为你的跑操感到悲哀',      // 彻底跑不完了
+  // '小猴叹息：小猴为你的跑操感到悲哀',      // 彻底跑不完了
+  '小猴叹息：下学期一定要好好跑操呀',      // 彻底跑不完了
   '小猴祝贺：恭喜你已经完成了跑操任务🎉'   // 完成跑操任务
 ]
+const needCount = 40
 
 // const en2ch = {
 //   '男': {
@@ -121,13 +123,13 @@ exports.route = {
     // console.log(remainDays)
 
     let hint
-    if (now < +(moment(this.term.currentTerm.startDate).add(45, 'day'))) {
+    if (now < +(moment(this.term.currentTerm.startDate).add(40, 'day'))) {
       // 开学一个月之前，显示提醒用语
       hint = hintTable[0]
-    } else if ((45 - count) > remainDays) {
+    } else if ((needCount - count) > remainDays) {
       // 剩余天数不够了，显示悲哀用语
       hint = hintTable[3]
-    } else if (count >= 45) {
+    } else if (count >= needCount) {
       // 完成跑操任务
       hint = hintTable[4]
     } else {
