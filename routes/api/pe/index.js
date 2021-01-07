@@ -84,7 +84,7 @@ exports.route = {
     }
 
     // 获取跑操数据
-    res = (await axios({
+    const res1 = (await axios({
       url: `${peConfig.pe.url}/exercise/morning/attendance/get-by-student`,
       method: 'post',
       data: {
@@ -93,8 +93,16 @@ exports.route = {
       }
     })).data.data.map(item => +moment(item.recordTime))
 
+    const res2 = (await axios({
+      url: `${peConfig.pe.url}/exercise/morning/attendance/get-by-student`,
+      method: 'post',
+      data: {
+        "schoolYear": this.term.currentTerm.name.split('-')[1],
+        "studentNo": this.user.cardnum
+      }
+    })).data.data.map(item => +moment(item.recordTime))
 
-    res = [...new Set(res)]
+    res = [...new Set(res1), ...new Set(res2)]
 
     // 过滤，仅获取当前学期的的跑操次数
     res = res
