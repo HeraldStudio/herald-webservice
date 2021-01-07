@@ -101,8 +101,7 @@ exports.route = {
         "studentNo": this.user.cardnum
       }
     })).data.data.map(item => +moment(item.recordTime))
-
-    res = [...new Set(res1), ...new Set(res2)]
+    res = [...new Set(res1.concat(res2))]
 
     // 过滤，仅获取当前学期的的跑操次数
     res = res
