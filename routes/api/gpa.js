@@ -51,6 +51,20 @@ exports.route = {
   **/
   async get() {
     let { name, cardnum } = this.user
+
+    // 初始化学期列表（app在没有成绩信息的时候无法自定义成绩
+    let semesters = []
+    this.term.list.map(Element => {
+      if (parseInt(Element.name.slice(2, 4)) >= parseInt(this.user.cardnum.slice(3, 5))) {
+        semesters.push({
+          semester: Element.name.split('-').map((Element, index) => {
+            return index < 2 ? Element.slice(2) : Element
+          }).join('-'),
+          courses: []
+        })
+      }
+    })
+
     // 本科生
     if (/^21/.test(cardnum)) {
       if (/^21318/.test(cardnum) || /^21319/.test(cardnum) || /^21320/.test(cardnum)) {  //18 19级
@@ -116,20 +130,6 @@ exports.route = {
         SELECT * FROM TOMMY.H_MY_SCORE
             WHERE CARDNUM = :cardnum
     `, { cardnum: cardnum })
-        /*let myexamDetail = myexamData.rows.map(row => {
-          return {
-            _id:  row[0],
-            semester: row[7],
-            courseName: row[1],
-            courseType: row[4],
-            credit: row[2],
-            score: calculateEquivalentScore(row[3]),
-            isPassed: (row[3] >= 60 && row[3] <= 100) || (row[3] > 200 && row[3] <= 210),  //右边的条件是针对老系统的等级成绩的
-            isFirstPassed: true,
-            isHighestPassed: true,
-            scoreType: row[5]
-          }
-        })*/
 
         myexamData.rows.map(row => {
           // eslint-disable-next-line no-unused-vars
@@ -155,6 +155,7 @@ exports.route = {
               delete Element[e]
           }
         })
+
         let courseHasPassed = {}
         let achievedCredits = 0
         detail.slice().reverse().map(k => {
@@ -213,18 +214,10 @@ exports.route = {
             a.slice(-1)[0].courses.push(b)
             return a
           }
-        }, [])
+        }, semesters)
 
-        let gpa = null
-        let calculationTime = null
-        let gpaBeforeMakeup = null
-        let year = null
-        // 时间解析为时间戳
-        //calculationTime = calculationTime ? +moment(calculationTime) : null
         this.logMsg = `${name} (${cardnum}) - 查询绩点`
-        // 数据出错，暂停查询
-        // return {}
-        return { gpa, gpaBeforeMakeup, achievedCredits, year, calculationTime, detail }
+        return { achievedCredits, detail }
       }
       else {  //16 17级
         let detail = await this.userCache('1h+', async () => {
@@ -255,23 +248,6 @@ exports.route = {
           left join TOMMY.T_XK_XKJG  xk
           on cj.XH = xk.XH AND cj.XKKCDM = xk.XKKCDM
       `, { cardnum: cardnum })
-          /*let rawDetail = rawData.rows.map(row => {
-            let xn = parseInt(row[0])
-            let xq = parseInt(row[1])
-            let semesterName = xn.toString().slice(2)+"-"+(xn+1).toString().slice(2)+"-"+xq.toString()
-            return {
-              semester: semesterName,
-              cid: row[2],
-              courseName: row[3],
-              courseType: undefined,
-              credit: row[4],
-              score: calculateEquivalentScore(row[5]),
-              isPassed: (row[5] >= 60 && row[5] <= 100) || (row[5] > 200 && row[5] <= 210),  //右边的条件是针对老系统的等级成绩的
-              isFirstPassed: false,
-              isHighestPassed: false,
-              scoreType: undefined
-            }
-          })*/
 
           let rawDetail = []
           rawData.rows.map(row => {
@@ -332,10 +308,6 @@ exports.route = {
           // let cidList = {}
           let indexList = []
           rawDetail.forEach((currentTerm, index) => {
-            // if (cidList[currentTerm.cid] !== true) {
-            //   cidList[currentTerm.cid] = true
-            //   indexList.push(index)
-            // }
             indexList.push(index)
           })
           let detail = []
@@ -393,7 +365,6 @@ exports.route = {
           }
         })
 
-
         // 计算各门课程是否最高一次通过
         // 用于前端判断课程是否默认计入出国绩点估算
         let courseHighestPassed = {}
@@ -403,18 +374,6 @@ exports.route = {
           }
         })
         Object.values(courseHighestPassed).map(k => k.isHighestPassed = true)
-
-        // 解决转系生课程全为任选或限选的状况
-        /*let courseTypes = detail.map(k => k.courseType)
-      courseTypes = courseTypes.filter( k => k.courseType === '')
- 
-      if(courseTypes.length === 0){
-        detail.map(k => {
-          if(k.courseType === '限选')
-            k.courseType = ''
-        })
-      }*/
-
 
         //先按学期进行排序，因为从数据库库查出来的数据不是按学期顺序排下来的
         detail = detail.sort((a, b) => {
@@ -436,18 +395,12 @@ exports.route = {
             a.slice(-1)[0].courses.push(b)
             return a
           }
-        }, [])
+        }, semesters)
 
-        let gpa = null
-        let calculationTime = null
-        let gpaBeforeMakeup = null
-        let year = null
         // 时间解析为时间戳
-        //calculationTime = calculationTime ? +moment(calculationTime) : null
         this.logMsg = `${name} (${cardnum}) - 查询绩点`
         // ⚠️ 出现数据同步的问题，停止查询
-        return { gpa, gpaBeforeMakeup, achievedCredits, year, calculationTime, detail }
-        // return {}
+        return { achievedCredits, detail }
       }
     } else if (/^22/.test(cardnum)) { // 研究生
 
@@ -483,7 +436,6 @@ exports.route = {
           })
         }
       )
-      console.log(detail)
 
       //先按学期进行排序，因为从数据库库查出来的数据不是按学期顺序排下来的
       detail = detail.sort((a, b) => {
@@ -505,18 +457,13 @@ exports.route = {
           a.slice(-1)[0].courses.push(b)
           return a
         }
-      }, [])
-      // console.log(detail)
+      }, semesters)
 
-      let gpa = null
-      let calculationTime = null
-      let gpaBeforeMakeup = null
-      let year = null
       // 时间解析为时间戳
       //calculationTime = calculationTime ? +moment(calculationTime) : null
       // this.logMsg = `${name} (${cardnum}) - 查询绩点`
       // ⚠️ 出现数据同步的问题，停止查询
-      return { gpa, gpaBeforeMakeup, year, calculationTime, detail }
+      return { detail }
 
       // let headers = { 'Referer': 'http://121.248.63.139/nstudent/index.aspx' }
 
@@ -570,7 +517,6 @@ exports.route = {
   **/
   async post({ courseName, credit, score, courseType, scoreType, semester }) {
     let { cardnum } = this.user
-    // console.log({ courseName, credit, score, courseType, scoreType, semester })
     if (!courseName) {
       throw '未定义课程名'
     }
