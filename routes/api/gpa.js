@@ -103,10 +103,10 @@ exports.route = {
           let detail = []
 
           // 暂停查询
-          // if (['213183580', '213181432'].indexOf(cardnum) !== -1)
-          indexList.forEach((detailIndex) => {
-            detail.push(rawDetail[detailIndex])
-          })
+          if (['213183580', '213181432'].indexOf(cardnum) !== -1)
+            indexList.forEach((detailIndex) => {
+              detail.push(rawDetail[detailIndex])
+            })
 
           //去重结束
           return detail
@@ -326,10 +326,10 @@ exports.route = {
           let detail = []
 
           // 暂停查询
-          // if (['213183580', '213181432'].indexOf(cardnum) !== -1)
-          indexList.forEach((detailIndex) => {
-            detail.push(rawDetail[detailIndex])
-          })
+          if (['213183580', '213181432'].indexOf(cardnum) !== -1)
+            indexList.forEach((detailIndex) => {
+              detail.push(rawDetail[detailIndex])
+            })
 
           //去重结束
           return detail
