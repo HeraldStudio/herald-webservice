@@ -52,19 +52,6 @@ exports.route = {
   async get() {
     let { name, cardnum } = this.user
 
-    // 初始化学期列表（app在没有成绩信息的时候无法自定义成绩
-    let semesters = []
-    this.term.list.map(Element => {
-      if (parseInt(Element.name.slice(2, 4)) >= parseInt(this.user.cardnum.slice(3, 5))) {
-        semesters.push({
-          semester: Element.name.split('-').map((Element, index) => {
-            return index < 2 ? Element.slice(2) : Element
-          }).join('-'),
-          courses: []
-        })
-      }
-    })
-
     // 本科生
     if (/^21/.test(cardnum)) {
       if (/^21318/.test(cardnum) || /^21319/.test(cardnum) || /^21320/.test(cardnum)) {  //18 19级
@@ -116,10 +103,10 @@ exports.route = {
           let detail = []
 
           // 暂停查询
-          if (['213183580', '213181432'].indexOf(cardnum) !== -1)
-            indexList.forEach((detailIndex) => {
-              detail.push(rawDetail[detailIndex])
-            })
+          // if (['213183580', '213181432'].indexOf(cardnum) !== -1)
+          indexList.forEach((detailIndex) => {
+            detail.push(rawDetail[detailIndex])
+          })
 
           //去重结束
           return detail
@@ -214,7 +201,33 @@ exports.route = {
             a.slice(-1)[0].courses.push(b)
             return a
           }
-        }, semesters)
+        }, [])
+
+        // 初始化学期列表（app在没有成绩信息的时候无法自定义成绩
+        let semesters = []
+        this.term.list.map(Element => {
+          if (parseInt(Element.name.slice(2, 4)) >= parseInt(this.user.cardnum.slice(3, 5))) {
+            semesters.push({
+              semester: Element.name.split('-').map((Element, index) => {
+                return index < 2 ? Element.slice(2) : Element
+              }).join('-'),
+              courses: []
+            })
+          }
+        })
+        for (let element in semesters) {
+          let flag = false
+          for (let e in detail) {
+            if (element.semester === e.semester) {
+              flag = true
+              break
+            }
+          }
+          if (!flag) {
+            detail.push(element)
+          }
+        }
+
 
         this.logMsg = `${name} (${cardnum}) - 查询绩点`
         return { achievedCredits, detail }
@@ -313,10 +326,10 @@ exports.route = {
           let detail = []
 
           // 暂停查询
-          if (['213183580', '213181432'].indexOf(cardnum) !== -1)
-            indexList.forEach((detailIndex) => {
-              detail.push(rawDetail[detailIndex])
-            })
+          // if (['213183580', '213181432'].indexOf(cardnum) !== -1)
+          indexList.forEach((detailIndex) => {
+            detail.push(rawDetail[detailIndex])
+          })
 
           //去重结束
           return detail
@@ -395,14 +408,39 @@ exports.route = {
             a.slice(-1)[0].courses.push(b)
             return a
           }
-        }, semesters)
+        }, [])
+
+        // 初始化学期列表（app在没有成绩信息的时候无法自定义成绩
+        let semesters = []
+        this.term.list.map(Element => {
+          if (parseInt(Element.name.slice(2, 4)) >= parseInt(this.user.cardnum.slice(3, 5))) {
+            semesters.push({
+              semester: Element.name.split('-').map((Element, index) => {
+                return index < 2 ? Element.slice(2) : Element
+              }).join('-'),
+              courses: []
+            })
+          }
+        })
+        for (let element in semesters) {
+          let flag = false
+          for (let e in detail) {
+            if (element.semester === e.semester) {
+              flag = true
+              break
+            }
+          }
+          if (!flag) {
+            detail.push(element)
+          }
+        }
 
         // 时间解析为时间戳
         this.logMsg = `${name} (${cardnum}) - 查询绩点`
         // ⚠️ 出现数据同步的问题，停止查询
         return { achievedCredits, detail }
       }
-    } else if (/^22/.test(cardnum)) { // 研究生
+    } else if (/^ 22 /.test(cardnum)) { // 研究生
 
       let record = await this.db.execute(
         `select tyk.XQMC,tyk.WID,tyk.KSCJ,tyk.XF,tyk.SFXWK,tyk.KSLBDM, tykc.KCMC
@@ -457,7 +495,32 @@ exports.route = {
           a.slice(-1)[0].courses.push(b)
           return a
         }
-      }, semesters)
+      }, [])
+
+      // 初始化学期列表（app在没有成绩信息的时候无法自定义成绩
+      let semesters = []
+      this.term.list.map(Element => {
+        if (parseInt(Element.name.slice(2, 4)) >= parseInt(this.user.cardnum.slice(3, 5))) {
+          semesters.push({
+            semester: Element.name.split('-').map((Element, index) => {
+              return index < 2 ? Element.slice(2) : Element
+            }).join('-'),
+            courses: []
+          })
+        }
+      })
+      for (let element in semesters) {
+        let flag = false
+        for (let e in detail) {
+          if (element.semester === e.semester) {
+            flag = true
+            break
+          }
+        }
+        if (!flag) {
+          detail.push(element)
+        }
+      }
 
       // 时间解析为时间戳
       //calculationTime = calculationTime ? +moment(calculationTime) : null
