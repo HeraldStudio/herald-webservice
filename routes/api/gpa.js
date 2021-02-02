@@ -215,9 +215,9 @@ exports.route = {
             })
           }
         })
-        for (let element in semesters) {
+        for (let element of semesters) {
           let flag = false
-          for (let e in detail) {
+          for (let e of detail) {
             if (element.semester === e.semester) {
               flag = true
               break
@@ -422,9 +422,9 @@ exports.route = {
             })
           }
         })
-        for (let element in semesters) {
+        for (let element of semesters) {
           let flag = false
-          for (let e in detail) {
+          for (let e of detail) {
             if (element.semester === e.semester) {
               flag = true
               break
@@ -434,7 +434,6 @@ exports.route = {
             detail.push(element)
           }
         }
-
         // 时间解析为时间戳
         this.logMsg = `${name} (${cardnum}) - 查询绩点`
         // ⚠️ 出现数据同步的问题，停止查询
@@ -509,9 +508,9 @@ exports.route = {
           })
         }
       })
-      for (let element in semesters) {
+      for (let element of semesters) {
         let flag = false
-        for (let e in detail) {
+        for (let e of detail) {
           if (element.semester === e.semester) {
             flag = true
             break
