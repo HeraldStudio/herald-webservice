@@ -19,7 +19,10 @@ const getToken = async (type) => {
   if (expire > now) {
     return token
   }
-
+  console.log(await axios.get(
+    '/token?grant_type=client_credential' +
+    `&appid=${wechat[type].appid}&secret=${wechat[type].appsecret}`
+  ))
   let { data: { access_token, expires_in } } = await axios.get(
     '/token?grant_type=client_credential' +
     `&appid=${wechat[type].appid}&secret=${wechat[type].appsecret}`
