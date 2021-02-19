@@ -102,6 +102,9 @@ exports.route = {
             beginWeek: SKZC ? SKZC.indexOf('1') + 1 : undefined,
             endWeek: SKZC ? SKZC.lastIndexOf('1') + 1 : undefined,
             dayOfWeek: parseInt(SKXQ) ? parseInt(SKXQ) : undefined,
+            // 存在非单双周情况(如3,6,9,12周上课), 因此记录原周次位图信息
+            // 需要时使用周次位图信息
+            weekBitMap: SKZC,
             flip: SKZC ? (SKZC.startsWith('1010') ?
               'odd' :
               SKZC.startsWith('0101') ?
@@ -525,14 +528,29 @@ WHERE OWNER = :cardnum and SEMESTER = :termName
     curriculum.map(k => {
       let { beginWeek, endWeek, dayOfWeek, beginPeriod, endPeriod, flip } = k
       if (dayOfWeek) {
-        k.events = Array(endWeek - beginWeek + 1).fill()
-          .map((_, i) => i + beginWeek)
-          .filter(i => i % 2 !== ['odd', 'even'].indexOf(flip))
-          .map(week => ({
+        if ('weekBitMap' in k && flip === 'none') {
+          // 3,6,9,12周有课或4,8,12,16周有课的情况下, flip为none
+          k.events = []
+          for (let i = 0, len = k['weekBitMap'].length; i < len; i++ ) {
+            if (k['weekBitMap'][i] === '1') {
+              k.events.push(i + 1)
+            }
+          }
+          k.events = k.events.map(week => ({
             week,
             startTime: term.startDate + ((week * 7 + dayOfWeek - 8) * 1440 + courseStartTime[beginPeriod - 1]) * 60000,
             endTime: term.startDate + ((week * 7 + dayOfWeek - 8) * 1440 + courseStartTime[endPeriod - 1] + 45) * 60000
           }))
+        } else {
+          k.events = Array(endWeek - beginWeek + 1).fill()
+            .map((_, i) => i + beginWeek)
+            .filter(i => i % 2 !== ['odd', 'even'].indexOf(flip))
+            .map(week => ({
+              week,
+              startTime: term.startDate + ((week * 7 + dayOfWeek - 8) * 1440 + courseStartTime[beginPeriod - 1]) * 60000,
+              endTime: term.startDate + ((week * 7 + dayOfWeek - 8) * 1440 + courseStartTime[endPeriod - 1] + 45) * 60000
+            }))
+        }
       }
     })
 
