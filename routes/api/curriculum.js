@@ -73,23 +73,30 @@ exports.route = {
       curriculum = await this.userCache('1d+', async () => {
         // 处理 curriculum
         // 获取课表
-        let result = await this.db.execute(`
-        select T_PK_SJDDB.SKZC,SKXQ,KSJC,JSJC,JASMC,KCM,XM
-        from (
-          select *
-          from t_xk_xkxs
-          where xh=:cardnum and xnxqdm =:termName
-        )a
-        left join t_rw_jsb
-        on a.jxbid = t_rw_jsb.jxbid
-        left join t_pk_sjddb
-        on a.jxbid = T_PK_SJDDB.JXBID
-        left join T_JAS_JBXX
-        on t_pk_sjddb.jasdm = t_jas_jbxx.jasdm
-        left join t_kc_kcb
-        on a.kch = t_kc_kcb.kch
-        left join T_JZG_JBXX
-        on T_RW_JSB.JSH = T_JZG_JBXX.ZGH
+        let result = await this.db.execute(` 
+          select * from (
+            select a.SKZC,SKXQ,KSJC,JSJC,JASMC,KCM,
+                   listagg(XM, ',') within GROUP (order by XM) over(partition by SKZC, skxq, ksjc, JSJC, KCM ) as XM,
+                   ROW_NUMBER()over(partition by SKZC, skxq, ksjc, JSJC, KCM order by xm) as num
+              from (
+                select T_PK_SJDDB.SKZC,SKXQ,KSJC,JSJC,JASMC,KCM,XM
+                   from (
+                     select *
+                     from t_xk_xkxs
+                     where xh=:cardnum and xnxqdm =:termName
+                   )a
+                   left join t_rw_jsb
+                   on a.jxbid = t_rw_jsb.jxbid
+                   left join t_pk_sjddb
+                   on a.jxbid = T_PK_SJDDB.JXBID
+                   left join T_JAS_JBXX
+                   on t_pk_sjddb.jasdm = t_jas_jbxx.jasdm
+                   left join t_kc_kcb
+                   on a.kch = t_kc_kcb.kch
+                   left join T_JZG_JBXX
+                   on T_RW_JSB.JSH = T_JZG_JBXX.ZGH
+           ) a
+           )t1  where num =1
         `, {
           cardnum,
           termName: term.name
