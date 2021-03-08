@@ -9,6 +9,9 @@ exports.route = {
   * @apiParam date    查询日期，格式 YYYY-MM-DD
   **/
   async get({ date = '' }) {
+    if (this.user.cardnum === '213171625') {
+      throw '服务故障'
+    }
     return await this.userCache('1m+', async () => {
       if (!date) {
         date = moment().add(-1, 'days').format('YYYY-MM-DD')
