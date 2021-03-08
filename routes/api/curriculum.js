@@ -73,23 +73,30 @@ exports.route = {
       curriculum = await this.userCache('1d+', async () => {
         // 处理 curriculum
         // 获取课表
-        let result = await this.db.execute(`
-        select T_PK_SJDDB.SKZC,SKXQ,KSJC,JSJC,JASMC,KCM,XM
-        from (
-          select *
-          from t_xk_xkxs
-          where xh=:cardnum and xnxqdm =:termName
-        )a
-        left join t_rw_jsb
-        on a.jxbid = t_rw_jsb.jxbid
-        left join t_pk_sjddb
-        on a.jxbid = T_PK_SJDDB.JXBID
-        left join T_JAS_JBXX
-        on t_pk_sjddb.jasdm = t_jas_jbxx.jasdm
-        left join t_kc_kcb
-        on a.kch = t_kc_kcb.kch
-        left join T_JZG_JBXX
-        on T_RW_JSB.JSH = T_JZG_JBXX.ZGH
+        let result = await this.db.execute(` 
+          select * from (
+            select a.SKZC,SKXQ,KSJC,JSJC,JASMC,KCM,
+                   listagg(XM, ',') within GROUP (order by XM) over(partition by SKZC, skxq, ksjc, JSJC, KCM ) as XM,
+                   ROW_NUMBER()over(partition by SKZC, skxq, ksjc, JSJC, KCM order by xm) as num
+              from (
+                select T_PK_SJDDB.SKZC,SKXQ,KSJC,JSJC,JASMC,KCM,XM
+                   from (
+                     select *
+                     from t_xk_xkxs
+                     where xh=:cardnum and xnxqdm =:termName
+                   )a
+                   left join t_rw_jsb
+                   on a.jxbid = t_rw_jsb.jxbid
+                   left join t_pk_sjddb
+                   on a.jxbid = T_PK_SJDDB.JXBID
+                   left join T_JAS_JBXX
+                   on t_pk_sjddb.jasdm = t_jas_jbxx.jasdm
+                   left join t_kc_kcb
+                   on a.kch = t_kc_kcb.kch
+                   left join T_JZG_JBXX
+                   on T_RW_JSB.JSH = T_JZG_JBXX.ZGH
+           ) a
+           )t1  where num =1
         `, {
           cardnum,
           termName: term.name
@@ -102,6 +109,9 @@ exports.route = {
             beginWeek: SKZC ? SKZC.indexOf('1') + 1 : undefined,
             endWeek: SKZC ? SKZC.lastIndexOf('1') + 1 : undefined,
             dayOfWeek: parseInt(SKXQ) ? parseInt(SKXQ) : undefined,
+            // 存在非单双周情况(如3,6,9,12周上课), 因此记录原周次位图信息
+            // 需要时使用周次位图信息
+            weekBitMap: SKZC,
             flip: SKZC ? (SKZC.startsWith('1010') ?
               'odd' :
               SKZC.startsWith('0101') ?
@@ -525,14 +535,29 @@ WHERE OWNER = :cardnum and SEMESTER = :termName
     curriculum.map(k => {
       let { beginWeek, endWeek, dayOfWeek, beginPeriod, endPeriod, flip } = k
       if (dayOfWeek) {
-        k.events = Array(endWeek - beginWeek + 1).fill()
-          .map((_, i) => i + beginWeek)
-          .filter(i => i % 2 !== ['odd', 'even'].indexOf(flip))
-          .map(week => ({
+        if ('weekBitMap' in k && flip === 'none') {
+          // 3,6,9,12周有课或4,8,12,16周有课的情况下, flip为none
+          k.events = []
+          for (let i = 0, len = k['weekBitMap'].length; i < len; i++ ) {
+            if (k['weekBitMap'][i] === '1') {
+              k.events.push(i + 1)
+            }
+          }
+          k.events = k.events.map(week => ({
             week,
             startTime: term.startDate + ((week * 7 + dayOfWeek - 8) * 1440 + courseStartTime[beginPeriod - 1]) * 60000,
             endTime: term.startDate + ((week * 7 + dayOfWeek - 8) * 1440 + courseStartTime[endPeriod - 1] + 45) * 60000
           }))
+        } else {
+          k.events = Array(endWeek - beginWeek + 1).fill()
+            .map((_, i) => i + beginWeek)
+            .filter(i => i % 2 !== ['odd', 'even'].indexOf(flip))
+            .map(week => ({
+              week,
+              startTime: term.startDate + ((week * 7 + dayOfWeek - 8) * 1440 + courseStartTime[beginPeriod - 1]) * 60000,
+              endTime: term.startDate + ((week * 7 + dayOfWeek - 8) * 1440 + courseStartTime[endPeriod - 1] + 45) * 60000
+            }))
+        }
       }
     })
 
