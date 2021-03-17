@@ -77,9 +77,10 @@ exports.route = {
           select * from (
             select a.SKZC,SKXQ,KSJC,JSJC,JASMC,KCM,
                    listagg(XM, ',') within GROUP (order by XM) over(partition by SKZC, skxq, ksjc, JSJC, KCM ) as XM,
-                   ROW_NUMBER()over(partition by SKZC, skxq, ksjc, JSJC, KCM order by xm) as num
+                   ROW_NUMBER()over(partition by SKZC, skxq, ksjc, JSJC, KCM order by xm) as num,
+                   XF
               from (
-                select T_PK_SJDDB.SKZC,SKXQ,KSJC,JSJC,JASMC,KCM,XM
+                select T_PK_SJDDB.SKZC,SKXQ,KSJC,JSJC,JASMC,T_KC_KCB.KCM,XM,T_KC_KCB.XF as XF
                    from (
                      select *
                      from t_xk_xkxs
@@ -95,6 +96,8 @@ exports.route = {
                    on a.kch = t_kc_kcb.kch
                    left join T_JZG_JBXX
                    on T_RW_JSB.JSH = T_JZG_JBXX.ZGH
+                   left join T_KC_KCB
+                   on a.kch = T_KC_KCB.KCH
            ) a
            )t1  where num =1
         `, {
@@ -102,7 +105,7 @@ exports.route = {
           termName: term.name
         })
         result.rows.map(Element => {
-          let [SKZC, SKXQ, KSJC, JSJC, JASMC, KCM, XM] = Element
+          let [SKZC, SKXQ, KSJC, JSJC, JASMC, KCM, XM, num, XF] = Element
           const course = {
             courseName: KCM,
             teacherName: XM,
@@ -120,7 +123,7 @@ exports.route = {
             beginPeriod: parseInt(KSJC) ? parseInt(KSJC) : undefined,
             endPeriod: parseInt(JSJC) ? parseInt(JSJC) : undefined,
             location: JASMC,
-            credit: '学分未知'
+            credit: XF
           }
           // 存在部分课程没有上课周次的情况，会导致整个课表崩掉
           if (course.endWeek)
