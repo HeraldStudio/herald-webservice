@@ -63,21 +63,34 @@ exports.route = {
     const now = +moment()
 
     const health = []
-    let res = (await axios({
-      url: `${peConfig.pe.url}/fitness/test/final/get-by-sutdent`,
-      method: 'post',
-      data: {
-        "schoolYear": this.term.currentTerm.name.split('-')[0],
-        "studentNo": this.user.cardnum
+    let res
+    try {
+      res = (await axios({
+        url: peConfig.zhiDiRuiService.UrlFitnessTest,
+        method: 'post',
+        data: {
+          "schoolYear": this.term.currentTerm.name.split('-')[0],
+          "studentNo": this.user.cardnum
+        },
+        headers: {
+          'Content-Type': 'application/json',
+          'tenant': peConfig.zhiDiRuiService.tenant
+        }
+      })).data
+    } catch (e) {
+      res = {
+        data: {
+          array: []
+        }
       }
-    })).data
-    for (let item of res.data) {
+    }
+    for (let item of res.data.array) {
       if (!item.itemName) {
         item.itemName = "总分"
       }
       health.push({
         name: item.itemName,
-        value: item.testRawValue + " " + (item.itemName != "1000米跑" && item.itemUnit || ""),
+        value: item.testValue + " " + (item.itemName != "1000米跑" && item.itemUnit || ""),
         score: item.testScore,
         grade: item.testLevelDesc
       })
@@ -85,20 +98,28 @@ exports.route = {
 
     // 获取跑操数据
     const res1 = (await axios({
-      url: `${peConfig.pe.url}/exercise/morning/attendance/get-by-student`,
+      url: peConfig.zhiDiRuiService.UrlMorningExercise,
       method: 'post',
       data: {
         "schoolYear": this.term.currentTerm.name.split('-')[0],
         "studentNo": this.user.cardnum
+      },
+      headers: {
+        'Content-Type': 'application/json',
+        'tenant': peConfig.zhiDiRuiService.tenant
       }
     })).data.data.map(item => +moment(item.recordTime))
 
     const res2 = (await axios({
-      url: `${peConfig.pe.url}/exercise/morning/attendance/get-by-student`,
+      url: peConfig.zhiDiRuiService.UrlMorningExercise,
       method: 'post',
       data: {
         "schoolYear": this.term.currentTerm.name.split('-')[1],
         "studentNo": this.user.cardnum
+      },
+      headers: {
+        'Content-Type': 'application/json',
+        'tenant': peConfig.zhiDiRuiService.tenant
       }
     })).data.data.map(item => +moment(item.recordTime))
     res = [...new Set(res1.concat(res2))]
