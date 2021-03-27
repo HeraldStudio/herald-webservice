@@ -85,12 +85,16 @@ exports.route = {
       }
     }
     for (let item of res.data.array) {
-      if (!item.itemName) {
-        item.itemName = "总分"
+      if (item.itemUnit == null) {
+        item.itemUnit = ''
+      }
+      if (item.itemName === '总分') {
+        item.testValue = item.testScore
+        item.itemUnit = '分'
       }
       health.push({
         name: item.itemName,
-        value: item.testValue + " " + (item.itemName != "1000米跑" && item.itemUnit || ""),
+        value: item.testValue + " " + item.itemUnit,
         score: item.testScore,
         grade: item.testLevelDesc
       })
