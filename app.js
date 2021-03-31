@@ -111,6 +111,8 @@ app.use(require('./middleware/redis'))
 app.use(require('./middleware/term'))
 // 9. 静态文件
 app.use(require('./middleware/minio'))
+// 10. 人文讲座API数据
+app.use(require('./middleware/lecture-history'))
 
 // 10.获取最新版安卓app
 app.use(require('./middleware/version'))
