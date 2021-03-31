@@ -2,7 +2,7 @@ let lectureMap = {}
 let lastInvokeTime = 0
 
 module.exports = async (ctx, next) => {
-  let now = moment()
+  let now = moment().unix()
   // 每24小时更新一次
   if (now - lastInvokeTime >= 24 * 60 * 60 * 1000) {
     let record = await ctx.db.execute(`
@@ -19,7 +19,7 @@ module.exports = async (ctx, next) => {
       const [name, dateStr, location, url] = r
       lectureMap[r[1]][r[2]].push({name, dateStr, location, url})
     })
-    lastInvokeTime = now.unix()
+    lastInvokeTime = moment().unix()
   }
   ctx.lectureMap = lectureMap
   await next()
