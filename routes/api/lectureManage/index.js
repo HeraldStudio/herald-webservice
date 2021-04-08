@@ -27,7 +27,7 @@ exports.route = {
     if (!(await this.hasPermission('lecturerecord'))) {
       throw 403
     }
-    if (!(name && dateStr && location && url)) {
+    if (!(name && dateStr && location)) {
       throw '参数不全'
     }
     // 存入讲座
