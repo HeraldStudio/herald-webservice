@@ -4,14 +4,9 @@ const moment = require('moment')
 exports.route = {
   /**
   * @api {GET} /api/lecture 人文讲座信息查询
-  * @apiGroup other
-  * @apiParam {String} lecture
+  * @apiGroup lecture
   */
   async get() {
-    /**
-        * GET /api/lecture
-        * 人文讲座信息查询
-        **/
     return await this.userCache('10m+', async () => {
       let cardnum = this.user.cardnum
       let name = this.user.name
