@@ -1,12 +1,17 @@
 exports.route = {
   /**
-  * @api {GET} /api/lectureManage/cardRecord 查询讲座打卡纪录
+  * @api {GET} /api/lecture/admin/cardRecord 查询讲座打卡纪录
   * @apiGroup lecture
-  * @param lectureID 讲座ID
+  * @apiParam {String} lectureID 讲座ID
   * @returns [{id, cardnum, name, location, timestamp}]
   */
-
   async get({lectureID}) {
+    if (!(await this.hasPermission('lecturerecord'))) {
+      throw 403
+    }
+    if (!lectureID) {
+      throw '参数不全'
+    }
     let lectureResult = await this.db.execute(`
       SELECT NAME, DATESTR, LOCATION
       FROM H_LECTURE_HISTORY
@@ -43,7 +48,7 @@ exports.route = {
   },
   /**
   * @api {POST} /api/lectureManage/cardRecord 新建讲座
-  * @apiGroup lectureManage
+  * @apiGroup lecture
   * 
   * @apiParam {Array} recordArray 打卡记录
   * @apiParam {String} cardnum 打卡的一卡通号
@@ -56,18 +61,33 @@ exports.route = {
     if (!(await this.hasPermission('lecturerecord'))) {
       throw 403
     }
-    for (let curRecord of recordArray) {
+    let sql = `
+      INSERT INTO H_LECTURE_CARDRECORD
+      (CARDNUM, LOCATION, NAME, DATESTR, TIMESTAMP)
+      VALUES (:1, :2, :3, :4, :5)`
+    let content = recordArray.map(curRecord => {
       const {cardnum, location, name, dateStr, timestamp} = curRecord
-      await this.db.execute(`
-        INSERT INTO H_LECTURE_CARDRECORD
-        (CARDNUM, LOCATION, NAME, DATESTR, TIMESTAMP)
-        VALUES (:cardnum, :location, :name, :dateStr, :timestamp)`,{
-        cardnum, location, name, dateStr, timestamp
-      })
+      return [cardnum, location, name, dateStr, timestamp]
+    })
+    try {
+      await this.db.executeMany(sql, content)
+    } catch (e) {
+      if (e.errorNum === 1400) {
+        throw '参数不全'
+      }
+      throw '内部错误'
     }
     return '添加成功'
   },
+  /**
+  * @api {DELETE} /api/lecture/admin/cardRecord 删除打卡纪录
+  * @apiGroup lecture
+  * @apiParam {String} id 打卡记录ID
+  */
   async delete({id}) {
+    if (!(await this.hasPermission('lecturerecord'))) {
+      throw 403
+    }
     await this.db.execute(`
       DELETE FROM H_LECTURE_CARDRECORD
       WHERE ID = :id

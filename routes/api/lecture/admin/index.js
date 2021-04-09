@@ -1,4 +1,8 @@
 exports.route = {
+  /**
+  * @api {GET} /api/lecture/admin 获取讲座列表
+  * @apiGroup lecture
+  */
   async get() {
     if (!(await this.hasPermission('lecturerecord'))) {
       throw 403
@@ -13,15 +17,13 @@ exports.route = {
     })
   },
   /**
-  * @api {POST} /api/lectureManage 新建讲座
-  * @apiGroup lectureManage
+  * @api {POST} /api/lecture/admin 新建讲座
+  * @apiGroup lecture
   * 
   * @apiParam {String} name 讲座名称
   * @apiParam {String} dateStr 日期 YYYY-MM-DD
   * @apiParam {String} location 讲座位置
   * @apiParam {String} url 讲座地址
-  * @apiParam {String} key 包括发布者姓名，一卡通，角色，来源的密钥
-  * @apiParam {String} signature 包括secretKey，发布者姓名，一卡通，角色的密钥
   */
   async post({name, dateStr, location, url}) {
     if (!(await this.hasPermission('lecturerecord'))) {
@@ -42,6 +44,12 @@ exports.route = {
     })
     return '添加成功'
   },
+  /**
+  * @api {GET} /api/lecture/admin 获取讲座列表
+  * @apiGroup lecture
+  * 
+  * @apiParam {String} id 讲座ID
+  */
   async delete({id}) {
     if (!(await this.hasPermission('lecturerecord'))) {
       throw 403
