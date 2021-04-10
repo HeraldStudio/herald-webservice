@@ -18,6 +18,6 @@ exports.route = {
     return records.rows.map(result => {
       const [name, dateStr, location, url] = result
       return {name, dateStr, location, url}
-    })
+    })[0]
   }
 }
