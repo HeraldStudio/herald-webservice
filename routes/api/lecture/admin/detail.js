@@ -1,6 +1,6 @@
 exports.route = {
   /**
-  * @api {GET} /api/lecture/detail 根据讲座ID获取讲座详细信息
+  * @api {GET} /api/lecture/admin/detail 根据讲座ID获取讲座详细信息
   * @apiGroup lecture
   */
   async get({id}) {

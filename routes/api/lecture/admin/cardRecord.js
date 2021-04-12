@@ -15,7 +15,7 @@ exports.route = {
     let lectureResult = await this.db.execute(`
       SELECT NAME, DATESTR, LOCATION
       FROM H_LECTURE_HISTORY
-      WHERE ID = :lectureID
+      WHERE ID = :lectureID AND DELETED = 0
     `, {lectureID})
     let lectureMap = {}
     lectureMap[lectureResult.rows[0][1]] = {}
@@ -28,7 +28,7 @@ exports.route = {
     let rawResult = await this.db.execute(`
       SELECT ID, CARDNUM, NAME, LOCATION, DATESTR, TIMESTAMP
       FROM H_LECTURE_CARDRECORD 
-      WHERE DATESTR = :dateStr AND LOCATION = :location
+      WHERE DATESTR = :dateStr AND LOCATION = :location AND DELETED = 0
       ORDER BY TIMESTAMP
     `, {
       dateStr: lectureResult.rows[0][1],
@@ -89,7 +89,8 @@ exports.route = {
       throw 403
     }
     await this.db.execute(`
-      DELETE FROM H_LECTURE_CARDRECORD
+      UPDATE H_LECTURE_CARDRECORD
+      SET DELETED = 1
       WHERE ID = :id
     `, {id})
     return '删除成功'

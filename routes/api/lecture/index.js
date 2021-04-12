@@ -13,7 +13,7 @@ exports.route = {
       let rawResult = await this.db.execute(`
         SELECT CARDNUM, NAME, LOCATION, DATESTR, TIMESTAMP
         FROM H_LECTURE_CARDRECORD
-        WHERE CARDNUM = :cardnum AND NAME = :name
+        WHERE CARDNUM = :cardnum AND NAME = :name AND DELETED = 0
         GROUP BY CARDNUM, NAME, LOCATION, DATESTR, TIMESTAMP
         ORDER BY TIMESTAMP`,{
         cardnum, name

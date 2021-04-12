@@ -10,6 +10,7 @@ exports.route = {
     let records = await this.db.execute(`
       SELECT ID, NAME, DATESTR, LOCATION, URL
       FROM H_LECTURE_HISTORY
+      WHERE DELETED = 0
     `)
     return records.rows.map(result => {
       const [id, name, dateStr, location, url] = result
@@ -58,7 +59,8 @@ exports.route = {
       throw '参数不全'
     }
     await this.db.execute(`
-      DELETE FROM H_LECTURE_HISTORY
+      UPDATE H_LECTURE_HISTORY
+      SET DELETED = 1
       WHERE ID = :id
     `, { id })
     return '删除成功'
