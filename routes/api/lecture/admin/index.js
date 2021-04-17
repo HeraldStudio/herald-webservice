@@ -43,6 +43,8 @@ exports.route = {
       location,
       url
     })
+    // 更新lectureMap缓存
+    await this.updateLectureMap(this.db)
     return '添加成功'
   },
   /**
@@ -63,6 +65,8 @@ exports.route = {
       SET DELETED = 1
       WHERE ID = :id
     `, { id })
+    // 更新lectureMap缓存
+    await this.updateLectureMap(this.db)
     return '删除成功'
   }
 }
