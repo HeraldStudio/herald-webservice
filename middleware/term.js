@@ -132,6 +132,11 @@ module.exports = async (ctx, next) => {
       name: '2020-2021-3',
       startDate: 1614528000000,
       endDate: 1625414400000
+    },
+    {
+      name: '2020-2021-4',
+      startDate: 1625414400000,
+      endDate: 1627833600000
     }
   ] : Object.keys(config.term).map(k => {
     let startMoment = moment(config.term[k], 'YYYY-MM-DD')
