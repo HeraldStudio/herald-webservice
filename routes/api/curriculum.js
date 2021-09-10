@@ -116,12 +116,12 @@ exports.route = {
           .map(course => {
             return {
               courseName: course[7],
-              teacherName: course[6] || result.rows.find(row => row[10] === course[10] && row[6])[6],
-              credit: course[9],
+              teacherName: course[6],
+              credit: +course[9],
               beginWeek: +course[0],
               endWeek: +course[1],
               location: course[11],
-              dayOfWeek: course[3],
+              dayOfWeek: +course[3],
               flip: +course[2] ? (+course[2] == 1 ? 'even' : 'odd') : 'none',
               beginPeriod: +course[4],
               endPeriod: +course[5]
