@@ -96,7 +96,7 @@ exports.route = {
             LEFT JOIN T_JZG_JBXX jzg ON FACULTY_ID = jzg.ZGH
             LEFT JOIN T_KC_KCB kcb ON COURSE_ID = kcb.KCH
             LEFT JOIN T_CLASSROOM_INFO ci ON ca.CLASSROOM_CODE = ci.CLASSROOM_CODE
-          WHERE TECH_CLASS_CODE in (
+          WHERE ${cardnum.startsWith('21') ? 'TECH_CLASS_CODE' : 'COURSE_ID'} in (
             SELECT TEACH_CLASS_CODE
               FROM T_NEW_COURSE_SELECTION
             WHERE PERSON_IN_CHARGE_SEUCARD_ID = :cardnum
