@@ -92,13 +92,13 @@ exports.route = {
             kcb.XF,
             kcb.KCH,
             ci.CLASSROOM_NAME
-          FROM T_COURSE_ARRANGE ca
+          FROM T_NEW_COURSE_ARRANGE ca
             LEFT JOIN T_JZG_JBXX jzg ON FACULTY_ID = jzg.ZGH
             LEFT JOIN T_KC_KCB kcb ON COURSE_ID = kcb.KCH
             LEFT JOIN T_CLASSROOM_INFO ci ON ca.CLASSROOM_CODE = ci.CLASSROOM_CODE
           WHERE TECH_CLASS_CODE in (
             SELECT TEACH_CLASS_CODE
-              FROM T_COURSE_SELECTION
+              FROM T_NEW_COURSE_SELECTION
             WHERE PERSON_IN_CHARGE_SEUCARD_ID = :cardnum
               AND ACADEMIC_YEAR_CODE = :academicYear
               AND ACADEMIC_TERM_CODE = :academicTerm
