@@ -110,8 +110,6 @@ exports.route = {
           }
         )
 
-        // console.log(result)
-
         curriculum = result.rows
           .map(course => {
             return {
@@ -128,6 +126,30 @@ exports.route = {
             }
           })
 
+        for (let i = 0; i < curriculum.length; i++) {
+          for (let j = i + 1; j < curriculum.length; j++) {
+            if (curriculum[i].courseName === curriculum[j].courseName
+              && curriculum[i].teacherName === curriculum[j].teacherName
+              && curriculum[i].beginWeek === curriculum[j].beginWeek
+              && curriculum[i].endWeek === curriculum[j].endWeek
+              && curriculum[i].location === curriculum[j].location
+              && curriculum[i].dayOfWeek === curriculum[j].dayOfWeek) {
+
+              if (curriculum[i].endPeriod === curriculum[j].beginPeriod - 1) {
+                curriculum[j].beginPeriod = curriculum[i].beginPeriod
+                curriculum[i] = null
+                break
+              }
+              else if (curriculum[i].beginPeriod === curriculum[j].endPeriod + 1) {
+                curriculum[j].endPeriod = curriculum[i].endPeriod
+                curriculum[i] = null
+                break
+              }
+            }
+          }
+        }
+
+        curriculum = curriculum.filter(item => item)
         return curriculum
       })
     }
