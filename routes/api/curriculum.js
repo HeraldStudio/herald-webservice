@@ -120,7 +120,7 @@ exports.route = {
               endWeek: +course[1],
               location: course[11],
               dayOfWeek: +course[3],
-              flip: +course[2] ? (+course[2] == 1 ? 'even' : 'odd') : 'none',
+              flip: +course[2] ? (+course[2] == 1 ? 'odd' : 'even') : 'none',
               beginPeriod: +course[4],
               endPeriod: +course[5]
             }
