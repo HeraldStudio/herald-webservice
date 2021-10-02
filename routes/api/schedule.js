@@ -13,6 +13,6 @@ exports.route = {
       throw 401
     }
     // 将校历图片上传到outline服务器，直接图片连接
-    return 'https://tommy.seu.edu.cn/static/images/2020-2021.jpg'
+    return 'https://tommy.seu.edu.cn/static/images/2021-2022.jpg'
   }
 }
