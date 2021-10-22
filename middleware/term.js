@@ -140,7 +140,7 @@ module.exports = async (ctx, next) => {
     },
     {
       name: '2021-2022-1',
-      startDate: 1630281600000,
+      startDate: 1630886400000,
       endDate: 1639872000000
     }
   ] : Object.keys(config.term).map(k => {
