@@ -150,6 +150,47 @@ exports.route = {
         }
 
         curriculum = curriculum.filter(item => item)
+
+        let myResult = await this.db.execute(
+          `
+          SELECT COURSENAME, TEACHERNAME, BEGINWEEK, ENDWEEK, DAYOFWEEK, FLIP, BEGINPERIOD, ENDPERIOD, LOCATION, WID
+          FROM H_MY_COURSE
+          WHERE OWNER = :cardnum and SEMESTER = :termName
+          `,
+          {
+            cardnum,
+            termName: term.name,
+          }
+        )
+        myResult.rows.forEach((Element) => {
+          let [
+            courseName,
+            teacherName,
+            beginWeek,
+            endWeek,
+            dayOfWeek,
+            flip,
+            beginPeriod,
+            endPeriod,
+            location,
+            _id,
+          ] = Element
+          const course = {
+            _id: _id,
+            courseName: courseName,
+            teacherName: teacherName,
+            beginWeek: beginWeek,
+            endWeek: endWeek,
+            dayOfWeek: dayOfWeek,
+            flip: flip,
+            beginPeriod: beginPeriod,
+            endPeriod: endPeriod,
+            location: location,
+            credit: "学分未知",
+          }
+          curriculum.push(course)
+        })
+
         return curriculum
       })
     }
