@@ -84,10 +84,36 @@ exports.route = {
   * @apiGroup lecture
   * @apiParam {String} id 打卡记录ID
   */
-  async delete({id}) {
+  async delete({id, all, location, datestr, byDate, beginTime, endTime}) {
     if (!(await this.hasPermission('lecturerecord'))) {
       throw 403
     }
+
+    if (all === 'true') {
+      await this.db.execute(`
+        UPDATE H_LECTURE_CARDRECORD
+        SET DELETED = 1
+        WHERE LOCATION = :location AND DATESTR = :datestr
+      `, {
+        location, datestr
+      })
+      return '删除成功'
+    }
+
+    if (byDate === 'true') {
+      await this.db.execute(`
+        UPDATE H_LECTURE_CARDRECORD
+        SET DELETED = 1
+        WHERE LOCATION = :location AND DATESTR = :datestr AND TIMESTAMP >= :beginTime AND TIMESTAMP <= :endTime
+      `, {
+        location, datestr, beginTime, endTime
+      })
+      return '删除成功'
+    }
+
+    if (!id)
+      throw "未提供ID"
+
     await this.db.execute(`
       UPDATE H_LECTURE_CARDRECORD
       SET DELETED = 1
