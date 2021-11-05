@@ -326,7 +326,7 @@ exports.route = {
           let detail = []
 
           // 暂停查询
-          if (['213183580', '213181432', '213162317'].indexOf(cardnum) !== -1)
+          if (['213183580', '213181432', '213162317', '213170385'].indexOf(cardnum) !== -1)
             indexList.forEach((detailIndex) => {
               detail.push(rawDetail[detailIndex])
             })
