@@ -5,7 +5,7 @@ const fs = require('fs')
 const program = require('commander')
 const chalk = require('chalk')
 
-require('./worker/morningExerciseEmailSend')
+// require('./worker/morningExerciseEmailSend')
 
 program
   .version('1.0.0')
