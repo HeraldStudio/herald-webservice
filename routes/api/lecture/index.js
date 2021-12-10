@@ -10,11 +10,15 @@ exports.route = {
     let cardnum = this.user.cardnum
     let name = this.user.name
     let rawResult = await this.db.execute(`
-        SELECT CARDNUM, NAME, LOCATION, DATESTR, TIMESTAMP
-        FROM H_LECTURE_CARDRECORD
-        WHERE CARDNUM = :cardnum AND NAME = :name AND DELETED = 0
-        GROUP BY CARDNUM, NAME, LOCATION, DATESTR, TIMESTAMP
-        ORDER BY TIMESTAMP`,{
+      SELECT TMP.CARDNUM, TMP.NAME AS NAME, TMP.LOCATION, TMP.DATESTR, TMP.TIMESTAMP, HLH.NAME AS LECNAME, HLH.URL
+      FROM (SELECT CARDNUM, NAME, LOCATION, DATESTR, TIMESTAMP, LECTURE_ID
+      FROM H_LECTURE_CARDRECORD
+      WHERE CARDNUM = :cardnum AND NAME = :name AND DELETED = 0
+      GROUP BY CARDNUM, NAME, LOCATION, DATESTR, TIMESTAMP, LECTURE_ID
+      ORDER BY TIMESTAMP) TMP
+      INNER JOIN H_LECTURE_HISTORY HLH
+      ON TMP.LECTURE_ID = HLH.ID
+    `,{
       cardnum, name
     })
     let result1 = []
@@ -40,12 +44,10 @@ exports.route = {
         // 如果存在当日当地讲座具体记录
         if(result2[r[3]][r[2]].length < this.lectureMap[r[3]][r[2]].length){
           // 并且当日当地的讲座记录多于当前查询人当日当地的打卡记录
-          let index = result2[r[3]][r[2]].length
-          let history = this.lectureMap[r[3]][r[2]][index]
-          let [cardnum, name, location, dateStr, timestamp] = r
+          let [cardnum, name, location, dateStr, timestamp, lecName, url] = r
           let ret = {cardnum, name, location, dateStr, timestamp}
-          ret.lectureTitle = history.name
-          ret.lectureUrl = history.url
+          ret.lectureTitle = lecName
+          ret.lectureUrl = url
           result2[r[3]][r[2]].push(ret)
         }
       } 

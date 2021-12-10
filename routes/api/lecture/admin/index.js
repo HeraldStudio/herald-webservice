@@ -60,28 +60,12 @@ exports.route = {
     if (!(id)) {
       throw '参数不全'
     }
-    // 选出讲座对应的lectureMap, 用于后续删除打卡记录使用
-    let lectureResult = await this.db.execute(`
-      SELECT NAME, DATESTR, LOCATION
-      FROM H_LECTURE_HISTORY
-      WHERE ID = :id AND DELETED = 0
-    `, {id})
-    let lectureMap = {}
-    lectureMap[lectureResult.rows[0][1]] = {}
-    lectureMap[lectureResult.rows[0][1]][lectureResult.rows[0][2]] = [{
-      name: lectureResult.rows[0][0],
-      dateStr: lectureResult.rows[0][1],
-      location: lectureResult.rows[0][2]
-    }]
     // 删除当场讲座的打卡记录
     await this.db.execute(`
       UPDATE H_LECTURE_CARDRECORD 
       SET DELETED = 1
-      WHERE DATESTR = :dateStr AND LOCATION = :location AND DELETED = 0
-    `, {
-      dateStr: lectureResult.rows[0][1],
-      location: lectureResult.rows[0][2]
-    })
+      WHERE LECTURE_ID = :id AND DELETED = 0
+    `, { id })
     // 删除讲座记录
     await this.db.execute(`
       UPDATE H_LECTURE_HISTORY
