@@ -92,7 +92,7 @@ exports.route = {
       await this.db.execute(`
         UPDATE H_LECTURE_CARDRECORD
         SET DELETED = 1
-        WHERE ECTURE_ID = :lectureID AND TIMESTAMP >= :beginTime AND TIMESTAMP <= :endTime
+        WHERE LECTURE_ID = :lectureID AND TIMESTAMP >= :beginTime AND TIMESTAMP <= :endTime
       `, {
         lectureID, beginTime, endTime
       })
