@@ -110,37 +110,39 @@ exports.route = {
           }
         )
 
-        curriculum = result.rows
-          .map(course => {
-            return {
-              courseName: course[7],
-              teacherName: course[6],
-              credit: +course[9],
-              beginWeek: +course[0],
-              endWeek: +course[1],
-              location: course[11],
-              dayOfWeek: +course[3],
-              flip: +course[2] ? (+course[2] == 1 ? 'odd' : 'even') : 'none',
-              beginPeriod: +course[4],
-              endPeriod: +course[5]
-            }
-          })
+        curriculum = result.rows.map((course) => {
+          return {
+            courseName: course[7],
+            teacherName: course[6],
+            credit: +course[9],
+            beginWeek: +course[0],
+            endWeek: +course[1],
+            location: course[11],
+            dayOfWeek: +course[3],
+            flip: +course[2] ? (+course[2] == 1 ? "odd" : "even") : "none",
+            beginPeriod: +course[4],
+            endPeriod: +course[5],
+          }
+        })
 
         for (let i = 0; i < curriculum.length; i++) {
           for (let j = i + 1; j < curriculum.length; j++) {
-            if (curriculum[i].courseName === curriculum[j].courseName
-              && curriculum[i].teacherName === curriculum[j].teacherName
-              && curriculum[i].beginWeek === curriculum[j].beginWeek
-              && curriculum[i].endWeek === curriculum[j].endWeek
-              && curriculum[i].location === curriculum[j].location
-              && curriculum[i].dayOfWeek === curriculum[j].dayOfWeek) {
-
+            if (
+              curriculum[i].courseName === curriculum[j].courseName &&
+              curriculum[i].teacherName === curriculum[j].teacherName &&
+              curriculum[i].beginWeek === curriculum[j].beginWeek &&
+              curriculum[i].endWeek === curriculum[j].endWeek &&
+              curriculum[i].location === curriculum[j].location &&
+              curriculum[i].dayOfWeek === curriculum[j].dayOfWeek
+            ) {
               if (curriculum[i].endPeriod === curriculum[j].beginPeriod - 1) {
                 curriculum[j].beginPeriod = curriculum[i].beginPeriod
                 curriculum[i] = null
                 break
-              }
-              else if (curriculum[i].beginPeriod === curriculum[j].endPeriod + 1) {
+              } else if (
+                curriculum[i].beginPeriod ===
+                curriculum[j].endPeriod + 1
+              ) {
                 curriculum[j].endPeriod = curriculum[i].endPeriod
                 curriculum[i] = null
                 break
@@ -149,48 +151,7 @@ exports.route = {
           }
         }
 
-        curriculum = curriculum.filter(item => item)
-
-        let myResult = await this.db.execute(
-          `
-          SELECT COURSENAME, TEACHERNAME, BEGINWEEK, ENDWEEK, DAYOFWEEK, FLIP, BEGINPERIOD, ENDPERIOD, LOCATION, WID
-          FROM H_MY_COURSE
-          WHERE OWNER = :cardnum and SEMESTER = :termName
-          `,
-          {
-            cardnum,
-            termName: term.name,
-          }
-        )
-        myResult.rows.forEach((Element) => {
-          let [
-            courseName,
-            teacherName,
-            beginWeek,
-            endWeek,
-            dayOfWeek,
-            flip,
-            beginPeriod,
-            endPeriod,
-            location,
-            _id,
-          ] = Element
-          const course = {
-            _id: _id,
-            courseName: courseName,
-            teacherName: teacherName,
-            beginWeek: beginWeek,
-            endWeek: endWeek,
-            dayOfWeek: dayOfWeek,
-            flip: flip,
-            beginPeriod: beginPeriod,
-            endPeriod: endPeriod,
-            location: location,
-            credit: "学分未知",
-          }
-          curriculum.push(course)
-        })
-
+        curriculum = curriculum.filter((item) => item)
         return curriculum
       })
     }
@@ -279,45 +240,6 @@ exports.route = {
           if (course.endWeek) curriculum.push(course)
         })
         return curriculum
-      })
-      let myResult = await this.db.execute(
-        `
-        SELECT COURSENAME, TEACHERNAME, BEGINWEEK, ENDWEEK, DAYOFWEEK, FLIP, BEGINPERIOD, ENDPERIOD, LOCATION, WID
-        FROM H_MY_COURSE
-        WHERE OWNER = :cardnum and SEMESTER = :termName
-        `,
-        {
-          cardnum,
-          termName: term.name,
-        }
-      )
-      myResult.rows.map((Element) => {
-        let [
-          courseName,
-          teacherName,
-          beginWeek,
-          endWeek,
-          dayOfWeek,
-          flip,
-          beginPeriod,
-          endPeriod,
-          location,
-          _id,
-        ] = Element
-        const course = {
-          _id: _id,
-          courseName: courseName,
-          teacherName: teacherName,
-          beginWeek: beginWeek,
-          endWeek: endWeek,
-          dayOfWeek: dayOfWeek,
-          flip: flip,
-          beginPeriod: beginPeriod,
-          endPeriod: endPeriod,
-          location: location,
-          credit: "学分未知",
-        }
-        curriculum.push(course)
       })
       // 前端要求，除去值为null的字段
       curriculum.forEach((Element) => {
@@ -605,46 +527,6 @@ exports.route = {
       })
       term = result.term
       curriculum = result.curriculum
-      // 添加自定义课程
-      let myResult = await this.db.execute(
-        `
-SELECT COURSENAME, TEACHERNAME, BEGINWEEK, ENDWEEK, DAYOFWEEK, FLIP, BEGINPERIOD, ENDPERIOD, LOCATION, WID
-FROM H_MY_COURSE
-WHERE OWNER = :cardnum and SEMESTER = :termName
-`,
-        {
-          cardnum,
-          termName: term.name,
-        }
-      )
-      myResult.rows.map((Element) => {
-        let [
-          courseName,
-          teacherName,
-          beginWeek,
-          endWeek,
-          dayOfWeek,
-          flip,
-          beginPeriod,
-          endPeriod,
-          location,
-          id,
-        ] = Element
-        const course = {
-          courseName: courseName,
-          teacherName: teacherName,
-          beginWeek: beginWeek,
-          endWeek: endWeek,
-          dayOfWeek: dayOfWeek,
-          flip: flip,
-          beginPeriod: beginPeriod,
-          endPeriod: endPeriod,
-          location: location,
-          credit: "学分未知",
-          _id: id,
-        }
-        curriculum.push(course)
-      })
     } else if (/^22/.test(cardnum)) {
       // 研究生版
       // await this.useAuthCookie()
@@ -785,6 +667,46 @@ WHERE OWNER = :cardnum and SEMESTER = :termName
     } else {
       curriculum = []
     }
+
+    let myResult = await this.db.execute(
+      `
+      SELECT COURSENAME, TEACHERNAME, BEGINWEEK, ENDWEEK, DAYOFWEEK, FLIP, BEGINPERIOD, ENDPERIOD, LOCATION, WID
+      FROM H_MY_COURSE
+      WHERE OWNER = :cardnum and SEMESTER = :termName
+      `,
+      {
+        cardnum,
+        termName: term.name,
+      }
+    )
+    myResult.rows.forEach((Element) => {
+      let [
+        courseName,
+        teacherName,
+        beginWeek,
+        endWeek,
+        dayOfWeek,
+        flip,
+        beginPeriod,
+        endPeriod,
+        location,
+        _id,
+      ] = Element
+      const course = {
+        _id: _id,
+        courseName: courseName,
+        teacherName: teacherName,
+        beginWeek: beginWeek,
+        endWeek: endWeek,
+        dayOfWeek: dayOfWeek,
+        flip: flip,
+        beginPeriod: beginPeriod,
+        endPeriod: endPeriod,
+        location: location,
+        credit: "学分未知",
+      }
+      curriculum.push(course)
+    })
 
     // if 本科生 / 研究生
     // 给有上课时间的课程添加上课具体周次、每周上课的具体起止时间戳
