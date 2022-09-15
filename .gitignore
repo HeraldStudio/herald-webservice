@@ -25,4 +25,5 @@ newxk/
 database/mongodb-secret.json
 database/mongodb-secret.js
 apn-secret/
+database/oracle-secret.js
 database/oracle-secret-test.js
