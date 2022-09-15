@@ -6,9 +6,9 @@ exports.route = {
   * @returns [{id, cardnum, name, location, timestamp}]
   */
   async get({lectureID}) {
-    // if (!(await this.hasPermission('lecturerecord'))) {
-    //   throw 403
-    // }
+    if (!(await this.hasPermission('lecturerecord'))) {
+      throw 403
+    }
     if (!lectureID) {
       throw '参数不全'
     }
