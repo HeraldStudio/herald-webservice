@@ -4,9 +4,9 @@ exports.route = {
   * @apiGroup lecture
   */
   async get() {
-    // if (!(await this.hasPermission('lecturerecord'))) {
-    //   throw 403
-    // }
+    if (!(await this.hasPermission('lecturerecord'))) {
+      throw 403
+    }
     let records = await this.db.execute(`
       SELECT ID, NAME, DATESTR, LOCATION, URL
       FROM H_LECTURE_HISTORY

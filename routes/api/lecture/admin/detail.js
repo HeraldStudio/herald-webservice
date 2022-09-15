@@ -4,9 +4,9 @@ exports.route = {
   * @apiGroup lecture
   */
   async get({id}) {
-    // if (!(await this.hasPermission('lecturerecord'))) {
-    //   throw 403
-    // }
+    if (!(await this.hasPermission('lecturerecord'))) {
+      throw 403
+    }
     if (!id) {
       throw "参数不全"
     }
